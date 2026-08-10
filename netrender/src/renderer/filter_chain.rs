@@ -128,7 +128,11 @@ impl Renderer {
         let format = wgpu::TextureFormat::Rgba8Unorm;
         let pipe = self.wgpu_device.ensure_color_matrix(format);
         let sampler = make_bilinear_sampler(&device);
-        let extent = wgpu::Extent3d { width: dim, height: dim, depth_or_array_layers: 1 };
+        let extent = wgpu::Extent3d {
+            width: dim,
+            height: dim,
+            depth_or_array_layers: 1,
+        };
 
         const INPUT: TaskId = 1;
         const CM: TaskId = 2;
@@ -197,9 +201,12 @@ impl Renderer {
                     continue;
                 };
                 let bounds = match &l.clip {
-                    SceneClip::None => {
-                        [0.0, 0.0, scene.viewport_width as f32, scene.viewport_height as f32]
-                    },
+                    SceneClip::None => [
+                        0.0,
+                        0.0,
+                        scene.viewport_width as f32,
+                        scene.viewport_height as f32,
+                    ],
                     SceneClip::Rect { rect, .. } => *rect,
                     SceneClip::Path(path) => path.local_aabb().unwrap_or([
                         0.0,
@@ -231,7 +238,12 @@ impl Renderer {
 
             let vw = scene.viewport_width as f32;
             let vh = scene.viewport_height as f32;
-            let uv = [bounds[0] / vw, bounds[1] / vh, bounds[2] / vw, bounds[3] / vh];
+            let uv = [
+                bounds[0] / vw,
+                bounds[1] / vh,
+                bounds[2] / vw,
+                bounds[3] / vh,
+            ];
 
             let cur_push = (push_idx as isize + offset) as usize;
             let cur_pop = (pop_idx as isize + offset) as usize;
@@ -263,7 +275,9 @@ impl Renderer {
                 nearest: false,
             });
             // Replace the (non-backdrop) interior with the single filtered image.
-            processed.ops.splice(content_start..cur_pop, std::iter::once(image));
+            processed
+                .ops
+                .splice(content_start..cur_pop, std::iter::once(image));
             // Clear the layer's filters so it re-enters the no-filter fast path,
             // applying alpha/blend/clip over the filtered image.
             if let SceneOp::PushLayer(l) = &mut processed.ops[cur_push] {

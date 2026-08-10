@@ -292,7 +292,6 @@ fn build_image_cache(
     cache
 }
 
-
 /// Push a clip layer for the given clip rect + per-corner radii.
 /// Zero radii produce a sharp axis-aligned rect clip (legacy behavior);
 /// non-zero radii produce a `kurbo::RoundedRect` clip (Phase 9'). The

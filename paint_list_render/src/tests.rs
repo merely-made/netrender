@@ -7,8 +7,8 @@
 use crate::composite::merge_layers;
 
 use paint_list_api::{
-    ColorF, CommonPlacement, DeviceIntSize, EngineId, LayoutPoint, LayoutRect, PaintCmd,
-    PaintList, PrimitiveFlags, RectItem,
+    ColorF, CommonPlacement, DeviceIntSize, EngineId, LayoutPoint, LayoutRect, PaintCmd, PaintList,
+    PrimitiveFlags, RectItem,
 };
 use serde::{Deserialize, Serialize};
 
@@ -80,7 +80,11 @@ fn translucent_colors_premultiply_at_lowering() {
         })
         .expect("one rect");
 
-    assert_eq!(rect_color, [0.5, 0.0, 0.0, 0.5], "premultiplied, alpha intact");
+    assert_eq!(
+        rect_color,
+        [0.5, 0.0, 0.0, 0.5],
+        "premultiplied, alpha intact"
+    );
 }
 
 #[test]
@@ -117,11 +121,21 @@ fn draw_rect_emits_scene_rect() {
 fn commands_only_layers_concatenate_into_one_scene() {
     let underlay = vec![PaintCmd::DrawRect(RectItem {
         placement: placement_at(box2d(0.0, 0.0, 10.0, 10.0)),
-        color: ColorF { r: 1.0, g: 0.0, b: 0.0, a: 1.0 },
+        color: ColorF {
+            r: 1.0,
+            g: 0.0,
+            b: 0.0,
+            a: 1.0,
+        },
     })];
     let doc = vec![PaintCmd::DrawRect(RectItem {
         placement: placement_at(box2d(5.0, 5.0, 10.0, 10.0)),
-        color: ColorF { r: 0.0, g: 0.0, b: 1.0, a: 1.0 },
+        color: ColorF {
+            r: 0.0,
+            g: 0.0,
+            b: 1.0,
+            a: 1.0,
+        },
     })];
     let layers = [
         CompositeLayer::commands_only(&underlay),
@@ -166,15 +180,27 @@ fn merge_namespaces_colliding_font_keys() {
     let (f0, c0) = mk(0xAA);
     let (f1, c1) = mk(0xBB);
     let layers = [
-        CompositeLayer { commands: &c0, fonts: &f0, images: &[] },
-        CompositeLayer { commands: &c1, fonts: &f1, images: &[] },
+        CompositeLayer {
+            commands: &c0,
+            fonts: &f0,
+            images: &[],
+        },
+        CompositeLayer {
+            commands: &c1,
+            fonts: &f1,
+            images: &[],
+        },
     ];
     let (commands, fonts, images) = merge_layers(&layers);
 
     assert!(images.is_empty());
     assert_eq!(fonts.len(), 2, "both fonts survive the merge");
     assert_ne!(fonts[0].key, fonts[1].key, "colliding keys made distinct");
-    assert_eq!(*fonts[0].data, vec![0xAA], "font bytes paired to the right new key");
+    assert_eq!(
+        *fonts[0].data,
+        vec![0xAA],
+        "font bytes paired to the right new key"
+    );
     assert_eq!(*fonts[1].data, vec![0xBB]);
     let text_keys: Vec<_> = commands
         .iter()
@@ -206,7 +232,12 @@ fn draw_stroke_emits_stroked_scene_shape() {
                     PathCommand::LineTo(LayoutPoint::new(100.0, 80.0)),
                 ],
             },
-            color: ColorF { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
+            color: ColorF {
+                r: 0.0,
+                g: 0.0,
+                b: 0.0,
+                a: 1.0,
+            },
             width: 2.0,
             cap: StrokeCap::Butt,
             join: StrokeJoin::Miter,
@@ -241,11 +272,19 @@ fn draw_stroke_carries_cap_join_dash() {
                     PathCommand::LineTo(LayoutPoint::new(100.0, 80.0)),
                 ],
             },
-            color: ColorF { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
+            color: ColorF {
+                r: 0.0,
+                g: 0.0,
+                b: 0.0,
+                a: 1.0,
+            },
             width: 2.0,
             cap: StrokeCap::Round,
             join: StrokeJoin::Round,
-            dash: Some(DashPattern { intervals: vec![5.0, 3.0], offset: 1.0 }),
+            dash: Some(DashPattern {
+                intervals: vec![5.0, 3.0],
+                offset: 1.0,
+            }),
         })],
     );
     let scene = translate_paint_list(&list);
@@ -307,7 +346,10 @@ fn push_layer_carries_filter_chain() {
     };
     assert_eq!(
         layer.filters,
-        vec![netrender::SceneFilter::Grayscale(1.0), netrender::SceneFilter::Blur(2.0)],
+        vec![
+            netrender::SceneFilter::Grayscale(1.0),
+            netrender::SceneFilter::Blur(2.0)
+        ],
         "color/blur ops map to SceneLayer.filters in order"
     );
     assert_eq!(layer.alpha, 0.5, "opacity() folds into the layer alpha");

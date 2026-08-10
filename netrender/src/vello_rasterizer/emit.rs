@@ -221,7 +221,11 @@ pub(super) fn emit_shape(vscene: &mut vello::Scene, shape: &SceneShape, transfor
     }
 }
 
-pub(super) fn emit_stroke(vscene: &mut vello::Scene, stroke: &SceneStroke, transforms: &[Transform]) {
+pub(super) fn emit_stroke(
+    vscene: &mut vello::Scene,
+    stroke: &SceneStroke,
+    transforms: &[Transform],
+) {
     let affine = transform_to_affine(&transforms[stroke.transform_id as usize]);
     let rect = Rect::new(
         stroke.x0 as f64,
@@ -321,4 +325,3 @@ pub(super) fn emit_push_layer(vscene: &mut vello::Scene, layer: &SceneLayer, sce
         }
     }
 }
-

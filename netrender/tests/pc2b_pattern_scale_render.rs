@@ -33,7 +33,11 @@ fn make_renderer(device: &wgpu::Device) -> Renderer {
 fn make_target(device: &wgpu::Device) -> (wgpu::Texture, wgpu::TextureView) {
     let texture = device.create_texture(&wgpu::TextureDescriptor {
         label: Some("pc2b pattern target"),
-        size: wgpu::Extent3d { width: DIM, height: DIM, depth_or_array_layers: 1 },
+        size: wgpu::Extent3d {
+            width: DIM,
+            height: DIM,
+            depth_or_array_layers: 1,
+        },
         mip_level_count: 1,
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
@@ -88,7 +92,11 @@ fn two_band_image() -> ImageData {
     let mut bytes = Vec::with_capacity((w * h * 4) as usize);
     for y in 0..h {
         for _x in 0..w {
-            let p: [u8; 4] = if y < h / 2 { [0, 255, 0, 255] } else { [0, 255, 255, 255] };
+            let p: [u8; 4] = if y < h / 2 {
+                [0, 255, 0, 255]
+            } else {
+                [0, 255, 255, 255]
+            };
             bytes.extend_from_slice(&p);
         }
     }
@@ -119,12 +127,18 @@ fn pc2b_scaled_pattern_tile_is_image_times_scale() {
     // Top band (lime) at y=8 and y=24 — both inside the 0..32 lime half.
     for y in [8, 24] {
         let p = px(&b, 8, y);
-        assert!(p[0] < 60 && p[1] > 180 && p[2] < 60, "lime at y={y}, got {p:?}");
+        assert!(
+            p[0] < 60 && p[1] > 180 && p[2] < 60,
+            "lime at y={y}, got {p:?}"
+        );
     }
     // Bottom band (aqua) at y=40 and y=56 — inside the 32..64 aqua half.
     for y in [40, 56] {
         let p = px(&b, 8, y);
-        assert!(p[0] < 60 && p[1] > 180 && p[2] > 180, "aqua at y={y}, got {p:?}");
+        assert!(
+            p[0] < 60 && p[1] > 180 && p[2] > 180,
+            "aqua at y={y}, got {p:?}"
+        );
     }
 }
 
@@ -153,10 +167,16 @@ fn pc2b_scaled_pattern_under_world_translate() {
     // world y = local y + 20. Lime half local 0..32 → world 20..52; aqua 52..84.
     for y in [28, 44] {
         let p = px(&b, 8, y);
-        assert!(p[0] < 60 && p[1] > 180 && p[2] < 60, "lime at world y={y}, got {p:?}");
+        assert!(
+            p[0] < 60 && p[1] > 180 && p[2] < 60,
+            "lime at world y={y}, got {p:?}"
+        );
     }
     for y in [60, 76] {
         let p = px(&b, 8, y);
-        assert!(p[0] < 60 && p[1] > 180 && p[2] > 180, "aqua at world y={y}, got {p:?}");
+        assert!(
+            p[0] < 60 && p[1] > 180 && p[2] > 180,
+            "aqua at world y={y}, got {p:?}"
+        );
     }
 }

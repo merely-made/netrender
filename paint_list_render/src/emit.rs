@@ -9,12 +9,10 @@ use std::collections::HashMap;
 
 use log::warn;
 use netrender::{
-    GradientKind, ImageKey as NrImageKey, NO_CLIP, SHARP_CLIP, Scene,
-    SceneBlendMode, SceneClip, SceneLayer, SceneStroke, SceneStrokeCap, SceneStrokeJoin, Transform,
+    GradientKind, ImageKey as NrImageKey, NO_CLIP, SHARP_CLIP, Scene, SceneBlendMode, SceneClip,
+    SceneLayer, SceneStroke, SceneStrokeCap, SceneStrokeJoin, Transform,
 };
-use paint_list_api::{
-    self as ple, ColorF, ImageKey,
-};
+use paint_list_api::{self as ple, ColorF, ImageKey};
 use crate::convert::*;
 
 pub(crate) const BOX_SHADOW_MASK_KEY_BASE: u64 = 0xFFFF_0000_0000_0000;
@@ -65,7 +63,7 @@ pub(crate) fn emit_push_clip(scene: &mut Scene, spec: &ple::ClipSpec, tid: u32) 
                 rect: [x0, y0, x1, y1],
                 radii: [0.0, 0.0, 0.0, 0.0],
             }
-        },
+        }
         ple::ClipKind::RoundedRect { rect, radius, .. } => {
             let (x0, y0, x1, y1) = rect_corners(rect);
             SceneClip::Rect {
@@ -77,7 +75,7 @@ pub(crate) fn emit_push_clip(scene: &mut Scene, spec: &ple::ClipSpec, tid: u32) 
                     radius.bottom_left.width,
                 ],
             }
-        },
+        }
         // Arbitrary-path clip (CSS clip-path basic shapes). The scene + vello
         // rasterizer already lower `SceneClip::Path` to a kurbo BezPath clip
         // (Phase 9b'); reuse the same path reconstruction as DrawPath.
@@ -138,10 +136,11 @@ pub(crate) fn emit_push_layer(scene: &mut Scene, spec: &ple::LayerSpec, tid: u32
             alpha *= *a;
         }
     }
-    let filters: Vec<netrender::SceneFilter> = spec.filters.iter().filter_map(filter_op_to_scene).collect();
+    let filters: Vec<netrender::SceneFilter> =
+        spec.filters.iter().filter_map(filter_op_to_scene).collect();
     let _ = spec.raster_space; // Local vs Screen — deferred
-    let _ = spec.flags;        // BLEND_CONTAINER etc. — deferred
-    let _ = &spec.mask;        // alpha-mask layer — deferred
+    let _ = spec.flags; // BLEND_CONTAINER etc. — deferred
+    let _ = &spec.mask; // alpha-mask layer — deferred
     scene.push_layer(SceneLayer {
         clip: SceneClip::None,
         alpha,
@@ -175,25 +174,36 @@ pub(crate) fn emit_nine_patch(
         ple::NinePatchSource::Image(k, _rendering) => match image_map.get(&k) {
             Some(&nr) => nr,
             None => {
-                warn!("[paint translator] nine-patch source image {:?} unregistered; skipping", k);
+                warn!(
+                    "[paint translator] nine-patch source image {:?} unregistered; skipping",
+                    k
+                );
                 return;
-            },
+            }
         },
         // Gradient sources emit directly elsewhere; only image sources slice here.
         _ => {
             warn!("[paint translator] nine-patch gradient source deferred");
             return;
-        },
+        }
     };
     let (w, h) = (np.width as f32, np.height as f32);
     if w <= 0.0 || h <= 0.0 {
         return;
     }
     let (dx0, dy0, dx1, dy1) = rect_corners(&border.placement.bounds);
-    let (wt, wr, wb, wl) =
-        (border.widths.top, border.widths.right, border.widths.bottom, border.widths.left);
-    let (st, sr, sb, sl) =
-        (np.slice.top as f32, np.slice.right as f32, np.slice.bottom as f32, np.slice.left as f32);
+    let (wt, wr, wb, wl) = (
+        border.widths.top,
+        border.widths.right,
+        border.widths.bottom,
+        border.widths.left,
+    );
+    let (st, sr, sb, sl) = (
+        np.slice.top as f32,
+        np.slice.right as f32,
+        np.slice.bottom as f32,
+        np.slice.left as f32,
+    );
 
     // Sample source px-rect (sx0,sy0)-(sx1,sy1) onto dest rect (a,b)-(c,d), scaled.
     // `push_image_clamped` crops to the UV sub-rect so a slice region never bleeds
@@ -251,9 +261,13 @@ pub(crate) fn emit_nine_patch(
         // One tile covering dest along [a0,a1] sampling source along [su0,su1].
         let put = |scene: &mut Scene, a0: f32, a1: f32, su0: f32, su1: f32| {
             if horizontal {
-                img(scene, a0, d_cross_lo, a1, d_cross_hi, su0, s_cross_lo, su1, s_cross_hi);
+                img(
+                    scene, a0, d_cross_lo, a1, d_cross_hi, su0, s_cross_lo, su1, s_cross_hi,
+                );
             } else {
-                img(scene, d_cross_lo, a0, d_cross_hi, a1, s_cross_lo, su0, s_cross_hi, su1);
+                img(
+                    scene, d_cross_lo, a0, d_cross_hi, a1, s_cross_lo, su0, s_cross_hi, su1,
+                );
             }
         };
         // Natural tile along-length: the source strip scaled so its cross fills the
@@ -269,7 +283,7 @@ pub(crate) fn emit_nine_patch(
                     let a0 = d_along_lo + i as f32 * t;
                     put(scene, a0, a0 + t, s_along_lo, s_along_hi);
                 }
-            },
+            }
             ple::RepeatMode::Space => {
                 // Whole tiles at natural size with equal gaps; first/last at the
                 // edges. None if not even one fits.
@@ -277,14 +291,22 @@ pub(crate) fn emit_nine_patch(
                 if n < 1.0 {
                     return;
                 }
-                let gap = if n > 1.0 { (d_len - n * natural) / (n - 1.0) } else { 0.0 };
+                let gap = if n > 1.0 {
+                    (d_len - n * natural) / (n - 1.0)
+                } else {
+                    0.0
+                };
                 // A lone tile (no room for two) centers in the edge.
-                let base = if n == 1.0 { d_along_lo + (d_len - natural) / 2.0 } else { d_along_lo };
+                let base = if n == 1.0 {
+                    d_along_lo + (d_len - natural) / 2.0
+                } else {
+                    d_along_lo
+                };
                 for i in 0..(n as usize) {
                     let a0 = base + i as f32 * (natural + gap);
                     put(scene, a0, a0 + natural, s_along_lo, s_along_hi);
                 }
-            },
+            }
             ple::RepeatMode::Repeat => {
                 // Whole tiles from the start, then a UV-cropped partial.
                 let mut a0 = d_along_lo;
@@ -296,19 +318,81 @@ pub(crate) fn emit_nine_patch(
                     a0 += natural;
                     guard += 1;
                 }
-            },
+            }
         }
     }
 
     // Top + bottom edges (horizontal), then left + right (vertical).
-    tile_edge(scene, &img, true, dx0 + wl, dx1 - wr, dy0, dy0 + wt, sl, w - sr, 0.0, st, np.repeat_horizontal);
-    tile_edge(scene, &img, true, dx0 + wl, dx1 - wr, dy1 - wb, dy1, sl, w - sr, h - sb, h, np.repeat_horizontal);
-    tile_edge(scene, &img, false, dy0 + wt, dy1 - wb, dx0, dx0 + wl, st, h - sb, 0.0, sl, np.repeat_vertical);
-    tile_edge(scene, &img, false, dy0 + wt, dy1 - wb, dx1 - wr, dx1, st, h - sb, w - sr, w, np.repeat_vertical);
+    tile_edge(
+        scene,
+        &img,
+        true,
+        dx0 + wl,
+        dx1 - wr,
+        dy0,
+        dy0 + wt,
+        sl,
+        w - sr,
+        0.0,
+        st,
+        np.repeat_horizontal,
+    );
+    tile_edge(
+        scene,
+        &img,
+        true,
+        dx0 + wl,
+        dx1 - wr,
+        dy1 - wb,
+        dy1,
+        sl,
+        w - sr,
+        h - sb,
+        h,
+        np.repeat_horizontal,
+    );
+    tile_edge(
+        scene,
+        &img,
+        false,
+        dy0 + wt,
+        dy1 - wb,
+        dx0,
+        dx0 + wl,
+        st,
+        h - sb,
+        0.0,
+        sl,
+        np.repeat_vertical,
+    );
+    tile_edge(
+        scene,
+        &img,
+        false,
+        dy0 + wt,
+        dy1 - wb,
+        dx1 - wr,
+        dx1,
+        st,
+        h - sb,
+        w - sr,
+        w,
+        np.repeat_vertical,
+    );
 
     // Center — only with `fill`; stretched (tiled fill is a refinement).
     if np.fill {
-        img(scene, dx0 + wl, dy0 + wt, dx1 - wr, dy1 - wb, sl, st, w - sr, h - sb);
+        img(
+            scene,
+            dx0 + wl,
+            dy0 + wt,
+            dx1 - wr,
+            dy1 - wb,
+            sl,
+            st,
+            w - sr,
+            h - sb,
+        );
     }
 }
 
@@ -321,7 +405,7 @@ pub(crate) fn emit_border_first_cut(scene: &mut Scene, border: &ple::BorderItem,
         ple::BorderDetails::NinePatch(_) => {
             warn!("[paint translator] nine-patch border deferred");
             return;
-        },
+        }
     };
 
     // Uniform border (all four sides identical width / style / color) is the
@@ -330,8 +414,10 @@ pub(crate) fn emit_border_first_cut(scene: &mut Scene, border: &ple::BorderItem,
     // the stroke fast path; the 4-rect fallback below handles the rest (and
     // per-side borders, always square).
     let r = &sides.radius;
-    let has_radius = r.top_left.width > 0.0 || r.top_right.width > 0.0
-        || r.bottom_right.width > 0.0 || r.bottom_left.width > 0.0;
+    let has_radius = r.top_left.width > 0.0
+        || r.top_right.width > 0.0
+        || r.bottom_right.width > 0.0
+        || r.bottom_left.width > 0.0;
     let w = widths.top;
     let uniform_width = (widths.right - w).abs() < 0.01
         && (widths.bottom - w).abs() < 0.01
@@ -339,10 +425,15 @@ pub(crate) fn emit_border_first_cut(scene: &mut Scene, border: &ple::BorderItem,
     let s = sides.top.style;
     let uniform_style = sides.right.style == s && sides.bottom.style == s && sides.left.style == s;
     let c = sides.top.color;
-    let col_eq = |a: &ColorF, b: &ColorF| (a.r - b.r).abs() < 0.004 && (a.g - b.g).abs() < 0.004
-        && (a.b - b.b).abs() < 0.004 && (a.a - b.a).abs() < 0.004;
+    let col_eq = |a: &ColorF, b: &ColorF| {
+        (a.r - b.r).abs() < 0.004
+            && (a.g - b.g).abs() < 0.004
+            && (a.b - b.b).abs() < 0.004
+            && (a.a - b.a).abs() < 0.004
+    };
     let uniform_color = col_eq(&sides.right.color, &c)
-        && col_eq(&sides.bottom.color, &c) && col_eq(&sides.left.color, &c);
+        && col_eq(&sides.bottom.color, &c)
+        && col_eq(&sides.left.color, &c);
     // dotted/dashed need a stroke (dash pattern); solid needs a stroke only to
     // round. `double`/`groove`/etc. fall through to the (square, solid) fallback.
     let dash = match s {
@@ -352,7 +443,11 @@ pub(crate) fn emit_border_first_cut(scene: &mut Scene, border: &ple::BorderItem,
     };
     let strokeable = matches!(s, BS::Solid | BS::Dotted | BS::Dashed);
 
-    if w > 0.01 && uniform_width && uniform_style && uniform_color && strokeable
+    if w > 0.01
+        && uniform_width
+        && uniform_style
+        && uniform_color
+        && strokeable
         && (has_radius || dash.is_some())
     {
         // Stroke is centered on its path; a CSS border sits inside the
@@ -488,4 +583,3 @@ pub(crate) fn emit_conic_gradient(scene: &mut Scene, item: &ple::ConicGradientIt
         clip_corner_radii: [0.0; 4],
     });
 }
-
