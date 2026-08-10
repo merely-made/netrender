@@ -408,4 +408,3 @@ pub struct SceneStroke {
     /// pixels. Ignored when `dash_pattern` is empty.
     pub dash_offset: f32,
 }
-

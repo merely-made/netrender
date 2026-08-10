@@ -35,13 +35,10 @@ use std::collections::HashMap;
 
 use log::warn;
 use netrender::{
-    ExternalTexturePlacement, Glyph as NrGlyph, ImageKey as NrImageKey, NO_CLIP, SHARP_CLIP, Scene, SceneImage, SceneOp, ScenePathStroke, ScenePattern,
-    SceneShape, Transform,
+    ExternalTexturePlacement, Glyph as NrGlyph, ImageKey as NrImageKey, NO_CLIP, SHARP_CLIP, Scene,
+    SceneImage, SceneOp, ScenePathStroke, ScenePattern, SceneShape, Transform,
 };
-use paint_list_api::{
-    self as ple, FontResource, ImageKey, ImageResource,
-    PaintCmd, PaintList,
-};
+use paint_list_api::{self as ple, FontResource, ImageKey, ImageResource, PaintCmd, PaintList};
 
 mod composite;
 mod convert;
@@ -110,7 +107,13 @@ pub struct TranslatedDisplayList {
 /// `Paint::render` to drive `render_with_compositor_and_external_textures`);
 /// the public entry point returns just the Scene for testability.
 pub fn translate_paint_list<L: PaintList>(list: &L) -> Scene {
-    translate_paint_cmd_stream(list.viewport(), list.commands(), list.fonts(), list.images()).scene
+    translate_paint_cmd_stream(
+        list.viewport(),
+        list.commands(),
+        list.fonts(),
+        list.images(),
+    )
+    .scene
 }
 
 /// Receive-side companion: translate a wire envelope. Thin wrapper
@@ -174,8 +177,10 @@ pub fn translate_paint_cmd_stream(
     // Native pixel size per image key — needed to turn a DrawRepeatingImage's
     // CSS `stretch_size` (the resolved background-size tile, in scene px) into
     // the per-axis brush scale `stretch_size / native`.
-    let image_dims: HashMap<ImageKey, (u32, u32)> =
-        images.iter().map(|ir| (ir.key, (ir.width, ir.height))).collect();
+    let image_dims: HashMap<ImageKey, (u32, u32)> = images
+        .iter()
+        .map(|ir| (ir.key, (ir.width, ir.height)))
+        .collect();
     // Composed transform ids; top = active coordinate space. Empty
     // means identity (transform_id 0).
     let mut transform_stack: Vec<u32> = Vec::new();
@@ -188,7 +193,7 @@ pub fn translate_paint_cmd_stream(
             PaintCmd::PopClip => {
                 // Clips ride on layers in netrender's model; PushClip pairs with PopLayer.
                 scene.pop_layer();
-            },
+            }
             PaintCmd::PushTransform(spec) => {
                 let parent = transform_at(&scene, tid);
                 let local = compose_with_origin(
@@ -205,20 +210,20 @@ pub fn translate_paint_cmd_stream(
                 // recorded for future stack-state handling; netrender
                 // treats the transform as opaque math regardless.
                 let _ = spec.kind;
-            },
+            }
             PaintCmd::PopTransform => {
                 transform_stack.pop();
-            },
+            }
             PaintCmd::PushLayer(spec) => emit_push_layer(&mut scene, spec, tid),
             PaintCmd::PopLayer => {
                 scene.pop_layer();
-            },
+            }
 
             // ----- Paint primitives --------------------------------------
             PaintCmd::DrawRect(r) => {
                 let (x0, y0, x1, y1) = rect_corners(&r.placement.bounds);
                 scene.push_rect_transformed(x0, y0, x1, y1, color_to_array(&r.color), tid);
-            },
+            }
             PaintCmd::DrawStroke(s) => {
                 // Lower to netrender's arbitrary-path primitive (`SceneShape`),
                 // stroke-only. This is the orrery's edge path (straight or routed
@@ -241,14 +246,14 @@ pub fn translate_paint_cmd_stream(
                     clip_rect: NO_CLIP,
                     clip_corner_radii: SHARP_CLIP,
                 });
-            },
+            }
             PaintCmd::DrawLine(line) => {
                 // First-cut: emit a solid rect spanning the line's
                 // local bounds. Decorated styles (wavy/dotted/dashed)
                 // need stroke variants.
                 let (x0, y0, x1, y1) = rect_corners(&line.placement.bounds);
                 scene.push_rect_transformed(x0, y0, x1, y1, color_to_array(&line.color), tid);
-            },
+            }
             PaintCmd::DrawPath(p) => {
                 // Lower to `SceneShape`, carrying whichever of fill / stroke is
                 // set (CSS / SVG "filled then stroked"). `ScenePathStroke` is
@@ -276,11 +281,11 @@ pub fn translate_paint_cmd_stream(
                         clip_corner_radii: SHARP_CLIP,
                     });
                 }
-            },
+            }
             PaintCmd::DrawBorder(border) => match &border.details {
                 ple::BorderDetails::NinePatch(np) => {
                     emit_nine_patch(&mut scene, border, np, &image_map, tid)
-                },
+                }
                 ple::BorderDetails::Normal(_) => emit_border_first_cut(&mut scene, border, tid),
             },
             PaintCmd::DrawLinearGradient(g) => emit_linear_gradient(&mut scene, g, tid),
@@ -314,7 +319,7 @@ pub fn translate_paint_cmd_stream(
                         t.font_instance
                     );
                 }
-            },
+            }
             PaintCmd::DrawImage(img) => {
                 if let Some(&nr_key) = image_map.get(&img.image_key) {
                     let (x0, y0, x1, y1) = rect_corners(&img.placement.bounds);
@@ -340,7 +345,7 @@ pub fn translate_paint_cmd_stream(
                         img.image_key
                     );
                 }
-            },
+            }
             PaintCmd::DrawRepeatingImage(ri) => {
                 if let Some(&nr_key) = image_map.get(&ri.image_key) {
                     let (x0, y0, x1, y1) = rect_corners(&ri.placement.bounds);
@@ -375,7 +380,7 @@ pub fn translate_paint_cmd_stream(
                         ri.image_key
                     );
                 }
-            },
+            }
             PaintCmd::DrawExternalTexture(et) => {
                 let (x0, y0, x1, y1) = rect_corners(&et.placement.bounds);
                 external_textures.push(ExternalTextureDraw {
@@ -384,7 +389,7 @@ pub fn translate_paint_cmd_stream(
                         .with_opacity(et.opacity),
                     scene_op_boundary: scene.ops.len(),
                 });
-            },
+            }
             PaintCmd::DrawShadow(s) => {
                 if matches!(s.clip_mode, ple::BoxShadowClipMode::Inset) {
                     // Inset: the shadow fills `box_bounds` (the padding box) MINUS
@@ -454,7 +459,12 @@ pub fn translate_paint_cmd_stream(
                             box_y0,
                             box_x1,
                             box_y1,
-                            [box_x0 / dim_f, box_y0 / dim_f, box_x1 / dim_f, box_y1 / dim_f],
+                            [
+                                box_x0 / dim_f,
+                                box_y0 / dim_f,
+                                box_x1 / dim_f,
+                                box_y1 / dim_f,
+                            ],
                             color_to_array(&s.color),
                             key,
                             0, // absolute coords already; identity transform
@@ -528,14 +538,14 @@ pub fn translate_paint_cmd_stream(
                         );
                     }
                 }
-            },
+            }
             PaintCmd::PushShadow(_) | PaintCmd::PopAllShadows => {
                 // State-stack pair; no-op until shadow integration lands.
-            },
+            }
             PaintCmd::HitTest(_) => {
                 // Hit-test items route to a separate netrender::hit_test
                 // pass, not the Scene paint-order stream. No-op here.
-            },
+            }
         }
     }
 

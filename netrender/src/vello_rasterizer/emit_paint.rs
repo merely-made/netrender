@@ -9,8 +9,8 @@ use std::collections::HashMap;
 
 use vello::kurbo::{Affine, Point, Rect};
 use vello::peniko::{
-    self, BlendMode, Color, ColorStop, Compose, Extend, Fill, Gradient, ImageBrush,
-    ImageData, ImageFormat, ImageQuality, Mix,
+    self, BlendMode, Color, ColorStop, Compose, Extend, Fill, Gradient, ImageBrush, ImageData,
+    ImageFormat, ImageQuality, Mix,
 };
 
 use crate::scene::{
@@ -18,7 +18,11 @@ use crate::scene::{
 };
 
 use super::{push_clip_layer, transform_to_affine, unpremultiply_color};
-pub(super) fn emit_gradient(vscene: &mut vello::Scene, grad: &SceneGradient, transforms: &[Transform]) {
+pub(super) fn emit_gradient(
+    vscene: &mut vello::Scene,
+    grad: &SceneGradient,
+    transforms: &[Transform],
+) {
     let target = Rect::new(
         grad.x0 as f64,
         grad.y0 as f64,
@@ -173,7 +177,9 @@ pub(super) fn emit_image(
         )
     } else {
         (
-            ImageBrush::new(img.clone()).with_alpha(alpha).with_quality(quality),
+            ImageBrush::new(img.clone())
+                .with_alpha(alpha)
+                .with_quality(quality),
             uv_to_target_affine(image.uv, target, img.width, img.height),
         )
     };
@@ -229,8 +235,16 @@ pub(super) fn emit_pattern(
 
     // Per-axis tile scale (CSS background-size). Non-positive on an axis is
     // clamped to 1.0 (the API contract; avoids a degenerate brush transform).
-    let sx = if pattern.scale[0] > 0.0 { pattern.scale[0] as f64 } else { 1.0 };
-    let sy = if pattern.scale[1] > 0.0 { pattern.scale[1] as f64 } else { 1.0 };
+    let sx = if pattern.scale[0] > 0.0 {
+        pattern.scale[0] as f64
+    } else {
+        1.0
+    };
+    let sy = if pattern.scale[1] > 0.0 {
+        pattern.scale[1] as f64
+    } else {
+        1.0
+    };
 
     let target = Rect::new(
         pattern.extent[0] as f64,
@@ -250,8 +264,7 @@ pub(super) fn emit_pattern(
     // `image_w * sx` by `image_h * sy`) AND translate so the first tile's origin
     // is the extent's top-left — otherwise the repeat phase is anchored at the
     // scene origin, shifting the tiling (mirrors `uv_to_target_affine`).
-    let brush_xform =
-        Affine::translate((target.x0, target.y0)) * Affine::scale_non_uniform(sx, sy);
+    let brush_xform = Affine::translate((target.x0, target.y0)) * Affine::scale_non_uniform(sx, sy);
     let world = transform_to_affine(&transforms[pattern.transform_id as usize]);
 
     let needs_clip = pattern.clip_rect != NO_CLIP;

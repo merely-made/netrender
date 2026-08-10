@@ -248,7 +248,10 @@ mod serialize_cost {
     fn page_band(runs: usize, glyphs_per_run: usize, font_bytes: usize, images: usize) -> Scene {
         let mut s = Scene::new(1200, 1600);
         let blob = vello::peniko::Blob::new(Arc::new(vec![0xABu8; font_bytes]));
-        let font = s.push_font(FontBlob { data: blob, index: 0 });
+        let font = s.push_font(FontBlob {
+            data: blob,
+            index: 0,
+        });
         s.push_rect(0.0, 0.0, 1200.0, 1600.0, [1.0, 1.0, 1.0, 1.0]);
         let line_h = 1600.0 / runs.max(1) as f32;
         for i in 0..runs {
@@ -257,7 +260,11 @@ mod serialize_cost {
                 s.push_rect(0.0, y, 1200.0, y + 1.0, [0.9, 0.9, 0.9, 1.0]);
             }
             let glyphs: Vec<Glyph> = (0..glyphs_per_run)
-                .map(|g| Glyph { id: (g as u32 % 120) + 4, x: g as f32 * 9.0, y })
+                .map(|g| Glyph {
+                    id: (g as u32 % 120) + 4,
+                    x: g as f32 * 9.0,
+                    y,
+                })
                 .collect();
             s.push_glyph_run(font, 16.0, glyphs, [0.1, 0.1, 0.1, 1.0]);
         }

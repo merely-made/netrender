@@ -8,13 +8,8 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use netrender::{
-    FontBlob, FontId, ImageData, ImageKey as NrImageKey, Scene, peniko,
-};
-use paint_list_api::{
-    FontInstanceKey, FontResource, IdNamespace, ImageKey, ImageResource,
-    PaintCmd,
-};
+use netrender::{FontBlob, FontId, ImageData, ImageKey as NrImageKey, Scene, peniko};
+use paint_list_api::{FontInstanceKey, FontResource, IdNamespace, ImageKey, ImageResource, PaintCmd};
 use crate::translate_paint_cmd_stream;
 use crate::TranslatedDisplayList;
 
@@ -40,7 +35,11 @@ impl<'a> CompositeLayer<'a> {
     /// side-tables (e.g. the orrery's scene-paint underlay, which emits only
     /// strokes + rects today).
     pub fn commands_only(commands: &'a [PaintCmd]) -> Self {
-        Self { commands, fonts: &[], images: &[] }
+        Self {
+            commands,
+            fonts: &[],
+            images: &[],
+        }
     }
 }
 
@@ -82,7 +81,11 @@ pub(crate) fn merge_layers(
         for (j, fr) in layer.fonts.iter().enumerate() {
             let new_key = FontInstanceKey(ns, j as u32);
             font_remap.insert(fr.key, new_key);
-            fonts.push(FontResource { key: new_key, data: fr.data.clone(), index: fr.index });
+            fonts.push(FontResource {
+                key: new_key,
+                data: fr.data.clone(),
+                index: fr.index,
+            });
         }
         let mut image_remap: HashMap<ImageKey, ImageKey> = HashMap::new();
         for (j, ir) in layer.images.iter().enumerate() {
@@ -127,18 +130,18 @@ fn remap_cmd_keys(
             if let Some(&new_key) = fonts.get(&t.font_instance) {
                 t.font_instance = new_key;
             }
-        },
+        }
         PaintCmd::DrawImage(it) => {
             if let Some(&new_key) = images.get(&it.image_key) {
                 it.image_key = new_key;
             }
-        },
+        }
         PaintCmd::DrawRepeatingImage(it) => {
             if let Some(&new_key) = images.get(&it.image_key) {
                 it.image_key = new_key;
             }
-        },
-        _ => {},
+        }
+        _ => {}
     }
     c
 }
@@ -155,7 +158,10 @@ fn remap_cmd_keys(
 /// every frame; a stable `Blob` (its id survives clones) lets them hit.
 /// Keying on byte identity rather than `FontInstanceKey` keeps the composite
 /// path sound — it re-mints keys per merge, but reuses the producers' `Arc`s.
-pub(crate) fn register_fonts(scene: &mut Scene, fonts: &[FontResource]) -> HashMap<FontInstanceKey, FontId> {
+pub(crate) fn register_fonts(
+    scene: &mut Scene,
+    fonts: &[FontResource],
+) -> HashMap<FontInstanceKey, FontId> {
     static BLOB_CACHE: std::sync::Mutex<
         Option<HashMap<(usize, usize, u32), (FontBlob, Arc<Vec<u8>>)>>,
     > = std::sync::Mutex::new(None);
@@ -175,17 +181,15 @@ pub(crate) fn register_fonts(scene: &mut Scene, fonts: &[FontResource]) -> HashM
             if cache.len() > 256 {
                 cache.clear();
             }
-            let (blob, _pin) = cache
-                .entry(identity)
-                .or_insert_with(|| {
-                    (
-                        FontBlob {
-                            data: peniko::Blob::new(fr.data.clone()),
-                            index: fr.index,
-                        },
-                        fr.data.clone(),
-                    )
-                });
+            let (blob, _pin) = cache.entry(identity).or_insert_with(|| {
+                (
+                    FontBlob {
+                        data: peniko::Blob::new(fr.data.clone()),
+                        index: fr.index,
+                    },
+                    fr.data.clone(),
+                )
+            });
             blob.clone()
         };
         let font_id = scene.push_font(blob);
@@ -208,7 +212,10 @@ pub(crate) fn register_fonts(scene: &mut Scene, fonts: &[FontResource]) -> HashM
 /// the rasterizer lock across a multi-render session (e.g. the WPT
 /// reftest runner). Producers mint `ImageResource.key` unique per image,
 /// so folding it in gives a stable, collision-free scene key.
-pub(crate) fn register_images(scene: &mut Scene, images: &[ImageResource]) -> HashMap<ImageKey, NrImageKey> {
+pub(crate) fn register_images(
+    scene: &mut Scene,
+    images: &[ImageResource],
+) -> HashMap<ImageKey, NrImageKey> {
     let mut map = HashMap::new();
     for ir in images {
         // Fold (namespace, index) into the flat u64. `| 1 << 63` keeps

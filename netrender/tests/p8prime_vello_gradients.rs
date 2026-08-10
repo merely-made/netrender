@@ -312,10 +312,21 @@ fn p8prime_05_repeating_linear_tiles() {
         kind: netrender::GradientKind::Linear,
         repeat,
         // Gradient line spans the left half — one repeat period.
-        params: [0.0, (DIM as f32) / 2.0, (DIM as f32) / 2.0, (DIM as f32) / 2.0],
+        params: [
+            0.0,
+            (DIM as f32) / 2.0,
+            (DIM as f32) / 2.0,
+            (DIM as f32) / 2.0,
+        ],
         stops: vec![
-            netrender::GradientStop { offset: 0.0, color: [1.0, 0.0, 0.0, 1.0] },
-            netrender::GradientStop { offset: 1.0, color: [0.0, 0.0, 1.0, 1.0] },
+            netrender::GradientStop {
+                offset: 0.0,
+                color: [1.0, 0.0, 0.0, 1.0],
+            },
+            netrender::GradientStop {
+                offset: 1.0,
+                color: [0.0, 0.0, 1.0, 1.0],
+            },
         ],
         transform_id: 0,
         clip_rect: netrender::NO_CLIP,

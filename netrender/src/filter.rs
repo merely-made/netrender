@@ -191,7 +191,10 @@ pub fn color_matrix_callback(
     }
 
     Box::new(move |device, encoder, inputs, output| {
-        assert!(!inputs.is_empty(), "color_matrix task: expected one input view");
+        assert!(
+            !inputs.is_empty(),
+            "color_matrix task: expected one input view"
+        );
         let input_view = &inputs[0];
 
         let params_buf = device.create_buffer(&wgpu::BufferDescriptor {

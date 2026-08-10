@@ -70,7 +70,9 @@ impl Renderer {
         let mask_format = wgpu::TextureFormat::Rgba8Unorm;
         // `invert` builds a `1 - coverage` mask (the inset-shadow primitive); blur
         // is linear so the blurred inverted mask equals `1 - blurred coverage`.
-        let clip_pipe = self.wgpu_device.ensure_clip_rectangle(mask_format, true, invert);
+        let clip_pipe = self
+            .wgpu_device
+            .ensure_clip_rectangle(mask_format, true, invert);
         let blur_pipe = self.wgpu_device.ensure_brush_blur(mask_format);
         let sampler = make_bilinear_sampler(&device);
 
@@ -389,7 +391,7 @@ impl Renderer {
             transparent,
             1.0,
         )
-            .unwrap_or_else(|e| panic!("D1 prefix render failed: {:?}", e));
+        .unwrap_or_else(|e| panic!("D1 prefix render failed: {:?}", e));
         texture
     }
 }

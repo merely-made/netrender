@@ -32,7 +32,12 @@ fn map_blend_mode(b: SceneBlendMode) -> BlendMode {
 }
 
 impl VelloTileRasterizer {
-    pub(super) fn ensure_master_texture(&mut self, width: u32, height: u32, format: wgpu::TextureFormat) {
+    pub(super) fn ensure_master_texture(
+        &mut self,
+        width: u32,
+        height: u32,
+        format: wgpu::TextureFormat,
+    ) {
         let needs_realloc = match &self.master_pool {
             Some(e) => e.width != width || e.height != height || e.format != format,
             None => true,

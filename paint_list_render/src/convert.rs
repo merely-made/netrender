@@ -5,14 +5,11 @@
 //! Scalar / colour / transform / path converters from `paint_list_api`
 //! vocabulary to netrender primitives.
 
-
 use netrender::{
-    GradientStop as NrGradientStop,
-    SceneBlendMode, ScenePath, SceneStrokeCap, SceneStrokeJoin, Transform,
+    GradientStop as NrGradientStop, SceneBlendMode, ScenePath, SceneStrokeCap, SceneStrokeJoin,
+    Transform,
 };
-use paint_list_api::{
-    self as ple, ColorF,
-};
+use paint_list_api::{self as ple, ColorF};
 
 pub(crate) fn rect_corners(rect: &paint_list_api::LayoutRect) -> (f32, f32, f32, f32) {
     (rect.min.x, rect.min.y, rect.max.x, rect.max.y)
@@ -107,19 +104,23 @@ pub(crate) fn path_data_to_scene_path(pd: &ple::PathData) -> ScenePath {
         match *cmd {
             C::MoveTo(pt) => {
                 p.move_to(pt.x, pt.y);
-            },
+            }
             C::LineTo(pt) => {
                 p.line_to(pt.x, pt.y);
-            },
+            }
             C::QuadTo { control, to } => {
                 p.quad_to(control.x, control.y, to.x, to.y);
-            },
-            C::CurveTo { control1, control2, to } => {
+            }
+            C::CurveTo {
+                control1,
+                control2,
+                to,
+            } => {
                 p.cubic_to(control1.x, control1.y, control2.x, control2.y, to.x, to.y);
-            },
+            }
             C::Close => {
                 p.close();
-            },
+            }
         }
     }
     p

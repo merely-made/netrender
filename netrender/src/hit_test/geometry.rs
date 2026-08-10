@@ -198,7 +198,11 @@ fn shape_contains_point(s: &SceneShape, p: [f32; 2], scene: &Scene) -> bool {
 /// non-invertible (degenerate scale, reflection-degenerate, …) — in
 /// that case the caller should fall back to the AABB-conservative
 /// answer.
-pub(super) fn world_point_to_local(world_point: [f32; 2], transform_id: u32, scene: &Scene) -> Option<Point> {
+pub(super) fn world_point_to_local(
+    world_point: [f32; 2],
+    transform_id: u32,
+    scene: &Scene,
+) -> Option<Point> {
     let pt = Point::new(world_point[0] as f64, world_point[1] as f64);
     if transform_id == 0 {
         return Some(pt);
