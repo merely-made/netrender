@@ -408,9 +408,11 @@ A4-gated** — listed for visibility only.
 
   Microseconds, median of 30 frames. `vello` grows 2× across a 64×
   increase in tiles, so it is not the bottleneck for a mostly-static
-  frame. The cost is **E3** below. Do not open an upstream conversation
-  about E1 citing scrolling cost until E3 lands, because the numbers
-  would not support it.
+  frame. The cost was **E3** below, now cleared. Even after E3 took
+  `invalidate` down 8.2×, vello is not what dominates a static frame at
+  this scale, so do not open an upstream conversation about E1 citing
+  scrolling cost without fresh numbers that actually support it. Full
+  finding: [verification record §11.35](2026-05-01_vello_verification_record.md).
 
 - [x] **E2. Multi-thread scene building** — **CLEARED 2026-05-08**.
   New `SceneFragment` builder type + `Scene::append_fragment`
@@ -425,37 +427,47 @@ A4-gated** — listed for visibility only.
   confirms the API works end-to-end. Full finding:
   [verification record §11.32](2026-05-01_vello_verification_record.md).
 
-- [ ] **E3. `TileCache::invalidate` is O(tiles × ops)** — the dominant
-  per-frame cost on large scenes, and ours.
-  [`hash_tile_deps`](../netrender/src/tile_cache/hash.rs) walks the
-  entire `scene.ops` list once per tile, testing each op's world AABB
-  against that tile.
-  [`TileCache::invalidate`](../netrender/src/tile_cache/mod.rs) calls it
-  for every tile in the viewport, every frame. Both factors grow with
-  page area, so the product grows with area squared: at 4096² that is
-  256 tiles × 4422 ops ≈ 1.1M intersection tests, 3.4 ms, **~87% of the
-  frame**, to discover that one tile changed. On a 60 Hz budget that is
-  a fifth of the frame spent on dirty detection alone.
+- [x] **E3. `TileCache::invalidate` was O(tiles × ops)** — **CLEARED
+  2026-08-10.** New [`tile_cache::index`](../netrender/src/tile_cache/index.rs)
+  files every op into the bins of the tiles its world AABB covers, in one
+  O(ops) pass, storing `(op_index, u64 digest)`. Each tile then hashes
+  only its own bin, merged by index with the layer-scope ops that apply
+  to every tile. `invalidate` column, microseconds, same machine and
+  scene as the baseline below:
 
-  *Shape of the fix:* one O(ops) binning pass per frame that assigns
-  each op's AABB to the tiles it touches, then hash each tile from its
-  own bin. O(ops + tiles) instead of O(ops × tiles). The same
-  per-tile-rescan shape was already fixed one layer down in
-  `build_master_scene_timed`, where the Path A / Path B image map used
-  to be re-merged for every dirty tile; this is that bug again, wider.
+  | viewport | ops | before | after | per-op after |
+  | --- | --- | --- | --- | --- |
+  | 512² | 62 | 6.3 | 5.9 | 95 ns |
+  | 1024² | 296 | 40.5 | 26.9 | 91 ns |
+  | 2048² | 1094 | 295.2 | 97.9 | 89 ns |
+  | 4096² | 4422 | 3428.1 | 419.3 | 95 ns |
 
-  *Care required:* the hash must stay order-sensitive within a tile.
-  Painter order is consumer push order and reordering changes the
-  rendered result, so a binning pass has to preserve each op's index and
-  hash in index order, not bin-insertion order.
+  **8.2× at 4096², and the per-op cost is flat across a 55× spread in
+  tiles × ops** — the done condition, met: cost now tracks op count, not
+  the product. `invalidate` fell from ~87% of the frame to ~36%, and
+  whole-frame total from ~3.9 ms to ~1.15 ms.
 
-  *Trigger:* available now. `dirty_tile_rebuild` is already cheap, so
-  this is the only thing between netrender and a genuinely incremental
-  frame.
-  *Done condition:* re-run `e1_damage_profile`; `invalidate` grows with
-  ops rather than with ops × tiles, and stops dominating the 4096² row.
-  Existing A3 tile-dirty receipts (`pa3_tile_dirty_tracking`) must stay
-  green unchanged — they are the correctness gate on this.
+  The residual ~95 ns/op is the floor for this design: every op is
+  digested once per frame because the consumer rebuilds the `Scene` each
+  frame, so there is no op identity to cache a digest against. Going
+  below it means incremental scene construction, which is a consumer-side
+  design change, not a tile-cache one.
+
+  *Correctness:* the pre-E3 function is retained under `cfg(test)` as
+  `hash_tile_deps_reference`, and 8 differential tests assert the two
+  produce identical **dirty sets** (not identical hashes — the fast path
+  mixes per-op digests). They cover reordering two overlapping
+  primitives, moving a primitive across a `PushLayer` boundary,
+  scene-level alpha, off-grid and full-bleed primitives, and degenerate
+  or tile-aligned bounds. `pa3_tile_dirty_tracking` passes unchanged,
+  including `moved_rect_under_stable_transform_id_dirties_its_tile`.
+  Layer ops still conservatively dirty every tile; E3 deliberately did
+  not touch that rule.
+
+  Receipt: 8 differential tests in
+  [`netrender/src/tile_cache/index.rs`](../netrender/src/tile_cache/index.rs)
+  plus `pa3_tile_dirty_tracking` (8/8) unchanged. Full finding:
+  [verification record §11.35](2026-05-01_vello_verification_record.md).
 
 ---
 
