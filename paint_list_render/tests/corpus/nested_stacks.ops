@@ -1,0 +1,22 @@
+Scene 256x256  transforms=5  fonts=1  images=0  surfaces=0  ops=21
+  0000  Rect      [0.0..256.0, 0.0..256.0]  color=[0.05,0.05,0.08,1.00]
+  0001  PushLayer alpha=1  blend=Normal  clip=Rect[8.0..248.0, 8.0..248.0]
+  0002    PushLayer alpha=0.9  blend=Normal  clip=None  transform=1
+  0003      Rect      [8.0..248.0, 8.0..248.0]  color=[0.20,0.40,0.80,1.00]  transform=1
+  0004      PushLayer alpha=1  blend=Normal  clip=Rect[20.0..236.0, 20.0..236.0]  transform=1
+  0005        PushLayer alpha=0.79999995  blend=Normal  clip=None  transform=2
+  0006          Rect      [20.0..236.0, 20.0..236.0]  color=[0.40,0.40,0.60,1.00]  transform=2
+  0007          PushLayer alpha=1  blend=Normal  clip=Rect[32.0..224.0, 32.0..224.0]  transform=2
+  0008            PushLayer alpha=0.7  blend=Normal  clip=None  transform=3
+  0009              Rect      [32.0..224.0, 32.0..224.0]  color=[0.60,0.40,0.40,1.00]  transform=3
+  0010              PushLayer alpha=1  blend=Normal  clip=Rect[44.0..212.0, 44.0..212.0]  transform=3
+  0011                PushLayer alpha=0.59999996  blend=Normal  clip=None  transform=4
+  0012                  Rect      [44.0..212.0, 44.0..212.0]  color=[0.80,0.40,0.20,1.00]  transform=4
+  0013                PopLayer
+  0014              PopLayer
+  0015            PopLayer
+  0016          PopLayer
+  0017        PopLayer
+  0018      PopLayer
+  0019    PopLayer
+  0020  PopLayer

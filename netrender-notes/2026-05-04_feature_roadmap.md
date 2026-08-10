@@ -177,6 +177,15 @@ Order within Phase A is by value-to-cost ratio, smallest first.
   preservation across both formats, image_sources insertion-order
   invariance, malformed-bytes error path.
 
+  **First consumer, 2026-08-10:** the paint-list corpus at
+  [`paint_list_render/tests/corpus/`](../paint_list_render/tests/corpus/README.md).
+  Note it captures at the `PaintEnvelope` layer rather than the `Scene`
+  layer, which A2 did not anticipate: `paint_list_api` already carries
+  serde unconditionally, so consumers need no feature flag, and a
+  PaintList fixture is rasterizer-independent. That last property is
+  what makes the corpus useful to the backend-seam question, since it
+  pins consumer-visible behaviour without assuming vello.
+
 - [x] **A3. Tile-dirty visualizer** — **CLEARED**.
   `NetrenderOptions::enable_tile_dirty_overlay`
   ([renderer/init.rs:35](../netrender/src/renderer/init.rs))
@@ -199,6 +208,22 @@ Order within Phase A is by value-to-cost ratio, smallest first.
   [`netrender/tests/pa4_frame_profiler.rs`](../netrender/tests/pa4_frame_profiler.rs)
   (6/6) — including a GPU smoke that confirms `render_vello`
   populates the spans and a second render replaces them.
+
+- [ ] **A5. Real captures in the paint-list corpus** — the harness and
+  format shipped 2026-08-10
+  ([`paint_list_render/tests/corpus/`](../paint_list_render/tests/corpus/README.md));
+  all three seed fixtures are hand-built and say so in their
+  `.provenance`. Until a real one lands, the corpus proves the
+  translator is stable against scenes netrender invented, which is the
+  same limitation the rest of the suite has.
+  *Trigger:* available now. `genet/ports/genet-wpt` already constructs
+  one `PaintEnvelope` per reftest, so one `fs::write` there yields
+  thousands; cambium's sprigging layer is the second source.
+  *Done condition:* at least one fixture with `captured: yes` covering a
+  command shape the seeds do not reach (text runs, images, gradients,
+  borders, or external textures — the seeds only exercise rects, paths,
+  clips, transforms and layers). Sample rather than committing a whole
+  WPT run.
 
 ---
 

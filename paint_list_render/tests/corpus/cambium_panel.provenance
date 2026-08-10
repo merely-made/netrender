@@ -1,0 +1,11 @@
+source: synthesized by examples/seed_corpus.rs
+captured: no — hand-built, not taken from a running consumer
+describes: host-UI chrome as the cambium sprigging layer shapes it: a
+  title bar, an icon lowered through DrawPath the way glyph and icon
+  outlines are, a clipped scroll region whose rows overflow it, and a
+  blurred footer overlay exercising the layer filter chain.
+models: genet/components/cambium/sprigging/src/{lib,glyphs}.rs
+replace-with: a capture from a running cambium host. The scroll-region
+  clip and the blurred overlay are the parts worth having real: both are
+  places where a consumer's nesting order differs from what a
+  hand-written test would think to produce.

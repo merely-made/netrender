@@ -14,3 +14,6 @@ paint_list_api = { version = "0.1.1", path = "../paint_list_api" }
 
 [dev-dependencies]
 serde.workspace = true
+# Corpus fixtures (tests/corpus/*.paintlist) are postcard-encoded
+# PaintEnvelopes. Same encoding netrender's A2 Scene capture uses.
+postcard = { version = "1", features = ["alloc"] }
