@@ -1,0 +1,11 @@
+source: synthesized by examples/seed_corpus.rs
+captured: no — hand-built, not taken from a running consumer
+describes: a WPT reftest page as genet-wpt shapes it: opaque white
+  backdrop inserted at command 0, device-scale root transform, a heading
+  band and two body columns of line boxes, and a translucent callout
+  layer over the text.
+models: genet/ports/genet-wpt/src/render.rs — with_reftest_backdrop and
+  scale_envelope_for_device
+replace-with: a real capture from a genet-wpt run. That harness already
+  builds one PaintEnvelope per reftest, so a single fs::write there
+  yields thousands of these. See tests/corpus/README.md.

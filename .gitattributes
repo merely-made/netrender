@@ -1,3 +1,10 @@
+# Paint-list corpus fixtures. `.paintlist` is postcard bytes and must
+# never be line-ending converted or merged. `.ops` goldens are compared
+# byte-for-byte against `Scene::dump_ops()`, which emits LF, so they must
+# not pick up CRLF on a Windows checkout.
+*.paintlist binary
+*.ops -text
+
 *.ts merge=weave
 *.tsx merge=weave
 *.js merge=weave

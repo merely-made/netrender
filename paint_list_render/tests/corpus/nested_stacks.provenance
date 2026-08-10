@@ -1,0 +1,10 @@
+source: synthesized by examples/seed_corpus.rs
+captured: no — deliberately synthetic, and expected to stay that way
+describes: four levels of interleaved PushClip / PushTransform /
+  PushLayer, unwound in mirror order. Each level insets its clip, scales
+  slightly, and drops opacity.
+models: nothing in particular. This one is not imitating a consumer.
+rationale: the translator's stack handling is where consumer-visible
+  ordering bugs hide, and real scenes nest shallowly enough that they
+  never reach the awkward case. Keep this fixture even once real
+  captures land.

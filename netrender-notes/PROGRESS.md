@@ -17,11 +17,14 @@ record at the end.
 - [`2026-05-04_feature_roadmap.md`](2026-05-04_feature_roadmap.md)
   — **the only live checklist.** Phase R plus Phases A–G, every entry
   with a trigger and a done condition. Start here to answer "what is
-  left". As of the audit, the answer is small: **D3** (native-compositor
+  left". As of the audit, the answer is small: **A5** (real captures for
+  the paint-list corpus, actionable now), **D3** (native-compositor
   handoff, netrender side complete, genet adapter 5.5 outstanding and
   out-of-repo) and **R9** (linear-light blending, upstream-blocked on
   vello's compute path, R9-canary will fire when it clears). Everything
   else in Phases 0.5'–12b' has shipped with receipts.
+
+  A5 is the only one that is neither upstream-blocked nor out-of-repo.
 
 - [`2026-05-01_vello_rasterizer_plan.md`](2026-05-01_vello_rasterizer_plan.md)
   — **the live architecture.** The vello pivot, adopted and delivered.
@@ -57,8 +60,21 @@ A running list of post-pivot findings used to sit in this section. It
 duplicated the verification record entry by entry and went stale between
 updates, so it is gone. The record is the list.
 
-**Workspace state, 2026-08-10:** 271 tests passing, 1 ignored, 0 failed
-across 57 suites, on Windows. `cargo fmt --all --check` clean.
+**Workspace state, 2026-08-10:** see the corpus note below for the
+current count. `cargo fmt --all --check` clean.
+
+## Paint-list corpus
+
+[`paint_list_render/tests/corpus/`](../paint_list_render/tests/corpus/README.md)
+replays consumer `PaintEnvelope` captures through `translate_paint_list`
+and asserts the resulting `Scene` op stream against a recorded golden,
+plus postcard wire stability and per-fixture provenance. CPU-only, no
+GPU needed.
+
+It exists because every other test in this workspace is a scene
+netrender wrote for itself, and eight repos depend on this vocabulary.
+The three seed fixtures are hand-built and labelled as such; roadmap
+**A5** tracks replacing them with real captures.
 
 ## Host verification
 
