@@ -394,6 +394,24 @@ A4-gated** — listed for visibility only.
   don't start; requires upstream coordination. No netrender-side done
   condition; entry exists for visibility.
 
+  **Measured 2026-08-10, and the premise did not hold up.** A4 spans
+  under a one-dirty-tile sweep
+  ([`netrender/examples/e1_damage_profile.rs`](../netrender/examples/e1_damage_profile.rs),
+  RTX 4060 / Vulkan, release):
+
+  | viewport | tiles | ops | dirty | invalidate | rebuild | compose | vello | total |
+  | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+  | 512² | 4 | 62 | 1 | 6.3 | 4.3 | 3.1 | 205.5 | 219.3 |
+  | 1024² | 16 | 296 | 1 | 40.5 | 5.4 | 6.7 | 221.0 | 275.2 |
+  | 2048² | 64 | 1094 | 1 | 295.2 | 8.4 | 18.6 | 226.1 | 545.8 |
+  | 4096² | 256 | 4422 | 1 | 3428.1 | 25.3 | 100.9 | 404.4 | 3939.0 |
+
+  Microseconds, median of 30 frames. `vello` grows 2× across a 64×
+  increase in tiles, so it is not the bottleneck for a mostly-static
+  frame. The cost is **E3** below. Do not open an upstream conversation
+  about E1 citing scrolling cost until E3 lands, because the numbers
+  would not support it.
+
 - [x] **E2. Multi-thread scene building** — **CLEARED 2026-05-08**.
   New `SceneFragment` builder type + `Scene::append_fragment`
   join API. Each fragment carries its own ops / transforms /
@@ -406,6 +424,38 @@ A4-gated** — listed for visibility only.
   (9/9) — including a 4-thread parallel build of 10k ops that
   confirms the API works end-to-end. Full finding:
   [verification record §11.32](2026-05-01_vello_verification_record.md).
+
+- [ ] **E3. `TileCache::invalidate` is O(tiles × ops)** — the dominant
+  per-frame cost on large scenes, and ours.
+  [`hash_tile_deps`](../netrender/src/tile_cache/hash.rs) walks the
+  entire `scene.ops` list once per tile, testing each op's world AABB
+  against that tile.
+  [`TileCache::invalidate`](../netrender/src/tile_cache/mod.rs) calls it
+  for every tile in the viewport, every frame. Both factors grow with
+  page area, so the product grows with area squared: at 4096² that is
+  256 tiles × 4422 ops ≈ 1.1M intersection tests, 3.4 ms, **~87% of the
+  frame**, to discover that one tile changed. On a 60 Hz budget that is
+  a fifth of the frame spent on dirty detection alone.
+
+  *Shape of the fix:* one O(ops) binning pass per frame that assigns
+  each op's AABB to the tiles it touches, then hash each tile from its
+  own bin. O(ops + tiles) instead of O(ops × tiles). The same
+  per-tile-rescan shape was already fixed one layer down in
+  `build_master_scene_timed`, where the Path A / Path B image map used
+  to be re-merged for every dirty tile; this is that bug again, wider.
+
+  *Care required:* the hash must stay order-sensitive within a tile.
+  Painter order is consumer push order and reordering changes the
+  rendered result, so a binning pass has to preserve each op's index and
+  hash in index order, not bin-insertion order.
+
+  *Trigger:* available now. `dirty_tile_rebuild` is already cheap, so
+  this is the only thing between netrender and a genuinely incremental
+  frame.
+  *Done condition:* re-run `e1_damage_profile`; `invalidate` grows with
+  ops rather than with ops × tiles, and stops dominating the 4096² row.
+  Existing A3 tile-dirty receipts (`pa3_tile_dirty_tracking`) must stay
+  green unchanged — they are the correctness gate on this.
 
 ---
 
