@@ -1,0 +1,11 @@
+Scene 320x240  transforms=1  fonts=3  images=0  surfaces=0  ops=10
+  0000  Rect      [0.0..320.0, 0.0..240.0]  color=[0.96,0.96,0.97,1.00]
+  0001  PushLayer alpha=1  blend=Normal  clip=Rect[8.0..328.0, 8.0..113.0]+radii[8.0, 8.0, 8.0, 8.0]
+  0002    Rect      [8.0..328.0, 8.0..113.0]  color=[1.00,1.00,1.00,1.00]
+  0003  PopLayer
+  0004  Stroke    [9.0..327.0, 9.0..112.0]  width=2  color=[0.20,0.33,0.67,1.00]  stroke_radii=[7.0, 7.0, 7.0, 7.0]
+  0005  GlyphRun  font=2  size=20  glyphs=11  color=[0.08,0.13,0.23,1.00]
+  0006  GlyphRun  font=1  size=12  glyphs=55  color=[0.23,0.23,0.27,1.00]
+  0007  GlyphRun  font=1  size=12  glyphs=41  color=[0.23,0.23,0.27,1.00]
+  0008  Rect      [22.0..314.0, 74.0..75.0]  color=[0.80,0.80,0.85,1.00]
+  0009  GlyphRun  font=1  size=10  glyphs=42  color=[0.42,0.42,0.47,1.00]

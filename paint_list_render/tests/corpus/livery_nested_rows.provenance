@@ -1,0 +1,15 @@
+source: genet, components/genet-livery/examples/capture_paint_corpus.rs
+captured: yes — emitted by the real pipeline on 2026-08-10 (Livery CSS
+  cascade, Taffy layout, Parley text shaping), not hand-built
+describes: a dark panel at 320x240 with `overflow: hidden` and per-side
+  borders, containing three rows, one of which carries its own border.
+covers: DrawRect x5, DrawText x3, PushClip/PopClip x3, DrawBorder x2.
+  The three clip scopes are the interesting part: they come from real
+  overflow handling rather than from someone deciding to write a clip,
+  which is exactly the class of shape a hand-written test does not think
+  to produce.
+payloads-elided: yes, same as livery_article_card — 1,045,720 bytes of
+  font data replaced with a stand-in, .ops golden verified identical
+  against a --keep-payloads capture.
+regenerate: cargo run -p genet-livery --example capture_paint_corpus --
+  <this directory>

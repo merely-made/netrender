@@ -76,21 +76,59 @@ as a dev-dependency here and it inherits the cross-platform tolerance
 problem the rest of the suite already deals with, so it was left out
 rather than half-done.
 
-## The seeds are placeholders
+## Eliding font and image payloads
 
-The three fixtures here were hand-built, because no consumer capture
-existed when the corpus was created. Two imitate shapes that real code
-emits (`genet-wpt` reftests, cambium host chrome); the third is
-deliberately synthetic and should stay. Their `.provenance` files say so
-and name what should replace them.
+`FontResource` carries raw TTF/OTF bytes inline, and its own doc notes
+fonts run 100 KB to 20 MB. A faithful capture of any page with text is
+therefore multi-megabyte: the article-card fixture below was 2,037,474
+bytes before elision and 2,012 after.
 
-## The obvious source
+So captures replace font and image payloads with a short stand-in. Every
+command field stays untouched — keys, glyph ids, positions, colours —
+because the command stream is what the corpus tests. The payload each key
+resolves to is opaque to the translator.
+
+This is verified, not assumed: capturing with `--keep-payloads` and
+blessing produces a byte-identical `.ops` golden. Re-check that if the
+translator ever starts reading font bytes.
+
+The cost: an elided fixture can be translated but not rasterized, since
+the font bytes are not a real face. Fine for the CPU tier. **Any future
+GPU tier needs either unelided fixtures or a substitute face**, and that
+is the main reason the GPU tier was left out rather than half-done.
+
+Say `payloads-elided:` in the `.provenance` either way.
+
+## What is here
+
+| fixture | captured | covers |
+| --- | --- | --- |
+| `livery_article_card` | yes | `DrawText`, `DrawBorder`, rounded-clip layers |
+| `livery_nested_rows` | yes | overflow clip scopes, per-side borders |
+| `wpt_reftest_page` | no, hand-built | backdrop + device-scale transform shape |
+| `cambium_panel` | no, hand-built | `DrawPath`, filter chain on a layer |
+| `nested_stacks` | no, deliberately synthetic | deep clip/transform/layer nesting |
+
+The two `livery_*` fixtures came off the real pipeline (Livery cascade,
+Taffy layout, Parley shaping) via
+`genet/components/genet-livery/examples/capture_paint_corpus.rs`. They
+are worth studying: the article card lowers `border-radius` into a
+rounded-clip layer plus an inset `Stroke` with shrunk radii, which is a
+path no hand-written seed exercised.
+
+The three hand-built fixtures stay. `nested_stacks` should stay
+permanently — real scenes nest too shallowly to reach the case where
+stack-handling bugs live. The other two are still worth replacing with
+captures of the shapes they imitate.
+
+## Scaling up
 
 `genet/ports/genet-wpt` already builds one `PaintEnvelope` per WPT test,
 complete with the reftest backdrop and the device-scale root transform.
-A single `fs::write` in that harness turns a WPT run into thousands of
-real web-page paint lists.
+A single `fs::write` there turns a WPT run into thousands of real
+web-page paint lists.
 
-That is the version of this corpus worth having. Sample it rather than
-committing all of it: pick the fixtures that cover distinct command
-shapes, keep them small, and let the rest stay in the WPT run.
+Sample rather than committing all of it: pick fixtures that cover
+distinct command shapes, keep them small, and let the rest stay in the
+run. Still uncovered by anything here: gradients, images, external
+textures, box shadows, and nine-patch borders.
