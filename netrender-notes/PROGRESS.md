@@ -3,9 +3,11 @@
 This file is the short index to the surviving plans in
 `netrender-notes/`. The repo is post-cleanup: vello is the sole
 rasterizer on `main`, the upstream WebRender codebase (`webrender_api/`,
-`wrench/`, `wr_glyph_rasterizer/`, etc.) has been removed and lives on
-the `webrender-wgpu-upstream/` side worktree if anyone needs to spelunk
-through the original implementation.
+`wrench/`, `wr_glyph_rasterizer/`, etc.) has been removed. To spelunk
+through the original implementation, check out the
+`archive/webrender-0.62-pre-phase-d` tag. (This used to say the code lived
+on a `webrender-wgpu-upstream/` side worktree. That checkout is gone; see
+[`archive/2026-08-10_branch_archive.md`](archive/2026-08-10_branch_archive.md).)
 
 ## Current canonical plans
 
@@ -32,14 +34,24 @@ These two are the source of truth for the live architecture.
   hit testing — stack-returning, layer-clip-aware, per-glyph
   approximate (§11.12, §11.15, §11.16), `netrender_text` parley
   adapter with decoration painting (§4.4 status block, §11.16),
-  edition-2021 bump, `Scene::clear_ops` helper. Test count: 105
-  passing, 1 ignored, 0 failed across the workspace.
+  edition-2021 bump, `Scene::clear_ops` helper. Test count at the
+  time: 105 passing, 1 ignored, 0 failed across the workspace
+  (2026-08-10: 271 passing, 1 ignored, 0 failed across 57 suites).
 
   Open items live in the feature roadmap (§11.99 was folded out
   for findability):
   [`2026-05-04_feature_roadmap.md`](2026-05-04_feature_roadmap.md)
-  — Phase R (open refinements / wart fixes) + Phases A–G (new
-  capability, diagnostics first).
+
+- [`2026-08-04_rasterizer_backend_seam.md`](2026-08-04_rasterizer_backend_seam.md)
+  — research record, no implementation proposed. Revisits the vello
+  plan's §10 and its 2026-05-01 `vello_hybrid` rejection now that
+  hybrid has published 0.1.0 on `wgpu ^29.0.3`. Capability probe
+  passes every op netrender lowers, under WebGL2-class limits, on
+  wgpu's GL backend. Blocker is that hybrid has no `Scene::append`,
+  so Phase 7''s Masonry tile cache has no equivalent and a seam would
+  have to tolerate two *retention models*. Also inventories the
+  present `vello::Scene` coupling in shared retained state. Posture:
+  credible future second backend, not a pending migration.
 
 ## Host verification
 
@@ -67,9 +79,15 @@ These two are the source of truth for the live architecture.
   — WebGL-over-wgpu companion lane. G0–G6 sequence, gated on
   Genet/Pelt consumer pull. Roadmap entry: G.
 - [`wasm-portability-checklist.md`](wasm-portability-checklist.md)
-  — note: this is for the WebRender wgpu-backend branch (separate
-  project), retained for reference. A netrender-specific portability
-  list will be authored when F2 (wasm) triggers.
+  — note: this is for the WebRender wgpu-backend work (separate project,
+  now the `archive/*` tags), retained for reference. A netrender-specific
+  portability list will be authored when F2 (wasm) triggers.
+
+## Archived branches
+
+All non-`main` branches were retired to `archive/*` tags on 2026-08-10.
+Index and restore instructions:
+[`archive/2026-08-10_branch_archive.md`](archive/2026-08-10_branch_archive.md).
 
 ## Historical / superseded — archived
 
