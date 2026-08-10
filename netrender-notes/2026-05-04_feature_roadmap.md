@@ -209,21 +209,37 @@ Order within Phase A is by value-to-cost ratio, smallest first.
   (6/6) — including a GPU smoke that confirms `render_vello`
   populates the spans and a second render replaces them.
 
-- [ ] **A5. Real captures in the paint-list corpus** — the harness and
-  format shipped 2026-08-10
-  ([`paint_list_render/tests/corpus/`](../paint_list_render/tests/corpus/README.md));
-  all three seed fixtures are hand-built and say so in their
-  `.provenance`. Until a real one lands, the corpus proves the
-  translator is stable against scenes netrender invented, which is the
-  same limitation the rest of the suite has.
-  *Trigger:* available now. `genet/ports/genet-wpt` already constructs
-  one `PaintEnvelope` per reftest, so one `fs::write` there yields
-  thousands; cambium's sprigging layer is the second source.
-  *Done condition:* at least one fixture with `captured: yes` covering a
-  command shape the seeds do not reach (text runs, images, gradients,
-  borders, or external textures — the seeds only exercise rects, paths,
-  clips, transforms and layers). Sample rather than committing a whole
-  WPT run.
+- [x] **A5. Real captures in the paint-list corpus** — **CLEARED
+  2026-08-10.** Two fixtures now carry `captured: yes`, emitted by the
+  real pipeline (Livery cascade, Taffy layout, Parley shaping) via
+  `genet/components/genet-livery/examples/capture_paint_corpus.rs`:
+
+  - `livery_article_card` — `DrawText` ×4, `DrawBorder` ×2, `DrawRect`
+    ×2, a clip scope. Lowers `border-radius` into a rounded-clip layer
+    plus an inset `Stroke` with shrunk radii, and carries four real
+    Parley-shaped glyph runs (11 / 55 / 41 / 42 glyphs).
+  - `livery_nested_rows` — three clip scopes from real `overflow:
+    hidden`, per-side borders, three glyph runs.
+
+  Both reach `DrawText` and `DrawBorder`, which no hand-written seed
+  did, so the done condition is met.
+
+  The capture source was chosen for cost: `genet-wpt` is the eventual
+  scale-up but sits on the full Servo tree, while `genet-livery`'s paint
+  tests build and run in well under a second and still exercise a
+  genuine HTML → cascade → layout → shaping → paint path.
+
+  *Payload elision.* `FontResource` carries raw TTF bytes inline, so the
+  faithful article-card capture was 2,037,474 bytes. Font and image
+  payloads are replaced with a stand-in, leaving every command field
+  untouched; fixtures are now under 2 KB. Verified rather than assumed —
+  a `--keep-payloads` capture blesses to a byte-identical `.ops`. The
+  consequence is that elided fixtures translate but do not rasterize,
+  which is now the main constraint on adding a GPU tier.
+
+  *Still uncovered:* gradients, images, external textures, box shadows,
+  nine-patch borders. Not tracked as a separate item; add fixtures as
+  consumers produce them.
 
 ---
 

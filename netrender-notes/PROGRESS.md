@@ -17,14 +17,16 @@ record at the end.
 - [`2026-05-04_feature_roadmap.md`](2026-05-04_feature_roadmap.md)
   — **the only live checklist.** Phase R plus Phases A–G, every entry
   with a trigger and a done condition. Start here to answer "what is
-  left". As of the audit, the answer is small: **A5** (real captures for
-  the paint-list corpus, actionable now), **D3** (native-compositor
-  handoff, netrender side complete, genet adapter 5.5 outstanding and
-  out-of-repo) and **R9** (linear-light blending, upstream-blocked on
-  vello's compute path, R9-canary will fire when it clears). Everything
-  else in Phases 0.5'–12b' has shipped with receipts.
+  left". As of 2026-08-10 the answer is **nothing in this repo**: the two
+  remaining items are **D3** (native-compositor handoff, netrender side
+  complete, genet adapter 5.5 outstanding and out-of-repo) and **R9**
+  (linear-light blending, upstream-blocked on vello's compute path,
+  R9-canary will fire when it clears). Everything else in Phases
+  0.5'–12b' has shipped with receipts.
 
-  A5 is the only one that is neither upstream-blocked nor out-of-repo.
+  A5 and E3 both opened and closed on 2026-08-10. E1 stays open but is
+  upstream-gated and, per its own measurement, not the interesting
+  number.
 
 - [`2026-05-01_vello_rasterizer_plan.md`](2026-05-01_vello_rasterizer_plan.md)
   — **the live architecture.** The vello pivot, adopted and delivered.
@@ -76,8 +78,14 @@ GPU needed.
 
 It exists because every other test in this workspace is a scene
 netrender wrote for itself, and eight repos depend on this vocabulary.
-The three seed fixtures are hand-built and labelled as such; roadmap
-**A5** tracks replacing them with real captures.
+
+Five fixtures. Two are real captures off genet's Livery pipeline
+(roadmap **A5**), reaching `DrawText` and `DrawBorder`, which no
+hand-written test did. Three are hand-built and labelled as such in their
+`.provenance`; `nested_stacks` should stay that way, since real scenes
+nest too shallowly to reach the case where stack-handling bugs live.
+Captures elide font payloads, which is why they are 2 KB rather than
+2 MB — see the corpus README for why that is safe and what it costs.
 
 ## Host verification
 

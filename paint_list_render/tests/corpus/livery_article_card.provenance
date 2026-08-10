@@ -1,0 +1,21 @@
+source: genet, components/genet-livery/examples/capture_paint_corpus.rs
+captured: yes — emitted by the real pipeline on 2026-08-10 (Livery CSS
+  cascade, Taffy layout, Parley text shaping), not hand-built
+describes: an article card at 320x240. Body background, a white card
+  with a 2px solid border and 8px radius, an h1, two paragraphs, and a
+  dashed top border on the last one.
+covers: DrawText x4, DrawBorder x2, DrawRect x2, PushClip/PopClip.
+  DrawText and DrawBorder are the point — no hand-written seed reaches
+  either, and both are shapes only a real layout engine produces
+  (glyph ids and positions from shaping, per-side border details from
+  the box model).
+payloads-elided: yes. FontResource carries raw TTF bytes inline and its
+  own doc notes fonts run 100KB-20MB, so the faithful capture was
+  2,037,474 bytes. Font and image payloads are replaced with a short
+  stand-in; every command field is untouched. Verified rather than
+  assumed: capturing with --keep-payloads and blessing produces a
+  byte-identical .ops golden. Consequence: this fixture cannot be
+  rasterized, only translated. Fine for the CPU tier; a constraint on
+  any future GPU tier.
+regenerate: cargo run -p genet-livery --example capture_paint_corpus --
+  <this directory>
