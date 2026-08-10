@@ -1,6 +1,6 @@
 [package]
 name = "netrender_text"
-version = "0.1.0"
+version = "0.1.1"
 license = "MPL-2.0"
 repository = "https://github.com/merely-made/netrender"
 readme = "../README.md"
@@ -8,7 +8,7 @@ description = "parley → netrender::Scene glyph-run adapter"
 edition = "2021"
 
 [dependencies]
-netrender = { version = "0.1.0", path = "../netrender" }
+netrender = { version = "0.1.1", path = "../netrender" }
 parley.workspace = true
 
 [dev-dependencies]
