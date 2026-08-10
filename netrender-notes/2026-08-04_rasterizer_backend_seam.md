@@ -5,6 +5,18 @@
 (hereafter "the rasterizer plan"), which remains the canonical live
 architecture.
 
+> **Re-verified 2026-08-10 against `vello_hybrid` 0.2.0**, which shipped
+> 2026-08-07, three days after this note was written. §4's blocker holds:
+> still no `Scene::append`, still no public `CommandRecorder`, still
+> nothing retained or incremental. 0.2.0 did add a first-class
+> capability-probe surface (`Probe`, `ProbeResult`, `ProbeFeature`, and
+> the `WebGl*` probe types), which covers by API the question §3
+> answered by hand.
+>
+> §4 is now drafted as something to send:
+> [`2026-08-10_vello_hybrid_upstream_ask.md`](2026-08-10_vello_hybrid_upstream_ask.md).
+> Not filed. Version numbers below refer to 0.1.0 unless stated.
+
 Question that prompted it: could `vello_hybrid` serve as a second
 rasterizer behind netrender's seam, to reach WebGL2-only browsers that
 mainline vello cannot?
