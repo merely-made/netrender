@@ -32,7 +32,8 @@ use crate::scene::{
 };
 
 mod hash;
-use hash::hash_tile_deps;
+mod index;
+use index::{FrameIndex, TileGrid};
 /// Integer (col, row) coordinate of a tile within the cache grid.
 /// Tile (cx, cy) covers world rect `(cx*T, cy*T, (cx+1)*T, (cy+1)*T)`.
 pub type TileCoord = (i32, i32);
@@ -68,6 +69,10 @@ pub struct TileCache {
     pub(crate) tiles: HashMap<TileCoord, Tile>,
     current_frame: u64,
     dirty_count_last_invalidate: usize,
+    /// Roadmap E3 — per-frame op-to-tile index. Held here rather than
+    /// built locally so its per-tile bins keep their allocations across
+    /// frames.
+    frame_index: FrameIndex,
 }
 
 impl TileCache {
@@ -80,6 +85,7 @@ impl TileCache {
             tiles: HashMap::new(),
             current_frame: 0,
             dirty_count_last_invalidate: 0,
+            frame_index: FrameIndex::default(),
         }
     }
 
@@ -150,6 +156,12 @@ impl TileCache {
         let n_cols = scene.viewport_width.div_ceil(tile_size);
         let n_rows = scene.viewport_height.div_ceil(tile_size);
 
+        // Roadmap E3 — file every op into the bins of the tiles it
+        // covers, once, so the per-tile pass below reads its own bin
+        // instead of rescanning the whole op list. Was O(tiles × ops).
+        self.frame_index
+            .build(scene, TileGrid::new(tile_size, n_cols, n_rows));
+
         let mut dirty = Vec::new();
 
         for row in 0..n_rows as i32 {
@@ -162,7 +174,7 @@ impl TileCache {
                     ((row + 1) * tile_size as i32) as f32,
                 ];
 
-                let new_hash = hash_tile_deps(scene, world_rect);
+                let new_hash = self.frame_index.tile_hash(col, row);
 
                 let tile = self.tiles.entry(coord).or_insert(Tile {
                     world_rect,

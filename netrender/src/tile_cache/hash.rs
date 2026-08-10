@@ -2,16 +2,35 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-//! Per-tile primitive-dependency hashing for the picture cache (see [`super`]).
+//! Per-primitive dependency hashing for the picture cache (see [`super`]).
+//!
+//! This module answers "what bytes identify this one op". Deciding which
+//! ops a given tile depends on is [`super::index`]'s job.
+//!
+//! Roadmap E3 split those two concerns apart. They used to be one
+//! function, [`hash_tile_deps_reference`], which walked the whole op list
+//! once per tile and recomputed every op's world AABB and field hash for
+//! each one. That is O(tiles x ops) with an expensive constant, since
+//! both `world_aabb_glyph_run` and `hash_glyph_run` walk every glyph in a
+//! run, and the shape equivalents walk every path segment. Measured at
+//! ~87% of a 4096-square frame.
+//!
+//! The reference implementation is retained under `cfg(test)` purely so
+//! the fast path can be differential-tested against it.
 
 use std::collections::hash_map::DefaultHasher;
 use std::hash::Hasher;
 
 use crate::scene::{
-    PathOp, Scene, SceneGlyphRun, SceneGradient, SceneImage, SceneOp, ScenePattern, SceneRect,
-    SceneShape, SceneStroke,
+    PathOp, SceneGlyphRun, SceneGradient, SceneImage, ScenePattern, SceneRect, SceneShape,
+    SceneStroke,
 };
 
+// Only the retained reference implementation walks the scene or derives
+// world AABBs; the field hashers below take an op and write its bytes.
+#[cfg(test)]
+use crate::scene::{Scene, SceneOp};
+#[cfg(test)]
 use super::{
     aabb_intersects, world_aabb, world_aabb_glyph_run, world_aabb_gradient, world_aabb_image,
     world_aabb_rect, world_aabb_shape, world_aabb_stroke,
@@ -20,7 +39,15 @@ use super::{
 /// Hash the dependency state of every primitive intersecting `tile_rect`,
 /// in painter order. Empty tiles get a deterministic empty-hasher value;
 /// two empty tiles hash identically, so they're never spuriously dirty.
-pub(super) fn hash_tile_deps(scene: &Scene, tile_rect: [f32; 4]) -> u64 {
+///
+/// **Reference implementation, superseded by [`super::index`].** Kept
+/// only as the oracle for the differential test in that module: the fast
+/// path must produce the same *dirty set* as this, for every scene pair.
+/// The hash values themselves differ (the fast path mixes per-op digests
+/// rather than streaming fields inline), which is why the test compares
+/// partitions rather than hashes.
+#[cfg(test)]
+pub(super) fn hash_tile_deps_reference(scene: &Scene, tile_rect: [f32; 4]) -> u64 {
     let mut hasher = DefaultHasher::new();
 
     // Phase 12a' scene-level alpha + blend mode are global — every
@@ -113,13 +140,13 @@ pub(super) fn hash_tile_deps(scene: &Scene, tile_rect: [f32; 4]) -> u64 {
 /// its old position). Folding the world AABB (which `world_aabb_*` derives by
 /// applying the transform) into the hash makes any positional change invalidate
 /// the tiles the primitive occupies.
-fn hash_aabb(h: &mut DefaultHasher, aabb: [f32; 4]) {
+pub(super) fn hash_aabb(h: &mut DefaultHasher, aabb: [f32; 4]) {
     for v in aabb {
         h.write_u32(v.to_bits());
     }
 }
 
-fn hash_rect(h: &mut DefaultHasher, r: &SceneRect) {
+pub(super) fn hash_rect(h: &mut DefaultHasher, r: &SceneRect) {
     h.write_u32(r.x0.to_bits());
     h.write_u32(r.y0.to_bits());
     h.write_u32(r.x1.to_bits());
@@ -136,7 +163,7 @@ fn hash_rect(h: &mut DefaultHasher, r: &SceneRect) {
     }
 }
 
-fn hash_image(h: &mut DefaultHasher, i: &SceneImage) {
+pub(super) fn hash_image(h: &mut DefaultHasher, i: &SceneImage) {
     h.write_u32(i.x0.to_bits());
     h.write_u32(i.y0.to_bits());
     h.write_u32(i.x1.to_bits());
@@ -161,7 +188,7 @@ fn hash_image(h: &mut DefaultHasher, i: &SceneImage) {
     h.write_u8(i.nearest as u8);
 }
 
-fn hash_glyph_run(h: &mut DefaultHasher, r: &SceneGlyphRun) {
+pub(super) fn hash_glyph_run(h: &mut DefaultHasher, r: &SceneGlyphRun) {
     h.write_u32(r.font_id);
     h.write_u32(r.font_size.to_bits());
     h.write_usize(r.glyphs.len());
@@ -190,7 +217,7 @@ fn hash_glyph_run(h: &mut DefaultHasher, r: &SceneGlyphRun) {
     }
 }
 
-fn hash_pattern(h: &mut DefaultHasher, p: &ScenePattern) {
+pub(super) fn hash_pattern(h: &mut DefaultHasher, p: &ScenePattern) {
     h.write_u64(p.tile);
     for c in p.extent {
         h.write_u32(c.to_bits());
@@ -208,7 +235,7 @@ fn hash_pattern(h: &mut DefaultHasher, p: &ScenePattern) {
     h.write_u8(p.nearest as u8);
 }
 
-fn hash_shape(h: &mut DefaultHasher, s: &SceneShape) {
+pub(super) fn hash_shape(h: &mut DefaultHasher, s: &SceneShape) {
     h.write_usize(s.path.ops.len());
     for op in &s.path.ops {
         match *op {
@@ -274,7 +301,7 @@ fn hash_shape(h: &mut DefaultHasher, s: &SceneShape) {
     }
 }
 
-fn hash_stroke(h: &mut DefaultHasher, s: &SceneStroke) {
+pub(super) fn hash_stroke(h: &mut DefaultHasher, s: &SceneStroke) {
     h.write_u32(s.x0.to_bits());
     h.write_u32(s.y0.to_bits());
     h.write_u32(s.x1.to_bits());
@@ -304,7 +331,7 @@ fn hash_stroke(h: &mut DefaultHasher, s: &SceneStroke) {
     h.write_u32(s.dash_offset.to_bits());
 }
 
-fn hash_gradient(h: &mut DefaultHasher, g: &SceneGradient) {
+pub(super) fn hash_gradient(h: &mut DefaultHasher, g: &SceneGradient) {
     h.write_u32(g.x0.to_bits());
     h.write_u32(g.y0.to_bits());
     h.write_u32(g.x1.to_bits());
@@ -348,7 +375,7 @@ fn hash_scene_filter(h: &mut DefaultHasher, f: crate::scene::SceneFilter) {
     h.write_u32(v.to_bits());
 }
 
-fn hash_push_layer(h: &mut DefaultHasher, layer: &crate::scene::SceneLayer) {
+pub(super) fn hash_push_layer(h: &mut DefaultHasher, layer: &crate::scene::SceneLayer) {
     use crate::scene::SceneClip;
     h.write_u32(layer.alpha.to_bits());
     h.write_u8(layer.blend_mode as u8);

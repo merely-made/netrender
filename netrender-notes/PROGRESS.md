@@ -33,7 +33,7 @@ record at the end.
 
 - [`2026-05-01_vello_verification_record.md`](2026-05-01_vello_verification_record.md)
   — **the evidence.** Split out of the plan on 2026-08-10, where it was
-  62% of the file. 34 entries, 32 CLEARED, one per spike or capability.
+  62% of the file. 35 entries, 33 CLEARED, one per spike or capability.
   Section numbers unchanged, so `§11.x` still resolves. This is the
   append target when a roadmap item lands.
 

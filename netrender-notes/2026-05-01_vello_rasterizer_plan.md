@@ -929,7 +929,7 @@ on 2026-08-10. It was 1369 lines, 62% of this file, and an append-only
 log rather than architecture. Section numbers are unchanged, so a
 `§11.x` reference resolves there.
 
-34 entries, 32 **CLEARED**; §11.6 was closed in practice by Phase 1'
+35 entries, 33 **CLEARED**; §11.6 was closed in practice by Phase 1'
 first-light (§11.7) and §11.13 is a discussion with no verdict.
 
 ## 12. Phase mapping under this plan

@@ -7,7 +7,7 @@ evidence log, not architecture, so it lives on its own.
 
 Section numbers are unchanged. An inbound `§11.x` reference resolves here.
 
-34 entries, 32 of them **CLEARED**. The two without a verdict are §11.6
+35 entries, 33 of them **CLEARED**. The two without a verdict are §11.6
 (closed in practice by Phase 1' first-light, see §11.7, but never
 relabelled) and §11.13 (a display-list-format discussion that did not
 need one).
@@ -1364,6 +1364,95 @@ readiness landed as a thin-wrap over `wgpu`'s already-async API,
 similar in shape to B1, R1–R6, C1–C4, D1, D2, E2 — all of which
 turned out to be protective gates rather than real costs once the
 upstream API was checked first.
+
+### 11.35 Dirty detection was the frame (2026-08-10) — **CLEARED**
+
+Roadmap [E3](2026-05-04_feature_roadmap.md). Found by measuring E1
+rather than by reading code, and it inverted what E1 assumed.
+
+**How it surfaced.** E1 has said since 2026-05-04 that vello re-encodes
+the whole scene every frame, that this is the cost of scrolling content,
+and that the fix is upstream's. Building the evidence for that
+conversation meant instrumenting the mostly-static case: hold damage at
+one tile, sweep total tile count, read the A4 spans
+([`../netrender/examples/e1_damage_profile.rs`](../netrender/examples/e1_damage_profile.rs)).
+
+The premise did not survive. On an RTX 4060 / Vulkan, release, median of
+30 frames, microseconds:
+
+| viewport | tiles | ops | invalidate | rebuild | compose | vello | total |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 512² | 4 | 62 | 6.3 | 4.3 | 3.1 | 205.5 | 219.3 |
+| 1024² | 16 | 296 | 40.5 | 5.4 | 6.7 | 221.0 | 275.2 |
+| 2048² | 64 | 1094 | 295.2 | 8.4 | 18.6 | 226.1 | 545.8 |
+| 4096² | 256 | 4422 | 3428.1 | 25.3 | 100.9 | 404.4 | 3939.0 |
+
+vello grows 2× across a 64× increase in tiles, so it is not the
+bottleneck for a static frame. Phase 7's tile cache is also working:
+`rebuild` stays cheap because only dirty tiles are re-lowered. The cost
+was **ours**. `hash_tile_deps` walked the entire op list once per tile,
+recomputing each op's world AABB and full field hash every time — and
+`world_aabb_glyph_run` and `hash_glyph_run` both walk every glyph in a
+run, the shape equivalents every path segment. `invalidate` called it for
+every tile, every frame: O(tiles × ops), both factors growing with page
+area. At 4096² that is ~1.1M intersection tests, 3.4 ms, **~87% of the
+frame**, to discover that one tile changed.
+
+**The fix.** New [`tile_cache::index`](../netrender/src/tile_cache/index.rs)
+inverts the loop. One O(ops) pass computes each op's world AABB and a
+single `u64` digest of its fields, then files `(op_index, digest)` into
+the bin of every tile the AABB covers. Each tile hashes only its own bin.
+The tile-cover range is derived to agree exactly with `aabb_intersects`,
+which is half-open on both rects, giving
+`floor(a.x0/T) ..= ceil(a.x1/T) - 1`; degenerate and inverted AABBs fall
+out of the same arithmetic, and non-finite bounds fall back to the whole
+grid because over-marking costs a redundant re-lower while under-marking
+leaves a stale tile on screen. Bins live on the `TileCache` so their
+allocations survive across frames.
+
+Result, `invalidate` column, same machine and scene:
+
+| viewport | ops | before | after | per-op after |
+| --- | --- | --- | --- | --- |
+| 512² | 62 | 6.3 | 5.9 | 95 ns |
+| 1024² | 296 | 40.5 | 26.9 | 91 ns |
+| 2048² | 1094 | 295.2 | 97.9 | 89 ns |
+| 4096² | 4422 | 3428.1 | 419.3 | 95 ns |
+
+8.2× at 4096². The flat per-op figure across a 55× spread in tiles × ops
+is the actual result: cost now tracks op count, not the product.
+`invalidate` fell from ~87% of the frame to ~36%; whole-frame total from
+~3.9 ms to ~1.15 ms.
+
+**Two things preserved deliberately.** Painter order: bins are built by
+ascending op index, and layer scope ops (which still apply to every tile)
+are kept in a separate list and *merged* back by index at hash time.
+Concatenating instead of merging would fail to notice a primitive moving
+across a `PushLayer`, which changes the render. And the conservative
+layer rule itself is untouched — tightening `PushLayer` to its clip AABB
+is a separate change with its own correctness argument.
+
+**Correctness gate.** The pre-E3 function is retained as
+`hash_tile_deps_reference` under `cfg(test)` and 8 differential tests
+assert the two implementations produce identical *dirty sets*. Not
+identical hashes: the fast path mixes per-op digests instead of streaming
+fields inline, so the test compares partitions, which is the semantics
+that matters. Cases covered: unchanged scenes, colour change, positional
+nudge, scene-level alpha, reordering two overlapping primitives, moving a
+primitive across a layer boundary, off-grid and full-bleed primitives,
+and degenerate or tile-aligned bounds. `pa3_tile_dirty_tracking` passes
+unchanged (8/8), including
+`moved_rect_under_stable_transform_id_dirties_its_tile`, which is the
+receipt for the AABB-in-hash rule that `hash_aabb`'s doc comment exists
+to explain.
+
+**What is left.** The residual ~95 ns/op is this design's floor: every op
+is digested once per frame because the consumer rebuilds the `Scene` from
+scratch each frame, so there is no op identity to cache a digest against.
+Going below it means incremental scene construction, which is a
+consumer-side change, not a tile-cache one. E1 remains open and
+upstream-gated, but the roadmap now carries a note not to cite scrolling
+cost in that conversation, because these numbers would not support it.
 
 ## 11.99 Open items — moved (2026-05-05)
 

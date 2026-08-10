@@ -23,11 +23,18 @@
 //! total tile count, printing the A4 spans for each.
 //!
 //! **The answer, measured 2026-08-10, was not the expected one.** Neither
-//! vello nor `compose` dominates. `TileCache::invalidate` does, at ~87% of
-//! a 4096² frame, because `hash_tile_deps` walks the entire op list once
-//! per tile. Dirty detection, not rasterization, is the cost of a
-//! mostly-static frame. Roadmap E3 tracks the fix; E1 stays upstream-gated
-//! but is no longer the interesting number.
+//! vello nor `compose` dominated. `TileCache::invalidate` did, at ~87% of
+//! a 4096² frame, because dirty detection rescanned the whole op list once
+//! per tile. Rasterization was not the cost of a mostly-static frame;
+//! deciding what to rasterize was.
+//!
+//! That became roadmap E3, now cleared: `invalidate` dropped 8.2× at
+//! 4096² and its per-op cost is flat, so it tracks op count rather than
+//! tiles × ops. See verification record §11.35. E1 itself stays open and
+//! upstream-gated, but it was never the interesting number here.
+//!
+//! This example is kept as the before/after instrument. Re-run it after
+//! any change to the tile cache or the master-compose path.
 //!
 //! ```text
 //! cargo run -p netrender --release --example e1_damage_profile
@@ -38,10 +45,11 @@
 //!
 //! **Reading the numbers honestly.** These are CPU-side wall-clock
 //! spans from `std::time::Instant`. `vello_render` covers encode plus
-//! submit, not GPU execution; there are no timestamp queries here. The
-//! load-bearing column is `master_compose`, which is pure CPU work
-//! netrender performs and could avoid if vello scenes were retained
-//! across frames.
+//! submit, not GPU execution; there are no timestamp queries here, and
+//! it varies by a few hundred microseconds run to run on this machine,
+//! so treat small movements in that column as noise. `invalidate`,
+//! `rebuild` and `compose` are pure CPU work netrender does and are
+//! stable enough to compare across runs.
 
 use std::time::Duration;
 
@@ -220,37 +228,16 @@ fn main() {
     println!();
     println!("All figures are microseconds, median of {FRAMES} frames.");
     println!();
-    println!("What this measured (2026-08-10, RTX 4060 / Vulkan):");
-    println!(
-        "  - `rebuild` stays cheap. The tile cache works: one dirty tile is one \
-         tile re-lowered,"
-    );
-    println!("    regardless of page size.");
-    println!(
-        "  - `vello` barely moves (2x across a 64x tile increase). It is not the \
-         bottleneck here."
-    );
-    println!(
-        "  - `invalidate` dominates, and grows with tiles x ops. At 4096 it is \
-         ~87% of the frame"
-    );
-    println!(
-        "    for detecting that a single tile changed. That is netrender's own \
-         code, not vello's:"
-    );
-    println!(
-        "    `hash_tile_deps` walks the whole op list once per tile, so the cost \
-         is O(tiles x ops)"
-    );
-    println!("    and both grow with page area.");
+    println!("Baseline before roadmap E3 (2026-08-10, same machine), `invalidate` column:");
+    println!("  512:  6.3    1024: 40.5    2048: 295.2    4096: 3428.1");
+    println!("It was ~87% of the 4096 frame, because dirty detection rescanned the whole");
+    println!("op list once per tile: O(tiles x ops), both factors growing with page area.");
     println!();
-    println!(
-        "E1 as written blames vello's whole-scene re-encode. On this evidence that \
-         is not the"
-    );
-    println!(
-        "first thing to fix. Bin ops into tiles in one O(ops) pass and hash each \
-         tile from its"
-    );
-    println!("own bin; that is O(ops + tiles). See roadmap E3.");
+    println!("E3 binned ops to tiles in one pass. Divide the current `invalidate`");
+    println!("figure by its op count: the per-op cost should be flat across all four");
+    println!("rows, which is what O(ops) looks like. It was ~95 ns/op on the run that");
+    println!("cleared E3, against a 55x spread in tiles x ops.");
+    println!();
+    println!("`vello` varies run to run by a few hundred microseconds on this machine, so");
+    println!("read it as noise unless it moves by more than that. `invalidate` is stable.");
 }
