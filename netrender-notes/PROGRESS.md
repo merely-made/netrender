@@ -11,36 +11,36 @@ on a `webrender-wgpu-upstream/` side worktree. That checkout is gone; see
 
 ## Current canonical plans
 
-These two are the source of truth for the live architecture.
+Audited 2026-08-10. Four files, each with one job, plus a research
+record at the end.
 
-- [`2026-04-30_netrender_design_plan.md`](2026-04-30_netrender_design_plan.md)
-  — the parent plan: phases 0.5 → 12, axioms, crate split rationale,
-  Scene API contract, render-task graph, tile cache, axiom 14
-  compositor seam. Most of phases 1–9 landed; 10/11/12 still pending
-  per the vello plan's §12 phase mapping.
+- [`2026-05-04_feature_roadmap.md`](2026-05-04_feature_roadmap.md)
+  — **the only live checklist.** Phase R plus Phases A–G, every entry
+  with a trigger and a done condition. Start here to answer "what is
+  left". As of the audit, the answer is small: **D3** (native-compositor
+  handoff, netrender side complete, genet adapter 5.5 outstanding and
+  out-of-repo) and **R9** (linear-light blending, upstream-blocked on
+  vello's compute path, R9-canary will fire when it clears). Everything
+  else in Phases 0.5'–12b' has shipped with receipts.
 
 - [`2026-05-01_vello_rasterizer_plan.md`](2026-05-01_vello_rasterizer_plan.md)
-  — the vello pivot, runtime-verified through phase 7'. Replaces the
-  parent plan's batched-WGSL rasterizer. Status block at the top
-  records which §11 spike outcomes cleared. Phase 7' (Masonry pattern
-  tile cache) is the architectural heart and is delivered.
+  — **the live architecture.** The vello pivot, adopted and delivered.
+  Phase 7' (Masonry pattern tile cache) is its architectural heart. §12
+  is the phase mapping and the accurate status table.
 
-  **Post-pivot findings landed since (2026-05-04):** persistent
-  per-frame image cache (§11.9 wart, see also §11.16 polish), op-list
-  refactor with consumer-push painter order (§11.11),
-  variable-radius box-shadow blur via cascaded passes (§11.10),
-  `FontBlob` unified to `peniko::Blob<u8>` (§11.9), nested layers +
-  arbitrary-path clips via `SceneOp::PushLayer/PopLayer` (§11.14),
-  hit testing — stack-returning, layer-clip-aware, per-glyph
-  approximate (§11.12, §11.15, §11.16), `netrender_text` parley
-  adapter with decoration painting (§4.4 status block, §11.16),
-  edition-2021 bump, `Scene::clear_ops` helper. Test count at the
-  time: 105 passing, 1 ignored, 0 failed across the workspace
-  (2026-08-10: 271 passing, 1 ignored, 0 failed across 57 suites).
+- [`2026-05-01_vello_verification_record.md`](2026-05-01_vello_verification_record.md)
+  — **the evidence.** Split out of the plan on 2026-08-10, where it was
+  62% of the file. 34 entries, 32 CLEARED, one per spike or capability.
+  Section numbers unchanged, so `§11.x` still resolves. This is the
+  append target when a roadmap item lands.
 
-  Open items live in the feature roadmap (§11.99 was folded out
-  for findability):
-  [`2026-05-04_feature_roadmap.md`](2026-05-04_feature_roadmap.md)
+- [`2026-04-30_netrender_design_plan.md`](2026-04-30_netrender_design_plan.md)
+  — **axioms and crate rationale only.** Partly superseded: §3 axioms
+  and §4 crate structure still hold and are cited by number everywhere,
+  but §5's phase plan is replaced by the vello plan's §12, §7's open
+  questions are all closed or moot (one of them, the "no `hit_test()`
+  entry point" rule, was reversed in the code and is now documented as
+  such), and §9's time estimate is dead. Do not read it for direction.
 
 - [`2026-08-04_rasterizer_backend_seam.md`](2026-08-04_rasterizer_backend_seam.md)
   — research record, no implementation proposed. Revisits the vello
@@ -52,6 +52,13 @@ These two are the source of truth for the live architecture.
   have to tolerate two *retention models*. Also inventories the
   present `vello::Scene` coupling in shared retained state. Posture:
   credible future second backend, not a pending migration.
+
+A running list of post-pivot findings used to sit in this section. It
+duplicated the verification record entry by entry and went stale between
+updates, so it is gone. The record is the list.
+
+**Workspace state, 2026-08-10:** 271 tests passing, 1 ignored, 0 failed
+across 57 suites, on Windows. `cargo fmt --all --check` clean.
 
 ## Host verification
 
@@ -111,7 +118,7 @@ historical context, not for guidance.
 - `archive/2026-04-28_idiomatic_wgsl_pipeline_plan.md` — the
   idiomatic-wgpu-pipeline branch's approach (authored WGSL only, no GL,
   no SPIR-V intermediate). Was the active plan before the vello pivot;
-  preserved on its own branch (`idiomatic-wgpu-pipeline`).
+  the code is preserved at the `archive/idiomatic-wgpu-pipeline` tag.
 - `archive/2026-04-28_renderer_body_wgpu_adapter_plan.md` — `WgpuDevice`
   adapter early-stage planning. Subsumed by netrender_device's
   current shape.
