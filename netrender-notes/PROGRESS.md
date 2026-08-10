@@ -57,6 +57,24 @@ record at the end.
   have to tolerate two *retention models*. Also inventories the
   present `vello::Scene` coupling in shared retained state. Posture:
   credible future second backend, not a pending migration.
+
+- **Tenancy boot seam (landed 2026-08-10).** `netrender_device` now owns
+  booting one device for netrender *and a tenant renderer* drawing into
+  the same frame: `TenantNeeds` (required vs optional features, limits,
+  label) plus `boot_shared` / `boot_on` and their async forms. The
+  tenancy contract is documented on `TenantNeeds`: one device and queue,
+  the tenant owns its target texture, composition is explicit at a
+  stated scene-op boundary, receipts name the tenant. Arrived from the
+  games wing's R4 extraction review, which ruled the seam belongs *up*
+  here rather than sideways in a wing crate, since the composition half
+  (`ExternalTextureComposite`) was already netrender's. First consumer:
+  Paredros's room probe, which previously ran the adapter dance itself
+  and carried its own copy of netrender's inter-stage-variable minimum —
+  now `REQUIRED_INTER_STAGE_VARIABLES`, stated once. Receipts in
+  `netrender_device/tests/tenancy.rs`, including the trap the work
+  surfaced: wgpu 29 advertises experimental features on the adapter but
+  refuses the device unless they were asked for deliberately, so
+  opportunistic grants mask them out.
   Re-verified against hybrid 0.2.0 on 2026-08-10; blocker holds. The ask
   is drafted, unsent, at
   [`2026-08-10_vello_hybrid_upstream_ask.md`](2026-08-10_vello_hybrid_upstream_ask.md).

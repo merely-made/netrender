@@ -16,6 +16,87 @@
 /// `immediate_size: 0`, so it's pure carry-over and dropped here.
 pub const REQUIRED_FEATURES: wgpu::Features = wgpu::Features::empty();
 
+/// The one limit netrender raises above wgpu's defaults. Stated once,
+/// here, because every boot path has to apply it and a host that boots
+/// its own device was previously copying the number.
+pub const REQUIRED_INTER_STAGE_VARIABLES: u32 = 28;
+
+/// Netrender's limits, raised over whatever a tenant asked for.
+///
+/// Takes the larger of each side rather than netrender's flat, so a
+/// tenant that needs bigger buffers or more bind groups keeps them.
+fn raised_for_netrender(mut limits: wgpu::Limits) -> wgpu::Limits {
+    limits.max_inter_stage_shader_variables = limits
+        .max_inter_stage_shader_variables
+        .max(REQUIRED_INTER_STAGE_VARIABLES);
+    limits
+}
+
+/// What another renderer needs from the device it will share with
+/// netrender.
+///
+/// # The tenancy contract
+///
+/// A *tenant* is a second renderer drawing into the same frame as
+/// netrender: a 3D scene under the page, a game world under its chrome.
+/// The contract is deliberately narrow, and this type is the half of it
+/// that has to be settled at boot, before either renderer exists:
+///
+/// 1. **One device, one queue.** Both renderers use the same
+///    [`WgpuHandles`]. That is what lets the tenant's output be sampled
+///    without a copy, and it is the whole reason this type exists — a
+///    tenant that boots its own device gets a texture netrender cannot
+///    read.
+/// 2. **The tenant owns its target.** It renders into a texture it
+///    created, and hands netrender a view. Netrender never learns what
+///    a tenant draws.
+/// 3. **Composition is explicit.** The host composites that view at a
+///    stated scene-op boundary (`ExternalTextureComposite`), so whether
+///    chrome lands over or under the tenant is a decision in the host's
+///    code rather than an accident of draw order.
+/// 4. **Receipts name the tenant.** A frame produced with a tenant
+///    should say so where it reports timings, for the same reason the
+///    rasterizer is named: a composed frame and a plain one are
+///    different measurements.
+///
+/// Features are split by whether the tenant can do without them.
+/// [`Self::required_features`] fail the boot when the adapter lacks
+/// them; [`Self::optional_features`] are requested when present and
+/// silently skipped when not, which is how a tenant asks for
+/// `MULTI_DRAW_INDIRECT_COUNT` on a desktop adapter without ruling out
+/// a thin one.
+#[derive(Clone, Debug, Default)]
+pub struct TenantNeeds {
+    /// Features the tenant cannot work without.
+    pub required_features: wgpu::Features,
+    /// Features the tenant uses when the adapter has them.
+    pub optional_features: wgpu::Features,
+    /// Limits the tenant needs. Netrender's own minimums are raised
+    /// over these, never under. `None` means wgpu's defaults.
+    pub limits: Option<wgpu::Limits>,
+    /// Device label, for captures and debug output.
+    pub label: Option<&'static str>,
+}
+
+impl TenantNeeds {
+    /// The features to ask the adapter for: everything required, plus
+    /// whatever optional ones it actually has.
+    ///
+    /// Experimental features are dropped from the opportunistic half
+    /// even when the adapter advertises them. wgpu 29 reports them as
+    /// available but refuses the device unless they were asked for
+    /// deliberately (`ExperimentalFeaturesNotEnabled`), so granting one
+    /// because it happened to be there turns a working boot into a hard
+    /// failure. A tenant that genuinely wants one names it in
+    /// [`Self::required_features`], which is the deliberate ask wgpu is
+    /// looking for.
+    fn features(&self, available: wgpu::Features) -> wgpu::Features {
+        let opportunistic =
+            self.optional_features & available & !wgpu::Features::all_experimental_mask();
+        REQUIRED_FEATURES | self.required_features | opportunistic
+    }
+}
+
 /// Bundle of wgpu primitives owned by the embedder and passed through
 /// `create_netrender_instance` to the renderer. All four wgpu 29 handle
 /// types are `Clone` (Arc-wrapped internally), so passing by value is
@@ -92,6 +173,29 @@ fn default_backends() -> wgpu::Backends {
 /// Boot with an explicit backend set (e.g. a host that wants D3D12 for same-API
 /// system-WebView texture import). `WgpuHandles` is otherwise identical.
 pub async fn boot_async_with(backends: wgpu::Backends) -> Result<WgpuHandles, BootError> {
+    boot_async_shared(backends, None, &TenantNeeds::default()).await
+}
+
+/// Boot one device for netrender **and a tenant renderer**.
+///
+/// The tenancy contract is on [`TenantNeeds`]; this is the boot half of
+/// it. A host that draws a 3D scene under its chrome states what that
+/// renderer needs and gets handles both can use, instead of running the
+/// adapter dance itself and hoping the two feature sets agree. Booting
+/// separately is the failure this prevents: two devices cannot share a
+/// texture, so the composite silently has nothing to sample.
+///
+/// `compatible` is the surface the handles must be able to present to,
+/// when the host has already created one.
+///
+/// Fails with [`BootError::MissingFeatures`] naming exactly what is
+/// absent, whether the gap is netrender's or the tenant's, rather than
+/// failing later at pipeline creation where the cause is unrecoverable.
+pub async fn boot_async_shared(
+    backends: wgpu::Backends,
+    compatible: Option<&wgpu::Surface<'_>>,
+    needs: &TenantNeeds,
+) -> Result<WgpuHandles, BootError> {
     let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
         backends,
         flags: wgpu::InstanceFlags::default(),
@@ -99,28 +203,40 @@ pub async fn boot_async_with(backends: wgpu::Backends) -> Result<WgpuHandles, Bo
         backend_options: wgpu::BackendOptions::default(),
         display: None,
     });
+    boot_async_on(instance, compatible, needs).await
+}
 
+/// [`boot_async_shared`] against an instance the host already made.
+///
+/// Separate because a windowing host creates its instance before it has
+/// a surface to be compatible with, and the instance must be the same
+/// one the surface came from.
+pub async fn boot_async_on(
+    instance: wgpu::Instance,
+    compatible: Option<&wgpu::Surface<'_>>,
+    needs: &TenantNeeds,
+) -> Result<WgpuHandles, BootError> {
     let adapter = instance
         .request_adapter(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::HighPerformance,
-            compatible_surface: None,
+            compatible_surface: compatible,
             force_fallback_adapter: false,
         })
         .await?;
 
-    let missing = REQUIRED_FEATURES - adapter.features();
+    // Required only. Optional tenant features are dropped rather than
+    // demanded, which is the difference between a thin adapter running
+    // without them and refusing to boot at all.
+    let missing = (REQUIRED_FEATURES | needs.required_features) - adapter.features();
     if !missing.is_empty() {
         return Err(BootError::MissingFeatures(missing));
     }
 
     let (device, queue) = adapter
         .request_device(&wgpu::DeviceDescriptor {
-            label: Some("netrender device"),
-            required_features: REQUIRED_FEATURES,
-            required_limits: wgpu::Limits {
-                max_inter_stage_shader_variables: 28,
-                ..Default::default()
-            },
+            label: Some(needs.label.unwrap_or("netrender device")),
+            required_features: needs.features(adapter.features()),
+            required_limits: raised_for_netrender(needs.limits.clone().unwrap_or_default()),
             ..Default::default()
         })
         .await?;
@@ -152,6 +268,27 @@ pub fn boot() -> Result<WgpuHandles, BootError> {
 #[cfg(not(target_arch = "wasm32"))]
 pub fn boot_with(backends: wgpu::Backends) -> Result<WgpuHandles, BootError> {
     pollster::block_on(boot_async_with(backends))
+}
+
+/// Blocking [`boot_async_shared`] — one device for netrender and a
+/// tenant renderer.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn boot_shared(
+    backends: wgpu::Backends,
+    compatible: Option<&wgpu::Surface<'_>>,
+    needs: &TenantNeeds,
+) -> Result<WgpuHandles, BootError> {
+    pollster::block_on(boot_async_shared(backends, compatible, needs))
+}
+
+/// Blocking [`boot_async_on`] — share the host's own instance.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn boot_on(
+    instance: wgpu::Instance,
+    compatible: Option<&wgpu::Surface<'_>>,
+    needs: &TenantNeeds,
+) -> Result<WgpuHandles, BootError> {
+    pollster::block_on(boot_async_on(instance, compatible, needs))
 }
 
 #[cfg(test)]
