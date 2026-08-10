@@ -1,10 +1,23 @@
 # Netrender Design Plan (2026-04-30)
 
-**Status**: Active. Sole forward-looking plan; supersedes all prior
-plans in `netrender-notes/`. The historical plans (pipeline-first
-migration, idiomatic-wgsl pipeline, renderer-body adapter) document
-the failed attempts to retrofit GL-era webrender; they survive as
-record, not as direction.
+**Status (revised 2026-08-10)**: partly superseded. Read this for its
+axioms and its crate rationale, not for direction.
+
+- **§3 axioms** and **§4 crate structure** are still authoritative.
+  Everything cites them by number (axiom 11, 14, 15), and the crate
+  split they describe is the one that shipped.
+- **§5 phase plan** is superseded by
+  [`2026-05-01_vello_rasterizer_plan.md`](2026-05-01_vello_rasterizer_plan.md)
+  §12, which renumbers every phase and records what actually landed.
+- **§7 open questions** is mostly closed or moot; see the banner there.
+- **§9 time estimate** is dead. See the banner there.
+- Live open work is on
+  [`2026-05-04_feature_roadmap.md`](2026-05-04_feature_roadmap.md),
+  which is the only checklist worth tracking.
+
+It still supersedes the older plans (pipeline-first migration,
+idiomatic-wgsl pipeline, renderer-body adapter), which document the
+failed attempts to retrofit GL-era webrender and survive as record.
 
 **Premise**: Build a wgpu-native 2D renderer that ingests display
 lists and produces pixels. No GL. No GL-era assumptions. No
@@ -220,6 +233,13 @@ narrow public API to build frames — its types (`PreparedFrame`,
 
 ## 5. Phase plan
 
+> **Superseded (2026-08-10).** The vello pivot renumbered all of this.
+> For what each phase became and whether it landed, read
+> [`2026-05-01_vello_rasterizer_plan.md`](2026-05-01_vello_rasterizer_plan.md)
+> §12, not this section. Everything through Phase 12b' has shipped.
+> What survives here is the reasoning behind each phase boundary and
+> the receipt-per-phase discipline, which the vello path kept.
+
 Each phase has a smallest-thing-that-works receipt. Each phase
 that ships pixels has a golden test. **Don't move past a phase
 without its golden.**
@@ -263,7 +283,7 @@ and `netrender/` (renderer shell). Move:
   --no-run` fails outright; deleting it is what makes the Phase
   0.5 receipt below achievable.
 - **Demote `REQUIRED_FEATURES`.** Today
-  [core.rs](../../netrender/src/device/wgpu/core.rs) hard-requires
+  [core.rs](../netrender_device/src/core.rs) hard-requires
   `IMMEDIATES.union(DUAL_SOURCE_BLENDING)`. `IMMEDIATES` is unused
   — `brush_solid`'s pipeline declares `immediate_size: 0`. Drop
   it. `DUAL_SOURCE_BLENDING` is only needed for the Phase 10
@@ -278,7 +298,7 @@ and `netrender/` (renderer shell). Move:
   `fractional_radii`, `indirect_rotate`,
   `linear_aligned_border_radius`) captured 2026-04-28 from
   `upstream/0.68` GL with full provenance — see
-  [tests/oracle/README.md](../../netrender/tests/oracle/README.md).
+  [tests/oracle/README.md](../netrender/tests/oracle/README.md).
   Move the directory to `netrender/tests/oracle/` (renderer-side,
   since goldens are scene-level). Don't re-capture; don't treat
   them as missing assets. Phase 2 decides per-scene which survive
@@ -1189,7 +1209,7 @@ These aren't phases; they live alongside everything.
   only on root-cause analysis.
 - Oracle directory `netrender/tests/oracle/` already carries five
   PNG/YAML pairs captured 2026-04-28 from `upstream/0.68` GL —
-  see [tests/oracle/README.md](../../netrender/tests/oracle/README.md)
+  see [tests/oracle/README.md](../netrender/tests/oracle/README.md)
   for provenance. Today only `oracle_blank_smoke` is wired through
   the wgpu device; the other four are frozen GL-reference assets
   waiting for the matching primitive to land. Phase 0.5 preserves
@@ -1285,6 +1305,39 @@ not a Phase-7-style inner shift.
   Phase 5 onward.
 
 ## 7. Open questions / decisions deferred
+
+> **Audited 2026-08-10.** None of these is still open. Four were
+> answered by shipping, six were made moot by the vello pivot, and one
+> was quietly reversed. Dispositions, in the numbering below:
+>
+> | # | Disposition |
+> | --- | --- |
+> | 1 Threading model | Answered. Multi-thread scene building landed; see verification record §11.32. |
+> | 2 Picture-cache slices | Answered differently. Phase 7' used the Masonry pattern, not webrender's slice-builder. |
+> | 3 Hit testing | **Reversed. See below.** |
+> | 4 Glyph rasterizer | Moot. `wr_glyph_rasterizer` was never lifted; vello + skrifa + parley replaced it. |
+> | 5 Async pipeline compile | Moot. Netrender owns no shader families now. |
+> | 6 Surface format | Was already decided, not deferred. Unchanged. |
+> | 7 Dynamic offsets vs push constants | Moot. No own pipelines. |
+> | 8 Storage-buffer limits | Moot. No gpu-cache. |
+> | 9 Memory budget enforcement | Still live in spirit; the per-surface tile caches carry it. Not tracked here. |
+> | 10 WGSL structure | Moot. The WGSLs were deleted at the pivot. |
+>
+> **On item 3.** This section says netrender must not ship "a
+> `hit_test(x, y)` entry point". It does:
+> [`netrender/src/lib.rs`](../netrender/src/lib.rs) re-exports
+> `hit_test`, `hit_test_topmost`, `HitResult` and `HitOpKind`, and
+> `hit_test(scene: &Scene, point: [f32; 2])` is a public free function.
+> The reversal was never written down here.
+>
+> It is a softer reversal than it reads. The axiom-15 concern was
+> renderer-as-subsystem: a method on `Renderer`, tag-based filtering
+> policy, async hit-test transaction queues. None of that shipped. What
+> shipped is a free function over a `Scene`, which is closer to the
+> "publish the building blocks" half of the decision than to the thing
+> it warned against. The escape hatch this section named, a sibling
+> `netrender_hittest` crate, was not taken either. If the boundary ever
+> needs re-litigating, that is the option on the table.
 
 These are real design questions that don't need to be answered
 before Phase 0.5 / Phase 1, but will be load-bearing as later
@@ -1384,6 +1437,18 @@ Don't blanket-restore modules. Lift the function or struct that
 encodes the algorithm; leave the indirection-token plumbing behind.
 
 ## 9. Time + scope estimate
+
+> **Dead (2026-08-10).** Kept only as a record of how badly the
+> pre-pivot cost model missed. This projected ~13 months of focused dev
+> for webrender equivalence, with a static-page demo at month 4-5.
+> The vello pivot landed everything through Phase 12b' with receipts by
+> 2026-05-08, about three months after this was written, because most
+> of the estimate was for shader families, clip masks, and a text atlas
+> that vello made unnecessary.
+>
+> Track done conditions on
+> [`2026-05-04_feature_roadmap.md`](2026-05-04_feature_roadmap.md).
+> Nothing in netrender-notes should carry a duration estimate again.
 
 Per the reviewer's adjusted read:
 

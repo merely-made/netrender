@@ -54,7 +54,7 @@ activates the fix, and the done condition. Move into a
   [`netrender/tests/pr1_per_glyph_hit_metrics.rs`](../netrender/tests/pr1_per_glyph_hit_metrics.rs)
   — clicks on a 'g' descender hit under real metrics where
   em-box would have missed. Full finding:
-  [rasterizer plan §11.23](2026-05-01_vello_rasterizer_plan.md).
+  [verification record §11.23](2026-05-01_vello_verification_record.md).
 
 - [x] **R2. Per-segment point-in-polygon for `SceneOp::Shape`** —
   **CLEARED 2026-05-06**.
@@ -65,7 +65,7 @@ activates the fix, and the done condition. Move into a
   Sanity-checked against parley's `Selection`-style trigger framing
   per the feedback memory: the wrap was a thin pass-through over
   kurbo's existing API, no speculation. Full finding:
-  [rasterizer plan §11.20](2026-05-01_vello_rasterizer_plan.md).
+  [verification record §11.20](2026-05-01_vello_verification_record.md).
 
 - [x] **R3. Layer-clip path-precise containment** — **CLEARED
   2026-05-06**.
@@ -73,7 +73,7 @@ activates the fix, and the done condition. Move into a
   `clip_aabb_contains_point`'s `SceneClip::Path` and rounded-rect
   branches. Sharp axis-aligned rect clips skip the path-precise
   check. Non-invertible transforms remain AABB-conservative. Full
-  finding: [rasterizer plan §11.20](2026-05-01_vello_rasterizer_plan.md).
+  finding: [verification record §11.20](2026-05-01_vello_verification_record.md).
 
 - [x] **R4. Image cache for the simple (non-tile) rasterizer** —
   **CLEARED 2026-05-06**.
@@ -84,7 +84,7 @@ activates the fix, and the done condition. Move into a
   Receipt at
   [`netrender/tests/pr4_simple_rasterizer_image_cache.rs`](../netrender/tests/pr4_simple_rasterizer_image_cache.rs)
   (7/7). Full finding:
-  [rasterizer plan §11.24](2026-05-01_vello_rasterizer_plan.md).
+  [verification record §11.24](2026-05-01_vello_verification_record.md).
 
 - [x] **R5. Downscale-blur-upscale for very large blurs** —
   **CLEARED 2026-05-06**.
@@ -98,7 +98,7 @@ activates the fix, and the done condition. Move into a
   at
   [`netrender/tests/pr5_downscale_blur.rs`](../netrender/tests/pr5_downscale_blur.rs)
   (2/2 GPU + 9/9 CPU planner tests in `blur_plan_tests`). Full
-  finding: [rasterizer plan §11.28](2026-05-01_vello_rasterizer_plan.md).
+  finding: [verification record §11.28](2026-05-01_vello_verification_record.md).
 
 - [x] **R6. Inline-box rendering helper in `netrender_text`** —
   **CLEARED 2026-05-06**.
@@ -113,7 +113,7 @@ activates the fix, and the done condition. Move into a
   change. Sanity-check confirmed: parley's `PositionedLayoutItem`
   surface was already in shape, so the wrap was no-speculation
   ship-now work. Full finding:
-  [rasterizer plan §11.21](2026-05-01_vello_rasterizer_plan.md).
+  [verification record §11.21](2026-05-01_vello_verification_record.md).
 
 - [ ] **R9. Linear-light blending wrap** (rasterizer plan §6.3,
   Pitfall #2; `p1prime_03`).
@@ -155,7 +155,7 @@ when adding a primitive, profile the impact when adding a filter.
 Order within Phase A is by value-to-cost ratio, smallest first.
 
 - [x] **A1. Op-list inspector** — **CLEARED**.
-  `Scene::dump_ops()` ([scene.rs:1444](../netrender/src/scene.rs))
+  `Scene::dump_ops()` ([scene.rs:1444](../netrender/src/scene/mod.rs))
   returns a multi-line per-op summary; non-default transform / clip /
   scene-level alpha / blend modifiers surface inline; nested layer
   scopes indent. Receipt at
@@ -164,7 +164,7 @@ Order within Phase A is by value-to-cost ratio, smallest first.
 
 - [x] **A2. Scene capture / replay** — **CLEARED**.
   `Scene::snapshot_postcard` / `replay_postcard` and
-  `snapshot_json` / `replay_json` ([scene.rs:2076](../netrender/src/scene.rs))
+  `snapshot_json` / `replay_json` ([scene.rs:2076](../netrender/src/scene/mod.rs))
   ship behind the `serde` feature (off by default — only consumers
   who want capture pull serde + postcard + serde_json). Custom
   `blob_serde` preserves `peniko::Blob` ids across round-trip
@@ -221,11 +221,11 @@ caret in composers, scrolling in feed readers).
   (7/7). Trigger framing was protective rather than technical —
   parley's selection API was already in shape, so the wrap was
   ship-now-no-speculation. Full finding:
-  [rasterizer plan §11.19](2026-05-01_vello_rasterizer_plan.md).
+  [verification record §11.19](2026-05-01_vello_verification_record.md).
 
 - [x] **B2. Scrolling convenience** — **CLEARED**.
   `Scene::push_scroll_frame(clip_rect, scroll_offset)`
-  ([scene.rs:1384](../netrender/src/scene.rs)) opens a layer with
+  ([scene.rs:1384](../netrender/src/scene/mod.rs)) opens a layer with
   a rect clip + a translate transform and returns the inner
   `transform_id` for primitives inside the scope. Matching
   `pop_scroll_frame()` is a thin alias for `PopLayer`. Receipt at
@@ -239,7 +239,7 @@ caret in composers, scrolling in feed readers).
   [`netrender_text/tests/pb3_color_emoji_probe.rs`](../netrender_text/tests/pb3_color_emoji_probe.rs)
   measured a 91% chromatic ratio rendering Segoe UI Emoji through
   the vello path. Full finding:
-  [rasterizer plan §11.18](2026-05-01_vello_rasterizer_plan.md).
+  [verification record §11.18](2026-05-01_vello_verification_record.md).
   No netrender-side work item; re-run the probe on text-stack bumps
   as a regression canary.
 
@@ -261,7 +261,7 @@ gains one match arm per item.
   Receipt at
   [`netrender/tests/pc1_stroke_decorations.rs`](../netrender/tests/pc1_stroke_decorations.rs)
   (8/8). Full finding:
-  [rasterizer plan §11.25](2026-05-01_vello_rasterizer_plan.md).
+  [verification record §11.25](2026-05-01_vello_verification_record.md).
 
 - [x] **C2. `SceneOp::Pattern`** — **CLEARED 2026-05-06**.
   New `ScenePattern { tile, extent, scale, transform_id, clip_rect,
@@ -272,7 +272,7 @@ gains one match arm per item.
   Receipt at
   [`netrender/tests/pc2_pattern_op.rs`](../netrender/tests/pc2_pattern_op.rs)
   (8/8). Full finding:
-  [rasterizer plan §11.26](2026-05-01_vello_rasterizer_plan.md).
+  [verification record §11.26](2026-05-01_vello_verification_record.md).
 
 - [x] **C3. Mask-image fills** — **CLEARED 2026-05-06**.
   New `SceneCompose` enum (SrcOver / DestIn) added as a per-layer
@@ -285,7 +285,7 @@ gains one match arm per item.
   [`netrender/tests/pc3_alpha_mask_layer.rs`](../netrender/tests/pc3_alpha_mask_layer.rs)
   (5/5 — including GPU smoke that proves a half-and-half mask
   shows content on one side and zero on the other). Full finding:
-  [rasterizer plan §11.29](2026-05-01_vello_rasterizer_plan.md).
+  [verification record §11.29](2026-05-01_vello_verification_record.md).
 
 - [x] **C4. Variable fonts axis interpolation** — **CLEARED 2026-05-06**.
   `SceneGlyphRun` gained `font_axis_values: Vec<(SceneFontAxisTag,
@@ -299,7 +299,7 @@ gains one match arm per item.
   (7/7) — including a GPU smoke that renders Bahnschrift at three
   weights and verifies bold paints visibly more ink than light. Full
   finding:
-  [rasterizer plan §11.27](2026-05-01_vello_rasterizer_plan.md).
+  [verification record §11.27](2026-05-01_vello_verification_record.md).
 
 ---
 
@@ -321,7 +321,7 @@ Items that need real design conversation, not just implementation.
   background under a `Blur(12)` filter shows >50% reduction in
   local horizontal variance compared to the unfiltered reference.
   Full finding:
-  [rasterizer plan §11.30](2026-05-01_vello_rasterizer_plan.md).
+  [verification record §11.30](2026-05-01_vello_verification_record.md).
 
 - [x] **D2. Animated values** — **CLEARED 2026-05-08**.
   New [`netrender::interpolate`](../netrender/src/interpolate.rs)
@@ -333,7 +333,7 @@ Items that need real design conversation, not just implementation.
   and rebuilds the Scene per frame with resolved values — keeps
   the determinism invariant from A2 intact. Receipt: 14 unit
   tests in `netrender::interpolate::tests`. Full finding:
-  [rasterizer plan §11.31](2026-05-01_vello_rasterizer_plan.md).
+  [verification record §11.31](2026-05-01_vello_verification_record.md).
 
 - [ ] **D3. Native-compositor handoff (axiom 14) via path (b′)** —
   exporting per-surface textures to native OS compositors so the OS
@@ -380,7 +380,7 @@ A4-gated** — listed for visibility only.
   [`netrender/tests/pe2_scene_fragment.rs`](../netrender/tests/pe2_scene_fragment.rs)
   (9/9) — including a 4-thread parallel build of 10k ops that
   confirms the API works end-to-end. Full finding:
-  [rasterizer plan §11.32](2026-05-01_vello_rasterizer_plan.md).
+  [verification record §11.32](2026-05-01_vello_verification_record.md).
 
 ---
 

@@ -8,7 +8,7 @@ record** — what each was, where it went, why.
 The items:
 
 - **12c' backdrop filter** — now active; see roadmap [`D1` in
-  `2026-05-04_feature_roadmap.md`](2026-05-04_feature_roadmap.md).
+  `2026-05-04_feature_roadmap.md`](../2026-05-04_feature_roadmap.md).
   Implementation approach: extend `SceneLayer` with an optional
   `backdrop_filter: Option<SceneFilter>` field; slice the
   per-frame op list at each backdrop-filter index and run a
@@ -19,7 +19,7 @@ The items:
 
 - **13' native-compositor handoff (axiom 14)** — now active via
   **path (b′)**. See
-  [`2026-05-05_compositor_handoff_path_b_prime.md`](2026-05-05_compositor_handoff_path_b_prime.md)
+  [`2026-05-05_compositor_handoff_path_b_prime.md`](../2026-05-05_compositor_handoff_path_b_prime.md)
   for the full design. Path-summary: keep the single master
   render (Masonry preserved), expose dirty-region info per
   declared compositor surface at the API level, hand the master
@@ -38,7 +38,7 @@ The items:
   → trigger fired → wrap to expose `interpolation_color_space`.
   Canary and wrap both live under roadmap **R9** (the canary as a
   trigger-setup sub-bullet, the wrap as the parent entry). See
-  [roadmap R9](2026-05-04_feature_roadmap.md).
+  [roadmap R9](../2026-05-04_feature_roadmap.md).
 
 ---
 
