@@ -17,3 +17,5 @@ serde.workspace = true
 # Corpus fixtures (tests/corpus/*.paintlist) are postcard-encoded
 # PaintEnvelopes. Same encoding netrender's A2 Scene capture uses.
 postcard = { version = "1", features = ["alloc"] }
+# pe4 leaf-fragment e2e boots a real device and reads pixels back.
+wgpu.workspace = true

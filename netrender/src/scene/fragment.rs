@@ -32,11 +32,6 @@ use super::*;
 /// calls `append_fragment`. Parallel scene-building consumers must
 /// decide their painter-order policy explicitly (typically: each
 /// fragment owns a Z-band or a workspace pane).
-/// Roadmap E4 — registry key for a retained fragment, allocated by
-/// `Renderer::register_fragment`. Stable for the fragment's lifetime;
-/// referenced from scenes via [`super::ScenePlacedFragment`].
-pub type FragmentId = u64;
-
 #[derive(Debug, Clone)]
 pub struct SceneFragment {
     /// Draw operations in painter order (fragment-local).
@@ -117,7 +112,49 @@ impl SceneFragment {
             clip_corner_radii: SHARP_CLIP,
         }));
     }
+
+    /// Roadmap E4 — repackage a built `Scene` as a fragment, so
+    /// translation pipelines that produce Scenes (`paint_list_render`)
+    /// can feed the retained-fragment registry without a second
+    /// translator.
+    ///
+    /// Moves the four content tables across; both types share the
+    /// index-0 conventions (identity transform, sentinel font), so ids
+    /// carry over unchanged. Scene-level state that a fragment cannot
+    /// carry is dropped, loudly where it would change pixels:
+    /// `root_alpha` / `root_blend_mode` are placement-time concerns
+    /// (wrap the placement in a `SceneLayer` instead), and declared
+    /// compositor surfaces are per-frame state that cannot be retained.
+    pub fn from_scene(scene: crate::scene::Scene) -> Self {
+        if scene.root_alpha != 1.0 || scene.root_blend_mode != crate::scene::SceneBlendMode::Normal
+        {
+            log::warn!(
+                "SceneFragment::from_scene: dropping scene-level alpha/blend \
+                 (alpha={}, blend={:?}); wrap the placement in a SceneLayer instead",
+                scene.root_alpha,
+                scene.root_blend_mode
+            );
+        }
+        if !scene.compositor_surfaces.is_empty() {
+            log::warn!(
+                "SceneFragment::from_scene: dropping {} declared compositor surface(s); \
+                 surfaces are per-frame state and cannot be retained in a fragment",
+                scene.compositor_surfaces.len()
+            );
+        }
+        Self {
+            ops: scene.ops,
+            transforms: scene.transforms,
+            fonts: scene.fonts,
+            image_sources: scene.image_sources,
+        }
+    }
 }
+
+/// Roadmap E4 — registry key for a retained fragment, allocated by
+/// `Renderer::register_fragment`. Stable for the fragment's lifetime;
+/// referenced from scenes via [`ScenePlacedFragment`].
+pub type FragmentId = u64;
 
 impl Scene {
     /// Roadmap E2 — merge a fragment into this Scene. Ops, fonts,

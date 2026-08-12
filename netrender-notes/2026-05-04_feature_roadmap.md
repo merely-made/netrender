@@ -498,12 +498,29 @@ A4-gated** — listed for visibility only.
   [verification record §11.36](2026-05-01_vello_verification_record.md).
   Design: [`2026-08-10_fragment_retention_design.md`](2026-08-10_fragment_retention_design.md).
 
-  **Still open before E4 closes for real** (the original trigger — a
-  committed consumer plus an end-to-end emit+translate+render profile —
-  applies to this list, not to the spike):
+  **Consumer committed 2026-08-12: sprigging.** Its retention model
+  maps onto fragments with no impedance: `Leaf::paint_dirty` is the
+  generation signal, `RenderedLeaves` already caches each leaf's
+  `PaintCmd` splice with an `epoch`, and the leaf's layout box is the
+  placement. The bridge shipped on netrender's side:
+  `paint_list_render::translate_paint_cmds_to_fragment` (splice →
+  `SceneFragment`, via the existing stream translator +
+  `SceneFragment::from_scene`), with the sprigging-shaped e2e receipt
+  at `paint_list_render/tests/pe4_leaf_fragment_e2e.rs`: leaf splice →
+  fragment → placed at the box renders pixel-identical to the
+  envelope path, layout moves do not re-lower, epoch bumps re-lower
+  exactly once. Genet-side wiring (host maps leaf key → `FragmentId`,
+  epoch → `update_fragment`, box → `place_fragment`) waits for the
+  cambium host tree to settle — it is mid-flight with concurrent work
+  as of this writing.
+
+  **Still open before E4 closes for real:**
+  - The genet-side host wiring above, plus the end-to-end
+    emit+translate+render profile of the real host loop.
   - Hit testing does not resolve fragment content (no registry access
     from `hit_test`). The likeliest shape is a renderer-side entry
-    point; decide against a consumer.
+    point; decide against the sprigging host's needs (`Leaf::event`
+    routing is the consumer).
   - Layer-scoped placements fall back to un-retained inlining
     (pixel-correct, warned). Fine until a consumer's real scenes say
     otherwise.

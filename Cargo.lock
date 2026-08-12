@@ -904,6 +904,7 @@ dependencies = [
  "paint_list_api",
  "postcard",
  "serde",
+ "wgpu",
 ]
 
 [[package]]

@@ -16,6 +16,15 @@ architecture.
 > §4 is now drafted as something to send:
 > [`2026-08-10_vello_hybrid_upstream_ask.md`](2026-08-10_vello_hybrid_upstream_ask.md).
 > Not filed. Version numbers below refer to 0.1.0 unless stated.
+>
+> **Deepened 2026-08-12 by a source read** (`scene.rs` on vello main):
+> hybrid generates sparse strips *at record time* against the active
+> transform, retaining strip ranges + encoded paints, not source paths.
+> So the missing `append` is architectural, not an omission: no-transform
+> append is mechanical-ish, integer-translate append is a strip-shift,
+> and full-affine append would require retaining paths. The ask now
+> presents those three shapes; the "two retention models" framing in §4
+> stands confirmed from the inside.
 
 Question that prompted it: could `vello_hybrid` serve as a second
 rasterizer behind netrender's seam, to reach WebGL2-only browsers that
