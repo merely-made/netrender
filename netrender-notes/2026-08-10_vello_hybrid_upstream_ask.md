@@ -48,6 +48,37 @@ Failing that, the minimal unblocking change is making `CommandRecorder`
 (or an equivalent replay entry point) public, so a consumer can build
 composition itself without upstream committing to an API shape.
 
+### Why this is not mechanical for hybrid (source findings, 2026-08-12)
+
+Read against `sparse_strips/vello_hybrid/src/scene.rs` on main before
+drafting the offer, because the shape of the work changes the ask.
+Hybrid's `Scene` holds `strip_storage` (sparse coverage strips,
+**generated at record time** against the active transform and viewport),
+`encoded_paints`, and a `CommandRecorder<RecordedDraw>` whose entries
+hold strip *ranges* into that storage. Source paths are not retained:
+by the time a draw is recorded, the geometry has already been flattened
+to viewport-space strips.
+
+So the missing `append` is not an oversight; it is the architecture.
+Three implementable shapes, in ascending ambition:
+
+1. **`append(other, None)`** — same viewport, no transform: concatenate
+   strip storage (offsetting recorded strip ranges), remap encoded-paint
+   indices, concatenate commands. Mechanical-ish, and already enough for
+   composition patterns that pre-place content at record time.
+2. **`append(other, translate)` for integer translations** — shift
+   strip coordinates. Covers the retained pan/scroll case, which our
+   measurements say is the case that matters, without retaining source
+   geometry.
+3. **Full affine `append`** — requires retaining paths (a real retained
+   command list ahead of strip generation). An architectural decision
+   for upstream, not a drive-by PR.
+
+The offer should present these and ask which shape upstream wants,
+rather than presuming the vello-mirror signature. Our fragment-retention
+measurements (below) are the evidence for why (2) is worth having even
+if (3) is out of scope.
+
 ## Why it is load-bearing rather than a convenience
 
 Netrender caches lowered geometry per screen tile. Each frame it:
@@ -132,13 +163,34 @@ showing why consumers end up needing to.
   including a full-web engine, and hybrid's WebGL2 target is exactly the
   case we cannot currently reach.
 
+## Fork versus patch, if we prototype first
+
+No standing fork is needed to build the prototype. `vello_hybrid` lives
+in the `linebender/vello` monorepo, so the working posture is the same
+one this workspace already uses for the genet family: a branch on a
+GitHub fork of the monorepo carrying the append commit(s), consumed via
+
+```toml
+[patch.crates-io]
+vello_hybrid = { git = "https://github.com/mark-ik/vello", branch = "mark-ik/hybrid-scene-append" }
+```
+
+in whichever workspace hosts the hybrid-backend experiment. The delta
+rebases forward on upstream; if the PR lands, the patch entry deletes
+itself. A heavy fork (own lineage, like netrender's origin) only enters
+the picture if upstream rejects the direction *and* the backend still
+needs it, which is a bridge to not build in advance. Note netrender
+itself needs no patch at all today: nothing depends on `vello_hybrid`
+until the backend seam work actually starts.
+
 ## Two things to decide before sending
 
 1. **Issue or discussion.** This is an API-shape request with a design
    consequence for upstream, not a bug. A discussion thread probably
-   fits better, with the concrete signature as a starting proposal
-   rather than a demand.
-2. **Whether to offer the PR.** `vello::Scene::append` already exists,
-   so there is a reference implementation in the same workspace. If
-   upstream is receptive to the shape, offering to write it is cheap and
-   makes the ask concrete.
+   fits better, with the source findings above as the opening analysis
+   and shape (2) as the starting proposal rather than a demand.
+2. **Whether to offer the PR.** For shapes (1) and (2) the offer is
+   credible and cheap: strip-range and paint-index remapping against
+   their own encoding, with `vello::Scene::append` as the semantic
+   reference. Shape (3) should be offered as design participation, not
+   a patch.

@@ -141,6 +141,34 @@ fragment, not per tile; tiles remain the invalidation and A3-overlay
 vocabulary, and the unit any future partial-present or OS-compositor
 work (D3) speaks.
 
+## 4.5 The sprigging mapping (added 2026-08-12)
+
+The first committed consumer, and the reason §5's argument was right:
+sprigging already owns the diffing half. The mapping is direct enough
+to tabulate:
+
+| sprigging | fragments |
+| --- | --- |
+| leaf key (`u64`) | `FragmentId` (host keeps the key → id map) |
+| `Leaf::paint_dirty` / `RenderedLeaf.epoch` | generation (`update_fragment` on epoch move) |
+| `RenderedLeaf.splice: Vec<PaintCmd>` | `translate_paint_cmds_to_fragment` → content |
+| leaf's layout box | `place_fragment(id, translate(box))` |
+| `LeafRegistry::retain` sweep | `remove_fragment` |
+
+The bridge is `paint_list_render::translate_paint_cmds_to_fragment`
+plus `SceneFragment::from_scene`; the e2e receipt
+(`pe4_leaf_fragment_e2e`) drives the full flow against the envelope
+path. What the seam buys sprigging: today its retention chain stops at
+the command cache — every frame still re-splices every leaf's commands
+into the envelope and re-translates and re-lowers them. With fragments
+the chain extends through translation and lowering, and a leaf that
+merely moved (relayout) costs an append.
+
+Two boundaries stay honest: Path-B leaves (external textures) keep the
+envelope path, since composite state is per-frame by nature; and
+blurred box-shadow masks cannot ride in a fragment (masks are built per
+frame by the host painter), which the translator warns about.
+
 ## 5. Who diffs: the xilem question
 
 Netrender should grow identity and lifecycle, and nothing else. The

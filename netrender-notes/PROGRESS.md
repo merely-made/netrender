@@ -31,10 +31,13 @@ record at the end.
   737 µs with the page retained as one fragment, on mainline vello
   (no fork — `Scene::append` was the only primitive needed). Receipts
   in `pe4_fragment_retention` (7/7), finding at verification record
-  §11.36. What remains gated on a committed consumer: hit-test
-  resolution for fragments, layer-scoped retention, and the consumer
-  contract itself. See
-  [`2026-08-10_fragment_retention_design.md`](2026-08-10_fragment_retention_design.md).
+  §11.36. **Sprigging committed as the first consumer 2026-08-12**; the
+  bridge (`translate_paint_cmds_to_fragment` +
+  `SceneFragment::from_scene`) and the sprigging-shaped e2e receipt
+  live in `paint_list_render`. Genet-side host wiring waits on the
+  cambium tree settling. Remaining gaps: hit-test resolution for
+  fragments, layer-scoped retention, the host profile. See
+  [`2026-08-10_fragment_retention_design.md`](2026-08-10_fragment_retention_design.md) §4.5.
 
 - [`2026-05-01_vello_rasterizer_plan.md`](2026-05-01_vello_rasterizer_plan.md)
   — **the live architecture.** The vello pivot, adopted and delivered.

@@ -122,6 +122,58 @@ pub fn translate_envelope(envelope: &paint_list_api::PaintEnvelope) -> Scene {
     translate_paint_list(envelope)
 }
 
+/// Roadmap E4 — translate a `PaintCmd` stream into a retained
+/// [`netrender::scene::SceneFragment`], for consumers whose paint
+/// output is already cached per retained unit.
+///
+/// The sprigging shape this exists for: a `Leaf` repaints only when
+/// `paint_dirty`, `RenderedLeaves` caches each leaf's command splice
+/// with an epoch, and the host today re-splices every leaf's commands
+/// into every frame's envelope anyway. With this entry point the host
+/// instead translates a leaf's splice once per epoch, registers it
+/// (`Renderer::register_fragment` / `update_fragment` on epoch change),
+/// and places it per frame at the leaf's layout box
+/// (`Scene::place_fragment`) — extending sprigging's retention chain
+/// through translation and lowering instead of stopping it at the
+/// command cache.
+///
+/// Commands are leaf-local: coordinates are relative to the fragment's
+/// own origin, and the placement transform supplies the box position.
+/// External-texture draws cannot be retained (they are per-frame
+/// composite state) and are skipped with a warning; Path-B leaves keep
+/// the envelope path.
+pub fn translate_paint_cmds_to_fragment(
+    commands: &[PaintCmd],
+    fonts: &[FontResource],
+    images: &[ImageResource],
+) -> netrender::scene::SceneFragment {
+    // Viewport only sizes the translator's box-shadow mask scratch;
+    // fragment content never reads it. Use a nominal square.
+    let translated = translate_paint_cmd_stream(
+        paint_list_api::DeviceIntSize::new(1, 1),
+        commands,
+        fonts,
+        images,
+    );
+    if !translated.external_textures.is_empty() {
+        log::warn!(
+            "translate_paint_cmds_to_fragment: {} DrawExternalTexture command(s) skipped — \
+             external textures are per-frame composite state and cannot be retained in a \
+             fragment (Path-B leaves keep the envelope path)",
+            translated.external_textures.len()
+        );
+    }
+    if !translated.box_shadow_masks.is_empty() {
+        log::warn!(
+            "translate_paint_cmds_to_fragment: {} blurred box-shadow mask request(s) dropped — \
+             mask textures are built per frame by the host painter; draw blurred shadows \
+             outside the fragment, or accept the sharp-shadow fallback inside it",
+            translated.box_shadow_masks.len()
+        );
+    }
+    netrender::scene::SceneFragment::from_scene(translated.scene)
+}
+
 /// Variant that also returns the external-texture composite list and
 /// box-shadow mask requests. Used by `Paint::render` to drive
 /// `render_with_compositor_and_external_textures`.
