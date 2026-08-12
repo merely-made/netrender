@@ -65,6 +65,9 @@ record at the end.
   have to tolerate two *retention models*. Also inventories the
   present `vello::Scene` coupling in shared retained state. Posture:
   credible future second backend, not a pending migration.
+  Re-verified against hybrid 0.2.0 on 2026-08-10; blocker holds. The ask
+  is drafted, unsent, at
+  [`2026-08-10_vello_hybrid_upstream_ask.md`](2026-08-10_vello_hybrid_upstream_ask.md).
 
 - **Tenancy boot seam (landed 2026-08-10).** `netrender_device` now owns
   booting one device for netrender *and a tenant renderer* drawing into
@@ -83,9 +86,6 @@ record at the end.
   surfaced: wgpu 29 advertises experimental features on the adapter but
   refuses the device unless they were asked for deliberately, so
   opportunistic grants mask them out.
-  Re-verified against hybrid 0.2.0 on 2026-08-10; blocker holds. The ask
-  is drafted, unsent, at
-  [`2026-08-10_vello_hybrid_upstream_ask.md`](2026-08-10_vello_hybrid_upstream_ask.md).
 
 A running list of post-pivot findings used to sit in this section. It
 duplicated the verification record entry by entry and went stale between
