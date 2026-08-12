@@ -26,7 +26,11 @@ record at the end.
 
   A5 and E3 both opened and closed on 2026-08-10. E1 stays open but is
   upstream-gated and, per its own measurement, not the interesting
-  number.
+  number. **E4** (fragment retention) is the designed-but-gated next
+  thing: the pan/scroll case still re-lowers the world (12.9 ms at
+  4096², vs 1.2 ms static), and the design for fixing it is written but
+  deliberately waits on a committed consumer. See
+  [`2026-08-10_fragment_retention_design.md`](2026-08-10_fragment_retention_design.md).
 
 - [`2026-05-01_vello_rasterizer_plan.md`](2026-05-01_vello_rasterizer_plan.md)
   — **the live architecture.** The vello pivot, adopted and delivered.
