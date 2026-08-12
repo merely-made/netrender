@@ -1,0 +1,6 @@
+Sweep note: this commit also carries an uncommitted README.md rewrite
+that was sitting in the working tree (trimmed from ~175 to ~65 lines;
+drops the stale webrender-wgpu-upstream side-worktree reference, which
+matches the branch-archive cleanup earlier today). Not authored as part
+of the E4 work; swept in by the commit-the-whole-tree convention and
+should have been named in the message.
