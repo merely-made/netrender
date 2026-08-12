@@ -19,7 +19,7 @@ use crate::vello_rasterizer::scene_to_vello_with_overrides;
 
 use super::{MasterEntry, VelloTileRasterizer};
 
-fn map_blend_mode(b: SceneBlendMode) -> BlendMode {
+pub(super) fn map_blend_mode(b: SceneBlendMode) -> BlendMode {
     let mix = match b {
         SceneBlendMode::Normal => Mix::Normal,
         SceneBlendMode::Multiply => Mix::Multiply,
@@ -139,6 +139,14 @@ impl VelloTileRasterizer {
     ) -> vello::Scene {
         use crate::profiling::Span;
 
+        // Roadmap E4 — scenes placing retained fragments take the
+        // retained master path (registry lookups + cached lowerings +
+        // whole-master signature short-circuit) and skip the tile
+        // cache. Fragment-free scenes keep the exact pre-E4 path below.
+        if super::retained::has_fragments(scene) {
+            return self.build_master_scene_fragments(scene, timings);
+        }
+
         let refresh_span = Span::start("refresh_image_data");
         self.refresh_image_data(scene);
         refresh_span.stop_recording(timings);
@@ -180,7 +188,7 @@ impl VelloTileRasterizer {
         master
     }
 
-    fn refresh_image_data(&mut self, scene: &Scene) {
+    pub(super) fn refresh_image_data(&mut self, scene: &Scene) {
         // Path A blobs are Arc<Vec<u8>> wrapped in peniko::Blob.
         // Vello dedups uploads by Blob::id(), so we keep each
         // entry alive across frames — same Arc, same id, one
@@ -414,6 +422,11 @@ fn filter_scene_to_tile(scene: &Scene, tile_rect: [f32; 4]) -> Scene {
             // pixels can be touched anyway, so passing the wrap
             // through to vello is correct.
             SceneOp::PushLayer(_) | SceneOp::PopLayer => true,
+            // Roadmap E4 — fragment-bearing scenes take the retained
+            // master path and never reach the per-tile filter. If one
+            // arrives, keep the op (harmless: lowering warns and skips
+            // it) so the painter-order stream stays intact.
+            SceneOp::Fragment(_) => true,
         };
         if intersects {
             filtered.ops.push(op.clone());

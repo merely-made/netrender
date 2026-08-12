@@ -119,6 +119,10 @@ pub(super) fn dump_op(out: &mut String, op: &SceneOp) {
         SceneOp::PopLayer => {
             write!(out, "PopLayer").ok();
         }
+        SceneOp::Fragment(f) => {
+            write!(out, "Fragment  id={}", f.id).ok();
+            dump_modifiers(out, f.transform_id, NO_CLIP, SHARP_CLIP);
+        }
     }
 }
 

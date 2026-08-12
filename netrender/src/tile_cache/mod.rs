@@ -33,6 +33,7 @@ use crate::scene::{
 
 mod hash;
 mod index;
+pub(crate) mod op_hash;
 use index::{FrameIndex, TileGrid};
 /// Integer (col, row) coordinate of a tile within the cache grid.
 /// Tile (cx, cy) covers world rect `(cx*T, cy*T, (cx+1)*T, (cy+1)*T)`.

@@ -54,6 +54,7 @@ use crate::tile_cache::{TileCache, TileCoord, aabb_intersects};
 use crate::vello_rasterizer::scene_to_vello_with_overrides;
 
 mod master;
+mod retained;
 
 /// Path (b′) per-frame state held across `render_with_compositor`
 /// calls. Used to compute the four-source dirty OR for declared
@@ -110,6 +111,9 @@ pub struct VelloTileRasterizer {
     /// in `render` / `render_to_internal_master` / `compose_into`.
     /// Cleared back to `None` on `clear_last_timings`.
     last_timings: Option<crate::profiling::FrameTimings>,
+    /// Roadmap E4 — retained-fragment state (registry, cached master,
+    /// receipt counters). See [`retained`].
+    pub(crate) retained: retained::RetainedState,
 }
 
 struct MasterEntry {
@@ -147,6 +151,7 @@ impl VelloTileRasterizer {
             dirty_overlay_enabled: false,
             dirty_overlay_window_frames: 30,
             last_timings: None,
+            retained: retained::RetainedState::default(),
         })
     }
 
