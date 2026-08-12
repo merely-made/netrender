@@ -146,6 +146,19 @@ pub fn scene_to_vello_with_cache(
                     layer_depth -= 1;
                 }
             }
+            // Roadmap E4 — placed fragments resolve through the
+            // renderer's registry, which this free translator cannot
+            // see. The retained-fragment master path expands them
+            // before lowering ever runs; reaching here means a
+            // consumer handed a fragment-bearing scene to the simple
+            // path, where the op paints nothing.
+            SceneOp::Fragment(f) => {
+                log::warn!(
+                    "scene_to_vello: SceneOp::Fragment(id={}) has no registry here; skipped \
+                     (use the tile rasterizer path for retained fragments)",
+                    f.id
+                );
+            }
         }
     }
     if !missing_images.is_empty() {

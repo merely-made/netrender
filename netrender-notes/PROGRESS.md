@@ -26,10 +26,14 @@ record at the end.
 
   A5 and E3 both opened and closed on 2026-08-10. E1 stays open but is
   upstream-gated and, per its own measurement, not the interesting
-  number. **E4** (fragment retention) is the designed-but-gated next
-  thing: the pan/scroll case still re-lowers the world (12.9 ms at
-  4096², vs 1.2 ms static), and the design for fixing it is written but
-  deliberately waits on a committed consumer. See
+  number. **E4** (fragment retention) is **spiked as of 2026-08-12**:
+  the pan case that re-lowered the world (17.1 ms at 4096²) runs at
+  737 µs with the page retained as one fragment, on mainline vello
+  (no fork — `Scene::append` was the only primitive needed). Receipts
+  in `pe4_fragment_retention` (7/7), finding at verification record
+  §11.36. What remains gated on a committed consumer: hit-test
+  resolution for fragments, layer-scoped retention, and the consumer
+  contract itself. See
   [`2026-08-10_fragment_retention_design.md`](2026-08-10_fragment_retention_design.md).
 
 - [`2026-05-01_vello_rasterizer_plan.md`](2026-05-01_vello_rasterizer_plan.md)
@@ -39,7 +43,7 @@ record at the end.
 
 - [`2026-05-01_vello_verification_record.md`](2026-05-01_vello_verification_record.md)
   — **the evidence.** Split out of the plan on 2026-08-10, where it was
-  62% of the file. 35 entries, 33 CLEARED, one per spike or capability.
+  62% of the file. 36 entries, 34 CLEARED, one per spike or capability.
   Section numbers unchanged, so `§11.x` still resolves. This is the
   append target when a roadmap item lands.
 

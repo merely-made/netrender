@@ -1,7 +1,15 @@
 # Fragment retention: incremental scene construction (2026-08-10)
 
-**Status**: design note, not scheduled. The trigger gate is at the end.
-Nothing here is implemented; code samples are illustrative only.
+**Status (updated 2026-08-12)**: spiked. §3's API shape is implemented
+in `netrender/src/vello_tile_rasterizer/retained.rs` with receipts at
+`netrender/tests/pe4_fragment_retention.rs`; the measured result (23× on
+the pan frame, fragment lowered once, no vello fork needed) is recorded
+as [verification record §11.36](2026-05-01_vello_verification_record.md).
+The spike diverges from §4 in one respect: it bypasses tiles entirely on
+the fragment path (whole-master signature + per-fragment cached
+lowerings) rather than binning fragments into tile hashes, which turned
+out simpler and faster for the spike's shape. §8's trigger gate still
+governs the productionizing work listed in roadmap E4.
 
 Companion measurements live in
 [`../netrender/examples/e1_damage_profile.rs`](../netrender/examples/e1_damage_profile.rs).

@@ -126,6 +126,11 @@ pub(super) fn hittable_kind(op: &SceneOp) -> Option<HitOpKind> {
         SceneOp::Shape(_) => Some(HitOpKind::Shape),
         SceneOp::GlyphRun(_) => Some(HitOpKind::GlyphRun),
         SceneOp::PushLayer(_) | SceneOp::PopLayer => None,
+        // Roadmap E4 v1 gap: fragment content lives in the renderer's
+        // registry, which `hit_test(scene, point)` cannot see. Placed
+        // fragments are not hittable yet; the E4 note's done conditions
+        // carry the resolution work.
+        SceneOp::Fragment(_) => None,
     }
 }
 
@@ -154,9 +159,10 @@ pub(super) fn op_contains_point(op: &SceneOp, p: [f32; 2], scene: &Scene) -> boo
             Some(aabb) => (aabb, r.clip_rect),
             None => return false,
         },
-        // Layer ops are filtered out by `hittable_kind` before
-        // reaching this fn; defensive return.
-        SceneOp::PushLayer(_) | SceneOp::PopLayer => return false,
+        // Layer ops (and E4 fragments, unhittable for now) are
+        // filtered out by `hittable_kind` before reaching this fn;
+        // defensive return.
+        SceneOp::PushLayer(_) | SceneOp::PopLayer | SceneOp::Fragment(_) => return false,
     };
 
     aabb_contains(world_box, p) && clip_allows(clip_rect, p)

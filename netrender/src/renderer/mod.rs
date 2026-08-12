@@ -181,6 +181,54 @@ impl Renderer {
         let rast = rast_mutex.lock().expect("vello_rasterizer lock");
         Some(rast.cached_tile_count())
     }
+
+    /// Roadmap E4 — register a retained fragment. The returned id is
+    /// stable until `remove_fragment`; place it per frame with
+    /// [`crate::scene::Scene::place_fragment`]. The fragment's
+    /// lowering is cached across frames, so placement-only changes
+    /// (pan / scroll / drag) cost an append, not a re-lower.
+    /// Returns `None` if `enable_vello` was false.
+    pub fn register_fragment(&self, fragment: crate::scene::SceneFragment) -> Option<u64> {
+        let rast_mutex = self.vello_rasterizer.as_ref()?;
+        let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
+        Some(rast.retained.register(fragment))
+    }
+
+    /// Roadmap E4 — replace a retained fragment's content. Bumps its
+    /// generation, so the next frame that places it re-lowers.
+    /// Returns `Some(false)` if the id is unknown, `None` if
+    /// `enable_vello` was false.
+    pub fn update_fragment(&self, id: u64, fragment: crate::scene::SceneFragment) -> Option<bool> {
+        let rast_mutex = self.vello_rasterizer.as_ref()?;
+        let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
+        Some(rast.retained.update(id, fragment))
+    }
+
+    /// Roadmap E4 — drop a retained fragment. Placing a removed id
+    /// warns and paints nothing. Returns `Some(false)` if the id is
+    /// unknown, `None` if `enable_vello` was false.
+    pub fn remove_fragment(&self, id: u64) -> Option<bool> {
+        let rast_mutex = self.vello_rasterizer.as_ref()?;
+        let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
+        Some(rast.retained.remove(id))
+    }
+
+    /// Roadmap E4 receipt — how many times any fragment has been
+    /// lowered since construction. Flat across placement-only frames;
+    /// grows by one per content generation actually placed.
+    pub fn fragment_lower_count(&self) -> Option<u64> {
+        let rast_mutex = self.vello_rasterizer.as_ref()?;
+        let rast = rast_mutex.lock().expect("vello_rasterizer lock");
+        Some(rast.retained.lower_count())
+    }
+
+    /// Roadmap E4 receipt — how many frames reused the cached master
+    /// wholesale (nothing changed at all, not even placement).
+    pub fn fragment_master_hits(&self) -> Option<u64> {
+        let rast_mutex = self.vello_rasterizer.as_ref()?;
+        let rast = rast_mutex.lock().expect("vello_rasterizer lock");
+        Some(rast.retained.master_hits())
+    }
     /// # Panics
     ///
     /// - If `enable_vello` was false at construction.

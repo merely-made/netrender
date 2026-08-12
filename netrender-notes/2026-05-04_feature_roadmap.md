@@ -485,28 +485,30 @@ A4-gated** — listed for visibility only.
   plus `pa3_tile_dirty_tracking` (8/8) unchanged. Full finding:
   [verification record §11.35](2026-05-01_vello_verification_record.md).
 
-- [ ] **E4. Fragment retention (incremental scene construction)** — the
-  pan/scroll case is still O(tiles × ops), now in *lowering*: a
-  7px/frame camera pan over the E1 profile page costs **12.9 ms at
-  4096², 90% of it `dirty_tile_rebuild`**, because a placement change is
-  indistinguishable from a content change once the world AABB is folded
-  into the per-op digest, so every tile goes dirty and everything
-  re-lowers. Identical content, 11× the frame cost of the static case.
+- [x] **E4. Fragment retention (incremental scene construction)** —
+  **SPIKED 2026-08-12**; mechanism proven locally, consumer contract
+  still gated. The motivating measurement: a placement-only camera pan
+  re-lowered the world (17.1 ms at 4096² in the spike run, 90%+ in
+  `dirty_tile_rebuild`), because the tile cache cannot tell "changed"
+  from "moved". With the page retained as one fragment, the same pan
+  frame is **737 µs**, 23×, fragment lowered once across 30 frames,
+  no vello changes needed (mainline `Scene::append` suffices).
+  Receipts: `pe4_fragment_retention` (7/7), pixel-identity-first.
+  Full finding:
+  [verification record §11.36](2026-05-01_vello_verification_record.md).
+  Design: [`2026-08-10_fragment_retention_design.md`](2026-08-10_fragment_retention_design.md).
 
-  Design: [`2026-08-10_fragment_retention_design.md`](2026-08-10_fragment_retention_design.md)
-  — retained `SceneFragment`s behind Renderer-owned handles (the Path B
-  `register_texture` pattern), content digested fragment-locally and
-  cached across frames, placement mixed in at bin time,
-  `SceneOp::Fragment` as the one new op. Content change = re-lower one
-  fragment; placement change = re-bin + re-compose, O(fragments).
-  Diffing stays consumer-side (sprigging / xilem_serval territory);
-  netrender grows identity and lifecycle only.
-
-  *Trigger (both):* a consumer commits to driving fragments, and an
-  end-to-end emit+translate+render profile of that consumer exists.
-  *Done condition:* the profiler's pan row lands within ~2× of its
-  static row instead of 11×; differential + A3 receipts per the design
-  note's list.
+  **Still open before E4 closes for real** (the original trigger — a
+  committed consumer plus an end-to-end emit+translate+render profile —
+  applies to this list, not to the spike):
+  - Hit testing does not resolve fragment content (no registry access
+    from `hit_test`). The likeliest shape is a renderer-side entry
+    point; decide against a consumer.
+  - Layer-scoped placements fall back to un-retained inlining
+    (pixel-correct, warned). Fine until a consumer's real scenes say
+    otherwise.
+  - The A3 dirty-overlay vocabulary has no fragment-path equivalent.
+  - Wire-level fragment refs in `paint_list_api` remain out of scope.
 
 ---
 

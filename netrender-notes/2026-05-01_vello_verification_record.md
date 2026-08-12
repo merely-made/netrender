@@ -7,7 +7,7 @@ evidence log, not architecture, so it lives on its own.
 
 Section numbers are unchanged. An inbound `§11.x` reference resolves here.
 
-35 entries, 33 of them **CLEARED**. The two without a verdict are §11.6
+36 entries, 34 of them **CLEARED**. The two without a verdict are §11.6
 (closed in practice by Phase 1' first-light, see §11.7, but never
 relabelled) and §11.13 (a display-list-format discussion that did not
 need one).
@@ -1453,6 +1453,71 @@ Going below it means incremental scene construction, which is a
 consumer-side change, not a tile-cache one. E1 remains open and
 upstream-gated, but the roadmap now carries a note not to cite scrolling
 cost in that conversation, because these numbers would not support it.
+
+### 11.36 Fragment retention spiked (2026-08-12) — **CLEARED (spike)**
+
+Roadmap [E4](2026-05-04_feature_roadmap.md), design at
+[`2026-08-10_fragment_retention_design.md`](2026-08-10_fragment_retention_design.md).
+Implemented as a local demonstration ahead of E4's consumer-commitment
+gate, with the profiler standing in as the consumer; the gate still
+holds for productionizing the consumer contract.
+
+**Mechanism.** `SceneOp::Fragment { id, transform_id }` (appended last,
+so the serde wire encoding of prior variants is unchanged) references a
+`Renderer`-owned registry: `register_fragment(SceneFragment) ->
+FragmentId`, `update_fragment` (bumps a generation, drops the cached
+lowering), `remove_fragment`. Scenes placing fragments take a retained
+master path in `vello_tile_rasterizer::retained` and bypass the tile
+cache: direct ops lower fresh in painter-order runs, placements append
+the cached per-fragment `vello::Scene` under the placement affine
+(mainline `vello::Scene::append` — no vello changes were needed), and a
+whole-frame signature (per-op field hashes via the shared
+`tile_cache::op_hash` dispatcher + resolved matrices + fragment
+generations) short-circuits identical frames to a cached master.
+Fragment-free scenes keep the exact pre-E4 tile path.
+
+**Result** (same machine/run, RTX 4060 / Vulkan, release, median of 30
+frames; this run's baseline is noisier than §11.35's, so compare within
+it):
+
+| 4096², 4423 ops | flat pan | fragment pan |
+| --- | --- | --- |
+| signature / invalidate | 841.9 | 1.7 |
+| rebuild | 15302.5 | 0 |
+| compose | 209.1 | 38.1 |
+| vello | 883.7 | 672.8 |
+| **total** | **17122.8** | **737.0** |
+
+23× on the pan frame, fragment lowered once across 30 frames
+(`lowr = 1`), and the signature is flat at ~1.5 µs across a 70× op-count
+spread because it walks the *placed* scene (a placement + a caret), not
+the content. E4's done condition asked for the pan row within ~2× of the
+static row; it lands at 0.4× (737 µs vs 1922 µs), beating the static
+tile path because it never pays invalidate. The frame is now ~91%
+`vello_render`, which is E1's territory, upstream.
+
+**Receipts.** `pe4_fragment_retention` (7/7), pixel-first: a placed
+fragment renders **byte-identical** to the flat scene with the same ops
+at every placement tried, including a placement composed over
+fragment-local transforms and a fragment interleaved between direct ops
+in painter order. Retention is asserted by counter
+(`fragment_lower_count` stays 1 across placements, +1 per
+`update_fragment`), master reuse by `fragment_master_hits`, and the
+content-update path re-checks against a fresh flat reference. All
+pre-existing receipts pass unchanged: 294 passing, 0 failed, 60 suites.
+
+**Spike limitations, all deliberate, all warned on.** A placement inside
+a `PushLayer` scope falls back to un-retained inlining (pixel-correct —
+receipt covers it — but uncached, because the open layer lives in the
+run's sub-scene and an append to the master would escape it). Nested
+fragments are skipped at lower time. Hit testing does not resolve
+fragment content (`hit_test` has no registry access — it reports
+nothing for placed fragments; this is E4's largest remaining gap).
+`hash_tile_deps_reference` and the E3 index carry defensive
+conservative arms for fragments that should never reach them. The
+cached-master hit clones the encoding per frame; if profiles ever show
+the clone mattering, the fix is an append-from-cache path in
+`compose_into`.
 
 ## 11.99 Open items — moved (2026-05-05)
 

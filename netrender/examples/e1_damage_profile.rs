@@ -244,6 +244,116 @@ fn run_table(handles: &netrender::WgpuHandles, scene_fn: &dyn Fn(u32, usize) -> 
     }
 }
 
+/// The E4 rematch: identical content and pan to `panned_scene`, but the
+/// page lives in ONE retained fragment placed per frame, with the caret
+/// as a direct op that keeps blinking (so the master genuinely rebuilds
+/// every frame — this is the honest case, not the everything-cached
+/// one). The fragment must lower once per config; the pan itself is an
+/// append.
+fn run_fragment_pan_table(handles: &netrender::WgpuHandles) {
+    use netrender::scene::{SceneFragment, Transform};
+
+    println!(
+        "{:>8}  {:>6}  {:>7}  {:>5}  {:>10}  {:>8}  {:>8}  {:>8}  {:>8}",
+        "viewport", "tiles", "ops", "lowr", "signature", "rebuild", "compose", "vello", "total"
+    );
+    println!("{}", "-".repeat(88));
+
+    for dim in [512_u32, 1024, 2048, 4096] {
+        let renderer = create_netrender_instance(
+            handles.clone(),
+            NetrenderOptions {
+                tile_cache_size: Some(TILE),
+                enable_vello: true,
+                ..Default::default()
+            },
+        )
+        .expect("create_netrender_instance");
+
+        // Register the page content once, in fragment-local space.
+        let mut fragment = SceneFragment::new();
+        fragment.push_rect(0.0, 0.0, dim as f32, dim as f32, [1.0, 1.0, 1.0, 1.0]);
+        let mut y = 16.0;
+        while y < dim as f32 - 16.0 {
+            let mut x = 16.0;
+            while x < dim as f32 - 16.0 {
+                let w = if ((x + y) as u32 / 24) % 3 == 2 {
+                    90.0
+                } else {
+                    140.0
+                };
+                fragment.push_rect(x, y, x + w, y + 11.0, [0.32, 0.32, 0.36, 1.0]);
+                x += 160.0;
+            }
+            y += 24.0;
+        }
+        let ops = fragment.ops.len() + 2; // + caret + placement
+        let id = renderer.register_fragment(fragment).expect("register");
+
+        let scene_for = |frame: usize| {
+            let mut scene = Scene::new(dim, dim);
+            scene.place_fragment(id, Transform::translate_2d(frame as f32 * 7.0, 0.0));
+            let on = frame % 2 == 0;
+            let color = if on {
+                [0.1, 0.3, 0.9, 1.0]
+            } else {
+                [1.0, 1.0, 1.0, 1.0]
+            };
+            scene.push_rect(40.0, 40.0, 42.0, 56.0, color);
+            scene
+        };
+
+        let (_target, view) = make_target(&handles.device, dim);
+        renderer.render_vello(&scene_for(0), &view, ColorLoad::Load);
+
+        let mut signature = Vec::new();
+        let mut rebuild = Vec::new();
+        let mut compose = Vec::new();
+        let mut vello = Vec::new();
+        let mut totals = Vec::new();
+
+        for frame in 1..=FRAMES {
+            renderer.render_vello(&scene_for(frame), &view, ColorLoad::Load);
+            let t = renderer
+                .last_frame_timings()
+                .expect("vello path records timings");
+            if let Some(d) = t.span("fragment_signature") {
+                signature.push(d);
+            }
+            if let Some(d) = t.span("dirty_tile_rebuild") {
+                rebuild.push(d);
+            }
+            if let Some(d) = t.span("master_compose") {
+                compose.push(d);
+            }
+            if let Some(d) = t.span("vello_render") {
+                vello.push(d);
+            }
+            totals.push(t.total);
+        }
+
+        let tiles = (dim / TILE) * (dim / TILE);
+        println!(
+            "{:>8}  {:>6}  {:>7}  {:>5}  {:>10.1}  {:>8.1}  {:>8.1}  {:>8.1}  {:>8.1}",
+            format!("{dim}²"),
+            tiles,
+            ops,
+            renderer.fragment_lower_count().unwrap_or(0),
+            micros(median(signature)),
+            micros(median(rebuild)),
+            micros(median(compose)),
+            micros(median(vello)),
+            micros(median(totals)),
+        );
+    }
+    println!();
+    println!(
+        "`lowr` is the total fragment lower count after {FRAMES} frames: 1 means the \
+         pan never re-lowered."
+    );
+    println!("`rebuild` has no tile work on this path and should read as 0.");
+}
+
 fn main() {
     let handles = boot().expect("wgpu boot");
     let adapter_info = handles.adapter.get_info();
@@ -266,6 +376,9 @@ fn main() {
     println!();
     println!("== same page under a 7px/frame camera pan ==");
     run_table(&handles, &panned_scene);
+    println!();
+    println!("== same pan, page retained as one E4 fragment (caret stays a direct op) ==");
+    run_fragment_pan_table(&handles);
 
     println!();
     println!("All figures are microseconds, median of {FRAMES} frames.");

@@ -123,6 +123,18 @@ pub(super) fn hash_tile_deps_reference(scene: &Scene, tile_rect: [f32; 4]) -> u6
             // layer's clip-AABB later if profiles surface it.)
             SceneOp::PushLayer(layer) => hash_push_layer(&mut hasher, layer),
             SceneOp::PopLayer => hasher.write_u8(0xFF),
+            // Roadmap E4 — fragment-bearing scenes bypass the tile
+            // cache, so this arm exists for the defensive case only.
+            // Mirror `index.rs`: applies to every tile, hashing
+            // identity + placement id + placement matrix, so the
+            // differential tests stay in dirty-set agreement.
+            SceneOp::Fragment(f) => {
+                hasher.write_u64(f.id);
+                hasher.write_u32(f.transform_id);
+                for v in scene.transforms[f.transform_id as usize].m {
+                    hasher.write_u32(v.to_bits());
+                }
+            }
         }
     }
 

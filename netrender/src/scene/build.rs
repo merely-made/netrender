@@ -41,6 +41,23 @@ impl Scene {
         id
     }
 
+    /// Roadmap E4 — place a retained fragment (registered with the
+    /// renderer via `register_fragment`) under `transform`, at this
+    /// point in painter order. Identity placement reuses transform 0.
+    pub fn place_fragment(&mut self, id: crate::scene::FragmentId, transform: Transform) {
+        // Bitwise compare rather than deriving PartialEq on Transform:
+        // exact-identity is the only case worth special-casing, and a
+        // public float PartialEq invites epsilon questions this API
+        // doesn't want to answer.
+        let transform_id = if transform.m == Transform::IDENTITY.m {
+            0
+        } else {
+            self.push_transform(transform)
+        };
+        self.ops
+            .push(SceneOp::Fragment(ScenePlacedFragment { id, transform_id }));
+    }
+
     /// Append a rect at device-pixel coordinates with no transform and
     /// no clip (backward-compatible Phase 2 API).
     pub fn push_rect(&mut self, x0: f32, y0: f32, x1: f32, y1: f32, color: [f32; 4]) {

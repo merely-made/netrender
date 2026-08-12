@@ -193,6 +193,23 @@ impl FrameIndex {
                     self.global.push((idx, h.finish()));
                     continue;
                 }
+
+                // Roadmap E4 — scenes containing placed fragments take
+                // the retained-fragment master path and never reach the
+                // tile cache. If one arrives anyway, treat it like a
+                // layer op: applies-to-every-tile, hashing id, placement
+                // id, and the placement matrix so any change dirties
+                // everything. Conservative and correct.
+                SceneOp::Fragment(f) => {
+                    let mut h = DefaultHasher::new();
+                    h.write_u64(f.id);
+                    h.write_u32(f.transform_id);
+                    for v in scene.transforms[f.transform_id as usize].m {
+                        h.write_u32(v.to_bits());
+                    }
+                    self.global.push((idx, h.finish()));
+                    continue;
+                }
             };
 
             let Some((aabb, entry)) = placed else {

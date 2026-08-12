@@ -474,6 +474,29 @@ pub enum SceneOp {
     /// Unbalanced `PopLayer`s (without a matching `PushLayer`) are
     /// the consumer's bug; the renderer panics in debug.
     PopLayer,
+    /// Roadmap E4 — place a retained fragment registered with the
+    /// renderer (`Renderer::register_fragment`). The fragment's ops
+    /// paint here in painter order, under the placement transform.
+    /// The renderer caches the fragment's lowered form across frames,
+    /// so re-placing an unchanged fragment costs an append, not a
+    /// re-lower. Appended last so the `serde` wire encoding of the
+    /// prior variants is unchanged.
+    Fragment(ScenePlacedFragment),
+}
+
+/// Roadmap E4 — one placement of a retained fragment. The content
+/// lives in the renderer's registry under `id`; the scene op carries
+/// only identity + placement, which is what makes a placement-only
+/// change (pan / scroll / drag) cheap.
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ScenePlacedFragment {
+    /// Registry key from `register_fragment`.
+    pub id: u64,
+    /// Placement: index into `Scene::transforms`, applied to the
+    /// fragment's whole content (composed on top of the fragment's
+    /// own local transforms).
+    pub transform_id: u32,
 }
 
 /// One declared native-compositor surface.

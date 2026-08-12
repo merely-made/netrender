@@ -32,6 +32,11 @@ use super::*;
 /// calls `append_fragment`. Parallel scene-building consumers must
 /// decide their painter-order policy explicitly (typically: each
 /// fragment owns a Z-band or a workspace pane).
+/// Roadmap E4 — registry key for a retained fragment, allocated by
+/// `Renderer::register_fragment`. Stable for the fragment's lifetime;
+/// referenced from scenes via [`super::ScenePlacedFragment`].
+pub type FragmentId = u64;
+
 #[derive(Debug, Clone)]
 pub struct SceneFragment {
     /// Draw operations in painter order (fragment-local).
@@ -181,5 +186,11 @@ fn op_transform_id_mut(op: &mut SceneOp) -> Option<&mut u32> {
         SceneOp::GlyphRun(r) => Some(&mut r.transform_id),
         SceneOp::PushLayer(l) => Some(&mut l.transform_id),
         SceneOp::PopLayer => None,
+        // Remapped like any other op so a fragment carrying a
+        // placement stays id-consistent after append. Note the
+        // renderer's E4 path does not support *nested* retained
+        // fragments (fragment content containing Fragment ops); it
+        // warns and skips them at lower time.
+        SceneOp::Fragment(f) => Some(&mut f.transform_id),
     }
 }
