@@ -53,6 +53,7 @@
 
 use std::time::Duration;
 
+use netrender::scene::Transform;
 use netrender::{boot, create_netrender_instance, ColorLoad, NetrenderOptions, Scene};
 
 const TILE: u32 = 256;
@@ -122,6 +123,39 @@ fn page_scene(dim: u32, frame: usize) -> Scene {
     scene
 }
 
+/// The same page under a camera pan: identical content every frame, but
+/// everything sits beneath a translate whose offset moves 7px per frame
+/// (sub-tile, so most tiles still see mostly the same primitives).
+///
+/// This is the "graph canvas pan" / scroll shape. The per-op digest
+/// folds the world AABB in (the anti-ghosting rule), so a placement
+/// change is indistinguishable from a content change: every tile's hash
+/// moves, every tile goes dirty, and the whole scene is re-lowered even
+/// though nothing about it changed but the camera.
+fn panned_scene(dim: u32, frame: usize) -> Scene {
+    let mut scene = Scene::new(dim, dim);
+    let cam = scene.push_transform(Transform::translate_2d(frame as f32 * 7.0, 0.0));
+
+    scene.push_rect_transformed(0.0, 0.0, dim as f32, dim as f32, [1.0, 1.0, 1.0, 1.0], cam);
+    let mut y = 16.0;
+    while y < dim as f32 - 16.0 {
+        let mut x = 16.0;
+        while x < dim as f32 - 16.0 {
+            let w = if ((x + y) as u32 / 24) % 3 == 2 {
+                90.0
+            } else {
+                140.0
+            };
+            scene.push_rect_transformed(x, y, x + w, y + 11.0, [0.32, 0.32, 0.36, 1.0], cam);
+            x += 160.0;
+        }
+        y += 24.0;
+    }
+    scene.push_rect_transformed(40.0, 40.0, 42.0, 56.0, [0.1, 0.3, 0.9, 1.0], cam);
+
+    scene
+}
+
 fn median(mut values: Vec<Duration>) -> Duration {
     if values.is_empty() {
         return Duration::ZERO;
@@ -134,23 +168,7 @@ fn micros(d: Duration) -> f64 {
     d.as_secs_f64() * 1e6
 }
 
-fn main() {
-    let handles = boot().expect("wgpu boot");
-    let adapter_info = handles.adapter.get_info();
-    println!(
-        "adapter: {} ({:?}, {:?})",
-        adapter_info.name, adapter_info.device_type, adapter_info.backend
-    );
-    println!(
-        "tile size: {TILE}px   measured frames per config: {FRAMES} (median)   \
-         profile: {}",
-        if cfg!(debug_assertions) {
-            "DEBUG — numbers are not meaningful, re-run with --release"
-        } else {
-            "release"
-        }
-    );
-    println!();
+fn run_table(handles: &netrender::WgpuHandles, scene_fn: &dyn Fn(u32, usize) -> Scene) {
     println!(
         "{:>8}  {:>6}  {:>7}  {:>5}  {:>10}  {:>8}  {:>8}  {:>8}  {:>8}",
         "viewport", "tiles", "ops", "dirty", "invalidate", "rebuild", "compose", "vello", "total"
@@ -171,7 +189,7 @@ fn main() {
         let (_target, view) = make_target(&handles.device, dim);
 
         // Warm-up frame: everything dirty, caches cold. Excluded.
-        renderer.render_vello(&page_scene(dim, 0), &view, ColorLoad::Load);
+        renderer.render_vello(&scene_fn(dim, 0), &view, ColorLoad::Load);
 
         let mut invalidate = Vec::new();
         let mut rebuild = Vec::new();
@@ -181,7 +199,7 @@ fn main() {
         let mut dirty_seen = Vec::new();
 
         for frame in 1..=FRAMES {
-            renderer.render_vello(&page_scene(dim, frame), &view, ColorLoad::Load);
+            renderer.render_vello(&scene_fn(dim, frame), &view, ColorLoad::Load);
 
             let t = renderer
                 .last_frame_timings()
@@ -215,7 +233,7 @@ fn main() {
             "{:>8}  {:>6}  {:>7}  {:>5}  {:>10.1}  {:>8.1}  {:>8.1}  {:>8.1}  {:>8.1}",
             format!("{dim}²"),
             tiles,
-            page_scene(dim, 0).ops.len(),
+            scene_fn(dim, 0).ops.len(),
             dirty_typical,
             micros(median(invalidate)),
             micros(median(rebuild)),
@@ -224,6 +242,30 @@ fn main() {
             micros(median(totals)),
         );
     }
+}
+
+fn main() {
+    let handles = boot().expect("wgpu boot");
+    let adapter_info = handles.adapter.get_info();
+    println!(
+        "adapter: {} ({:?}, {:?})",
+        adapter_info.name, adapter_info.device_type, adapter_info.backend
+    );
+    println!(
+        "tile size: {TILE}px   measured frames per config: {FRAMES} (median)   \
+         profile: {}",
+        if cfg!(debug_assertions) {
+            "DEBUG — numbers are not meaningful, re-run with --release"
+        } else {
+            "release"
+        }
+    );
+    println!();
+    println!("== static page, one-tile damage (caret blink) ==");
+    run_table(&handles, &page_scene);
+    println!();
+    println!("== same page under a 7px/frame camera pan ==");
+    run_table(&handles, &panned_scene);
 
     println!();
     println!("All figures are microseconds, median of {FRAMES} frames.");

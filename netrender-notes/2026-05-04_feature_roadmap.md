@@ -485,6 +485,29 @@ A4-gated** — listed for visibility only.
   plus `pa3_tile_dirty_tracking` (8/8) unchanged. Full finding:
   [verification record §11.35](2026-05-01_vello_verification_record.md).
 
+- [ ] **E4. Fragment retention (incremental scene construction)** — the
+  pan/scroll case is still O(tiles × ops), now in *lowering*: a
+  7px/frame camera pan over the E1 profile page costs **12.9 ms at
+  4096², 90% of it `dirty_tile_rebuild`**, because a placement change is
+  indistinguishable from a content change once the world AABB is folded
+  into the per-op digest, so every tile goes dirty and everything
+  re-lowers. Identical content, 11× the frame cost of the static case.
+
+  Design: [`2026-08-10_fragment_retention_design.md`](2026-08-10_fragment_retention_design.md)
+  — retained `SceneFragment`s behind Renderer-owned handles (the Path B
+  `register_texture` pattern), content digested fragment-locally and
+  cached across frames, placement mixed in at bin time,
+  `SceneOp::Fragment` as the one new op. Content change = re-lower one
+  fragment; placement change = re-bin + re-compose, O(fragments).
+  Diffing stays consumer-side (sprigging / xilem_serval territory);
+  netrender grows identity and lifecycle only.
+
+  *Trigger (both):* a consumer commits to driving fragments, and an
+  end-to-end emit+translate+render profile of that consumer exists.
+  *Done condition:* the profiler's pan row lands within ~2× of its
+  static row instead of 11×; differential + A3 receipts per the design
+  note's list.
+
 ---
 
 ## Phase F — Platform / output

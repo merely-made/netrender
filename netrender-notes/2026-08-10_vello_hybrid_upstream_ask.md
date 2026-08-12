@@ -94,6 +94,31 @@ step to be skipped.
 as roadmap E3. That is our bug, not upstream's, and it is not part of
 this ask.)
 
+## Where this is heading on our side (strengthens the ask)
+
+Netrender's next planned architecture step is **fragment retention**
+([design note](2026-08-10_fragment_retention_design.md)): consumers
+register retained sub-scenes behind stable handles, the renderer caches
+each fragment's digest and lowered form across frames, and a camera pan
+becomes O(fragments) re-composition instead of a full re-lower. The
+motivating measurement: a placement-only pan over a static 4096² page
+currently costs 12.9 ms/frame, 11× the static case, all CPU.
+
+This matters for the ask because it turns "two retention models" from a
+blocker into a non-issue. Under fragment identity, the seam contract is:
+the renderer names fragments and generations, and **each backend retains
+its own native form** keyed by `(fragment, generation)` — vello a
+lowered `Scene`, hybrid a texture or whatever fits. Invalidation
+receipts are fragment-level on both paths. The one thing a backend must
+support to participate at all is composing retained pieces into a frame:
+for vello that is `Scene::append`, which exists; for hybrid it is the
+missing method this note asks for.
+
+So the ask is not "add a convenience so netrender's current architecture
+ports over". It is: `append` is the minimal primitive for *any* consumer
+that retains lowered content across frames, and we have measurements
+showing why consumers end up needing to.
+
 ## What we can offer
 
 - A capability probe covering every `SceneOp` netrender lowers, passing
