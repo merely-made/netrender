@@ -76,6 +76,16 @@ pub struct TenantNeeds {
     pub limits: Option<wgpu::Limits>,
     /// Device label, for captures and debug output.
     pub label: Option<&'static str>,
+    /// Take every non-experimental feature the adapter offers, and its
+    /// full limits. The shape of a JIT compute runtime (CubeCL boots
+    /// its own devices exactly this way): the compiler probes adapter
+    /// capability and emits against it, so a device holding less than
+    /// the adapter fails shader validation at launch rather than boot.
+    /// `MAPPABLE_PRIMARY_BUFFERS` stays excluded (a known performance
+    /// trap CubeCL also excludes), and experimental features stay
+    /// masked as everywhere else: a tenant wanting one names it in
+    /// [`Self::required_features`].
+    pub greedy: bool,
 }
 
 impl TenantNeeds {
@@ -91,9 +101,21 @@ impl TenantNeeds {
     /// [`Self::required_features`], which is the deliberate ask wgpu is
     /// looking for.
     fn features(&self, available: wgpu::Features) -> wgpu::Features {
-        let opportunistic =
-            self.optional_features & available & !wgpu::Features::all_experimental_mask();
+        let opportunistic = if self.greedy {
+            (available - wgpu::Features::MAPPABLE_PRIMARY_BUFFERS)
+                & !wgpu::Features::all_experimental_mask()
+        } else {
+            self.optional_features & available & !wgpu::Features::all_experimental_mask()
+        };
         REQUIRED_FEATURES | self.required_features | opportunistic
+    }
+
+    fn limits(&self, adapter: &wgpu::Adapter) -> wgpu::Limits {
+        if self.greedy {
+            raised_for_netrender(adapter.limits())
+        } else {
+            raised_for_netrender(self.limits.clone().unwrap_or_default())
+        }
     }
 }
 
@@ -236,7 +258,7 @@ pub async fn boot_async_on(
         .request_device(&wgpu::DeviceDescriptor {
             label: Some(needs.label.unwrap_or("netrender device")),
             required_features: needs.features(adapter.features()),
-            required_limits: raised_for_netrender(needs.limits.clone().unwrap_or_default()),
+            required_limits: needs.limits(&adapter),
             ..Default::default()
         })
         .await?;
