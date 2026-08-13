@@ -212,6 +212,68 @@ fn leaf_fragment_flow_matches_envelope_flow_and_retains_across_layout_moves() {
     );
 }
 
+/// The in-stream marker path: `PaintCmd::PlaceRetainedFragment` inside
+/// the envelope's command stream, including under an active transform
+/// (the genet-layout shape: the emitter walks in box-local space, so
+/// the marker's origin composes with whatever transform is live).
+/// This is the wiring genet's `emit_paint_list_with_leaves` drives.
+#[test]
+fn place_retained_fragment_marker_composes_with_the_active_transform() {
+    use paint_list_api::specs::{TransformKind, TransformSpec};
+    use paint_list_api::{LayoutTransform, RetainedFragmentRef};
+
+    let handles = boot().expect("wgpu boot");
+
+    let frag_r = renderer(&handles);
+    let fragment = translate_paint_cmds_to_fragment(&leaf_splice(), &[], &[]);
+    let id = frag_r.register_fragment(fragment).expect("register");
+
+    // Marker envelope: backdrop, then a PushTransform (the enclosing
+    // box's space), then the marker at a content offset inside it.
+    let mut commands = vec![fill(
+        0.0,
+        0.0,
+        DIM as f32,
+        DIM as f32,
+        ColorF::new(0.05, 0.05, 0.08, 1.0),
+    )];
+    commands.push(PaintCmd::PushTransform(TransformSpec {
+        origin: LayoutPoint::new(48.0, 64.0),
+        transform: LayoutTransform::identity(),
+        kind: TransformKind::Standard,
+    }));
+    commands.push(PaintCmd::PlaceRetainedFragment(RetainedFragmentRef {
+        id,
+        origin: LayoutPoint::new(6.0, 10.0),
+    }));
+    commands.push(PaintCmd::PopTransform);
+    let envelope = PaintEnvelope {
+        engine: EngineId::GENET,
+        viewport: DeviceIntSize::new(DIM as i32, DIM as i32),
+        generation: 1,
+        commands,
+        fonts: Vec::new(),
+        images: Vec::new(),
+    };
+    let marker_scene = translate_paint_list(&envelope);
+    let got = render_bytes(&frag_r, &handles, &marker_scene);
+
+    // Flat reference: the leaf inlined at the composed position.
+    let env_r = renderer(&handles);
+    let flat = translate_paint_list(&envelope_with_leaf_at(54.0, 74.0));
+    let expected = render_bytes(&env_r, &handles, &flat);
+
+    assert_eq!(
+        got, expected,
+        "the marker must compose PushTransform(48,64) with origin (6,10)"
+    );
+    assert_eq!(
+        frag_r.fragment_lower_count(),
+        Some(1),
+        "the marker path must reuse the registered fragment's lowering"
+    );
+}
+
 /// Epoch bump: the leaf repainted (paint_dirty), the host re-translates
 /// its splice and updates the fragment. Pixels must track the new
 /// content and exactly one extra lowering must happen.
