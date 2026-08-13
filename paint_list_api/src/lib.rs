@@ -267,6 +267,37 @@ pub enum PaintCmd {
     // ----- Hit-testing ---------------------------------------------------
     /// Invisible hit-test region. Carries a producer-defined tag.
     HitTest(HitTestItem),
+
+    // ----- Retained fragments (roadmap E4) -------------------------------
+    /// Place a retained fragment registered with the renderer
+    /// (`netrender::Renderer::register_fragment`), at this point in
+    /// painter order, at `origin` in the active coordinate space. The
+    /// renderer composes the fragment's cached lowering instead of
+    /// re-translating its commands, so a producer whose per-unit paint
+    /// is already cached (sprigging leaves) extends its retention
+    /// through translation and lowering.
+    ///
+    /// **In-process only.** The id references renderer registry state
+    /// with no side table in the envelope, so an envelope carrying this
+    /// is not self-contained: do not send it across IPC or store it as
+    /// a capture fixture. Producers targeting the wire keep splicing
+    /// the fragment's commands inline.
+    ///
+    /// Appended as the last variant so the postcard encoding of every
+    /// prior variant is unchanged (existing captures still decode).
+    PlaceRetainedFragment(RetainedFragmentRef),
+}
+
+/// Payload of [`PaintCmd::PlaceRetainedFragment`]: which registered
+/// fragment, and where its local origin lands in the active coordinate
+/// space (for a chisel leaf: the content-box origin, mirroring the
+/// `PushTransform` offset the inline splice path emits).
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
+pub struct RetainedFragmentRef {
+    /// Renderer-allocated fragment id (`register_fragment`).
+    pub id: u64,
+    /// Fragment-local (0,0) lands here, in the active space.
+    pub origin: LayoutPoint,
 }
 
 // =============================================================================

@@ -598,6 +598,31 @@ pub fn translate_paint_cmd_stream(
                 // Hit-test items route to a separate netrender::hit_test
                 // pass, not the Scene paint-order stream. No-op here.
             }
+            PaintCmd::PlaceRetainedFragment(fr) => {
+                // Roadmap E4 — lower to SceneOp::Fragment under a
+                // transform that composes the active stack with the
+                // fragment's origin, exactly as PushTransform would
+                // compose an identity transform at that origin. The
+                // renderer resolves the id against its registry; the
+                // translator carries only identity + placement.
+                let parent = transform_at(&scene, tid);
+                let local = compose_with_origin(
+                    &layout_transform_to_scene(&paint_list_api::LayoutTransform::identity()),
+                    fr.origin.x,
+                    fr.origin.y,
+                );
+                let composed = Transform {
+                    m: mat_mul(&parent.m, &local.m),
+                };
+                scene.transforms.push(composed);
+                let transform_id = (scene.transforms.len() - 1) as u32;
+                scene.ops.push(netrender::scene::SceneOp::Fragment(
+                    netrender::scene::ScenePlacedFragment {
+                        id: fr.id,
+                        transform_id,
+                    },
+                ));
+            }
         }
     }
 
