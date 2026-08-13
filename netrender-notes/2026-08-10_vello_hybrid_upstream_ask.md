@@ -64,20 +64,56 @@ Three implementable shapes, in ascending ambition:
 
 1. **`append(other, None)`** — same viewport, no transform: concatenate
    strip storage (offsetting recorded strip ranges), remap encoded-paint
-   indices, concatenate commands. Mechanical-ish, and already enough for
-   composition patterns that pre-place content at record time.
-2. **`append(other, translate)` for integer translations** — shift
-   strip coordinates. Covers the retained pan/scroll case, which our
-   measurements say is the case that matters, without retaining source
-   geometry.
+   indices, concatenate commands.
+2. **`append(other, translate)` for tile-granular translations** —
+   shift strip coordinates. Covers the retained pan/scroll case, which
+   our measurements say is the case that matters, without retaining
+   source geometry.
 3. **Full affine `append`** — requires retaining paths (a real retained
    command list ahead of strip generation). An architectural decision
    for upstream, not a drive-by PR.
 
-The offer should present these and ask which shape upstream wants,
-rather than presuming the vello-mirror signature. Our fragment-retention
-measurements (below) are the evidence for why (2) is worth having even
-if (3) is out of scope.
+### Shapes (1) and (2) are now built, not proposed (2026-08-13)
+
+Prototyped on a branch of the vello monorepo
+(`crates/vello` checkout, branch `mark-ik/hybrid-scene-append`, commit
+`c73ba2c3`): `Scene::append_scene(other, Option<(u16, u16)>)` in
+`vello_hybrid`, 569 lines including differential tests, plus a
+`CommandRecorder::has_open_layers` accessor in `vello_common`. All
+gates green: `cargo test -p vello_hybrid` for the module (4/4),
+`clippy --all-targets` clean on the new code.
+
+The receipts are **byte-identity** differential tests, which is
+stronger than pixel comparison: append-in-place equals recording the
+same content into one scene across every retained table (strips,
+alphas, draws, nodes, layers, clip strip ranges, encoded-paint
+indices), including gradient paints, opacity layers, and clip layers;
+tile-granular translated append equals recording the geometry
+pre-translated; repeated appends accumulate in painter order; every
+rejection leaves the target untouched.
+
+Findings from building it, each of which belongs in the upstream
+conversation:
+
+- **Translation is tile-granular in both axes** (multiples of
+  `Tile::WIDTH` × `Tile::HEIGHT`), not per-pixel-x as this draft
+  earlier guessed. Measured, not assumed: a 5px x-shift lands a strip
+  start off its tile column and the alpha bytes no longer line up
+  (strips are generated tile-aligned with coverage packed relative to
+  that alignment). Consumers therefore quantize retained pans to the
+  tile grid, or re-record on sub-tile settle.
+- **Sentinel strips** (`x == u16::MAX` terminators) must keep their
+  sentinel `x` while their row and alpha index shift.
+- **Canonical node batching**: the donor's first root node must
+  continue the target's trailing open batch, or the appended recording
+  is equivalent-but-not-identical to direct recording.
+- **By-reference append needs `Clone` (or `Arc`) through
+  `EncodedPaint`**; the prototype consumes the donor instead. For a
+  retained cache appended every frame, upstream would want the
+  by-reference form, so this is a real API question for them.
+- **Filter layers are the open corner**: their placement data is
+  computed against the donor's coordinates and translating it has
+  questions the prototype refuses rather than guesses at.
 
 ## Why it is load-bearing rather than a convenience
 
@@ -189,8 +225,10 @@ until the backend seam work actually starts.
    consequence for upstream, not a bug. A discussion thread probably
    fits better, with the source findings above as the opening analysis
    and shape (2) as the starting proposal rather than a demand.
-2. **Whether to offer the PR.** For shapes (1) and (2) the offer is
-   credible and cheap: strip-range and paint-index remapping against
-   their own encoding, with `vello::Scene::append` as the semantic
-   reference. Shape (3) should be offered as design participation, not
-   a patch.
+2. **How to present the prototype.** Shapes (1) and (2) exist on the
+   branch with byte-identity receipts, so the offer is no longer
+   hypothetical: the opening message can link the branch (once pushed
+   to a public fork) and ask whether the shape fits before a PR is
+   opened. Shape (3) stays design participation. The remaining
+   pre-send work is mechanical: fork the monorepo on GitHub, push the
+   branch, and re-run their full CI-equivalent gates on it.
