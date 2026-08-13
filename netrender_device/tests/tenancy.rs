@@ -160,3 +160,43 @@ fn a_required_feature_the_adapter_lacks_is_named_at_boot() {
         Ok(_) => panic!("an adapter with every wgpu feature is not a thing we support"),
     }
 }
+
+#[test]
+fn a_greedy_tenant_gets_the_adapters_features_without_the_traps() {
+    // The JIT-compute-runtime shape: CubeCL compiles against adapter
+    // capability, so an adopted device holding less than the adapter
+    // fails shader validation at launch. Greedy grants the adapter's
+    // set, still minus the mappable-primary trap and experimentals.
+    let handles = boot_shared(
+        wgpu::Backends::all(),
+        None,
+        &TenantNeeds {
+            greedy: true,
+            label: Some("greedy jit tenant"),
+            ..Default::default()
+        },
+    )
+    .expect("greedy boot");
+
+    let granted = handles.device.features();
+    let adapter = handles.adapter.features();
+    let expected = (adapter - wgpu::Features::MAPPABLE_PRIMARY_BUFFERS)
+        & !wgpu::Features::all_experimental_mask();
+    assert!(
+        granted.contains(expected),
+        "greedy missed adapter features: {:?}",
+        expected - granted
+    );
+    assert!(!granted.contains(wgpu::Features::MAPPABLE_PRIMARY_BUFFERS));
+    assert!((granted & wgpu::Features::all_experimental_mask()).is_empty());
+
+    // And the adapter's limits came along (spot-check the two that JIT
+    // kernels actually hit), with netrender's own minimum still raised.
+    let limits = handles.device.limits();
+    let adapter_limits = handles.adapter.limits();
+    assert!(limits.max_buffer_size >= adapter_limits.max_buffer_size);
+    assert!(
+        limits.max_storage_buffer_binding_size >= adapter_limits.max_storage_buffer_binding_size
+    );
+    assert!(limits.max_inter_stage_shader_variables >= REQUIRED_INTER_STAGE_VARIABLES);
+}
