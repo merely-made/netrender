@@ -227,8 +227,21 @@ until the backend seam work actually starts.
    and shape (2) as the starting proposal rather than a demand.
 2. **How to present the prototype.** Shapes (1) and (2) exist on the
    branch with byte-identity receipts, so the offer is no longer
-   hypothetical: the opening message can link the branch (once pushed
-   to a public fork) and ask whether the shape fits before a PR is
-   opened. Shape (3) stays design participation. The remaining
-   pre-send work is mechanical: fork the monorepo on GitHub, push the
-   branch, and re-run their full CI-equivalent gates on it.
+   hypothetical: the opening message can link the branch and ask
+   whether the shape fits before a PR is opened. Shape (3) stays
+   design participation.
+
+### Upstream CI: green across their full matrix (2026-08-13)
+
+The branch is pushed to the public fork
+(`github.com/mark-ik/vello`, branch `mark-ik/hybrid-scene-append`) and
+was run through Linebender's own CI via a runner PR on a mirror
+(`mark-ik/vello-ci#1`, needed because fresh forks gate Actions behind a
+web-only confirmation). **All 20 checks passed**: formatting, typos,
+`cargo doc`, clippy on macOS/Ubuntu/Windows/wasm32, tests on
+macOS/Ubuntu/Windows and wasm32 (default and simd128), MSRV checks on
+all four platforms, `aarch64-android` check, the wasm32 WebGL examples
+check, and their sparse-strips wasm size gate.
+
+Remaining pre-send niceties: rebase the branch to drop the one empty
+"ci nudge" commit, and Mark's review of this text.
