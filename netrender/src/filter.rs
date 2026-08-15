@@ -61,7 +61,10 @@ pub fn clip_rectangle_callback(
             mapped_at_creation: true,
         });
         {
-            let mut view = params_buf.slice(..).get_mapped_range_mut();
+            let mut view = params_buf
+                .slice(..)
+                .get_mapped_range_mut()
+                .expect("map range");
             view.copy_from_slice(&bytes);
         }
         params_buf.unmap();
@@ -122,7 +125,10 @@ pub fn blur_pass_callback(
             mapped_at_creation: true,
         });
         {
-            let mut view = params_buf.slice(..).get_mapped_range_mut();
+            let mut view = params_buf
+                .slice(..)
+                .get_mapped_range_mut()
+                .expect("map range");
             view.copy_from_slice(&step_bytes);
         }
         params_buf.unmap();
@@ -204,7 +210,10 @@ pub fn color_matrix_callback(
             mapped_at_creation: true,
         });
         {
-            let mut view = params_buf.slice(..).get_mapped_range_mut();
+            let mut view = params_buf
+                .slice(..)
+                .get_mapped_range_mut()
+                .expect("map range");
             view.copy_from_slice(&bytes);
         }
         params_buf.unmap();
