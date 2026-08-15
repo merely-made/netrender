@@ -58,7 +58,7 @@ pub(crate) fn read_rgba8_texture(
         .poll(wgpu::PollType::wait_indefinitely())
         .expect("poll");
     rx.recv().expect("map sender").expect("map");
-    let mapped = slice.get_mapped_range();
+    let mapped = slice.get_mapped_range().expect("map range");
 
     let mut out = Vec::with_capacity((row_bytes * height) as usize);
     for row in 0..height as usize {

@@ -323,7 +323,7 @@ pub(crate) fn compose_external_texture(
         mapped_at_creation: true,
     });
     {
-        let mut view = params.slice(..).get_mapped_range_mut();
+        let mut view = params.slice(..).get_mapped_range_mut().expect("map range");
         view.copy_from_slice(&bytes);
     }
     params.unmap();

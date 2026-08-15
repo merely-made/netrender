@@ -243,6 +243,11 @@ pub async fn boot_async_on(
             power_preference: wgpu::PowerPreference::HighPerformance,
             compatible_surface: compatible,
             force_fallback_adapter: false,
+            // wgpu 30 limit bucketing, off to preserve the pre-30 behavior of
+            // reporting the adapter's real limits. Embedders that expose this
+            // device to untrusted content want it on (it blunts adapter
+            // fingerprinting) — that is a host policy call, not a default here.
+            apply_limit_buckets: false,
         })
         .await?;
 
@@ -408,7 +413,7 @@ mod tests {
             .expect("map_async sender dropped")
             .expect("map failed");
 
-        let mapped = slice.get_mapped_range();
+        let mapped = slice.get_mapped_range().expect("map range");
         // Rgba8Unorm: clear (1.0, 0.0, 0.0, 1.0) → (255, 0, 0, 255).
         assert_eq!(&mapped[0..4], &[255, 0, 0, 255]);
     }
