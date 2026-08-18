@@ -22,6 +22,24 @@ pub struct NetrenderOptions {
     /// for direct render-graph access (e.g., running blur or clip
     /// mask tasks via `WgpuDevice` pipeline factories) but cannot
     /// drive `render_vello`.
+    /// Report wgpu's bucketed limits instead of the adapter's real ones.
+    ///
+    /// A **host policy call**, and the reason it lives here rather than
+    /// defaulting somewhere: a host that lets untrusted content reach this
+    /// device wants it on, because adapter limits are a fingerprinting
+    /// surface. A native app shell wants it off and its real hardware.
+    /// Reach for [`NetrenderOptions::for_untrusted_content`] rather than
+    /// setting the flag by hand, so the intent is greppable.
+    ///
+    /// It binds when the adapter is requested, so it cannot be changed
+    /// without rebuilding the device and every texture on it.
+    ///
+    /// **It is only read on the boot paths that create the adapter.**
+    /// `create_netrender_instance` receives `WgpuHandles` a host already
+    /// made, so setting this alongside those handles does nothing: the
+    /// adapter was requested before netrender saw it. Set it where the
+    /// device is booted, or the host has to set it on its own request.
+    pub apply_limit_buckets: bool,
     pub tile_cache_size: Option<u32>,
     /// Phase 7' — when `true`, eagerly construct a
     /// [`VelloTileRasterizer`] and route [`Renderer::render_vello`]
@@ -47,6 +65,23 @@ pub struct NetrenderOptions {
     /// (e.g. `genet_winit_host::RenderCore::boot`), not embedder-supplied
     /// (`with_external`) devices.
     pub backends: Option<wgpu::Backends>,
+}
+
+
+impl NetrenderOptions {
+    /// Options for a host that lets untrusted content reach this device.
+    ///
+    /// Turns limit bucketing on. Adapter limits are a fingerprinting surface,
+    /// and wgpu's guidance is to decide this in trusted code rather than
+    /// anywhere the content can influence, so a browsing host states it here
+    /// and never takes it from a page.
+    ///
+    /// A native app shell should **not** use this: it gives away real
+    /// hardware limits for a threat it does not have.
+    #[must_use]
+    pub fn for_untrusted_content() -> Self {
+        Self { apply_limit_buckets: true, ..Self::default() }
+    }
 }
 
 /// Construct a wgpu-only `Renderer`. The embedder owns the wgpu

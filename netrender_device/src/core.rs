@@ -86,6 +86,26 @@ pub struct TenantNeeds {
     /// masked as everywhere else: a tenant wanting one names it in
     /// [`Self::required_features`].
     pub greedy: bool,
+    /// Ask wgpu to map the adapter's limits onto its standard buckets
+    /// instead of reporting the real ones.
+    ///
+    /// This blunts adapter fingerprinting, and a host that exposes this
+    /// device to untrusted content wants it on. It is a **host policy
+    /// call**: netrender defaults it off, because most tenants are
+    /// native and want the hardware they paid for. Genet's browsing
+    /// hosts turn it on.
+    ///
+    /// Two things about it are easy to get wrong:
+    ///
+    /// - It is decided when the adapter is requested, so it cannot be
+    ///   changed without rebuilding the device and everything on it.
+    /// - It is **opposed to [`Self::greedy`]**, which exists to take the
+    ///   adapter's full limits. Setting both gives a greedy tenant
+    ///   bucketed limits, quietly, because [`Self::limits`] reads them
+    ///   back off the already-bucketed adapter. Netrender refuses that
+    ///   combination at boot rather than under-serving a JIT compute
+    ///   runtime that will only discover it at shader validation.
+    pub apply_limit_buckets: bool,
 }
 
 impl TenantNeeds {
@@ -142,6 +162,8 @@ pub enum BootError {
     Adapter(wgpu::RequestAdapterError),
     MissingFeatures(wgpu::Features),
     Device(wgpu::RequestDeviceError),
+    /// The tenant asked for two things that cancel each other out.
+    ConflictingNeeds(&'static str),
 }
 
 impl std::fmt::Display for BootError {
@@ -152,6 +174,7 @@ impl std::fmt::Display for BootError {
                 write!(f, "adapter is missing required features: {missing:?}")
             }
             Self::Device(e) => write!(f, "device request failed: {e}"),
+            Self::ConflictingNeeds(why) => write!(f, "conflicting tenant needs: {why}"),
         }
     }
 }
@@ -238,16 +261,27 @@ pub async fn boot_async_on(
     compatible: Option<&wgpu::Surface<'_>>,
     needs: &TenantNeeds,
 ) -> Result<WgpuHandles, BootError> {
+    // Greedy means "take the adapter's whole capability"; bucketing means
+    // "do not report it". Together the tenant gets bucketed limits without
+    // being told, because `limits()` reads them back off this adapter. Refuse
+    // here, where the cause is legible, rather than at shader validation.
+    if needs.greedy && needs.apply_limit_buckets {
+        return Err(BootError::ConflictingNeeds(
+            "greedy takes the adapter's full limits and apply_limit_buckets \
+             replaces them with wgpu's buckets; a tenant cannot have both",
+        ));
+    }
+
     let adapter = instance
         .request_adapter(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::HighPerformance,
             compatible_surface: compatible,
             force_fallback_adapter: false,
-            // wgpu 30 limit bucketing, off to preserve the pre-30 behavior of
-            // reporting the adapter's real limits. Embedders that expose this
-            // device to untrusted content want it on (it blunts adapter
-            // fingerprinting) — that is a host policy call, not a default here.
-            apply_limit_buckets: false,
+            // wgpu 30 limit bucketing. Off unless the host asks: most tenants
+            // are native and want the adapter's real limits. A host exposing
+            // this device to untrusted content sets it, which is why it rides
+            // on TenantNeeds rather than being decided here.
+            apply_limit_buckets: needs.apply_limit_buckets,
         })
         .await?;
 
