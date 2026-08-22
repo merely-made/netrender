@@ -92,6 +92,12 @@ pub(crate) struct SurfaceTiles {
     pub(crate) map: HashMap<u64, SurfaceTileState>,
 }
 
+impl SurfaceTiles {
+    fn invalidate(&mut self, surface: u64) -> bool {
+        self.map.remove(&surface).is_some()
+    }
+}
+
 /// One retained surface's tile state: its own invalidation cache and the
 /// per-tile `vello::Scene` store that pairs with it.
 pub(crate) struct SurfaceTileState {
@@ -126,6 +132,18 @@ impl Renderer {
     /// inspection). Returns `None` if `tile_cache_size` was `None`.
     pub fn tile_cache(&self) -> Option<&Mutex<TileCache>> {
         self.tile_cache.as_ref()
+    }
+
+    /// Retire the retained tile state for one keyed surface.
+    ///
+    /// Hosts must call this when a surface's document or other content source
+    /// is replaced in place. Its next keyed render then rebuilds from the full
+    /// scene instead of reusing tile scenes from the previous content source.
+    pub fn invalidate_surface_tiles(&self, surface: u64) -> bool {
+        self.surface_tiles
+            .lock()
+            .expect("surface_tiles lock")
+            .invalidate(surface)
     }
     /// Register a GPU-resident wgpu texture as an image source for
     /// subsequent `render_vello` calls under the given `ImageKey`.
@@ -676,6 +694,28 @@ impl Renderer {
 
         // 6. Persist surface state for next frame.
         rast.commit_compositor_state(scene);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn invalidating_a_surface_drops_only_its_retained_tile_state() {
+        let state = || SurfaceTileState {
+            tile_cache: TileCache::new(64),
+            tile_scenes: HashMap::new(),
+            last_used: 1,
+        };
+        let mut surfaces = SurfaceTiles::default();
+        surfaces.map.insert(7, state());
+        surfaces.map.insert(9, state());
+
+        assert!(surfaces.invalidate(7));
+        assert!(!surfaces.map.contains_key(&7));
+        assert!(surfaces.map.contains_key(&9));
+        assert!(!surfaces.invalidate(7));
     }
 }
 
