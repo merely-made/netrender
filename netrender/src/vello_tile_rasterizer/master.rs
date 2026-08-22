@@ -261,7 +261,14 @@ impl VelloTileRasterizer {
             );
         }
 
-        for (coord, tile_scene) in tile_scenes {
+        // Vello scene append order is painter order. Keep it stable even though
+        // retained tile storage is hash-backed: streamed replacements can
+        // rebuild every tile with fresh font resources, and an arbitrary
+        // append order can make equivalent frames produce different glyph
+        // coverage in the composed scene.
+        let mut ordered_tiles: Vec<_> = tile_scenes.iter().collect();
+        ordered_tiles.sort_unstable_by_key(|(coord, _)| (coord.1, coord.0));
+        for (coord, tile_scene) in ordered_tiles {
             // Get the world rect from the tile cache. If it's not
             // present (race with eviction), skip — the retain pass
             // above should have already pruned, so this is purely
