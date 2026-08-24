@@ -9,7 +9,7 @@ edition = "2021"
 
 [dependencies]
 log.workspace = true
-netrender = { version = "0.1.1", path = "../netrender" }
+netrender = { version = "0.1.2", path = "../netrender" }
 paint_list_api = { version = "0.1.2", path = "../paint_list_api" }
 
 [dev-dependencies]
