@@ -15,7 +15,7 @@ resolver = "2"
 # and matches the Mere workspace convention.
 [workspace.dependencies]
 # Linebender visual stack.
-vello = { version = "0.10", default-features = false }
+vello = { package = "netrender-vello", version = "0.10.0", default-features = false }
 wgpu = { version = "30", default-features = false }
 peniko = "0.6"
 parley = "0.10"
@@ -33,17 +33,6 @@ serde = { version = "1", features = ["derive"] }
 # geometry types share identity across the path-dep boundary (extraction
 # plan risk #4). `serde` feature on so Layout* types (de)serialize.
 euclid = { version = "0.22", features = ["serde"] }
-
-# Vello on wgpu 30. Upstream vello 0.10 still requires wgpu 29 (its own
-# migration, linebender/vello#1754, is open but stalled and conflicted), so
-# the whole stack takes vello from the owned fork until upstream releases a
-# wgpu-30 line. The branch is v0.10.0 plus exactly the #1754 API changes, so
-# this entry retires by deletion when vello 0.11 ships.
-#
-# `[patch]` applies only from the top-level manifest, so every workspace that
-# resolves vello restates this — it is NOT inherited by consumers of netrender.
-[patch.crates-io]
-vello = { git = "https://github.com/mark-ik/vello.git", branch = "mark-ik/wgpu-30" }
 
 [profile.release]
 debug = true
