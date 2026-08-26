@@ -9,10 +9,11 @@ sole rasterizer. The pre-pivot WebRender-wgpu work survives only as
 `archive/*` annotated tags (indexed in
 [`netrender-notes/archive/2026-08-10_branch_archive.md`](netrender-notes/archive/2026-08-10_branch_archive.md)).
 
-## Status (2026-08-12)
+## Status (2026-08-25)
 
 Stable within its scope; in-repo roadmap work is complete per the 2026-08-10
-audit. Five member crates, all at 0.1.1, unpublished.
+audit. `netrender`, `netrender_device`, `paint_list_api`, and
+`paint_list_render` are published at 0.1.2. `netrender_text` remains at 0.1.1.
 
 - The vello pivot is runtime-verified through the tile cache. Landed:
   layers and clips, gradients, box-shadows, nine-patch borders, variable
@@ -42,7 +43,7 @@ plans live in `netrender-notes/`, indexed by
 The rendering leaf for the genet web-engine family and sibling projects:
 engines emit a `PaintList` via `paint_list_api`, `paint_list_render`
 translates it into a `Scene`, and `Renderer::render_vello` rasterizes it.
-Consumed as a git dependency; it depends only on crates.io.
+Consumed from crates.io or as a git dependency; it depends only on crates.io.
 
 ```sh
 cargo build
