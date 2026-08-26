@@ -55,6 +55,15 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
 name = "bit-set"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "34ddef2995421ab6a5c779542c81ee77c115206f4ad9d5a8e05f4ff49716a3dd"
+dependencies = [
+ "bit-vec",
+]
+
+[[package]]
+name = "bit-set"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09ec2f926cc3060f09db9ebc5b52823d85268d24bb917e472c0c4bea35780a7d"
@@ -442,6 +451,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "hexf-parse"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dfa686283ad6dd069f105e5ab091b04c62850d3e4cf5d67debad1933f55023df"
+
+[[package]]
 name = "icu_collections"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -695,12 +710,37 @@ dependencies = [
 
 [[package]]
 name = "naga"
+version = "29.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b2bf919621e7975acb27d881bae2fb993e0d45c8e0446e85e6272971e00dc8df"
+dependencies = [
+ "arrayvec",
+ "bit-set 0.9.1",
+ "bitflags 2.11.1",
+ "cfg-if",
+ "cfg_aliases",
+ "codespan-reporting",
+ "half",
+ "hashbrown 0.16.1",
+ "hexf-parse",
+ "indexmap",
+ "libm",
+ "log",
+ "num-traits",
+ "once_cell",
+ "rustc-hash",
+ "thiserror",
+ "unicode-ident",
+]
+
+[[package]]
+name = "naga"
 version = "30.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "23bf0a141a9ab6f07dbb492db53245e464bc9db42f407772d9ae03d83a2c1033"
 dependencies = [
  "arrayvec",
- "bit-set",
+ "bit-set 0.10.0",
  "bitflags 2.11.1",
  "cfg-if",
  "cfg_aliases",
@@ -733,9 +773,10 @@ dependencies = [
 
 [[package]]
 name = "netrender"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "log",
+ "netrender-vello",
  "netrender_device",
  "netrender_text",
  "peniko",
@@ -745,14 +786,32 @@ dependencies = [
  "serde_json",
  "skrifa 0.44.0",
  "tracing",
- "vello",
  "web-time",
  "wgpu",
 ]
 
 [[package]]
+name = "netrender-vello"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3a8804d9aea76067d4b1b19dda02c567151d7ca878c996a6c94e80208fa5c16f"
+dependencies = [
+ "bytemuck",
+ "futures-intrusive",
+ "log",
+ "peniko",
+ "png 0.18.1",
+ "skrifa 0.44.0",
+ "static_assertions",
+ "thiserror",
+ "vello_encoding",
+ "vello_shaders",
+ "wgpu",
+]
+
+[[package]]
 name = "netrender_device"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "log",
  "pollster",
@@ -892,7 +951,7 @@ dependencies = [
 
 [[package]]
 name = "paint_list_api"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "euclid",
  "serde",
@@ -901,7 +960,7 @@ dependencies = [
 
 [[package]]
 name = "paint_list_render"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "log",
  "netrender",
@@ -1446,27 +1505,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
 
 [[package]]
-name = "vello"
-version = "0.10.0"
-source = "git+https://github.com/mark-ik/vello.git?branch=mark-ik%2Fwgpu-30#4354955e9d8637f32b7c78b20af2a58f842ba39e"
-dependencies = [
- "bytemuck",
- "futures-intrusive",
- "log",
- "peniko",
- "png 0.18.1",
- "skrifa 0.44.0",
- "static_assertions",
- "thiserror",
- "vello_encoding",
- "vello_shaders",
- "wgpu",
-]
-
-[[package]]
 name = "vello_encoding"
 version = "0.10.0"
-source = "git+https://github.com/mark-ik/vello.git?branch=mark-ik%2Fwgpu-30#4354955e9d8637f32b7c78b20af2a58f842ba39e"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e31cd622201690d8dfe9fd8fea8d1ae59db1bfeea414856a617d1d03438418c"
 dependencies = [
  "bytemuck",
  "guillotiere",
@@ -1478,11 +1520,12 @@ dependencies = [
 [[package]]
 name = "vello_shaders"
 version = "0.10.0"
-source = "git+https://github.com/mark-ik/vello.git?branch=mark-ik%2Fwgpu-30#4354955e9d8637f32b7c78b20af2a58f842ba39e"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "abf943bd2920bfd22928a9c1bad39866f7ffcc1109b6ed924ab52773e3868a83"
 dependencies = [
  "bytemuck",
  "log",
- "naga",
+ "naga 29.0.4",
  "thiserror",
  "vello_encoding",
 ]
@@ -1577,7 +1620,7 @@ dependencies = [
  "hashbrown 0.17.0",
  "js-sys",
  "log",
- "naga",
+ "naga 30.0.0",
  "parking_lot",
  "portable-atomic",
  "profiling",
@@ -1599,7 +1642,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "08763620e76fc980bca7bf84de82568614487a53172dd968d89187282eb87fa2"
 dependencies = [
  "arrayvec",
- "bit-set",
+ "bit-set 0.10.0",
  "bit-vec",
  "bitflags 2.11.1",
  "bytemuck",
@@ -1608,7 +1651,7 @@ dependencies = [
  "hashbrown 0.17.0",
  "indexmap",
  "log",
- "naga",
+ "naga 30.0.0",
  "naga-types",
  "once_cell",
  "parking_lot",
@@ -1652,7 +1695,7 @@ dependencies = [
  "android_system_properties",
  "arrayvec",
  "ash",
- "bit-set",
+ "bit-set 0.10.0",
  "bitflags 2.11.1",
  "block2",
  "bytemuck",
@@ -1663,7 +1706,7 @@ dependencies = [
  "libc",
  "libloading",
  "log",
- "naga",
+ "naga 30.0.0",
  "naga-types",
  "objc2",
  "objc2-core-foundation",
@@ -1696,7 +1739,7 @@ version = "30.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c9eaac644e5008925c78567d272b9d66ef83da55a53cc17fc7daade7bb6e66e5"
 dependencies = [
- "naga",
+ "naga 30.0.0",
  "wgpu-types",
 ]
 

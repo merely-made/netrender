@@ -9,6 +9,15 @@ through the original implementation, check out the
 on a `webrender-wgpu-upstream/` side worktree. That checkout is gone; see
 [`archive/2026-08-10_branch_archive.md`](archive/2026-08-10_branch_archive.md).)
 
+## Release integration, 2026-08-25
+
+The 0.1.2 release stack is the mainline package contract: `paint_list_api`,
+`paint_list_render`, `netrender`, and `netrender_device` carry their published
+versions, and the root consumes the published wgpu-30 `netrender-vello` fork.
+The regenerated lock records those sources. This closes the stale split where
+crates.io consumers selected `netrender` 0.1.2 while git `main` still declared
+0.1.1, producing two incompatible `Scene` types in Turnstone.
+
 ## Current canonical plans
 
 Audited 2026-08-10. Four files, each with one job, plus a research
