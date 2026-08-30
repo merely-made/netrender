@@ -147,7 +147,154 @@ pub struct ShaderCensusProfile {
     pub shader_version: ShaderVersion,
     pub requested_feature_flags_bits: u32,
     pub records: Vec<ShaderCensusRecord>,
+    /// Cross-stage evidence for the normalized vertex/fragment pair of every
+    /// selected variant. A stage-local translation success alone does not
+    /// imply that the pair can form a render pipeline.
+    pub pipeline_audits: Vec<ShaderCensusPipelineAudit>,
     pub summary: ShaderCensusSummary,
+}
+
+/// The normalized-SPIR-V evidence retained for one shader stage while a pair
+/// is being reconciled.
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+pub struct ShaderCensusNormalizedStageEvidence {
+    pub source_sha256: String,
+    pub intermediate_sha256: Option<String>,
+    pub output_sha256: Option<String>,
+    pub translation_status: ShaderTranslationLaneStatus,
+    pub failure_class: Option<String>,
+    pub diagnostic: Option<String>,
+    pub entry_point: Option<String>,
+    pub resource_bindings: Vec<ShaderCensusResourceBinding>,
+    pub interface_locations: Vec<ShaderCensusStageInterfaceLocation>,
+}
+
+/// One reflected resource binding, sorted by group and binding number.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+pub struct ShaderCensusResourceBinding {
+    pub group: u32,
+    pub binding: u32,
+    pub resource_class: String,
+    pub address_space: String,
+    pub type_layout: String,
+}
+
+/// Whether an entry-point location is read by or written from a stage.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+#[cfg_attr(feature = "shader_census", serde(rename_all = "snake_case"))]
+pub enum ShaderCensusStageInterfaceDirection {
+    Input,
+    Output,
+}
+
+/// The numeric type carried by one stage interface location.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+#[cfg_attr(feature = "shader_census", serde(rename_all = "snake_case"))]
+pub enum ShaderCensusInterfaceType {
+    Scalar {
+        scalar_kind: String,
+        width: u8,
+    },
+    Vector {
+        size: u8,
+        scalar_kind: String,
+        width: u8,
+    },
+    Matrix {
+        columns: u8,
+        rows: u8,
+        scalar_kind: String,
+        width: u8,
+    },
+    Other {
+        type_layout: String,
+    },
+}
+
+/// One explicit user-defined entry-point input or output location.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+pub struct ShaderCensusStageInterfaceLocation {
+    pub stage: ShaderKind,
+    pub direction: ShaderCensusStageInterfaceDirection,
+    pub location: u32,
+    pub interface_type: ShaderCensusInterfaceType,
+    pub interpolation: Option<String>,
+    pub sampling: Option<String>,
+    pub blend_src: Option<u32>,
+    pub per_primitive: bool,
+}
+
+/// The status of reconciling two individually normalized shader stages.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+#[cfg_attr(feature = "shader_census", serde(rename_all = "snake_case"))]
+pub enum ShaderCensusPipelineAuditStatus {
+    StageTranslationFailed,
+    Incompatible,
+    PipelineCompatible,
+}
+
+/// A bind group location shared by one or both stages.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+pub struct ShaderCensusBindingPoint {
+    pub group: u32,
+    pub binding: u32,
+}
+
+/// The merged view of a bind group location across the vertex and fragment stages.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+pub struct ShaderCensusReconciledResourceBinding {
+    pub binding_point: ShaderCensusBindingPoint,
+    pub vertex: Option<ShaderCensusResourceBinding>,
+    pub fragment: Option<ShaderCensusResourceBinding>,
+    pub compatible: bool,
+}
+
+/// A stable class for a collision or incompatibility found while reconciling a pair.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+#[cfg_attr(feature = "shader_census", serde(rename_all = "snake_case"))]
+pub enum ShaderCensusPipelineAuditIssueKind {
+    VertexResourceBindingCollision,
+    FragmentResourceBindingCollision,
+    IncompatibleResourceBindingLayout,
+    VertexOutputLocationCollision,
+    FragmentInputLocationCollision,
+    MissingVertexOutput,
+    IncompatibleInterfaceLocation,
+}
+
+/// A typed, deterministic reconciliation finding.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+pub struct ShaderCensusPipelineAuditIssue {
+    pub kind: ShaderCensusPipelineAuditIssueKind,
+    pub binding_point: Option<ShaderCensusBindingPoint>,
+    pub interface_location: Option<u32>,
+    pub vertex_layout: Option<String>,
+    pub fragment_layout: Option<String>,
+}
+
+/// The result of reflecting and reconciling one normalized vertex/fragment pair.
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+pub struct ShaderCensusPipelineAudit {
+    pub schema_version: u32,
+    pub shader_name: String,
+    pub shader_version: ShaderVersion,
+    pub features: Vec<String>,
+    pub vertex: ShaderCensusNormalizedStageEvidence,
+    pub fragment: ShaderCensusNormalizedStageEvidence,
+    pub reconciled_resource_bindings: Vec<ShaderCensusReconciledResourceBinding>,
+    pub issues: Vec<ShaderCensusPipelineAuditIssue>,
+    pub status: ShaderCensusPipelineAuditStatus,
 }
 
 /// The complete, machine-readable result of one or more requested profiles.
@@ -204,7 +351,7 @@ impl ShaderCensusManifest {
             (profile.shader_version, profile.requested_feature_flags_bits)
         });
         ShaderCensusManifest {
-            schema_version: 3,
+            schema_version: 4,
             toolchain: ShaderCensusToolchain {
                 naga_version: NAGA_VERSION.to_owned(),
                 shaderc_version: SHADERC_VERSION.to_owned(),
@@ -233,6 +380,7 @@ impl ShaderCensusRecord {
         stage: ShaderKind,
         features: Vec<String>,
         source: &str,
+        lanes: [ShaderTranslationLaneRecord; 7],
     ) -> Self {
         ShaderCensusRecord {
             schema_version: 3,
@@ -241,9 +389,48 @@ impl ShaderCensusRecord {
             stage,
             features,
             source_sha256: sha256_hex(source),
-            lanes: collect_lane_records(shader_name, stage, source),
+            lanes,
         }
     }
+}
+
+#[cfg(feature = "shader_census")]
+#[derive(Clone, Debug)]
+struct ShaderCensusStageReflection {
+    entry_point: String,
+    resource_bindings: Vec<ShaderCensusResourceBinding>,
+    interface_locations: Vec<ShaderCensusStageInterfaceLocation>,
+}
+
+#[cfg(feature = "shader_census")]
+#[derive(Clone, Debug)]
+struct NormalizedStageArtifact {
+    lane: ShaderTranslationLaneRecord,
+    reflection: Option<ShaderCensusStageReflection>,
+    wgsl: Option<String>,
+}
+
+#[cfg(feature = "shader_census")]
+#[derive(Clone, Debug)]
+struct CollectedShaderStage {
+    record: ShaderCensusRecord,
+    normalized: NormalizedStageArtifact,
+}
+
+#[cfg(feature = "shader_census")]
+#[derive(Clone, Debug)]
+struct CollectedShaderPair {
+    vertex: CollectedShaderStage,
+    fragment: CollectedShaderStage,
+}
+
+/// A reflected normalized pair together with its WGSL, for a narrow external
+/// probe. The manifest serializes only the audit and hashes, not the source.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ShaderCensusNormalizedShaderPair {
+    pub audit: ShaderCensusPipelineAudit,
+    pub vertex_wgsl: Option<String>,
+    pub fragment_wgsl: Option<String>,
 }
 
 /// Enumerate every shader variant selected by `flags` and preprocess both
@@ -259,40 +446,11 @@ pub fn collect_shader_census<G>(
 where
     G: Fn(&str) -> Cow<'static, str>,
 {
-    let mut variants = get_shader_features(flags).into_iter().collect::<Vec<_>>();
-    variants.sort_unstable_by_key(|(shader_name, _)| *shader_name);
-
-    let mut records = Vec::new();
-    for (shader_name, mut configs) in variants {
-        configs.sort_unstable();
-        for config in configs {
-            let source_features = config
-                .split(',')
-                .filter(|feature| !feature.is_empty())
-                .collect::<Vec<_>>();
-            let mut features = source_features
-                .iter()
-                .map(|feature| (*feature).to_owned())
-                .collect::<Vec<_>>();
-            features.sort_unstable();
-
-            let (vertex, fragment) =
-                build_shader_strings(shader_version, &source_features, shader_name, get_source);
-            records.push(ShaderCensusRecord::new(
-                shader_name,
-                shader_version,
-                ShaderKind::Vertex,
-                features.clone(),
-                &vertex,
-            ));
-            records.push(ShaderCensusRecord::new(
-                shader_name,
-                shader_version,
-                ShaderKind::Fragment,
-                features,
-                &fragment,
-            ));
-        }
+    let pairs = collect_shader_census_pairs(shader_version, flags, get_source);
+    let mut records = Vec::with_capacity(pairs.len() * 2);
+    for pair in pairs {
+        records.push(pair.vertex.record);
+        records.push(pair.fragment.record);
     }
     records
 }
@@ -307,13 +465,126 @@ pub fn collect_shader_census_profile<G>(
 where
     G: Fn(&str) -> Cow<'static, str>,
 {
-    let records = collect_shader_census(shader_version, flags, get_source);
+    let pairs = collect_shader_census_pairs(shader_version, flags, get_source);
+    let mut records = Vec::with_capacity(pairs.len() * 2);
+    let mut pipeline_audits = Vec::with_capacity(pairs.len());
+    for pair in pairs {
+        pipeline_audits.push(reconcile_normalized_pair(&pair));
+        records.push(pair.vertex.record);
+        records.push(pair.fragment.record);
+    }
     let summary = summarize(&records);
     ShaderCensusProfile {
         shader_version,
         requested_feature_flags_bits: flags.bits(),
         records,
+        pipeline_audits,
         summary,
+    }
+}
+
+/// Collect one explicitly selected pair through the normalized route. This is
+/// intentionally limited to a single pair so a headless WGPU probe cannot
+/// accidentally grow into a renderer path.
+pub fn collect_normalized_shader_pair<G>(
+    shader_version: ShaderVersion,
+    shader_name: &str,
+    features: &[&str],
+    get_source: &G,
+) -> ShaderCensusNormalizedShaderPair
+where
+    G: Fn(&str) -> Cow<'static, str>,
+{
+    let pair = collect_shader_pair(shader_version, shader_name, features, get_source);
+    ShaderCensusNormalizedShaderPair {
+        audit: reconcile_normalized_pair(&pair),
+        vertex_wgsl: pair.vertex.normalized.wgsl,
+        fragment_wgsl: pair.fragment.normalized.wgsl,
+    }
+}
+
+fn collect_shader_census_pairs<G>(
+    shader_version: ShaderVersion,
+    flags: ShaderFeatureFlags,
+    get_source: &G,
+) -> Vec<CollectedShaderPair>
+where
+    G: Fn(&str) -> Cow<'static, str>,
+{
+    let mut variants = get_shader_features(flags).into_iter().collect::<Vec<_>>();
+    variants.sort_unstable_by_key(|(shader_name, _)| *shader_name);
+
+    let mut pairs = Vec::new();
+    for (shader_name, mut configs) in variants {
+        configs.sort_unstable();
+        for config in configs {
+            let source_features = config
+                .split(',')
+                .filter(|feature| !feature.is_empty())
+                .collect::<Vec<_>>();
+            pairs.push(collect_shader_pair(
+                shader_version,
+                shader_name,
+                &source_features,
+                get_source,
+            ));
+        }
+    }
+    pairs
+}
+
+fn collect_shader_pair<G>(
+    shader_version: ShaderVersion,
+    shader_name: &str,
+    source_features: &[&str],
+    get_source: &G,
+) -> CollectedShaderPair
+where
+    G: Fn(&str) -> Cow<'static, str>,
+{
+    let mut features = source_features
+        .iter()
+        .map(|feature| (*feature).to_owned())
+        .collect::<Vec<_>>();
+    features.sort_unstable();
+    let (vertex_source, fragment_source) =
+        build_shader_strings(shader_version, source_features, shader_name, get_source);
+    CollectedShaderPair {
+        vertex: collect_shader_stage(
+            shader_name,
+            shader_version,
+            ShaderKind::Vertex,
+            features.clone(),
+            &vertex_source,
+        ),
+        fragment: collect_shader_stage(
+            shader_name,
+            shader_version,
+            ShaderKind::Fragment,
+            features,
+            &fragment_source,
+        ),
+    }
+}
+
+fn collect_shader_stage(
+    shader_name: &str,
+    shader_version: ShaderVersion,
+    stage: ShaderKind,
+    features: Vec<String>,
+    source: &str,
+) -> CollectedShaderStage {
+    let (lanes, normalized) = collect_lane_records(shader_name, stage, source);
+    CollectedShaderStage {
+        record: ShaderCensusRecord::new(
+            shader_name,
+            shader_version,
+            stage,
+            features,
+            source,
+            lanes,
+        ),
+        normalized,
     }
 }
 
@@ -370,7 +641,7 @@ fn collect_lane_records(
     shader_name: &str,
     stage: ShaderKind,
     source: &str,
-) -> [ShaderTranslationLaneRecord; 7] {
+) -> ([ShaderTranslationLaneRecord; 7], NormalizedStageArtifact) {
     let direct_naga = run_naga_glsl_to_wgsl(stage, source);
     let compiled_spirv = compile_shaderc(stage, shader_name, source);
     let raw_spirv = run_shaderc_spirv_naga_validated(
@@ -391,15 +662,17 @@ fn collect_lane_records(
         ShaderTranslationLane::VulkanPreparedShadercSpirvToNagaWgsl,
         &prepared_spirv,
     );
-    [
+    let normalized = run_normalized_prepared_spirv(stage, &prepared_spirv);
+    let lanes = [
         evidence_lane(source),
         direct_naga,
         raw_spirv,
         spirv_to_wgsl,
         prepared_validation,
         prepared_wgsl,
-        run_normalized_prepared_spirv(&prepared_spirv),
-    ]
+        normalized.lane.clone(),
+    ];
+    (lanes, normalized)
 }
 
 #[cfg(feature = "shader_census")]
@@ -451,37 +724,91 @@ fn run_shaderc_spirv_to_naga_wgsl(
 
 #[cfg(feature = "shader_census")]
 fn run_normalized_prepared_spirv(
+    stage: ShaderKind,
     prepared_spirv: &Result<Vec<u8>, String>,
-) -> ShaderTranslationLaneRecord {
+) -> NormalizedStageArtifact {
     let lane = ShaderTranslationLane::NormalizedSpirvThroughNaga;
     let normalizer = match std::env::var_os(SPIRV_OPT_ENV) {
         Some(path) if !path.is_empty() => PathBuf::from(path),
         _ => {
-            return unavailable_lane(
-                lane,
-                "spirv_normalizer_not_configured",
-                "set WEBRENDER_SHADER_CENSUS_SPIRV_OPT to an executable spirv-opt path",
-            );
+            return NormalizedStageArtifact {
+                lane: unavailable_lane(
+                    lane,
+                    "spirv_normalizer_not_configured",
+                    "set WEBRENDER_SHADER_CENSUS_SPIRV_OPT to an executable spirv-opt path",
+                ),
+                reflection: None,
+                wgsl: None,
+            };
         }
     };
     let prepared_spirv = match prepared_spirv {
         Ok(spirv) => spirv,
-        Err(diagnostic) => return failed_lane(lane, "shaderc_compile", diagnostic.clone()),
+        Err(diagnostic) => {
+            return NormalizedStageArtifact {
+                lane: failed_lane(lane, "shaderc_compile", diagnostic.clone()),
+                reflection: None,
+                wgsl: None,
+            };
+        }
     };
     let normalized_spirv = match normalize_prepared_spirv(&normalizer, prepared_spirv) {
         Ok(spirv) => spirv,
-        Err(diagnostic) => return failed_lane(lane, "spirv_normalizer_execute", diagnostic),
+        Err(diagnostic) => {
+            return NormalizedStageArtifact {
+                lane: failed_lane(lane, "spirv_normalizer_execute", diagnostic),
+                reflection: None,
+                wgsl: None,
+            };
+        }
     };
     let intermediate_sha256 = sha256_bytes(&normalized_spirv);
-    let mut record = match parse_naga_spirv(&normalized_spirv) {
-        Ok(module) => match validate_and_write_wgsl(&module) {
-            Ok(wgsl) => succeeded_lane(lane, &wgsl),
-            Err((class, diagnostic)) => failed_lane(lane, &class, diagnostic),
-        },
-        Err(diagnostic) => failed_lane(lane, "naga_spirv_parse", diagnostic),
+    let module = match parse_naga_spirv(&normalized_spirv) {
+        Ok(module) => module,
+        Err(diagnostic) => {
+            let mut lane = failed_lane(lane, "naga_spirv_parse", diagnostic);
+            lane.intermediate_sha256 = Some(intermediate_sha256);
+            return NormalizedStageArtifact {
+                lane,
+                reflection: None,
+                wgsl: None,
+            };
+        }
     };
-    record.intermediate_sha256 = Some(intermediate_sha256);
-    record
+    let info = match validate_module(&module) {
+        Ok(info) => info,
+        Err((class, diagnostic)) => {
+            let mut lane = failed_lane(lane, &class, diagnostic);
+            lane.intermediate_sha256 = Some(intermediate_sha256);
+            return NormalizedStageArtifact {
+                lane,
+                reflection: None,
+                wgsl: None,
+            };
+        }
+    };
+    let reflection = match reflect_normalized_stage(&module, &info, stage) {
+        Ok(reflection) => reflection,
+        Err((class, diagnostic)) => {
+            let mut lane = failed_lane(lane, &class, diagnostic);
+            lane.intermediate_sha256 = Some(intermediate_sha256);
+            return NormalizedStageArtifact {
+                lane,
+                reflection: None,
+                wgsl: None,
+            };
+        }
+    };
+    let (mut lane, wgsl) = match write_wgsl(&module, &info) {
+        Ok(wgsl) => (succeeded_lane(lane, &wgsl), Some(wgsl)),
+        Err((class, diagnostic)) => (failed_lane(lane, &class, diagnostic), None),
+    };
+    lane.intermediate_sha256 = Some(intermediate_sha256);
+    NormalizedStageArtifact {
+        lane,
+        reflection: Some(reflection),
+        wgsl,
+    }
 }
 
 #[cfg(feature = "shader_census")]
@@ -503,6 +830,609 @@ fn normalize_prepared_spirv(normalizer: &Path, input: &[u8]) -> Result<Vec<u8>, 
         ));
     }
     std::fs::read(&files.output).map_err(|error| error.to_string())
+}
+
+#[cfg(feature = "shader_census")]
+fn reflect_normalized_stage(
+    module: &naga::Module,
+    info: &naga::valid::ModuleInfo,
+    stage: ShaderKind,
+) -> Result<ShaderCensusStageReflection, (String, String)> {
+    let (entry_point_index, entry_point) = module
+        .entry_points
+        .iter()
+        .enumerate()
+        .find(|(_, entry_point)| entry_point.stage == naga_stage(stage))
+        .ok_or_else(|| {
+            (
+                "naga_entry_point_reflection".to_owned(),
+                format!("no {:?} entry point in normalized SPIR-V module", stage),
+            )
+        })?;
+    let entry_point_info = info.get_entry_point(entry_point_index);
+
+    let mut resource_bindings = module
+        .global_variables
+        .iter()
+        .filter_map(|(handle, variable)| {
+            if entry_point_info[handle].is_empty() {
+                return None;
+            }
+            variable.binding.as_ref().map(|binding| {
+                let sampled_by_sampler = entry_point_info
+                    .sampling_set
+                    .iter()
+                    .any(|key| key.image == handle);
+                ShaderCensusResourceBinding {
+                    group: binding.group,
+                    binding: binding.binding,
+                    resource_class: reflected_resource_class(module, variable, sampled_by_sampler),
+                    address_space: format!("{:?}", variable.space),
+                    type_layout: reflected_type_layout(module, variable.ty),
+                }
+            })
+        })
+        .collect::<Vec<_>>();
+    resource_bindings.sort_unstable();
+
+    let mut interface_locations = Vec::new();
+    for argument in &entry_point.function.arguments {
+        reflect_interface_locations(
+            module,
+            stage,
+            ShaderCensusStageInterfaceDirection::Input,
+            argument.ty,
+            argument.binding.as_ref(),
+            &mut interface_locations,
+        );
+    }
+    if let Some(result) = &entry_point.function.result {
+        reflect_interface_locations(
+            module,
+            stage,
+            ShaderCensusStageInterfaceDirection::Output,
+            result.ty,
+            result.binding.as_ref(),
+            &mut interface_locations,
+        );
+    }
+    interface_locations.sort_unstable();
+
+    Ok(ShaderCensusStageReflection {
+        entry_point: entry_point.name.clone(),
+        resource_bindings,
+        interface_locations,
+    })
+}
+
+#[cfg(feature = "shader_census")]
+fn reflected_resource_class(
+    module: &naga::Module,
+    variable: &naga::GlobalVariable,
+    sampled_by_sampler: bool,
+) -> String {
+    match (&variable.space, &module.types[variable.ty].inner) {
+        (naga::AddressSpace::Uniform, _) => "uniform_buffer".to_owned(),
+        (naga::AddressSpace::Storage { access }, _) => format!("storage_buffer:{:?}", access),
+        (naga::AddressSpace::Handle, naga::TypeInner::Sampler { comparison }) => {
+            format!("sampler:comparison={}", comparison)
+        }
+        (
+            naga::AddressSpace::Handle,
+            naga::TypeInner::Image {
+                dim,
+                arrayed,
+                class,
+            },
+        ) => match class {
+            naga::ImageClass::Sampled {
+                kind: naga::ScalarKind::Float,
+                ..
+            } => format!(
+                "texture:{:?}:arrayed={}:class={:?}:filterable={}",
+                dim, arrayed, class, sampled_by_sampler
+            ),
+            _ => format!("texture:{:?}:arrayed={}:class={:?}", dim, arrayed, class),
+        },
+        (naga::AddressSpace::Handle, naga::TypeInner::BindingArray { base, .. }) => {
+            format!(
+                "binding_array:{}",
+                reflected_resource_class_for_type(module, *base, sampled_by_sampler)
+            )
+        }
+        (space, type_inner) => format!("other:{:?}:{:?}", space, type_inner),
+    }
+}
+
+#[cfg(feature = "shader_census")]
+fn reflected_resource_class_for_type(
+    module: &naga::Module,
+    ty: naga::Handle<naga::Type>,
+    sampled_by_sampler: bool,
+) -> String {
+    match &module.types[ty].inner {
+        naga::TypeInner::Sampler { comparison } => format!("sampler:comparison={}", comparison),
+        naga::TypeInner::Image {
+            dim,
+            arrayed,
+            class,
+        } => match class {
+            naga::ImageClass::Sampled {
+                kind: naga::ScalarKind::Float,
+                ..
+            } => format!(
+                "texture:{:?}:arrayed={}:class={:?}:filterable={}",
+                dim, arrayed, class, sampled_by_sampler
+            ),
+            _ => format!("texture:{:?}:arrayed={}:class={:?}", dim, arrayed, class),
+        },
+        naga::TypeInner::BindingArray { base, .. } => format!(
+            "binding_array:{}",
+            reflected_resource_class_for_type(module, *base, sampled_by_sampler)
+        ),
+        other => format!("other:{:?}", other),
+    }
+}
+
+#[cfg(feature = "shader_census")]
+fn reflected_type_layout(module: &naga::Module, ty: naga::Handle<naga::Type>) -> String {
+    match &module.types[ty].inner {
+        naga::TypeInner::Scalar(scalar) => {
+            format!("scalar:{:?}:{}", scalar.kind, scalar.width)
+        }
+        naga::TypeInner::Vector { size, scalar } => {
+            format!("vector:{:?}:{:?}:{}", size, scalar.kind, scalar.width)
+        }
+        naga::TypeInner::Matrix {
+            columns,
+            rows,
+            scalar,
+        } => format!(
+            "matrix:{:?}:{:?}:{:?}:{}",
+            columns, rows, scalar.kind, scalar.width
+        ),
+        naga::TypeInner::Atomic(scalar) => {
+            format!("atomic:{:?}:{}", scalar.kind, scalar.width)
+        }
+        naga::TypeInner::Pointer { base, space } => format!(
+            "pointer:{:?}:{}",
+            space,
+            reflected_type_layout(module, *base)
+        ),
+        naga::TypeInner::ValuePointer {
+            size,
+            scalar,
+            space,
+        } => format!(
+            "value_pointer:{:?}:{:?}:{:?}:{}",
+            space, size, scalar.kind, scalar.width
+        ),
+        naga::TypeInner::Array { base, size, stride } => format!(
+            "array:{}:{}:{}",
+            reflected_array_size(*size),
+            stride,
+            reflected_type_layout(module, *base)
+        ),
+        naga::TypeInner::Struct { members, span } => format!(
+            "struct:{}:[{}]",
+            span,
+            members
+                .iter()
+                .map(|member| format!(
+                    "{}:{}",
+                    member.offset,
+                    reflected_type_layout(module, member.ty)
+                ))
+                .collect::<Vec<_>>()
+                .join(",")
+        ),
+        naga::TypeInner::Image {
+            dim,
+            arrayed,
+            class,
+        } => format!("image:{:?}:{}:{:?}", dim, arrayed, class),
+        naga::TypeInner::Sampler { comparison } => format!("sampler:{}", comparison),
+        naga::TypeInner::BindingArray { base, size } => format!(
+            "binding_array:{}:{}",
+            reflected_array_size(*size),
+            reflected_type_layout(module, *base)
+        ),
+        other => format!("other:{:?}", other),
+    }
+}
+
+#[cfg(feature = "shader_census")]
+fn reflected_array_size(size: naga::ArraySize) -> String {
+    match size {
+        naga::ArraySize::Constant(count) => count.get().to_string(),
+        naga::ArraySize::Dynamic => "dynamic".to_owned(),
+        naga::ArraySize::Pending(_) => "pending".to_owned(),
+    }
+}
+
+#[cfg(feature = "shader_census")]
+fn reflect_interface_locations(
+    module: &naga::Module,
+    stage: ShaderKind,
+    direction: ShaderCensusStageInterfaceDirection,
+    ty: naga::Handle<naga::Type>,
+    binding: Option<&naga::Binding>,
+    locations: &mut Vec<ShaderCensusStageInterfaceLocation>,
+) {
+    if let Some(naga::Binding::Location {
+        location,
+        interpolation,
+        sampling,
+        blend_src,
+        per_primitive,
+    }) = binding
+    {
+        locations.push(ShaderCensusStageInterfaceLocation {
+            stage,
+            direction,
+            location: *location,
+            interface_type: reflected_interface_type(module, ty),
+            interpolation: interpolation.map(|value| format!("{:?}", value)),
+            sampling: sampling.map(|value| format!("{:?}", value)),
+            blend_src: *blend_src,
+            per_primitive: *per_primitive,
+        });
+        return;
+    }
+
+    if binding.is_none() {
+        if let naga::TypeInner::Struct { members, .. } = &module.types[ty].inner {
+            for member in members {
+                reflect_interface_locations(
+                    module,
+                    stage,
+                    direction,
+                    member.ty,
+                    member.binding.as_ref(),
+                    locations,
+                );
+            }
+        }
+    }
+}
+
+#[cfg(feature = "shader_census")]
+fn reflected_interface_type(
+    module: &naga::Module,
+    ty: naga::Handle<naga::Type>,
+) -> ShaderCensusInterfaceType {
+    match &module.types[ty].inner {
+        naga::TypeInner::Scalar(scalar) => ShaderCensusInterfaceType::Scalar {
+            scalar_kind: format!("{:?}", scalar.kind),
+            width: scalar.width,
+        },
+        naga::TypeInner::Vector { size, scalar } => ShaderCensusInterfaceType::Vector {
+            size: reflected_vector_size(*size),
+            scalar_kind: format!("{:?}", scalar.kind),
+            width: scalar.width,
+        },
+        naga::TypeInner::Matrix {
+            columns,
+            rows,
+            scalar,
+        } => ShaderCensusInterfaceType::Matrix {
+            columns: reflected_vector_size(*columns),
+            rows: reflected_vector_size(*rows),
+            scalar_kind: format!("{:?}", scalar.kind),
+            width: scalar.width,
+        },
+        _ => ShaderCensusInterfaceType::Other {
+            type_layout: reflected_type_layout(module, ty),
+        },
+    }
+}
+
+#[cfg(feature = "shader_census")]
+fn reflected_vector_size(size: naga::VectorSize) -> u8 {
+    match size {
+        naga::VectorSize::Bi => 2,
+        naga::VectorSize::Tri => 3,
+        naga::VectorSize::Quad => 4,
+    }
+}
+
+#[cfg(feature = "shader_census")]
+fn normalized_stage_evidence(stage: &CollectedShaderStage) -> ShaderCensusNormalizedStageEvidence {
+    let lane = &stage.normalized.lane;
+    let reflection = stage.normalized.reflection.as_ref();
+    ShaderCensusNormalizedStageEvidence {
+        source_sha256: stage.record.source_sha256.clone(),
+        intermediate_sha256: lane.intermediate_sha256.clone(),
+        output_sha256: lane.output_sha256.clone(),
+        translation_status: lane.status,
+        failure_class: lane.failure_class.clone(),
+        diagnostic: lane.diagnostic.clone(),
+        entry_point: reflection.map(|reflection| reflection.entry_point.clone()),
+        resource_bindings: reflection
+            .map(|reflection| reflection.resource_bindings.clone())
+            .unwrap_or_default(),
+        interface_locations: reflection
+            .map(|reflection| reflection.interface_locations.clone())
+            .unwrap_or_default(),
+    }
+}
+
+#[cfg(feature = "shader_census")]
+fn reconcile_normalized_pair(pair: &CollectedShaderPair) -> ShaderCensusPipelineAudit {
+    use std::collections::BTreeSet;
+
+    let vertex = normalized_stage_evidence(&pair.vertex);
+    let fragment = normalized_stage_evidence(&pair.fragment);
+    let mut issues = Vec::new();
+    let vertex_bindings = unique_resource_bindings(
+        &vertex.resource_bindings,
+        ShaderCensusPipelineAuditIssueKind::VertexResourceBindingCollision,
+        &mut issues,
+    );
+    let fragment_bindings = unique_resource_bindings(
+        &fragment.resource_bindings,
+        ShaderCensusPipelineAuditIssueKind::FragmentResourceBindingCollision,
+        &mut issues,
+    );
+    let binding_points = vertex_bindings
+        .keys()
+        .chain(fragment_bindings.keys())
+        .cloned()
+        .collect::<BTreeSet<_>>();
+    let mut reconciled_resource_bindings = Vec::with_capacity(binding_points.len());
+    for binding_point in binding_points {
+        let vertex_binding = vertex_bindings.get(&binding_point).cloned();
+        let fragment_binding = fragment_bindings.get(&binding_point).cloned();
+        let compatible = match (&vertex_binding, &fragment_binding) {
+            (Some(vertex), Some(fragment)) => resource_bindings_match(vertex, fragment),
+            _ => true,
+        };
+        if !compatible {
+            issues.push(ShaderCensusPipelineAuditIssue {
+                kind: ShaderCensusPipelineAuditIssueKind::IncompatibleResourceBindingLayout,
+                binding_point: Some(binding_point.clone()),
+                interface_location: None,
+                vertex_layout: vertex_binding.as_ref().map(resource_binding_layout),
+                fragment_layout: fragment_binding.as_ref().map(resource_binding_layout),
+            });
+        }
+        reconciled_resource_bindings.push(ShaderCensusReconciledResourceBinding {
+            binding_point,
+            vertex: vertex_binding,
+            fragment: fragment_binding,
+            compatible,
+        });
+    }
+
+    let vertex_outputs = unique_interface_locations(
+        &vertex.interface_locations,
+        ShaderCensusStageInterfaceDirection::Output,
+        ShaderCensusPipelineAuditIssueKind::VertexOutputLocationCollision,
+        &mut issues,
+    );
+    let fragment_inputs = unique_interface_locations(
+        &fragment.interface_locations,
+        ShaderCensusStageInterfaceDirection::Input,
+        ShaderCensusPipelineAuditIssueKind::FragmentInputLocationCollision,
+        &mut issues,
+    );
+    for (location, fragment_input) in fragment_inputs {
+        match vertex_outputs.get(&location) {
+            None => issues.push(ShaderCensusPipelineAuditIssue {
+                kind: ShaderCensusPipelineAuditIssueKind::MissingVertexOutput,
+                binding_point: None,
+                interface_location: Some(location),
+                vertex_layout: None,
+                fragment_layout: Some(interface_location_layout(&fragment_input)),
+            }),
+            Some(vertex_output) if !interface_locations_match(vertex_output, &fragment_input) => {
+                issues.push(ShaderCensusPipelineAuditIssue {
+                    kind: ShaderCensusPipelineAuditIssueKind::IncompatibleInterfaceLocation,
+                    binding_point: None,
+                    interface_location: Some(location),
+                    vertex_layout: Some(interface_location_layout(vertex_output)),
+                    fragment_layout: Some(interface_location_layout(&fragment_input)),
+                });
+            }
+            Some(_) => {}
+        }
+    }
+
+    issues.sort_unstable();
+    let status = if vertex.translation_status != ShaderTranslationLaneStatus::Succeeded
+        || fragment.translation_status != ShaderTranslationLaneStatus::Succeeded
+    {
+        ShaderCensusPipelineAuditStatus::StageTranslationFailed
+    } else if issues.is_empty() {
+        ShaderCensusPipelineAuditStatus::PipelineCompatible
+    } else {
+        ShaderCensusPipelineAuditStatus::Incompatible
+    };
+
+    ShaderCensusPipelineAudit {
+        schema_version: 1,
+        shader_name: pair.vertex.record.shader_name.clone(),
+        shader_version: pair.vertex.record.shader_version,
+        features: pair.vertex.record.features.clone(),
+        vertex,
+        fragment,
+        reconciled_resource_bindings,
+        issues,
+        status,
+    }
+}
+
+#[cfg(feature = "shader_census")]
+fn unique_resource_bindings(
+    bindings: &[ShaderCensusResourceBinding],
+    collision_kind: ShaderCensusPipelineAuditIssueKind,
+    issues: &mut Vec<ShaderCensusPipelineAuditIssue>,
+) -> std::collections::BTreeMap<ShaderCensusBindingPoint, ShaderCensusResourceBinding> {
+    use std::collections::btree_map::Entry;
+
+    let mut unique = std::collections::BTreeMap::new();
+    for binding in bindings {
+        let binding_point = ShaderCensusBindingPoint {
+            group: binding.group,
+            binding: binding.binding,
+        };
+        match unique.entry(binding_point.clone()) {
+            Entry::Vacant(entry) => {
+                entry.insert(binding.clone());
+            }
+            Entry::Occupied(_) => issues.push(ShaderCensusPipelineAuditIssue {
+                kind: collision_kind,
+                binding_point: Some(binding_point),
+                interface_location: None,
+                vertex_layout: None,
+                fragment_layout: None,
+            }),
+        }
+    }
+    unique
+}
+
+#[cfg(feature = "shader_census")]
+fn unique_interface_locations(
+    locations: &[ShaderCensusStageInterfaceLocation],
+    direction: ShaderCensusStageInterfaceDirection,
+    collision_kind: ShaderCensusPipelineAuditIssueKind,
+    issues: &mut Vec<ShaderCensusPipelineAuditIssue>,
+) -> std::collections::BTreeMap<u32, ShaderCensusStageInterfaceLocation> {
+    use std::collections::btree_map::Entry;
+
+    let mut unique = std::collections::BTreeMap::new();
+    for interface_location in locations
+        .iter()
+        .filter(|location| location.direction == direction)
+    {
+        match unique.entry(interface_location.location) {
+            Entry::Vacant(entry) => {
+                entry.insert(interface_location.clone());
+            }
+            Entry::Occupied(_) => issues.push(ShaderCensusPipelineAuditIssue {
+                kind: collision_kind,
+                binding_point: None,
+                interface_location: Some(interface_location.location),
+                vertex_layout: None,
+                fragment_layout: None,
+            }),
+        }
+    }
+    unique
+}
+
+#[cfg(feature = "shader_census")]
+fn resource_bindings_match(
+    vertex: &ShaderCensusResourceBinding,
+    fragment: &ShaderCensusResourceBinding,
+) -> bool {
+    vertex.resource_class == fragment.resource_class
+        && vertex.address_space == fragment.address_space
+        && vertex.type_layout == fragment.type_layout
+}
+
+#[cfg(feature = "shader_census")]
+fn resource_binding_layout(binding: &ShaderCensusResourceBinding) -> String {
+    format!(
+        "{}:{}:{}",
+        binding.resource_class, binding.address_space, binding.type_layout
+    )
+}
+
+#[cfg(feature = "shader_census")]
+fn interface_locations_match(
+    vertex: &ShaderCensusStageInterfaceLocation,
+    fragment: &ShaderCensusStageInterfaceLocation,
+) -> bool {
+    interface_type_is_subtype_of(&fragment.interface_type, &vertex.interface_type)
+        && vertex.interpolation == fragment.interpolation
+        && vertex.sampling == fragment.sampling
+        && vertex.blend_src == fragment.blend_src
+        && vertex.per_primitive == fragment.per_primitive
+}
+
+/// The WGPU inter-stage rule permits a fragment input to consume a numeric
+/// scalar, vector, or matrix no wider than the vertex output at that location.
+#[cfg(feature = "shader_census")]
+fn interface_type_is_subtype_of(
+    fragment: &ShaderCensusInterfaceType,
+    vertex: &ShaderCensusInterfaceType,
+) -> bool {
+    match (fragment, vertex) {
+        (
+            ShaderCensusInterfaceType::Scalar {
+                scalar_kind: fragment_kind,
+                width: fragment_width,
+            },
+            ShaderCensusInterfaceType::Scalar {
+                scalar_kind: vertex_kind,
+                width: vertex_width,
+            },
+        ) => fragment_kind == vertex_kind && fragment_width <= vertex_width,
+        (
+            ShaderCensusInterfaceType::Scalar {
+                scalar_kind: fragment_kind,
+                width: fragment_width,
+            },
+            ShaderCensusInterfaceType::Vector {
+                scalar_kind: vertex_kind,
+                width: vertex_width,
+                ..
+            },
+        ) => fragment_kind == vertex_kind && fragment_width <= vertex_width,
+        (
+            ShaderCensusInterfaceType::Vector {
+                size: fragment_size,
+                scalar_kind: fragment_kind,
+                width: fragment_width,
+            },
+            ShaderCensusInterfaceType::Vector {
+                size: vertex_size,
+                scalar_kind: vertex_kind,
+                width: vertex_width,
+            },
+        ) => {
+            fragment_kind == vertex_kind
+                && fragment_width <= vertex_width
+                && fragment_size <= vertex_size
+        }
+        (
+            ShaderCensusInterfaceType::Matrix {
+                columns: fragment_columns,
+                rows: fragment_rows,
+                scalar_kind: fragment_kind,
+                width: fragment_width,
+            },
+            ShaderCensusInterfaceType::Matrix {
+                columns: vertex_columns,
+                rows: vertex_rows,
+                scalar_kind: vertex_kind,
+                width: vertex_width,
+            },
+        ) => {
+            fragment_kind == vertex_kind
+                && fragment_width <= vertex_width
+                && fragment_columns == vertex_columns
+                && fragment_rows == vertex_rows
+        }
+        (ShaderCensusInterfaceType::Other { .. }, ShaderCensusInterfaceType::Other { .. }) => {
+            fragment == vertex
+        }
+        _ => false,
+    }
+}
+
+#[cfg(feature = "shader_census")]
+fn interface_location_layout(location: &ShaderCensusStageInterfaceLocation) -> String {
+    format!(
+        "{:?}:{:?}:{:?}:{:?}:{}",
+        location.interface_type,
+        location.interpolation,
+        location.sampling,
+        location.blend_src,
+        location.per_primitive
+    )
 }
 
 #[cfg(feature = "shader_census")]
@@ -611,7 +1541,15 @@ fn parse_and_validate_spirv(source: &[u8]) -> Result<(), (String, String)> {
 #[cfg(feature = "shader_census")]
 fn validate_and_write_wgsl(module: &naga::Module) -> Result<String, (String, String)> {
     let info = validate_module(module)?;
-    naga::back::wgsl::write_string(module, &info, naga::back::wgsl::WriterFlags::empty())
+    write_wgsl(module, &info)
+}
+
+#[cfg(feature = "shader_census")]
+fn write_wgsl(
+    module: &naga::Module,
+    info: &naga::valid::ModuleInfo,
+) -> Result<String, (String, String)> {
+    naga::back::wgsl::write_string(module, info, naga::back::wgsl::WriterFlags::empty())
         .map_err(|error| ("naga_wgsl_write".to_owned(), error.to_string()))
 }
 
@@ -823,10 +1761,10 @@ mod tests {
         }));
         assert!(records.iter().all(|record| {
             record.lanes.len() == SHADER_TRANSLATION_LANES.len()
-                && record.lanes.iter().any(|lane| {
-                    lane.lane == ShaderTranslationLane::NormalizedSpirvThroughNaga
-                        && lane.status == ShaderTranslationLaneStatus::Unavailable
-                })
+                && record
+                    .lanes
+                    .iter()
+                    .any(|lane| lane.lane == ShaderTranslationLane::NormalizedSpirvThroughNaga)
         }));
     }
 
@@ -931,6 +1869,244 @@ mod tests {
                 + profile.summary.unavailable_count,
             profile.summary.lane_count
         );
+    }
+
+    #[test]
+    fn profile_has_one_sorted_pipeline_audit_for_each_stage_pair() {
+        let profile = collect_shader_census_profile(
+            ShaderVersion::Gl,
+            ShaderFeatureFlags::empty(),
+            &test_source,
+        );
+
+        assert_eq!(profile.pipeline_audits.len(), profile.records.len() / 2);
+        assert!(profile.pipeline_audits.windows(2).all(|pair| {
+            (
+                &pair[0].shader_name,
+                pair[0].shader_version,
+                &pair[0].features,
+            ) <= (
+                &pair[1].shader_name,
+                pair[1].shader_version,
+                &pair[1].features,
+            )
+        }));
+        assert!(profile.pipeline_audits.iter().all(|audit| {
+            audit.status == ShaderCensusPipelineAuditStatus::StageTranslationFailed
+                && audit.vertex.source_sha256.len() == 64
+                && audit.fragment.source_sha256.len() == 64
+        }));
+    }
+
+    #[test]
+    fn reconciliation_matches_wgpu_resources_and_stage_locations() {
+        let vertex = test_collected_stage(
+            ShaderKind::Vertex,
+            vec![test_resource(0, 0, "uniform_buffer", "layout_a")],
+            vec![test_location(
+                ShaderKind::Vertex,
+                ShaderCensusStageInterfaceDirection::Output,
+                0,
+                4,
+            )],
+        );
+        let fragment = test_collected_stage(
+            ShaderKind::Fragment,
+            vec![test_resource(0, 0, "uniform_buffer", "layout_a")],
+            vec![test_location(
+                ShaderKind::Fragment,
+                ShaderCensusStageInterfaceDirection::Input,
+                0,
+                3,
+            )],
+        );
+        let compatible = reconcile_normalized_pair(&CollectedShaderPair { vertex, fragment });
+
+        assert_eq!(
+            compatible.status,
+            ShaderCensusPipelineAuditStatus::PipelineCompatible
+        );
+        assert!(compatible.issues.is_empty());
+        assert_eq!(compatible.reconciled_resource_bindings.len(), 1);
+
+        let vertex = test_collected_stage(
+            ShaderKind::Vertex,
+            vec![
+                test_resource(0, 0, "uniform_buffer", "layout_a"),
+                test_resource(0, 0, "storage_buffer", "layout_b"),
+            ],
+            vec![
+                test_location(
+                    ShaderKind::Vertex,
+                    ShaderCensusStageInterfaceDirection::Output,
+                    0,
+                    3,
+                ),
+                test_location(
+                    ShaderKind::Vertex,
+                    ShaderCensusStageInterfaceDirection::Output,
+                    0,
+                    3,
+                ),
+            ],
+        );
+        let fragment = test_collected_stage(
+            ShaderKind::Fragment,
+            vec![test_resource(0, 0, "uniform_buffer", "layout_c")],
+            vec![
+                test_location(
+                    ShaderKind::Fragment,
+                    ShaderCensusStageInterfaceDirection::Input,
+                    0,
+                    4,
+                ),
+                test_location(
+                    ShaderKind::Fragment,
+                    ShaderCensusStageInterfaceDirection::Input,
+                    1,
+                    4,
+                ),
+            ],
+        );
+        let incompatible = reconcile_normalized_pair(&CollectedShaderPair { vertex, fragment });
+        let issue_kinds = incompatible
+            .issues
+            .iter()
+            .map(|issue| issue.kind)
+            .collect::<Vec<_>>();
+
+        assert_eq!(
+            incompatible.status,
+            ShaderCensusPipelineAuditStatus::Incompatible
+        );
+        assert!(issue_kinds
+            .contains(&ShaderCensusPipelineAuditIssueKind::VertexResourceBindingCollision));
+        assert!(issue_kinds
+            .contains(&ShaderCensusPipelineAuditIssueKind::IncompatibleResourceBindingLayout));
+        assert!(issue_kinds
+            .contains(&ShaderCensusPipelineAuditIssueKind::VertexOutputLocationCollision));
+        assert!(issue_kinds
+            .contains(&ShaderCensusPipelineAuditIssueKind::IncompatibleInterfaceLocation));
+        assert!(issue_kinds.contains(&ShaderCensusPipelineAuditIssueKind::MissingVertexOutput));
+    }
+
+    #[test]
+    fn interstage_numeric_subtyping_matches_wgpu() {
+        let fragment_vector = ShaderCensusInterfaceType::Vector {
+            size: 3,
+            scalar_kind: "Float".to_owned(),
+            width: 4,
+        };
+        let vertex_vector = ShaderCensusInterfaceType::Vector {
+            size: 4,
+            scalar_kind: "Float".to_owned(),
+            width: 4,
+        };
+        assert!(interface_type_is_subtype_of(
+            &fragment_vector,
+            &vertex_vector
+        ));
+        assert!(!interface_type_is_subtype_of(
+            &vertex_vector,
+            &fragment_vector
+        ));
+
+        let fragment_matrix = ShaderCensusInterfaceType::Matrix {
+            columns: 3,
+            rows: 2,
+            scalar_kind: "Float".to_owned(),
+            width: 4,
+        };
+        let vertex_matrix = ShaderCensusInterfaceType::Matrix {
+            columns: 3,
+            rows: 2,
+            scalar_kind: "Float".to_owned(),
+            width: 4,
+        };
+        assert!(interface_type_is_subtype_of(
+            &fragment_matrix,
+            &vertex_matrix
+        ));
+    }
+
+    fn test_collected_stage(
+        stage: ShaderKind,
+        resource_bindings: Vec<ShaderCensusResourceBinding>,
+        interface_locations: Vec<ShaderCensusStageInterfaceLocation>,
+    ) -> CollectedShaderStage {
+        let lane = ShaderTranslationLaneRecord {
+            lane: ShaderTranslationLane::NormalizedSpirvThroughNaga,
+            status: ShaderTranslationLaneStatus::Succeeded,
+            output_sha256: Some("c".repeat(64)),
+            intermediate_sha256: Some("b".repeat(64)),
+            failure_class: None,
+            diagnostic: None,
+        };
+        CollectedShaderStage {
+            record: ShaderCensusRecord {
+                schema_version: 3,
+                shader_name: "test_pair".to_owned(),
+                shader_version: ShaderVersion::Gl,
+                stage,
+                features: Vec::new(),
+                source_sha256: "a".repeat(64),
+                lanes: [
+                    lane.clone(),
+                    lane.clone(),
+                    lane.clone(),
+                    lane.clone(),
+                    lane.clone(),
+                    lane.clone(),
+                    lane.clone(),
+                ],
+            },
+            normalized: NormalizedStageArtifact {
+                lane,
+                reflection: Some(ShaderCensusStageReflection {
+                    entry_point: "main".to_owned(),
+                    resource_bindings,
+                    interface_locations,
+                }),
+                wgsl: Some("@vertex fn main() {}".to_owned()),
+            },
+        }
+    }
+
+    fn test_resource(
+        group: u32,
+        binding: u32,
+        resource_class: &str,
+        type_layout: &str,
+    ) -> ShaderCensusResourceBinding {
+        ShaderCensusResourceBinding {
+            group,
+            binding,
+            resource_class: resource_class.to_owned(),
+            address_space: "Uniform".to_owned(),
+            type_layout: type_layout.to_owned(),
+        }
+    }
+
+    fn test_location(
+        stage: ShaderKind,
+        direction: ShaderCensusStageInterfaceDirection,
+        location: u32,
+        size: u8,
+    ) -> ShaderCensusStageInterfaceLocation {
+        ShaderCensusStageInterfaceLocation {
+            stage,
+            direction,
+            location,
+            interface_type: ShaderCensusInterfaceType::Vector {
+                size,
+                scalar_kind: "Float".to_owned(),
+                width: 4,
+            },
+            interpolation: Some("Perspective".to_owned()),
+            sampling: Some("Center".to_owned()),
+            blend_src: None,
+            per_primitive: false,
+        }
     }
 
     #[test]

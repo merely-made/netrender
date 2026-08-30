@@ -10,6 +10,7 @@ edition = "2018"
 [features]
 serialize_program = ["serde"]
 shader_census = ["serde", "dep:naga", "dep:serde_json", "dep:sha2", "dep:shaderc"]
+shader_census_wgpu_smoke = ["shader_census", "dep:pollster", "dep:wgpu"]
 
 [dependencies]
 bitflags = "2"
@@ -19,8 +20,15 @@ serde_json = { optional = true, version = "1.0" }
 sha2 = { version = "0.10", optional = true }
 naga = { version = "=30.0.1", optional = true, features = ["glsl-in", "spv-in", "wgsl-out"] }
 shaderc = { version = "=0.10.1", optional = true }
+pollster = { version = "=0.4.0", optional = true }
+wgpu = { version = "=30.0.0", optional = true, default-features = false, features = ["std", "parking_lot", "vulkan", "wgsl"] }
 
 [[bin]]
 name = "shader-census"
 path = "src/bin/shader_census.rs"
 required-features = ["shader_census"]
+
+[[bin]]
+name = "shader-census-wgpu-smoke"
+path = "src/bin/shader_census_wgpu_smoke.rs"
+required-features = ["shader_census_wgpu_smoke"]
