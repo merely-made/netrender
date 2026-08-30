@@ -15,6 +15,8 @@ extern crate lazy_static;
 extern crate serde;
 
 pub mod shader;
+#[cfg(feature = "shader_census")]
+pub mod shader_census;
 pub mod shader_features;
 
 /// This must be known at build-time as the shaders depend on it.

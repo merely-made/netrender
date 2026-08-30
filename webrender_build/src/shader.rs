@@ -21,13 +21,17 @@ lazy_static! {
     static ref MAX_VERTEX_TEXTURE_WIDTH_STRING: String = MAX_VERTEX_TEXTURE_WIDTH.to_string();
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+#[cfg_attr(feature = "shader_census", serde(rename_all = "snake_case"))]
 pub enum ShaderKind {
     Vertex,
     Fragment,
 }
 
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+#[cfg_attr(feature = "shader_census", serde(rename_all = "snake_case"))]
 pub enum ShaderVersion {
     Gl,
     Gles,
