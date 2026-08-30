@@ -4,13 +4,18 @@
 
 //! Deterministic inventory records for WebRender's generated shader variants.
 //!
-//! This module intentionally stops after preprocessing. It records raw and
-//! Vulkan-prepared candidate lanes so later tooling can extend the inventory
-//! without treating an unimplemented route as a pass.
+//! This module records raw, Vulkan-prepared, and opt-in normalized candidate
+//! lanes. It intentionally stops before GPU device and pipeline creation.
 
 use std::borrow::Cow;
 #[cfg(feature = "shader_census")]
 use std::io::Write;
+#[cfg(feature = "shader_census")]
+use std::path::{Path, PathBuf};
+#[cfg(feature = "shader_census")]
+use std::process::Command;
+#[cfg(feature = "shader_census")]
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use sha2::{Digest, Sha256};
 
@@ -19,6 +24,15 @@ use crate::shader_features::{get_shader_features, ShaderFeatureFlags};
 
 const NAGA_VERSION: &str = "30.0.1";
 const SHADERC_VERSION: &str = "0.10.1";
+const SPIRV_OPT_ENV: &str = "WEBRENDER_SHADER_CENSUS_SPIRV_OPT";
+const SPIRV_OPT_ACTIONS: [&str; 3] = [
+    "--target-env=vulkan1.1",
+    "--split-combined-image-sampler",
+    "--resolve-binding-conflicts",
+];
+
+#[cfg(feature = "shader_census")]
+static TEMPORARY_FILE_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 /// The fixed order in which every variant reports translation routes.
 pub const SHADER_TRANSLATION_LANES: [ShaderTranslationLane; 7] = [
@@ -51,7 +65,8 @@ pub enum ShaderTranslationLane {
     /// Apply the manifest-declared Vulkan preparation, then compile with
     /// shaderc, parse with Naga, and emit WGSL.
     VulkanPreparedShadercSpirvToNagaWgsl,
-    /// Apply a declared SPIR-V normalization pass before passing it into Naga.
+    /// Run the opt-in `spirv-opt` normalization action on prepared SPIR-V,
+    /// then parse it with Naga and emit WGSL.
     NormalizedSpirvThroughNaga,
 }
 
@@ -77,6 +92,8 @@ pub struct ShaderTranslationLaneRecord {
     pub status: ShaderTranslationLaneStatus,
     /// SHA-256 for an emitted WGSL or SPIR-V artifact, when this lane emitted one.
     pub output_sha256: Option<String>,
+    /// SHA-256 for a material intermediate artifact, such as normalized SPIR-V.
+    pub intermediate_sha256: Option<String>,
     /// A stable, bounded failure category for aggregation.
     pub failure_class: Option<String>,
     /// A bounded diagnostic suitable for a machine-readable receipt.
@@ -96,7 +113,7 @@ pub struct ShaderCensusRecord {
     pub features: Vec<String>,
     /// SHA-256 of the exact preprocessed source passed to a route.
     pub source_sha256: String,
-    /// The assembled source, raw candidates, prepared candidates, and normalization diagnostic.
+    /// The assembled source plus raw, prepared, and normalized candidates.
     pub lanes: [ShaderTranslationLaneRecord; 7],
 }
 
@@ -148,10 +165,10 @@ pub struct ShaderCensusManifest {
 pub struct ShaderCensusToolchain {
     pub naga_version: String,
     pub shaderc_version: String,
-    pub normalization_action: String,
     pub target_os: String,
     pub target_arch: String,
     pub vulkan_preparation: ShaderCensusVulkanPreparation,
+    pub spirv_normalizer: ShaderCensusSpirvNormalizerProvenance,
 }
 
 /// Every source and shaderc adjustment applied only to the prepared-input lanes.
@@ -168,6 +185,17 @@ pub struct ShaderCensusVulkanPreparation {
     pub gles_experimental: bool,
 }
 
+/// Provenance for the opt-in `spirv-opt` action used only by the normalized
+/// Vulkan-prepared lanes.
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+pub struct ShaderCensusSpirvNormalizerProvenance {
+    pub executable_path: Option<String>,
+    pub version: Option<String>,
+    pub version_diagnostic: Option<String>,
+    pub actions: Vec<String>,
+}
+
 impl ShaderCensusManifest {
     /// Create a deterministically ordered manifest from explicitly requested
     /// profile selections.
@@ -176,11 +204,10 @@ impl ShaderCensusManifest {
             (profile.shader_version, profile.requested_feature_flags_bits)
         });
         ShaderCensusManifest {
-            schema_version: 2,
+            schema_version: 3,
             toolchain: ShaderCensusToolchain {
                 naga_version: NAGA_VERSION.to_owned(),
                 shaderc_version: SHADERC_VERSION.to_owned(),
-                normalization_action: "not_configured".to_owned(),
                 target_os: std::env::consts::OS.to_owned(),
                 target_arch: std::env::consts::ARCH.to_owned(),
                 vulkan_preparation: ShaderCensusVulkanPreparation {
@@ -192,6 +219,7 @@ impl ShaderCensusManifest {
                     gl_donor_reproduction: true,
                     gles_experimental: true,
                 },
+                spirv_normalizer: spirv_normalizer_provenance(),
             },
             profiles,
         }
@@ -207,7 +235,7 @@ impl ShaderCensusRecord {
         source: &str,
     ) -> Self {
         ShaderCensusRecord {
-            schema_version: 2,
+            schema_version: 3,
             shader_name: shader_name.to_owned(),
             shader_version,
             stage,
@@ -317,6 +345,7 @@ fn evidence_lane(source: &str) -> ShaderTranslationLaneRecord {
         lane: ShaderTranslationLane::AssembledGlsl,
         status: ShaderTranslationLaneStatus::Succeeded,
         output_sha256: Some(sha256_hex(source)),
+        intermediate_sha256: None,
         failure_class: None,
         diagnostic: None,
     }
@@ -331,6 +360,7 @@ fn unavailable_lane(
         lane,
         status: ShaderTranslationLaneStatus::Unavailable,
         output_sha256: None,
+        intermediate_sha256: None,
         failure_class: Some(class.to_owned()),
         diagnostic: Some(bounded_diagnostic(diagnostic)),
     }
@@ -368,11 +398,7 @@ fn collect_lane_records(
         spirv_to_wgsl,
         prepared_validation,
         prepared_wgsl,
-        unavailable_lane(
-            ShaderTranslationLane::NormalizedSpirvThroughNaga,
-            "normalization_not_configured",
-            "no SPIR-V normalization action is configured; the raw lane remains unmodified",
-        ),
+        run_normalized_prepared_spirv(&prepared_spirv),
     ]
 }
 
@@ -424,11 +450,110 @@ fn run_shaderc_spirv_to_naga_wgsl(
 }
 
 #[cfg(feature = "shader_census")]
+fn run_normalized_prepared_spirv(
+    prepared_spirv: &Result<Vec<u8>, String>,
+) -> ShaderTranslationLaneRecord {
+    let lane = ShaderTranslationLane::NormalizedSpirvThroughNaga;
+    let normalizer = match std::env::var_os(SPIRV_OPT_ENV) {
+        Some(path) if !path.is_empty() => PathBuf::from(path),
+        _ => {
+            return unavailable_lane(
+                lane,
+                "spirv_normalizer_not_configured",
+                "set WEBRENDER_SHADER_CENSUS_SPIRV_OPT to an executable spirv-opt path",
+            );
+        }
+    };
+    let prepared_spirv = match prepared_spirv {
+        Ok(spirv) => spirv,
+        Err(diagnostic) => return failed_lane(lane, "shaderc_compile", diagnostic.clone()),
+    };
+    let normalized_spirv = match normalize_prepared_spirv(&normalizer, prepared_spirv) {
+        Ok(spirv) => spirv,
+        Err(diagnostic) => return failed_lane(lane, "spirv_normalizer_execute", diagnostic),
+    };
+    let intermediate_sha256 = sha256_bytes(&normalized_spirv);
+    let mut record = match parse_naga_spirv(&normalized_spirv) {
+        Ok(module) => match validate_and_write_wgsl(&module) {
+            Ok(wgsl) => succeeded_lane(lane, &wgsl),
+            Err((class, diagnostic)) => failed_lane(lane, &class, diagnostic),
+        },
+        Err(diagnostic) => failed_lane(lane, "naga_spirv_parse", diagnostic),
+    };
+    record.intermediate_sha256 = Some(intermediate_sha256);
+    record
+}
+
+#[cfg(feature = "shader_census")]
+fn normalize_prepared_spirv(normalizer: &Path, input: &[u8]) -> Result<Vec<u8>, String> {
+    let files = TemporarySpirvFiles::new()?;
+    std::fs::write(&files.input, input).map_err(|error| error.to_string())?;
+    let output = Command::new(normalizer)
+        .args(SPIRV_OPT_ACTIONS)
+        .arg("-o")
+        .arg(&files.output)
+        .arg(&files.input)
+        .output()
+        .map_err(|error| error.to_string())?;
+    if !output.status.success() {
+        return Err(format!(
+            "spirv-opt exited {}: {}",
+            output.status,
+            command_diagnostic(&output.stdout, &output.stderr),
+        ));
+    }
+    std::fs::read(&files.output).map_err(|error| error.to_string())
+}
+
+#[cfg(feature = "shader_census")]
+struct TemporarySpirvFiles {
+    directory: PathBuf,
+    input: PathBuf,
+    output: PathBuf,
+}
+
+#[cfg(feature = "shader_census")]
+impl TemporarySpirvFiles {
+    fn new() -> Result<Self, String> {
+        for _ in 0..32 {
+            let counter = TEMPORARY_FILE_COUNTER.fetch_add(1, Ordering::Relaxed);
+            let directory = std::env::temp_dir().join(format!(
+                "webrender-shader-census-{}-{}",
+                std::process::id(),
+                counter,
+            ));
+            match std::fs::create_dir(&directory) {
+                Ok(()) => {
+                    return Ok(TemporarySpirvFiles {
+                        input: directory.join("input.spv"),
+                        output: directory.join("output.spv"),
+                        directory,
+                    });
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+                Err(error) => return Err(error.to_string()),
+            }
+        }
+        Err("could not allocate a temporary SPIR-V directory".to_owned())
+    }
+}
+
+#[cfg(feature = "shader_census")]
+impl Drop for TemporarySpirvFiles {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_file(&self.input);
+        let _ = std::fs::remove_file(&self.output);
+        let _ = std::fs::remove_dir(&self.directory);
+    }
+}
+
+#[cfg(feature = "shader_census")]
 fn succeeded_lane(lane: ShaderTranslationLane, output: &str) -> ShaderTranslationLaneRecord {
     ShaderTranslationLaneRecord {
         lane,
         status: ShaderTranslationLaneStatus::Succeeded,
         output_sha256: Some(sha256_hex(output)),
+        intermediate_sha256: None,
         failure_class: None,
         diagnostic: None,
     }
@@ -440,6 +565,7 @@ fn succeeded_lane_bytes(lane: ShaderTranslationLane, output: &[u8]) -> ShaderTra
         lane,
         status: ShaderTranslationLaneStatus::Succeeded,
         output_sha256: Some(sha256_bytes(output)),
+        intermediate_sha256: None,
         failure_class: None,
         diagnostic: None,
     }
@@ -455,6 +581,7 @@ fn failed_lane(
         lane,
         status: ShaderTranslationLaneStatus::Failed,
         output_sha256: None,
+        intermediate_sha256: None,
         failure_class: Some(class.to_owned()),
         diagnostic: Some(bounded_diagnostic(&diagnostic)),
     }
@@ -613,6 +740,45 @@ fn bounded_diagnostic(diagnostic: &str) -> String {
     diagnostic.chars().take(240).collect()
 }
 
+#[cfg(feature = "shader_census")]
+fn spirv_normalizer_provenance() -> ShaderCensusSpirvNormalizerProvenance {
+    let executable_path = std::env::var_os(SPIRV_OPT_ENV).map(PathBuf::from);
+    let (version, version_diagnostic) = match executable_path.as_deref() {
+        None => (None, None),
+        Some(path) => match Command::new(path).arg("--version").output() {
+            Ok(output) if output.status.success() => (
+                Some(command_diagnostic(&output.stdout, &output.stderr)),
+                None,
+            ),
+            Ok(output) => (
+                None,
+                Some(bounded_diagnostic(&format!(
+                    "spirv-opt --version exited {}: {}",
+                    output.status,
+                    command_diagnostic(&output.stdout, &output.stderr),
+                ))),
+            ),
+            Err(error) => (None, Some(bounded_diagnostic(&error.to_string()))),
+        },
+    };
+    ShaderCensusSpirvNormalizerProvenance {
+        executable_path: executable_path.map(|path| path.display().to_string()),
+        version,
+        version_diagnostic,
+        actions: SPIRV_OPT_ACTIONS
+            .iter()
+            .map(|action| (*action).to_owned())
+            .collect(),
+    }
+}
+
+#[cfg(feature = "shader_census")]
+fn command_diagnostic(stdout: &[u8], stderr: &[u8]) -> String {
+    let stdout = String::from_utf8_lossy(stdout);
+    let stderr = String::from_utf8_lossy(stderr);
+    bounded_diagnostic(&format!("{}{}", stdout.trim(), stderr.trim()))
+}
+
 #[cfg(test)]
 mod tests {
     use std::borrow::Cow;
@@ -719,6 +885,33 @@ mod tests {
     }
 
     #[test]
+    fn normalizer_provenance_declares_the_exact_opt_in_actions() {
+        let provenance = spirv_normalizer_provenance();
+
+        assert_eq!(
+            provenance.actions,
+            vec![
+                "--target-env=vulkan1.1".to_owned(),
+                "--split-combined-image-sampler".to_owned(),
+                "--resolve-binding-conflicts".to_owned(),
+            ]
+        );
+    }
+
+    #[test]
+    fn temporary_spirv_files_are_removed_on_drop() {
+        let directory;
+        {
+            let files = TemporarySpirvFiles::new().unwrap();
+            directory = files.directory.clone();
+            std::fs::write(&files.input, b"input").unwrap();
+            std::fs::write(&files.output, b"output").unwrap();
+            assert!(directory.exists());
+        }
+        assert!(!directory.exists());
+    }
+
+    #[test]
     fn profile_preserves_the_exact_requested_flags() {
         let flags = ShaderFeatureFlags::GL | ShaderFeatureFlags::DEBUG;
         let profile = collect_shader_census_profile(ShaderVersion::Gl, flags, &test_source);
@@ -781,5 +974,9 @@ mod tests {
         assert!(json.contains("\"shaderc_auto_map_locations\": true"));
         assert!(json.contains("\"gl_donor_reproduction\": true"));
         assert!(json.contains("\"gles_experimental\": true"));
+        assert!(json.contains("\"spirv_normalizer\""));
+        assert!(json.contains("--target-env=vulkan1.1"));
+        assert!(json.contains("--split-combined-image-sampler"));
+        assert!(json.contains("--resolve-binding-conflicts"));
     }
 }
