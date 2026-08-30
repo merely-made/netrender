@@ -4,9 +4,9 @@
 
 //! Deterministic inventory records for WebRender's generated shader variants.
 //!
-//! This module intentionally stops after preprocessing. It records four
-//! candidate translation lanes so a later tool can fill them in without
-//! changing the inventory schema or treating an unimplemented route as a pass.
+//! This module intentionally stops after preprocessing. It records raw and
+//! Vulkan-prepared candidate lanes so later tooling can extend the inventory
+//! without treating an unimplemented route as a pass.
 
 use std::borrow::Cow;
 #[cfg(feature = "shader_census")]
@@ -21,11 +21,13 @@ const NAGA_VERSION: &str = "30.0.1";
 const SHADERC_VERSION: &str = "0.10.1";
 
 /// The fixed order in which every variant reports translation routes.
-pub const SHADER_TRANSLATION_LANES: [ShaderTranslationLane; 5] = [
+pub const SHADER_TRANSLATION_LANES: [ShaderTranslationLane; 7] = [
     ShaderTranslationLane::AssembledGlsl,
     ShaderTranslationLane::NagaGlslFrontend,
     ShaderTranslationLane::RawShadercSpirvNagaValidated,
     ShaderTranslationLane::ShadercSpirvToNagaWgsl,
+    ShaderTranslationLane::VulkanPreparedShadercSpirvNagaValidated,
+    ShaderTranslationLane::VulkanPreparedShadercSpirvToNagaWgsl,
     ShaderTranslationLane::NormalizedSpirvThroughNaga,
 ];
 
@@ -43,6 +45,12 @@ pub enum ShaderTranslationLane {
     RawShadercSpirvNagaValidated,
     /// Compile with shaderc, parse SPIR-V with Naga, and emit WGSL.
     ShadercSpirvToNagaWgsl,
+    /// Apply the manifest-declared Vulkan preparation, then compile with
+    /// shaderc and validate the resulting SPIR-V with Naga.
+    VulkanPreparedShadercSpirvNagaValidated,
+    /// Apply the manifest-declared Vulkan preparation, then compile with
+    /// shaderc, parse with Naga, and emit WGSL.
+    VulkanPreparedShadercSpirvToNagaWgsl,
     /// Apply a declared SPIR-V normalization pass before passing it into Naga.
     NormalizedSpirvThroughNaga,
 }
@@ -88,8 +96,8 @@ pub struct ShaderCensusRecord {
     pub features: Vec<String>,
     /// SHA-256 of the exact preprocessed source passed to a route.
     pub source_sha256: String,
-    /// The assembled source plus the three candidates and normalization diagnostic.
-    pub lanes: [ShaderTranslationLaneRecord; 5],
+    /// The assembled source, raw candidates, prepared candidates, and normalization diagnostic.
+    pub lanes: [ShaderTranslationLaneRecord; 7],
 }
 
 /// Aggregate counts for a profile, including stable failure categories.
@@ -143,6 +151,21 @@ pub struct ShaderCensusToolchain {
     pub normalization_action: String,
     pub target_os: String,
     pub target_arch: String,
+    pub vulkan_preparation: ShaderCensusVulkanPreparation,
+}
+
+/// Every source and shaderc adjustment applied only to the prepared-input lanes.
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "shader_census", derive(Serialize))]
+pub struct ShaderCensusVulkanPreparation {
+    pub first_version_directive: String,
+    pub transform_uniform_replacement: String,
+    pub shaderc_auto_bind_uniforms: bool,
+    pub shaderc_auto_map_locations: bool,
+    /// The historical donor applied this preparation to desktop GL variants.
+    pub gl_donor_reproduction: bool,
+    /// Applying the same preparation to GLES is a new census experiment.
+    pub gles_experimental: bool,
 }
 
 impl ShaderCensusManifest {
@@ -153,13 +176,22 @@ impl ShaderCensusManifest {
             (profile.shader_version, profile.requested_feature_flags_bits)
         });
         ShaderCensusManifest {
-            schema_version: 1,
+            schema_version: 2,
             toolchain: ShaderCensusToolchain {
                 naga_version: NAGA_VERSION.to_owned(),
                 shaderc_version: SHADERC_VERSION.to_owned(),
                 normalization_action: "not_configured".to_owned(),
                 target_os: std::env::consts::OS.to_owned(),
                 target_arch: std::env::consts::ARCH.to_owned(),
+                vulkan_preparation: ShaderCensusVulkanPreparation {
+                    first_version_directive: "#version 460".to_owned(),
+                    transform_uniform_replacement: "uniform WrLocals { mat4 uTransform; };"
+                        .to_owned(),
+                    shaderc_auto_bind_uniforms: true,
+                    shaderc_auto_map_locations: true,
+                    gl_donor_reproduction: true,
+                    gles_experimental: true,
+                },
             },
             profiles,
         }
@@ -175,7 +207,7 @@ impl ShaderCensusRecord {
         source: &str,
     ) -> Self {
         ShaderCensusRecord {
-            schema_version: 1,
+            schema_version: 2,
             shader_name: shader_name.to_owned(),
             shader_version,
             stage,
@@ -308,16 +340,34 @@ fn collect_lane_records(
     shader_name: &str,
     stage: ShaderKind,
     source: &str,
-) -> [ShaderTranslationLaneRecord; 5] {
+) -> [ShaderTranslationLaneRecord; 7] {
     let direct_naga = run_naga_glsl_to_wgsl(stage, source);
     let compiled_spirv = compile_shaderc(stage, shader_name, source);
-    let raw_spirv = run_raw_shaderc_spirv(&compiled_spirv);
-    let spirv_to_wgsl = run_shaderc_spirv_to_wgsl(&compiled_spirv);
+    let raw_spirv = run_shaderc_spirv_naga_validated(
+        ShaderTranslationLane::RawShadercSpirvNagaValidated,
+        &compiled_spirv,
+    );
+    let spirv_to_wgsl = run_shaderc_spirv_to_naga_wgsl(
+        ShaderTranslationLane::ShadercSpirvToNagaWgsl,
+        &compiled_spirv,
+    );
+    let prepared_source = prepare_vulkan_glsl(source);
+    let prepared_spirv = compile_vulkan_prepared_shaderc(stage, shader_name, &prepared_source);
+    let prepared_validation = run_shaderc_spirv_naga_validated(
+        ShaderTranslationLane::VulkanPreparedShadercSpirvNagaValidated,
+        &prepared_spirv,
+    );
+    let prepared_wgsl = run_shaderc_spirv_to_naga_wgsl(
+        ShaderTranslationLane::VulkanPreparedShadercSpirvToNagaWgsl,
+        &prepared_spirv,
+    );
     [
         evidence_lane(source),
         direct_naga,
         raw_spirv,
         spirv_to_wgsl,
+        prepared_validation,
+        prepared_wgsl,
         unavailable_lane(
             ShaderTranslationLane::NormalizedSpirvThroughNaga,
             "normalization_not_configured",
@@ -340,8 +390,10 @@ fn run_naga_glsl_to_wgsl(stage: ShaderKind, source: &str) -> ShaderTranslationLa
 }
 
 #[cfg(feature = "shader_census")]
-fn run_raw_shaderc_spirv(compiled_spirv: &Result<Vec<u8>, String>) -> ShaderTranslationLaneRecord {
-    let lane = ShaderTranslationLane::RawShadercSpirvNagaValidated;
+fn run_shaderc_spirv_naga_validated(
+    lane: ShaderTranslationLane,
+    compiled_spirv: &Result<Vec<u8>, String>,
+) -> ShaderTranslationLaneRecord {
     let spirv = match compiled_spirv {
         Ok(spirv) => spirv,
         Err(diagnostic) => return failed_lane(lane, "shaderc_compile", diagnostic.clone()),
@@ -353,10 +405,10 @@ fn run_raw_shaderc_spirv(compiled_spirv: &Result<Vec<u8>, String>) -> ShaderTran
 }
 
 #[cfg(feature = "shader_census")]
-fn run_shaderc_spirv_to_wgsl(
+fn run_shaderc_spirv_to_naga_wgsl(
+    lane: ShaderTranslationLane,
     compiled_spirv: &Result<Vec<u8>, String>,
 ) -> ShaderTranslationLaneRecord {
-    let lane = ShaderTranslationLane::ShadercSpirvToNagaWgsl;
     let spirv = match compiled_spirv {
         Ok(spirv) => spirv,
         Err(diagnostic) => return failed_lane(lane, "shaderc_compile", diagnostic.clone()),
@@ -448,12 +500,35 @@ fn validate_module(module: &naga::Module) -> Result<naga::valid::ModuleInfo, (St
 
 #[cfg(feature = "shader_census")]
 fn compile_shaderc(stage: ShaderKind, shader_name: &str, source: &str) -> Result<Vec<u8>, String> {
+    compile_shaderc_with_options(stage, shader_name, source, false)
+}
+
+#[cfg(feature = "shader_census")]
+fn compile_vulkan_prepared_shaderc(
+    stage: ShaderKind,
+    shader_name: &str,
+    source: &str,
+) -> Result<Vec<u8>, String> {
+    compile_shaderc_with_options(stage, shader_name, source, true)
+}
+
+#[cfg(feature = "shader_census")]
+fn compile_shaderc_with_options(
+    stage: ShaderKind,
+    shader_name: &str,
+    source: &str,
+    use_vulkan_preparation: bool,
+) -> Result<Vec<u8>, String> {
     let compiler = shaderc::Compiler::new().map_err(|error| error.to_string())?;
     let mut options = shaderc::CompileOptions::new().map_err(|error| error.to_string())?;
     options.set_target_env(
         shaderc::TargetEnv::Vulkan,
         shaderc::EnvVersion::Vulkan1_1 as u32,
     );
+    if use_vulkan_preparation {
+        options.set_auto_bind_uniforms(true);
+        options.set_auto_map_locations(true);
+    }
     let artifact = compiler
         .compile_into_spirv(
             source,
@@ -464,6 +539,28 @@ fn compile_shaderc(stage: ShaderKind, shader_name: &str, source: &str) -> Result
         )
         .map_err(|error| error.to_string())?;
     Ok(artifact.as_binary_u8().to_vec())
+}
+
+/// Apply only the declared source edits for the prepared Vulkan lanes.
+fn prepare_vulkan_glsl(source: &str) -> String {
+    let mut prepared = String::with_capacity(source.len());
+    let mut replaced_version = false;
+    for line in source.split_inclusive('\n') {
+        if !replaced_version && line.trim_start().starts_with("#version") {
+            prepared.push_str("#version 460");
+            if line.ends_with('\n') {
+                prepared.push('\n');
+            }
+            replaced_version = true;
+        } else {
+            prepared.push_str(line);
+        }
+    }
+    prepared.replacen(
+        "uniform mat4 uTransform;",
+        "uniform WrLocals { mat4 uTransform; };",
+        1,
+    )
 }
 
 #[cfg(feature = "shader_census")]
@@ -588,6 +685,40 @@ mod tests {
     }
 
     #[test]
+    fn vulkan_preparation_applies_only_the_declared_source_edits() {
+        let source = "#version 150\nlayout(location = 0) in vec2 aPosition;\nuniform mat4 uTransform;\nvoid main() {}\n";
+
+        assert_eq!(
+            prepare_vulkan_glsl(source),
+            "#version 460\nlayout(location = 0) in vec2 aPosition;\nuniform WrLocals { mat4 uTransform; };\nvoid main() {}\n"
+        );
+    }
+
+    #[test]
+    fn vulkan_preparation_leaves_other_source_text_unchanged() {
+        let source =
+            "#version 300 es\nprecision mediump float;\nuniform vec4 untouched;\nvoid main() {}";
+
+        assert_eq!(
+            prepare_vulkan_glsl(source),
+            "#version 460\nprecision mediump float;\nuniform vec4 untouched;\nvoid main() {}"
+        );
+    }
+
+    #[test]
+    fn lane_order_includes_raw_and_prepared_candidates() {
+        let records =
+            collect_shader_census(ShaderVersion::Gl, ShaderFeatureFlags::empty(), &test_source);
+        let actual = records[0]
+            .lanes
+            .iter()
+            .map(|lane| lane.lane.clone())
+            .collect::<Vec<_>>();
+
+        assert_eq!(actual, SHADER_TRANSLATION_LANES.to_vec());
+    }
+
+    #[test]
     fn profile_preserves_the_exact_requested_flags() {
         let flags = ShaderFeatureFlags::GL | ShaderFeatureFlags::DEBUG;
         let profile = collect_shader_census_profile(ShaderVersion::Gl, flags, &test_source);
@@ -638,10 +769,17 @@ mod tests {
         assert_eq!(first, second);
         let json = String::from_utf8(first).unwrap();
         assert!(json.contains("raw_shaderc_spirv_naga_validated"));
+        assert!(json.contains("vulkan_prepared_shaderc_spirv_naga_validated"));
+        assert!(json.contains("vulkan_prepared_shaderc_spirv_to_naga_wgsl"));
         assert!(json.contains("requested_feature_flags_bits"));
         assert!(json.contains("\"naga_version\": \"30.0.1\""));
         assert!(json.contains("\"shaderc_version\": \"0.10.1\""));
         assert!(json.contains(&format!("\"target_os\": \"{}\"", std::env::consts::OS)));
         assert!(json.contains(&format!("\"target_arch\": \"{}\"", std::env::consts::ARCH)));
+        assert!(json.contains("\"first_version_directive\": \"#version 460\""));
+        assert!(json.contains("\"shaderc_auto_bind_uniforms\": true"));
+        assert!(json.contains("\"shaderc_auto_map_locations\": true"));
+        assert!(json.contains("\"gl_donor_reproduction\": true"));
+        assert!(json.contains("\"gles_experimental\": true"));
     }
 }
