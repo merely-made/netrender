@@ -67,7 +67,6 @@ pub struct NetrenderOptions {
     pub backends: Option<wgpu::Backends>,
 }
 
-
 impl NetrenderOptions {
     /// Options for a host that lets untrusted content reach this device.
     ///
@@ -80,7 +79,10 @@ impl NetrenderOptions {
     /// hardware limits for a threat it does not have.
     #[must_use]
     pub fn for_untrusted_content() -> Self {
-        Self { apply_limit_buckets: true, ..Self::default() }
+        Self {
+            apply_limit_buckets: true,
+            ..Self::default()
+        }
     }
 }
 
