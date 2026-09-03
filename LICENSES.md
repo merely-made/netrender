@@ -43,12 +43,11 @@ attribution line is a retained notice in the tool's sense: a `--renormalize`
 pass must run with `--retain-notice` or it is dropped. They are listed again
 under **Derivatives** below.
 
-Also carried verbatim from WebRender and **not** owned work, though the header
-tool never reaches them (they are not source files in its extension set):
-
-- `.taskcluster.yml` — Mozilla's WebRender CI configuration, last touched
-  upstream 2022-12-14, unmodified since;
-- `servo-tidy.toml` — Servo's tidy configuration, unmodified since 2018.
+Two non-source files also came through verbatim, `.taskcluster.yml` (Mozilla's
+WebRender CI configuration, untouched since 2022) and `servo-tidy.toml`
+(Servo's tidy configuration, untouched since 2018). Nothing in this repository
+consumed either, and they were deleted as cruft on 2026-09-03 together with the
+orphaned GL-era oracle fixtures under `netrender/tests/oracle`.
 
 `netrender/res/area-lut.tga` (WebRender's box-shadow area lookup table) and
 `netrender/res/Proggy.ttf` (Tristan Grimmer's Proggy Clean font, vendored by
