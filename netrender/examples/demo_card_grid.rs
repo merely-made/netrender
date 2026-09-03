@@ -496,6 +496,10 @@ fn main() {
     let renderer = create_netrender_instance(
         handles.clone(),
         NetrenderOptions {
+            // A demo is a native shell with no untrusted content, so it does
+            // not bucket adapter limits; and `boot()` already made the
+            // adapter, so the flag would be read by nothing here anyway.
+            apply_limit_buckets: false,
             tile_cache_size: Some(TILE),
             enable_vello: true,
             enable_tile_dirty_overlay: false,
