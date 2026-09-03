@@ -1519,6 +1519,76 @@ cached-master hit clones the encoding per frame; if profiles ever show
 the clone mattering, the fix is an append-from-cache path in
 `compose_into`.
 
+### 11.37 The scaled render stopped one row short of its target (2026-09-03) — **CLEARED**
+
+Auto-DPI D2. A defect in `render_scaled_with`, found from outside: genet's
+host-zoom work measured **1120 fully transparent pixels** in a headed capture
+at layout scale 1.8 and traced them here
+(`genet/design_docs/2026-09-03_host_ui_zoom_plan.md`, Findings).
+
+**The mechanism.** A host lays out at `physical / scale` and carries the
+result as an integer viewport, so the division has already truncated before
+the scene arrives. `render_scaled_with` then rebuilt the render size as
+`round(viewport * scale)` and handed *that* to `RenderParams`. The two numbers
+are not the same: 800 physical over 1.8 lays out at `trunc(444.44) = 444`, and
+`round(444 * 1.8)` is 799, so vello was asked for 799 rows of an 800-row
+texture and the last one kept the texture's zero fill. The 1120 pixels are one
+row of an 1120x800 frame — the width survived (`round(622 * 1.8) = 1120`), only
+the height lost.
+
+Not a zoom defect and not new. The loss fires wherever the scale does not
+divide the physical size: every fractional scale in practice — a 150% display
+reproduces it with no content zoom at all (`round(666 * 1.5) = 999`) — and an
+odd surface at device scale 2.0 as well. Zoom only made fractional layout
+scales ordinary instead of rare, so **every consumer of `render_vello_scaled`
+was affected before this**.
+
+**The repair.** The render size is the target's. `render_scaled_with` reads it
+off `target_view.texture()` (wgpu 30's `TextureView::texture()`, backend-neutral)
+rather than re-deriving a number the caller has already rounded. `scale` keeps
+its one job, the root affine. The doc contract on `render`, `render_scaled` and
+`Renderer::render_vello{,_scaled}` now says the target view's texture dimensions
+ARE the render size, and asks for a full mip-0 view — every texture netrender
+and its hosts create is `mip_level_count: 1`, so that costs nothing.
+
+The API did not change and genet was not touched: the physical size was already
+in netrender's hands, on the view it was handed. **One site only** — the same
+`viewport * scale` arithmetic appears nowhere else. `render_overlay_fragment`
+and `render_to_internal_master` size themselves from the viewport too, but they
+allocate their own target from those same numbers and take no `scale`, so they
+are self-consistent (and, being scale-free, the path-b′ compositor path cannot
+honour a layout scale at all — a separate gap, not this one).
+
+**Receipts.** `fractional_scale_target_coverage` (4/4), two CPU and two GPU.
+The GPU pair renders a logical square into a physical-square target through
+`Renderer::render_vello_scaled` and counts pixels vello was never asked to
+write, which is exactly the host capture's measurement. Instrument proved
+against the old arithmetic first: it reports **1599** untouched pixels
+(800² − 799²), first at (799, 0). The CPU pair pins the no-op claim — the old
+derivation already landed on the target at scale 1.0 for every size and at any
+integer scale that *divides* the surface, so those hand vello the same number.
+63 suites, **304 passing, 0 failed, 1 ignored**; the 300 pre-existing tests are
+unchanged.
+
+Headed, through genet's host smoke on a 200% display (artifacts in
+`Code/testing/genet/ui_zoom/`): the zoom-0.9 `resized` frame goes
+`transparent=1120 alpha=0..255` → **`transparent=0 alpha=255..255`**, and its
+`busy` frame is byte-identical (0 differing bytes) because 1800x1280 already
+divided exactly.
+
+**A note on that instrument.** The zoom-1.0 no-op was *not* provable by digest
+comparison, and the plan's claim that `busy`/`resized` are byte-stable across
+runs does not survive n=6: the **same unchanged binary** returns `busy` in
+{`c0d00467bf8493b3`, `27c01a961612a3ba`} and `resized` in
+{`6f77dbe3db6fba94`, `c7369bb9c9ddb531`}, the pairs differing by exactly **one
+byte** — one channel of one pixel, ±1. A build carrying only this change was
+seen on both sides of that coin, and a control build carrying the *old*
+arithmetic reproduced the "after" digest too. What settles it instead is the
+mechanism: a temporary diagnostic that logged every call where the derived size
+disagreed with the target emitted **nothing at all** across a full zoom-1.0
+scenario, so the numbers reaching vello are bit-identical there. Digest equality
+on these captures is worth about ±1 pixel; prefer the mechanism.
+
 ## 11.99 Open items — moved (2026-05-05)
 
 The catalogue of deferred refinements that originally lived here
