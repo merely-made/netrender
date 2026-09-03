@@ -3,6 +3,13 @@
 **Status: draft, not sent.** This is prepared for review, not filed.
 Nothing has been posted to Linebender's tracker.
 
+**Disposition guard, 2026-09-02:** keep the prototype branch at `c73ba2c3`
+and the green `mark-ik/vello-ci#1` runner receipt reachable through the V0-V4
+decision in
+`mere/design_docs/mere_docs/implementation_strategy/2026-09-02_platform_boundary_and_repository_topology_plan.md`.
+The mirror is evidence until upstream disposition and a real Netrender consumer
+gate decide whether the work lands, becomes a maintained fork, or retires.
+
 Companion to
 [`2026-08-04_rasterizer_backend_seam.md`](2026-08-04_rasterizer_backend_seam.md),
 which established the blocker. This file is the version of that finding
