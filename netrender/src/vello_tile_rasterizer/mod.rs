@@ -397,6 +397,10 @@ impl VelloTileRasterizer {
 
     /// Render `scene` into `target_view` via the tile-cache path.
     ///
+    /// `target_view`'s texture dimensions are the render size — pass a full
+    /// mip-0 view of a viewport-sized texture. See
+    /// [`render_scaled`](Self::render_scaled) for the scaled form.
+    ///
     /// Steps:
     /// 1. Refresh peniko image data from `scene.image_sources` (Path
     ///    A blobs, dedup by `Blob.id()` if Arc-shared across frames).
@@ -423,8 +427,10 @@ impl VelloTileRasterizer {
     /// `scale`×-larger target, applying `scale` as a root affine on the vector master
     /// scene — so a scene laid out at logical (DIP) coordinates fills a physical-pixel
     /// texture crisply (vello rasterizes the scaled vectors at the target resolution).
-    /// `scale == 1.0` is the plain path. The target view must be `scale`× the scene's
-    /// viewport. (Auto-DPI D2 — content device-pixel-ratio.)
+    /// `scale == 1.0` is the plain path. The target view must be a full mip-0 view of a
+    /// texture `scale`× the scene's viewport; **its dimensions are the render size**, so
+    /// a host that laid out at a truncated `physical / scale` still fills every row.
+    /// (Auto-DPI D2 — content device-pixel-ratio.)
     pub fn render_scaled(
         &mut self,
         scene: &Scene,
@@ -482,8 +488,26 @@ impl VelloTileRasterizer {
             None
         };
         let to_render = scaled_master.as_ref().unwrap_or(&master);
-        let render_w = ((scene.viewport_width as f32) * scale).round().max(1.0) as u32;
-        let render_h = ((scene.viewport_height as f32) * scale).round().max(1.0) as u32;
+        // The render size is the TARGET's, not `viewport * scale`. A host lays
+        // out at `physical / scale` and stores that viewport as an integer, so
+        // the division has already truncated by the time the scene reaches us:
+        // 800 physical over a layout scale of 1.8 lays out at 444, and
+        // `round(444 * 1.8)` is 799 — one row of the 800-tall texture vello is
+        // never asked to write, left transparent. Any scale that does not divide
+        // the physical size drops a row or a column that way: every fractional
+        // scale in practice (a 150% display produces one with no content zoom at
+        // all), and an odd surface at device scale 2.0 too.
+        //
+        // The texture the caller allocated IS the size it asked for, so read it
+        // off the view rather than re-deriving a number the caller has already
+        // rounded. Wherever the old derivation landed on the target — scale 1.0
+        // always, and any integer scale that divides the surface — this hands
+        // vello the same number, so nothing moves there. It relies on the
+        // documented contract above: a full mip-0 view of a `scale`×-viewport
+        // texture. Receipt: `tests/fractional_scale_target_coverage.rs`.
+        let target = target_view.texture();
+        let render_w = target.width();
+        let render_h = target.height();
 
         let vello_span = Span::start("vello_render");
         let result = self.vello_renderer.render_to_texture(

@@ -250,6 +250,9 @@ impl Renderer {
         let rast = rast_mutex.lock().expect("vello_rasterizer lock");
         Some(rast.retained.master_hits())
     }
+    /// `target_view`'s texture dimensions are the render size — pass a full
+    /// mip-0 view of a viewport-sized texture.
+    ///
     /// # Panics
     ///
     /// - If `enable_vello` was false at construction.
@@ -262,8 +265,10 @@ impl Renderer {
 
     /// Like [`render_vello`](Self::render_vello) but rasterizes a logical-coord scene
     /// into a `scale`×-larger target via a root scale affine — the device-pixel-ratio
-    /// path for crisp content on HiDPI displays. The `target_view` must be `scale`× the
-    /// scene's viewport. (Auto-DPI D2.)
+    /// path for crisp content on HiDPI displays. The `target_view` must be a full mip-0
+    /// view of a texture `scale`× the scene's viewport; **its dimensions are the render
+    /// size**, so a host laying out at a truncated `physical / scale` still fills every
+    /// row. (Auto-DPI D2.)
     pub fn render_vello_scaled(
         &self,
         scene: &Scene,
