@@ -60,8 +60,8 @@ Optional features on `netrender`: `serde` (scene capture/replay) and
 
 Mozilla Public License 2.0, retained from the WebRender origin. All member
 crates declare `license = "MPL-2.0"`. Provenance is recorded in
-[LICENSES.md](LICENSES.md): the two WebRender-derived files that keep a bare
-Exhibit A, and the retained `res` assets.
+[LICENSES.md](LICENSES.md): the two WebRender-derived files that carry an
+attribution line above the house header.
 
 ---
 

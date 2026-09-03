@@ -21,7 +21,8 @@ with the WebRender codebase itself removed during the 2026-04-30
 rasterizer. The MPL-2.0 grant is inherited from that origin; the copyright line
 is not, so provenance was determined per file rather than per repository.
 
-**Two source files keep bare Exhibit A with no Merely copyright line:**
+**Two source files descend from Mozilla-authored WebRender content and carry a
+retained attribution line above the house header:**
 
 | Path | Upstream lineage |
 |---|---|
@@ -32,25 +33,34 @@ These two are the only tracked sources whose git ancestry reaches
 Mozilla-authored WebRender content, and the only two where `git blame` still
 attributes lines to Mozilla addresses. What survives is thin — the header, a
 `pub(crate) mod init;`, an enum declaration, blank lines and closing braces —
-but the lineage is real and the sweep's rule is that an unclear file is treated
-as derived. They therefore carry Exhibit A and the SPDX tag in shape C with
-**no copyright line**; no Merely notice is added to code Mark did not write.
-Their copyright remains with the Mozilla Foundation and the WebRender authors.
+but the lineage is real. The sweep of 2026-09-03 first gave them bare Exhibit A
+under the rule that an unclear file is treated as derived; Mark ruled the same
+day that, with nothing substantive of Mozilla's surviving, the files are his,
+and that they bear a historical attribution to WebRender. So each carries, in
+order, `// Copyright the WebRender authors (Mozilla): derived from <upstream
+path> under MPL-2.0.`, then the house header with Mark's copyright line. The
+attribution line is a retained notice in the tool's sense: a `--renormalize`
+pass must run with `--retain-notice` or it is dropped. They are listed again
+under **Derivatives** below.
 
 Also carried verbatim from WebRender and **not** owned work, though the header
 tool never reaches them (they are not source files in its extension set):
 
 - `.taskcluster.yml` — Mozilla's WebRender CI configuration, last touched
   upstream 2022-12-14, unmodified since;
-- `servo-tidy.toml` — Servo's tidy configuration, unmodified since 2018;
-- `netrender/res/area-lut.tga` — WebRender's box-shadow area lookup table,
-  now unreferenced by any code in the tree (see the Retained licenses note
-  about its neighbour).
+- `servo-tidy.toml` — Servo's tidy configuration, unmodified since 2018.
 
-Everything else in the tree — the other 106 tracked sources across `netrender`,
-`netrender_device`, `netrender_text`, `paint_list_api` and `paint_list_render` —
-is Mark's own work, authored 2026-04-28 onward, and carries the full shape-C
-header with `Copyright 2026 Mark Alan Boykin`. Several of those files sit at
+`netrender/res/area-lut.tga` (WebRender's box-shadow area lookup table) and
+`netrender/res/Proggy.ttf` (Tristan Grimmer's Proggy Clean font, vendored by
+WebRender under the font's own terms) also came through the fork. Nothing in
+the tree referenced either since the 2026-05-01 vello rasterizer plan retired
+both LUT paths, and WebRender shipped no notice beside them, so on 2026-09-03
+Mark ruled them cruft and they were deleted rather than ledgered.
+
+The other 106 tracked sources across `netrender`, `netrender_device`,
+`netrender_text`, `paint_list_api` and `paint_list_render` are Mark's own work,
+authored 2026-04-28 onward, and carry the shape-C header with
+`Copyright 2026 Mark Alan Boykin` and no attribution line. Several of those files sit at
 paths WebRender once used (`netrender_device/src/frame.rs`,
 `readback.rs`, `core.rs` and their neighbours descend from Mark's own
 `webrender/src/device/wgpu/` scaffolding of 2026-04-28, not from Mozilla's
@@ -63,19 +73,9 @@ lines in them to any Mozilla author.
 Third-party code keeps its own license and its own notices. Nothing here is
 relicensed, and nothing here receives a Merely copyright line.
 
-| Path | License | Upstream | Notice files |
-|---|---|---|---|
-| `netrender/res` | Proggy Clean: Tristan Grimmer's own terms; `area-lut.tga`: MPL-2.0 with WebRender | [servo/webrender](https://github.com/servo/webrender) (`webrender/res/`) | none in-tree — see below |
-
-`netrender/res` holds two binary assets carried through the WebRender fork:
-`Proggy.ttf` (the Proggy Clean bitmap font by Tristan Grimmer, which WebRender
-vendored under the font's own terms rather than under the MPL) and
-`area-lut.tga`. Neither is referenced by any code in the tree today — the
-2026-05-01 vello rasterizer plan retired both LUT paths — and WebRender shipped
-no notice file beside them. **Open for Mark:** either confirm Proggy Clean's
-terms and record them here, or delete the two files, which is the simpler
-disposition given that nothing loads them. They are listed here so the tool
-skips the directory and so the gap is recorded rather than silently inherited.
+**None.** The only candidates, the two `netrender/res` assets, were deleted on
+2026-09-03 (see Servo heritage). A row here is what makes the tool skip a path,
+so add one before importing anything.
 
 No source file in this repository carries a `Copyright`, `Licensed under`,
 `Permission is hereby granted`, or `Apache License` line, and no SPDX tag names
@@ -84,10 +84,14 @@ unqualified over every tracked file, returns hits only inside `LICENSE` itself.
 
 ## Derivatives carrying MPL-2.0 with an upstream notice retained
 
-**None.** No file in this repository carries a foreign copyright notice to
-retain, so `--retain-notice` has nothing to do here. The two Servo-heritage
-files above are handled the other way round — bare Exhibit A, no notice added —
-because WebRender attached no per-file copyright line of its own.
+| Path | Upstream | Notice |
+|---|---|---|
+| `netrender/src/renderer/mod.rs` | `webrender/src/renderer.rs` | first line of the file; keep with `--retain-notice` |
+| `netrender/src/renderer/init.rs` | `webrender/src/renderer/init.rs` | first line of the file; keep with `--retain-notice` |
+
+WebRender attached no per-file copyright line of its own, so the retained line
+is the ledger's attribution rather than a copied notice. It names the WebRender
+authors and the upstream path and nothing else.
 
 ## Exceptions under the fork/vendor criterion
 
@@ -108,7 +112,9 @@ P7 changed no manifest, no `LICENSE`, and no published version.
    record it in that section so the distinction is not lost.
 4. If it is WebRender's own code arriving under the MPL already, it takes bare
    Exhibit A in shape C (`--renormalize --bare`) and a row in **Servo
-   heritage** — never a Merely copyright line.
+   heritage** — never a Merely copyright line. A file Mark then substantially
+   rewrites follows the two `renderer` files: attribution line, house header,
+   a **Derivatives** row.
 5. Never add `license-file` to an owned manifest.
 6. Re-run `python ../mere/scripts/relicense_headers.py --repo . --audit` and
    confirm the owned source count moved by exactly what you expected.
