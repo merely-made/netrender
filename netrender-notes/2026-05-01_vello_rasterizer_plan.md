@@ -599,9 +599,12 @@ is queued. Vello's relationship to the render-task graph:
 scopes the next evolution of this delivered first cut: deterministic
 validation, typed resources and accesses, a separately inspectable execution
 plan, explicit encoder/submission boundaries for the three Vello realizations,
-and eventual tenant-frame participation. The ownership stated below remains
-the rule: Vello is a raster operation in Netrender's graph, while wgpu retains
-physical device and synchronization authority.
+and eventual tenant-frame participation. Its AnyRender comparison also makes
+the semantic boundary explicit: the authoritative Netrender `Scene` enters
+each backend through conformance-or-typed-refusal before any realized work
+enters the execution graph. The ownership stated below remains the rule: Vello
+is a raster operation in Netrender's graph, while wgpu retains physical device
+and synchronization authority.
 
 - **Vello does *not* own the graph.** Webrender's `RenderGraph`
   topology, topo-sort, and per-task encode callback all stay.

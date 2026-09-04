@@ -164,11 +164,14 @@ Captures elide font payloads, which is why they are 2 KB rather than
 - [`2026-09-04_wgpu_execution_graph_plan.md`](2026-09-04_wgpu_execution_graph_plan.md)
   — **scope probe complete; implementation not started.** Evolves the
   delivered Phase 6 filter DAG into a validated, inspectable execution plan
-  over the existing shared `WgpuHandles`. `vk-graph` is prior art rather than
-  a dependency. RG0 is the bounded first slice: deterministic scheduling plus
-  typed refusals for duplicate tasks, missing inputs, and cycles. Vello,
-  tenant-frame integration, prepared graph shapes, and transient reuse remain
-  later consumer-gated steps.
+  over the existing shared `WgpuHandles`. `vk-graph` informs compiled GPU work;
+  AnyRender informs the semantic adapter seam above it. Both are prior art,
+  not dependencies. RG0 is the bounded first slice: deterministic scheduling
+  plus typed refusals for duplicate tasks, missing inputs, and cycles. RG2a
+  then proves common-scene conformance or typed refusal across all three
+  Vellos; RG2b proves their distinct execution boundaries. Tenant-frame
+  integration, prepared graph shapes, and transient reuse remain later
+  consumer-gated steps.
 - [`wasm-portability-checklist.md`](wasm-portability-checklist.md)
   — note: this is for the WebRender wgpu-backend work (separate project,
   now the `archive/*` tags), retained for reference. A netrender-specific
