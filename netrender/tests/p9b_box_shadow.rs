@@ -112,7 +112,9 @@ fn render_box_shadow_mask(
         encode: blur_pass_callback(blur_pipe, Arc::clone(&sampler), 0.0, step),
     });
 
-    let mut outputs = graph.execute(&device, &queue, HashMap::new());
+    let mut outputs = graph
+        .execute(&device, &queue, HashMap::new())
+        .expect("box-shadow graph is valid");
     let final_mask = outputs.remove(&BLUR_V).expect("BLUR_V output");
     let bytes = renderer
         .wgpu_device

@@ -971,9 +971,9 @@ opt in to import flags without touching the pool's hot path.
 output `&wgpu::TextureView`; the graph allocates the texture before
 the encode callback (Phase 6 §5). 9A adds: the graph pulls those
 allocations from the transient pool when present, falling back to
-`device.create_texture` when no pool is configured (so existing
-Phase 6 callers — e.g., `RenderGraph::execute(externals)` — keep
-working unchanged).
+`device.create_texture` when no pool is configured. This is a pre-RG0 API
+note: RG0 makes `RenderGraph::execute` fallible so malformed graphs are
+refused rather than silently scheduled.
 
 *Bind-group layout changes.* `brush_rect_solid`, `brush_image`, and
 `brush_gradient` layouts each grow two bindings: one R8 texture
