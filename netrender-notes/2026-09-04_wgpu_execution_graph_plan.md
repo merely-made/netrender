@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-04
 
-**Status:** RG0 delivered 2026-09-04; RG1 not started
+**Status:** RG0 delivered; pre-RG1 contract probe complete; RG1 not started
 
 **Prior art:**
 
@@ -104,7 +104,7 @@ callbacks:
 | --- | --- | --- |
 | Classic | Vello creates and submits its own GPU work | explicit opaque submission step |
 | Hybrid | accepts Netrender's device, queue, and command encoder | encoder-participating task |
-| CPU | produces host pixels | host work before the GPU graph, followed by an upload/import step |
+| CPU | produces host pixels | out-of-band host producer, followed by a ready upload/import step |
 
 Netrender's filter callbacks and a future Mesocosm march pass can participate
 in a caller-owned encoder. `compose_external_texture` currently creates and
@@ -114,7 +114,15 @@ submits another encoder; it is a good first function to split into
 One logical graph therefore does not imply one command encoder or one queue
 submission. Finalization partitions ordered work into encoder batches around
 opaque submission boundaries. Queue order supplies the physical sequencing;
-the graph makes that order deliberate and visible.
+the graph makes that order deliberate and visible. An opaque submission does
+not imply a CPU wait; only an explicit poll, map, or other completion fence
+does.
+
+CPU rasterization is not a graph task in the first implementation. RG2 may run
+it synchronously as a bounded proof, but the graph receives only ready pixels
+through an upload/import operation. Worker scheduling, deadlines, stale-frame
+fallback, and CPU fences require a real host scheduler and stay outside this
+graph until one exists.
 
 ### Semantic raster boundary
 
@@ -220,10 +228,10 @@ fact or mutate a Mere content graph by implication.
 Names are provisional until RG1 proves them in code.
 
 ```rust
+GraphId
 ImageNode
 BufferNode
 TaskNode
-ImportedImage
 TransientImageDesc
 ImageAccess
 BufferAccess
@@ -231,6 +239,7 @@ ExecutionPlan
 ExecutionStep
 EncoderBatch
 SubmissionBoundary
+ExecutionReport
 GraphBuildError
 GraphExecutionError
 ```
@@ -241,9 +250,13 @@ shape remain provisional until the conformance work proves what data crosses
 the boundary. `BackendCapabilities` and `BackendAdmissionError` already name
 the semantic side and should be extended instead of duplicated.
 
-Resource handles are graph-local, typed indices. In checked builds they also
-carry a graph generation so a handle from one graph cannot address a resource
-in another.
+`ImageNode` and later `BufferNode` are abstract logical resources, never
+physical wgpu allocations. Every graph owns a process-local monotonic
+`GraphId`; node handles carry it and foreign-handle checks remain active in
+release builds. Imported images use the same `ImageNode` type as transients,
+but bind a caller-owned physical texture through a per-execution table. A
+stable prepared-template parameter is a different future type,
+`TemplateImageSlot`, introduced only in RG4.
 
 Tasks declare accesses rather than only predecessor IDs. The initial portable
 access vocabulary should match decisions Netrender can actually validate:
@@ -257,6 +270,17 @@ access vocabulary should match decisions Netrender can actually validate:
 These declarations derive dependency edges, liveness, and required wgpu usage
 flags. They are not Vulkan pipeline stages or barriers. wgpu retains that
 physical responsibility.
+
+Every executable step owns and closes one complete command scope. A render or
+compute pass begins and ends inside its step; copy operations are closed
+encoder operations. `EncoderBatch` means an ordered sequence of those closed
+steps recorded into one command encoder. A pass never spans task callbacks.
+Pass merging would be a separate measured compiler transformation and remains
+excluded. Until a scoped encoder facade is proved, raw encoder callbacks stay
+trusted internal machinery rather than becoming a tenant API. RG1 must not
+export its new step builder with raw encoder access; the existing public
+`Task`/`EncodeCallback` surface remains compatibility-only until its in-repo
+callers migrate.
 
 Access order to the same resource remains stable. The compiler may reorder
 independent work, but it cannot use graph optimization to change two reads or
@@ -295,23 +319,61 @@ render-graph and filter receipts remain green.
 
 ### RG1: Separate build, compile, and execute
 
-- Introduce graph-local `ImageNode` handles and explicit imported/transient
-  image registration.
+The pre-RG1 probe found that every current raw `RenderGraph` consumer is a
+unary chain: blur, color matrix, and box-shadow/clip work. Netrender does have
+one real logical fork/join when a `SceneLayer` carries both `backdrop_filter`
+and element `filters`:
+
+```text
+prefix Vello -> backdrop filters -> backdrop image --+
+                                                    +-> final Vello -> target
+layer content Vello -> element filters -> image ----+
+```
+
+That capability is currently exercised only through direct `Scene` tests;
+`PaintList::LayerSpec` cannot yet express a backdrop filter. Classic Vello's
+internal submission also means an encoder-only RG1 cannot execute the whole
+shape honestly. Keep it as the documented target through RG1; RG2b owns its
+first honest compiled and executed receipt through explicit Vello boundaries.
+Until then, describe production graph use as unary rather than presenting a
+synthetic fork/join as consumer proof. The live seams are
+[`filter_passes.rs`](../netrender/src/renderer/filter_passes.rs),
+[`filter_chain.rs`](../netrender/src/renderer/filter_chain.rs), and
+[`filters.rs`](../netrender/src/renderer/filters.rs).
+
+- Introduce graph-local `GraphId` and `ImageNode` handles plus explicit
+  imported/transient image registration. Keep buffers out of the first patch.
 - Introduce named task access declarations.
 - Compile a graph for one or more requested output nodes into an
   `ExecutionPlan` before allocating or encoding.
 - Cull disconnected tasks that cannot affect a requested output.
-- Keep one encoder-batch task kind as the first executable form.
+- Keep one image-only encoder-step kind as the first executable form. Every
+  callback owns a closed render pass.
+- Produce an `ExecutionReport` with compile, allocate, encode, and submit CPU
+  durations; transient creation counts; descriptor-estimated logical bytes;
+  and peak-live count/bytes globally and per exact descriptor. These are not
+  GPU execution timings or physical allocation sizes. Report byte estimates
+  as unavailable when a texture format has no single valid copy footprint.
 - Migrate the three current source consumers: blur chains, color-matrix
   filters, and box-shadow/clip masks.
 - Compile the current linear `SceneFilter` chains directly; do not add a
   semantic effect DAG without a multi-input consumer.
+- Spike a scoped encoder facade against one blur callback. Keep it only if it
+  makes the closed-pass rule enforceable without distorting current callbacks.
 - Retire the public raw-`u64` compatibility API after those consumers migrate.
 
-**Done condition:** a committed logical-plan fixture covers
-mask -> horizontal blur -> vertical blur -> color matrix; its order and
-resource lifetimes are deterministic; existing pixel receipts stay within
-their current tolerances.
+**Done condition:** a committed CPU-only fixture covers imported input -> mask
+-> horizontal blur -> vertical blur -> color matrix plus a disconnected branch.
+Its dump, selected-output culling, foreign-handle refusal, resource lifetimes,
+and report are deterministic. The four selected transient outputs report four
+creations and a peak of two simultaneously live images for one shared
+descriptor. One migrated blur path executes through the plan, and existing
+pixel receipts stay within their current tolerances.
+
+RG1 establishes a useful compiled linear plan and the machinery needed to
+describe a DAG. It does not by itself earn crate extraction, prepared shapes,
+pass merging, or claims of a general renderer graph. The combined-filter
+fork/join in RG2b is that promotion gate.
 
 ### RG2a: Prove semantic adapter conformance
 
@@ -345,14 +407,16 @@ refusal; capability declarations and observed results cannot drift silently.
 
 ### RG2b: Prove the three Vello execution shapes
 
-Use one small authoritative Netrender scene and the same downstream blur and
-color-matrix chain.
+Use one authoritative direct `Scene` whose layer combines backdrop blur and an
+element filter chain. This is Netrender's first real fork/join workload even
+though the paint-list API cannot yet express it.
 
 - Hybrid records into an encoder batch supplied by the graph executor.
 - Classic appears as an explicit submission boundary, followed by a graph
   encoder batch.
-- CPU rasterizes to host pixels, then enters through a named upload/import
-  operation before the same downstream chain.
+- CPU rasterizes outside the graph, then enters through a named ready
+  upload/import operation before the same downstream chain. Do not add host
+  worker or fence scheduling to the graph for this proof.
 - Convert external-texture composition to an encoder-participating operation.
 - Keep unsupported Hybrid/CPU scene operations as typed admission errors.
 
@@ -376,11 +440,30 @@ then checks that the contract supports a different renderer shape.
 - End at Netrender's master texture; native/OS presentation remains the
   compositor host's responsibility.
 - Preserve tenant names in graph dumps and timing spans.
+- Make the host the sole owner of uncaptured-error and device-loss callbacks;
+  tenants cannot replace them.
+- Carry that policy through a host-provided device-health contract rather than
+  installing hidden global handlers after Netrender receives `WgpuHandles`.
+- Coordinate accountable tenant encoding on the host's frame thread. Work a
+  tenant records or submits on another thread falls outside that error scope
+  and must declare its own completion/error boundary.
+- Attribute validation errors with a tenant-boundary error scope and discard
+  the affected encoder/frame. Treat internal, out-of-memory, and device-loss
+  failures as shared-device faults rather than tenant-local recovery.
+- State the presentation policy honestly: an awaited diagnostic mode can
+  suppress the current frame, while optimistic interactive presentation can
+  only latch the error and suppress the next frame not yet presented.
+- Recreate Netrender, all tenants, caches, pipelines, and imported targets
+  together after actual shared-device loss. Surface-only recovery remains the
+  compositor host's concern.
 
 **Done condition:** a Paredros room + Netrender chrome frame is described by
 one logical plan on one `WgpuHandles`, pixel-matches the current composed frame,
-and reports its tenant and submission count. Mesocosm repeats the contract
-without a product-specific graph type.
+and reports its tenant and submission count. A synthetic tenant validation
+failure is attributed and prevents the promised presentation boundary from
+committing in awaited diagnostic mode, or latches before the next unpresented
+frame in optimistic mode. Mesocosm repeats the contract without a
+product-specific graph type.
 
 After both consumers pass, decide whether the neutral graph core belongs in
 `netrender_device`. Netrender-specific Vello/filter builders remain in
@@ -394,6 +477,11 @@ Borrow the useful idea from `vk-graph::CommandStream`, not its Vulkan API.
 - Bind per-frame imported targets and parameters when instantiating it.
 - Cache only plan structure proven stable by profiling.
 - Keep dynamic graphs available for irregular filter and tenant workloads.
+
+`TemplateImageSlot` is stable within a `PreparedGraphTemplate`; `ImageNode`
+remains local to one graph or prepared-plan instance. Instantiation resolves a
+slot binding once on the CPU before encoding. Template identity and graph
+identity are separate types, so RG4 does not weaken RG1's foreign-handle check.
 
 **Trigger:** RG2/RG3 measurements show graph construction or repeated
 validation is material, or a real consumer repeats the same topology often
@@ -415,8 +503,10 @@ handles.
   outside the transient pool.
 - Record allocations, reuses, peak live bytes, and retained bytes.
 
-**Trigger:** a measured RG2/RG3 frame shows transient allocation churn or
-memory pressure worth addressing.
+**Trigger:** any RG1-or-later report shows repeated exact descriptors where
+created transient count materially exceeds peak-live count, and repeated-frame
+measurement shows allocation-path cost or memory pressure worth addressing.
+RG5 may activate before RG2 if that evidence appears.
 
 **Done condition:** allocation counts fall on a repeated multi-pass workload,
 readback remains equivalent, and WebGPU/GL plus one native backend validate
@@ -430,10 +520,15 @@ without raw-hal access.
 - Exposing Vulkan access flags, queue-family ownership, or raw memory aliasing.
 - Replacing wgpu's validation or synchronization.
 - Making every CPU job part of the render graph.
+- Building host-worker scheduling, CPU fences, or stale-frame policy into RG1.
 - Passing execution resources through `Box<dyn Any>` or silently substituting
   transparent output for unsupported work.
+- Allowing one render or compute pass to span graph task callbacks.
+- Adding texture reuse before the RG1 report shows a repeated descriptor and
+  a material reason to reuse it.
 - Building a general semantic effect DAG before a multi-input effect requires
   one.
+- Treating synthetic branching as evidence of a general consumer graph.
 - Treating the execution graph as Mere's general graph runtime.
 - Moving the graph into a separate repository before two consumers establish
   a neutral contract.
@@ -441,19 +536,21 @@ without raw-hal access.
   recording before the single-queue model is measured.
 - Changing which Vello realization ships by default.
 
-## First implementation slice
+## Next implementation slice
 
-RG0 is intentionally small and independently valuable. It changes failure
-behavior and scheduling internals while preserving the current work model.
-The patch should touch only:
+RG1 begins with the pure image-plan core and one migrated blur path. The first
+patch should touch only:
 
-- `netrender/src/render_graph.rs`;
-- focused render-graph unit/integration tests;
-- callers for the new `Result` return;
+- `netrender/src/render_graph.rs` or a crate-private sibling module;
+- one blur builder/callback seam;
+- CPU-only plan/report tests and the existing blur pixel receipt;
 - this plan and the verification record after the receipt lands.
 
-Do not combine RG0 with typed resources, pooling, Vello integration, crate
-movement, or tenant changes. Those need their own evidence.
+Do not combine the first RG1 patch with buffers, pooling, Vello execution
+adaptation, prepared templates, crate movement, tenant callbacks, error-scope
+coordination, or paint-list backdrop-filter expansion. The compiled
+combined-filter topology remains the promotion target, but its first honest
+compiled and executed receipt waits for RG2b's explicit Vello boundaries.
 
 ## Acceptance summary
 
