@@ -165,7 +165,7 @@ impl Renderer {
         matrix: [f32; 20],
     ) -> wgpu::Texture {
         use crate::filter::{color_matrix_callback, make_bilinear_sampler};
-        use crate::render_graph::{RenderGraph, Task, TaskId};
+        use crate::render_graph::{ImageLoad, ImageUse, RenderGraph, TransientImageDesc};
         use std::collections::HashMap;
 
         let device = self.wgpu_device.core.device.clone();
@@ -179,22 +179,33 @@ impl Renderer {
             depth_or_array_layers: 1,
         };
 
-        const INPUT: TaskId = 1;
-        const CM: TaskId = 2;
         let mut graph = RenderGraph::new();
-        graph.push(Task {
-            id: CM,
-            extent,
+        let input_node = graph.import_image("color matrix input", extent, format);
+        let output_node = graph.transient_image(TransientImageDesc {
+            size: extent,
             format,
-            inputs: vec![INPUT],
-            encode: color_matrix_callback(pipe, sampler, matrix),
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                | wgpu::TextureUsages::TEXTURE_BINDING
+                | wgpu::TextureUsages::COPY_SRC,
+            label: Some("color matrix output".into()),
         });
+        graph
+            .add_plan_task(
+                "color matrix",
+                vec![ImageUse::sampled_read(input_node)],
+                ImageUse::color_attachment(output_node, ImageLoad::Clear),
+                color_matrix_callback(pipe, sampler, matrix),
+            )
+            .expect("valid color-matrix task");
         let mut externals = HashMap::new();
-        externals.insert(INPUT, input);
-        let mut outputs = graph
+        externals.insert(input_node, input);
+        let plan = graph
+            .compile(&[output_node])
+            .expect("color-matrix plan is valid");
+        let (mut outputs, _report) = plan
             .execute(&device, &queue, externals)
             .expect("color-matrix graph is valid");
-        outputs.remove(&CM).expect("color_matrix output")
+        outputs.remove(&output_node).expect("color_matrix output")
     }
 
     /// Apply a CSS `filter` chain to a rendered layer-content texture, in order:
