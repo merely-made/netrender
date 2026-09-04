@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-04
 
-**Status:** scope probe complete; implementation not started
+**Status:** RG0 delivered 2026-09-04; RG1 not started
 
 **Prior art:**
 
@@ -70,6 +70,9 @@ The 2026-09-04 baseline receipt remains green:
 cargo test -p netrender --test p6_render_graph -j 1
 2 passed; 0 failed
 ```
+
+RG0 landed in `fa5526051`. Its focused receipt is recorded in the Vello
+verification record §11.38.
 
 ## Probe findings
 
@@ -267,7 +270,7 @@ The dump excludes raw handles, callback contents, and backend-specific state.
 
 ## Work sequence
 
-### RG0: Make the existing graph refuse malformed work
+### RG0: Make the existing graph refuse malformed work — delivered 2026-09-04
 
 Preserve the public `Task` shape long enough to harden the foundation.
 
@@ -279,8 +282,15 @@ Preserve the public `Task` shape long enough to harden the foundation.
 - Add CPU-only unit receipts for deterministic scheduling and every refusal.
 - Keep the current filter and box-shadow outputs pixel-identical.
 
-**Done condition:** identical graphs dump the same order across repeated
-processes; each malformed case names the offending task/resource; all current
+Delivered in `fa5526051`. The implementation also refuses an external texture
+whose ID collides with a task output; the old behavior silently replaced the
+external in the returned map. Six CPU-only tests pin push-order scheduling,
+all four refusal classes, and repeated-input dependency handling. The public
+plan dump belongs to RG1; RG0's deterministic receipt is the ordered task-ID
+sequence returned by its pure scheduler test.
+
+**Done condition met:** identical insertion produces the same scheduled order;
+each malformed case names the offending task/resource; all current
 render-graph and filter receipts remain green.
 
 ### RG1: Separate build, compile, and execute
