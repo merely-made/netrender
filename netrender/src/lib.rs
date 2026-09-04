@@ -29,12 +29,14 @@
 )]
 
 pub mod external_texture;
-pub mod filter;
+mod filter;
 pub mod hit_test;
 pub mod interpolate;
 pub mod profiling;
 pub mod registry;
-pub mod render_graph;
+mod render_graph;
+#[cfg(test)]
+mod render_graph_tests;
 mod renderer;
 pub mod scene;
 pub mod tile_cache;
@@ -45,7 +47,6 @@ pub mod vello_tile_rasterizer;
 pub use crate::hit_test::{HitOpKind, HitResult, hit_test, hit_test_topmost};
 pub use crate::external_texture::{ExternalTextureComposite, ExternalTexturePlacement, SourceAlpha};
 pub use crate::registry::{FontRegistry, ImageRegistry};
-pub use crate::render_graph::{EncodeCallback, RenderGraph, RenderGraphError, Task, TaskId};
 pub use crate::renderer::init::{NetrenderOptions, create_netrender_instance};
 pub use crate::renderer::{ColorLoad, Renderer, RendererError};
 
@@ -63,9 +64,8 @@ pub use crate::scene::{
 };
 pub use crate::tile_cache::{TileCache, TileCoord};
 
-// Re-export the device-foundation surface embedders need to construct
-// `WgpuHandles` and run render-graph tasks (blur, clip mask) whose
-// outputs feed into vello scenes via `Renderer::insert_image_vello`.
+// Re-export the device-foundation surface embedders need to construct shared
+// handles and pipelines, and to implement compositor handoff surfaces.
 // `Compositor`/`LayerPresent`/`PresentedFrame` are the path-(b′)
 // trait surface; consumers (genet, etc.) implement `Compositor`
 // for native-compositor handoff.

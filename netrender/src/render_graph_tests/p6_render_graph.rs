@@ -4,32 +4,18 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // SPDX-License-Identifier: MPL-2.0
 
-//! Phase 6 receipt — render-task graph + separable Gaussian blur.
-//!
-//! Tests:
-//!   p6_01_blur_uniform_source — uniform-color source is invariant under blur
-//!   p6_02_drop_shadow         — blur a white square, composite as dark shadow
-//!                               under the original rect; golden oracle
-//!
-//! Run `NETRENDER_REGEN=1 cargo test -p netrender p6_02` to capture the
-//! oracle on first use, then subsequent runs diff within tolerance ±2/channel.
+//! Phase 6 receipts — typed image-plan graph + separable Gaussian blur.
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use netrender::{
-    ColorLoad, ImageKey, NO_CLIP, NetrenderOptions, RenderGraph, Scene, Task, TaskId, boot,
-    create_netrender_instance,
-};
-
-mod common;
-use common::{blur_pass_callback, make_bilinear_sampler};
+use crate::filter::{blur_pass_callback, make_bilinear_sampler};
+use crate::render_graph::{ImageLoad, ImageUse, RenderGraph, TransientImageDesc};
+use crate::{ColorLoad, ImageKey, NO_CLIP, NetrenderOptions, Scene, boot, create_netrender_instance};
 
 const DIM: u32 = 64;
 const BLUR_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Rgba8Unorm;
-
-// ── Helpers ────────────────────────────────────────────────────────────────
 
 fn oracle_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -67,7 +53,6 @@ fn should_regen() -> bool {
     std::env::var("NETRENDER_REGEN").is_ok_and(|v| v == "1")
 }
 
-/// Upload CPU bytes as a `Rgba8Unorm` TEXTURE_BINDING texture.
 fn upload_rgba8(
     device: &wgpu::Device,
     queue: &wgpu::Queue,
@@ -85,7 +70,7 @@ fn upload_rgba8(
         mip_level_count: 1,
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::Rgba8Unorm,
+        format: BLUR_FORMAT,
         usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
         view_formats: &[],
     });
@@ -111,82 +96,95 @@ fn upload_rgba8(
     tex
 }
 
-// ── Tests ──────────────────────────────────────────────────────────────────
+fn blur_plan(
+    renderer: &crate::Renderer,
+    src: wgpu::Texture,
+    extent: wgpu::Extent3d,
+    step: f32,
+) -> wgpu::Texture {
+    let device = renderer.wgpu_device.core.device.clone();
+    let queue = renderer.wgpu_device.core.queue.clone();
+    let pipe = renderer.wgpu_device.ensure_brush_blur(BLUR_FORMAT);
+    let sampler = make_bilinear_sampler(&device);
+    let usage = wgpu::TextureUsages::RENDER_ATTACHMENT
+        | wgpu::TextureUsages::TEXTURE_BINDING
+        | wgpu::TextureUsages::COPY_SRC;
 
-/// Uniform color is invariant under Gaussian blur: output must equal input
-/// within ±2/255 per channel (rounding only).
+    let mut graph = RenderGraph::new();
+    let input = graph.import_image("p6 source", extent, BLUR_FORMAT);
+    let blur_h = graph.transient_image(TransientImageDesc {
+        size: extent,
+        format: BLUR_FORMAT,
+        usage,
+        label: Some("p6 blur horizontal".into()),
+    });
+    let blur_v = graph.transient_image(TransientImageDesc {
+        size: extent,
+        format: BLUR_FORMAT,
+        usage,
+        label: Some("p6 blur vertical".into()),
+    });
+    graph
+        .add_plan_task(
+            "p6 blur horizontal",
+            vec![ImageUse::sampled_read(input)],
+            ImageUse::color_attachment(blur_h, ImageLoad::Clear),
+            blur_pass_callback(pipe.clone(), Arc::clone(&sampler), step, 0.0),
+        )
+        .unwrap();
+    graph
+        .add_plan_task(
+            "p6 blur vertical",
+            vec![ImageUse::sampled_read(blur_h)],
+            ImageUse::color_attachment(blur_v, ImageLoad::Clear),
+            blur_pass_callback(pipe, sampler, 0.0, step),
+        )
+        .unwrap();
+
+    let mut imported = HashMap::new();
+    imported.insert(input, src);
+    let plan = graph.compile(&[blur_v]).unwrap();
+    let (mut outputs, _) = plan.execute(&device, &queue, imported).unwrap();
+    outputs.remove(&blur_v).unwrap()
+}
+
 #[test]
 fn p6_01_blur_uniform_source() {
+    let _gpu_guard = super::gpu_test_guard();
     let handles = boot().expect("wgpu boot");
     let device = handles.device.clone();
     let queue = handles.queue.clone();
-    let renderer = create_netrender_instance(handles, NetrenderOptions::default())
-        .expect("create_netrender_instance");
-
+    let renderer = create_netrender_instance(handles, NetrenderOptions::default()).unwrap();
     let src_bytes: Vec<u8> = (0..DIM * DIM).flat_map(|_| [255u8, 0, 0, 255]).collect();
     let src_tex = upload_rgba8(&device, &queue, DIM, DIM, &src_bytes);
-
-    let pipe = renderer.wgpu_device.ensure_brush_blur(BLUR_FORMAT);
-    let sampler = make_bilinear_sampler(&device);
-    let step = 1.0 / DIM as f32;
-
-    const SRC: TaskId = 0;
-    const BLUR_H: TaskId = 1;
-    const BLUR_V: TaskId = 2;
-
-    let mut graph = RenderGraph::new();
-    graph.push(Task {
-        id: BLUR_H,
-        extent: wgpu::Extent3d {
+    let blur_v = blur_plan(
+        &renderer,
+        src_tex,
+        wgpu::Extent3d {
             width: DIM,
             height: DIM,
             depth_or_array_layers: 1,
         },
-        format: BLUR_FORMAT,
-        inputs: vec![SRC],
-        encode: blur_pass_callback(pipe.clone(), Arc::clone(&sampler), step, 0.0),
-    });
-    graph.push(Task {
-        id: BLUR_V,
-        extent: wgpu::Extent3d {
-            width: DIM,
-            height: DIM,
-            depth_or_array_layers: 1,
-        },
-        format: BLUR_FORMAT,
-        inputs: vec![BLUR_H],
-        encode: blur_pass_callback(pipe, Arc::clone(&sampler), 0.0, step),
-    });
-
-    let mut externals = HashMap::new();
-    externals.insert(SRC, src_tex);
-    let outputs = graph
-        .execute(&device, &queue, externals)
-        .expect("blur graph is valid");
-    let blur_v = outputs.get(&BLUR_V).expect("BLUR_V output");
-
-    let actual = renderer.wgpu_device.read_rgba8_texture(blur_v, DIM, DIM);
+        1.0 / DIM as f32,
+    );
+    let actual = renderer.wgpu_device.read_rgba8_texture(&blur_v, DIM, DIM);
     assert_eq!(actual.len(), (DIM * DIM * 4) as usize);
-
     let mut max_diff: u8 = 0;
     for chunk in actual.chunks_exact(4) {
-        let [r, g, b, a] = [chunk[0], chunk[1], chunk[2], chunk[3]];
-        max_diff = max_diff.max((r as i16 - 255).unsigned_abs() as u8);
-        max_diff = max_diff.max(g);
-        max_diff = max_diff.max(b);
-        max_diff = max_diff.max((a as i16 - 255).unsigned_abs() as u8);
+        max_diff = max_diff.max((chunk[0] as i16 - 255).unsigned_abs() as u8);
+        max_diff = max_diff.max(chunk[1]);
+        max_diff = max_diff.max(chunk[2]);
+        max_diff = max_diff.max((chunk[3] as i16 - 255).unsigned_abs() as u8);
     }
     assert!(
         max_diff <= 2,
-        "uniform source not invariant under blur: max channel deviation = {}",
-        max_diff
+        "uniform source not invariant under blur: {max_diff}"
     );
 }
 
-/// Drop-shadow scene: blur a white square, composite as a dark overlay
-/// under the original white rect. Oracle captured via NETRENDER_REGEN=1.
 #[test]
 fn p6_02_drop_shadow() {
+    let _gpu_guard = super::gpu_test_guard();
     let handles = boot().expect("wgpu boot");
     let device = handles.device.clone();
     let queue = handles.queue.clone();
@@ -198,9 +196,7 @@ fn p6_02_drop_shadow() {
             ..Default::default()
         },
     )
-    .expect("create_netrender_instance");
-
-    // White square (16,16)-(48,48) on transparent background.
+    .unwrap();
     let src_bytes: Vec<u8> = (0..DIM * DIM)
         .flat_map(|i| {
             let x = (i % DIM) as i32;
@@ -212,52 +208,18 @@ fn p6_02_drop_shadow() {
             }
         })
         .collect();
-    let src_tex = upload_rgba8(&device, &queue, DIM, DIM, &src_bytes);
-
-    let pipe = renderer.wgpu_device.ensure_brush_blur(BLUR_FORMAT);
-    let sampler = make_bilinear_sampler(&device);
-    let step = 1.0 / DIM as f32;
-
-    const SRC: TaskId = 10;
-    const BLUR_H: TaskId = 11;
-    const BLUR_V: TaskId = 12;
-
-    let mut graph = RenderGraph::new();
-    graph.push(Task {
-        id: BLUR_H,
-        extent: wgpu::Extent3d {
+    let blur_v = blur_plan(
+        &renderer,
+        upload_rgba8(&device, &queue, DIM, DIM, &src_bytes),
+        wgpu::Extent3d {
             width: DIM,
             height: DIM,
             depth_or_array_layers: 1,
         },
-        format: BLUR_FORMAT,
-        inputs: vec![SRC],
-        encode: blur_pass_callback(pipe.clone(), Arc::clone(&sampler), step, 0.0),
-    });
-    graph.push(Task {
-        id: BLUR_V,
-        extent: wgpu::Extent3d {
-            width: DIM,
-            height: DIM,
-            depth_or_array_layers: 1,
-        },
-        format: BLUR_FORMAT,
-        inputs: vec![BLUR_H],
-        encode: blur_pass_callback(pipe, Arc::clone(&sampler), 0.0, step),
-    });
-
-    let mut externals = HashMap::new();
-    externals.insert(SRC, src_tex);
-    let mut outputs = graph
-        .execute(&device, &queue, externals)
-        .expect("drop-shadow graph is valid");
-    let blur_v = Arc::new(outputs.remove(&BLUR_V).expect("BLUR_V output"));
-
-    const SHADOW_KEY: ImageKey = 0xDEAD_6666;
-    renderer.insert_image_vello(SHADOW_KEY, blur_v);
-
-    // Composite: white fg rect + blurred shadow as dark overlay (offset +2,+2)
-    // Shadow tint: premultiplied [0.1, 0.1, 0.1, 0.5]
+        1.0 / DIM as f32,
+    );
+    let shadow_key: ImageKey = 0xDEAD_6666;
+    renderer.insert_image_vello(shadow_key, Arc::new(blur_v));
     let mut scene = Scene::new(DIM, DIM);
     scene.push_rect(16.0, 16.0, 48.0, 48.0, [1.0, 1.0, 1.0, 1.0]);
     scene.push_image_full(
@@ -267,12 +229,10 @@ fn p6_02_drop_shadow() {
         50.0,
         [0.0, 0.0, 1.0, 1.0],
         [0.1, 0.1, 0.1, 0.5],
-        SHADOW_KEY,
+        shadow_key,
         0,
         NO_CLIP,
     );
-
-    // Vello target: Rgba8Unorm storage with sRGB view-format slot.
     let target_tex = device.create_texture(&wgpu::TextureDescriptor {
         label: Some("p6_02 target"),
         size: wgpu::Extent3d {
@@ -283,7 +243,7 @@ fn p6_02_drop_shadow() {
         mip_level_count: 1,
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::Rgba8Unorm,
+        format: BLUR_FORMAT,
         usage: wgpu::TextureUsages::STORAGE_BINDING
             | wgpu::TextureUsages::TEXTURE_BINDING
             | wgpu::TextureUsages::COPY_SRC,
@@ -291,26 +251,21 @@ fn p6_02_drop_shadow() {
     });
     let target_view = target_tex.create_view(&wgpu::TextureViewDescriptor {
         label: Some("p6_02 target view"),
-        format: Some(wgpu::TextureFormat::Rgba8Unorm),
+        format: Some(BLUR_FORMAT),
         ..Default::default()
     });
-
     renderer.render_vello(&scene, &target_view, ColorLoad::Clear(wgpu::Color::BLACK));
-
     let actual = renderer
         .wgpu_device
         .read_rgba8_texture(&target_tex, DIM, DIM);
-
     let oracle_path = oracle_dir().join("p6_02_drop_shadow.png");
     if should_regen() {
         write_png(&oracle_path, DIM, DIM, &actual);
         return;
     }
-
     let (ow, oh, expected) = read_png(&oracle_path);
     assert_eq!((ow, oh), (DIM, DIM), "oracle dimensions mismatch");
     assert_eq!(actual.len(), expected.len(), "pixel buffer length mismatch");
-
     let mut max_diff: u8 = 0;
     let mut diff_count = 0usize;
     for (a, e) in actual.chunks_exact(4).zip(expected.chunks_exact(4)) {
@@ -324,8 +279,6 @@ fn p6_02_drop_shadow() {
     }
     assert_eq!(
         diff_count, 0,
-        "p6_02 drop-shadow: {} channel values differ by >2 (max diff = {}); \
-         re-run with NETRENDER_REGEN=1 to update oracle",
-        diff_count, max_diff
+        "p6_02 drop-shadow: {diff_count} channel values differ by >2 (max diff = {max_diff}); re-run with NETRENDER_REGEN=1 to update oracle"
     );
 }
