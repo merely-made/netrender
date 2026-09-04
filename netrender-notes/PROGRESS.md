@@ -162,16 +162,19 @@ Captures elide font payloads, which is why they are 2 KB rather than
   — WebGL-over-wgpu companion lane. G0–G6 sequence, gated on
   Genet/Pelt consumer pull. Roadmap entry: G.
 - [`2026-09-04_wgpu_execution_graph_plan.md`](2026-09-04_wgpu_execution_graph_plan.md)
-  — **RG0 delivered; RG1 not started.** Evolves the
+  — **RG0 delivered; pre-RG1 contract probe complete; RG1 not started.** Evolves the
   delivered Phase 6 filter DAG into a validated, inspectable execution plan
   over the existing shared `WgpuHandles`. `vk-graph` informs compiled GPU work;
   AnyRender informs the semantic adapter seam above it. Both are prior art,
   not dependencies. RG0 landed in `fa5526051`: deterministic push-order
   scheduling plus typed refusals for duplicate tasks, external/task ID
-  collisions, missing inputs, and cycles. RG2a then proves common-scene
-  conformance or typed refusal across all three Vellos; RG2b proves their
-  distinct execution boundaries. Tenant-frame integration, prepared graph
-  shapes, and transient reuse remain later consumer-gated steps.
+  collisions, missing inputs, and cycles. The pre-RG1 probe found only unary
+  raw graph consumers; the first real logical fork/join is the direct-`Scene`
+  combined backdrop-plus-element-filter path, whose execution needs RG2b's
+  opaque Vello boundary. RG1 is therefore image-only: typed logical nodes,
+  compile/execute separation, deterministic plan/report, allocation-pressure
+  evidence, and one migrated blur path. Transient reuse can activate after
+  RG1 if measured; tenant error attribution and presentation policy stay RG3.
 - [`wasm-portability-checklist.md`](wasm-portability-checklist.md)
   — note: this is for the WebRender wgpu-backend work (separate project,
   now the `archive/*` tags), retained for reference. A netrender-specific
