@@ -107,7 +107,9 @@ impl Renderer {
         let mut externals = HashMap::new();
         externals.insert(INPUT, input);
 
-        let mut outputs = graph.execute(&device, &queue, externals);
+        let mut outputs = graph
+            .execute(&device, &queue, externals)
+            .expect("filter blur graph is valid");
         outputs.remove(&prev).expect("D1 final blur output")
     }
 
@@ -148,7 +150,9 @@ impl Renderer {
         });
         let mut externals = HashMap::new();
         externals.insert(INPUT, input);
-        let mut outputs = graph.execute(&device, &queue, externals);
+        let mut outputs = graph
+            .execute(&device, &queue, externals)
+            .expect("color-matrix graph is valid");
         outputs.remove(&CM).expect("color_matrix output")
     }
 

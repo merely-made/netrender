@@ -168,7 +168,9 @@ impl Renderer {
             prev = up_id;
         }
 
-        let mut outputs = graph.execute(&device, &queue, std::collections::HashMap::new());
+        let mut outputs = graph
+            .execute(&device, &queue, std::collections::HashMap::new())
+            .expect("box-shadow graph is valid");
         let blurred = outputs.remove(&prev).expect("final blur-pass output");
         self.insert_image_vello(key, Arc::new(blurred));
     }

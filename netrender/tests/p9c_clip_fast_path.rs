@@ -70,7 +70,9 @@ fn render_mask(
         encode: clip_rectangle_callback(pipe, bounds, radius),
     });
 
-    let mut outputs = graph.execute(&device, &queue, HashMap::new());
+    let mut outputs = graph
+        .execute(&device, &queue, HashMap::new())
+        .expect("clip-mask graph is valid");
     let tex = outputs.remove(&MASK).expect("mask output");
     let bytes = renderer
         .wgpu_device

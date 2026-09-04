@@ -160,7 +160,9 @@ fn p6_01_blur_uniform_source() {
 
     let mut externals = HashMap::new();
     externals.insert(SRC, src_tex);
-    let outputs = graph.execute(&device, &queue, externals);
+    let outputs = graph
+        .execute(&device, &queue, externals)
+        .expect("blur graph is valid");
     let blur_v = outputs.get(&BLUR_V).expect("BLUR_V output");
 
     let actual = renderer.wgpu_device.read_rgba8_texture(blur_v, DIM, DIM);
@@ -246,7 +248,9 @@ fn p6_02_drop_shadow() {
 
     let mut externals = HashMap::new();
     externals.insert(SRC, src_tex);
-    let mut outputs = graph.execute(&device, &queue, externals);
+    let mut outputs = graph
+        .execute(&device, &queue, externals)
+        .expect("drop-shadow graph is valid");
     let blur_v = Arc::new(outputs.remove(&BLUR_V).expect("BLUR_V output"));
 
     const SHADOW_KEY: ImageKey = 0xDEAD_6666;
