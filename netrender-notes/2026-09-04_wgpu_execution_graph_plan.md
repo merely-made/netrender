@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-04
 
-**Status:** RG0 delivered; RG1 image-plan slice delivered; remaining consumers not migrated
+**Status:** RG0 delivered; RG1 production migration delivered; legacy receipts still use compatibility API
 
 **Prior art:**
 
@@ -317,7 +317,7 @@ sequence returned by its pure scheduler test.
 each malformed case names the offending task/resource; all current
 render-graph and filter receipts remain green.
 
-### RG1: Separate build, compile, and execute — first slice delivered 2026-09-04
+### RG1: Separate build, compile, and execute — production path delivered 2026-09-04
 
 The pre-RG1 probe found that every current raw `RenderGraph` consumer is a
 unary chain: blur, color matrix, and box-shadow/clip work. Netrender does have
@@ -384,10 +384,24 @@ created, and a peak of two images / 32 logical bytes. `build_blurred_image` is
 the first executable consumer and preserves its prior downstream `COPY_SRC`
 contract. The existing backdrop-blur GPU receipt remains green.
 
-This delivers the stated first-slice done condition, not all RG1 work. Color
-matrix and box-shadow/clip consumers still use the compatibility graph; the
-raw callback API therefore remains public. The scoped-encoder experiment,
-physical transient reuse, and the combined-filter fork/join also remain open.
+The production migration landed in `69b9179c0`. Color-matrix filtering and the
+box-shadow mask/downsample/blur/upsample chain now use the same typed image
+plan. A new Scene-level receipt proves that `SceneFilter::Invert(1.0)` changes
+opaque red layer pixels to cyan through the migrated color-matrix path. The
+existing box-shadow, large-blur, and backdrop-blur receipts remain green.
+
+The scoped-encoder facade experiment was rejected for this slice. The present
+callbacks already create and drop their render pass within one call. A wrapper
+that still exposed `CommandEncoder` would only rename the convention; a facade
+that owned `RenderPass` would force lifetime-bound pipeline resources and bind
+groups into a new callback shape without yet improving a public or tenant
+boundary. Planned callbacks therefore remain crate-private trusted machinery.
+
+RG1's production path is delivered. The public raw-`u64` compatibility API
+remains only because four direct integration receipts (`p6_render_graph` and
+the `p9a`/`p9b`/`p9c` tests) still exercise it. Retiring that API requires
+moving their useful GPU assertions behind the crate-private planned path, not
+deleting the receipts or making raw planned callbacks public.
 
 RG1 establishes a useful compiled linear plan and the machinery needed to
 describe a DAG. It does not by itself earn crate extraction, prepared shapes,
@@ -527,6 +541,10 @@ created transient count materially exceeds peak-live count, and repeated-frame
 measurement shows allocation-path cost or memory pressure worth addressing.
 RG5 may activate before RG2 if that evidence appears.
 
+The RG1 fixture satisfies the structural half: four creations versus two
+peak-live images for one exact descriptor. A repeated-frame allocation timing
+or memory-pressure receipt is still required before implementing the pool.
+
 **Done condition:** allocation counts fall on a repeated multi-pass workload,
 readback remains equivalent, and WebGPU/GL plus one native backend validate
 without raw-hal access.
@@ -557,22 +575,22 @@ without raw-hal access.
 
 ## Next implementation slice
 
-Finish RG1 consumer migration without widening the graph vocabulary:
+Close RG1's compatibility tail without widening the graph vocabulary:
 
-- move the single-pass color-matrix builder to the image plan and retain its
-  existing pixel receipt;
-- move box-shadow/clip mask graph construction after the blur path proves the
-  same descriptor/access declarations fit it;
-- run the scoped-encoder facade experiment against those callbacks and keep it
-  only if pass closure becomes enforceable without distorting them;
-- retire the public raw-`u64` compatibility surface once the last in-repo
-  caller is gone.
+- re-home the useful `p6_render_graph` and `p9a`/`p9b`/`p9c` GPU assertions so
+  they execute the crate-private planned path;
+- remove the legacy `Task`, `TaskId`, `RenderGraph::push`, legacy `execute`,
+  `RenderGraphError`, and their root re-exports only after `rg` finds no caller;
+- rerun the replacement receipts plus every production filter receipt.
 
-Keep buffers, pooling, Vello execution adaptation, prepared templates, crate
-movement, tenant callbacks, error-scope coordination, and paint-list
-backdrop-filter expansion out of that patch. The compiled combined-filter
-topology remains the promotion target, but its first honest compiled and
-executed receipt waits for RG2b's explicit Vello boundaries.
+Then measure repeated execution of one real multi-pass plan. If allocation
+time or retained memory is material, RG5's texture pool is the next
+implementation slice; if it is not, retain per-task allocation and proceed to
+RG2a/RG2b consumer conformance. Keep buffers, Vello execution adaptation,
+prepared templates, crate movement, tenant callbacks, error-scope coordination,
+and paint-list backdrop-filter expansion outside the compatibility patch. The
+combined-filter topology remains the promotion target, but its first honest
+compiled and executed receipt waits for RG2b's explicit Vello boundaries.
 
 ## Acceptance summary
 

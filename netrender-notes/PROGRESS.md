@@ -55,7 +55,7 @@ record at the end.
 
 - [`2026-05-01_vello_verification_record.md`](2026-05-01_vello_verification_record.md)
   — **the evidence.** Split out of the plan on 2026-08-10, where it was
-  62% of the file. 39 entries, 37 CLEARED, one per spike or capability.
+  62% of the file. 40 entries, 38 CLEARED, one per spike or capability.
   Section numbers unchanged, so `§11.x` still resolves. This is the
   append target when a roadmap item lands.
 
@@ -162,8 +162,8 @@ Captures elide font payloads, which is why they are 2 KB rather than
   — WebGL-over-wgpu companion lane. G0–G6 sequence, gated on
   Genet/Pelt consumer pull. Roadmap entry: G.
 - [`2026-09-04_wgpu_execution_graph_plan.md`](2026-09-04_wgpu_execution_graph_plan.md)
-  — **RG0 and the first RG1 image-plan slice delivered; remaining RG1
-  consumers are not migrated.** Evolves the
+  — **RG0 and the RG1 production image-plan path delivered; legacy GPU
+  receipts still use the compatibility API.** Evolves the
   delivered Phase 6 filter DAG into a validated, inspectable execution plan
   over the existing shared `WgpuHandles`. `vk-graph` informs compiled GPU work;
   AnyRender informs the semantic adapter seam above it. Both are prior art,
@@ -175,11 +175,14 @@ Captures elide font payloads, which is why they are 2 KB rather than
   opaque Vello boundary. Commit `975d9df4f` delivers the image-only compiler:
   typed logical nodes, compile/execute separation, deterministic culling and
   plan dump, logical lifetime/allocation evidence, physical import admission,
-  and the first migrated blur path. The fixture reports four transient
-  creations and a two-image peak; the headed backdrop-blur receipt remains
-  green. Color matrix and box-shadow/clip still use the compatibility graph.
-  Transient reuse may activate from this measurement; tenant error attribution
-  and presentation policy stay RG3.
+  and the first migrated blur path. Commit `69b9179c0` moves color matrix and
+  box-shadow/clip onto the plan too; a new Scene-level `Invert(1)` receipt and
+  the existing blur/shadow receipts are green. The scoped encoder facade was
+  rejected because it did not strengthen the crate-private pass boundary.
+  Four direct legacy graph receipts keep the public compatibility API alive
+  until their assertions are re-homed. The allocation report makes RG5 a
+  measurement candidate; tenant error attribution and presentation policy
+  stay RG3.
 - [`wasm-portability-checklist.md`](wasm-portability-checklist.md)
   — note: this is for the WebRender wgpu-backend work (separate project,
   now the `archive/*` tags), retained for reference. A netrender-specific

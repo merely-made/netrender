@@ -1687,6 +1687,52 @@ task IDs and callbacks waits for their migration. Physical reuse waits for the
 new report, and the first honest combined backdrop-plus-element fork/join
 still waits for RG2b's explicit Vello execution boundaries.
 
+### 11.40 Production filters use the RG1 image plan (2026-09-04) — **CLEARED**
+
+RG1 production migration, commit `69b9179c0`. The remaining runtime users of
+the legacy raw-task graph were `build_color_matrix_image` and
+`build_box_shadow_mask`. Both now declare logical images and sampled/color
+accesses, compile a selected plan, and execute it through the RG1 path.
+
+The color-matrix plan binds one imported image and selects one transient
+output. The box-shadow plan declares its generated mask plus optional
+downsample, blur pairs, and upscale as transient images. Every descriptor keeps
+the former `RENDER_ATTACHMENT | TEXTURE_BINDING | COPY_SRC` usage contract;
+the last flag matters when a result crosses into Vello or a readback receipt.
+
+A new Scene-level GPU receipt closes a pre-existing evidence gap:
+`pd2_element_filter` puts opaque red content in a layer carrying
+`SceneFilter::Invert(1.0)` and observes cyan output pixels. This proves the
+renderer preprocessing path, the migrated color-matrix plan, texture
+registration, and final composition together rather than testing only a
+callback. Existing Scene-level backdrop blur and production box-shadow/large
+blur receipts cover the other migrated builders.
+
+The scoped-encoder experiment did not earn a new abstraction. Current
+callbacks begin and drop their pass within one call. A facade that retained raw
+`CommandEncoder` access would only rename that convention; a facade that owned
+the pass would require a broader lifetime/resource preparation redesign. The
+planned builder and executor remain crate-private, so this trusted callback
+shape is not presented as tenant isolation or a public contract.
+
+**Receipts** (isolated target directory, `-j 1`):
+
+- `cargo test -p netrender --lib render_graph::tests` — **11 passed**;
+- `cargo test -p netrender --test pd2_element_filter` — **1 passed**;
+- `cargo test -p netrender --test pd1_backdrop_filter` — **4 passed**;
+- `p11prime_c_box_shadow` plus `pr5_downscale_blur` — **4 passed**;
+- `p6_render_graph` plus `p9a_clip_rectangle`, `p9b_box_shadow`, and
+  `p9c_clip_fast_path` — **8 passed** on the unchanged compatibility path;
+- `cargo check -p netrender`, `cargo fmt --all -- --check`, and
+  `git diff --check` — passed.
+
+Every production filter builder now uses the image plan. The public
+`Task`/`TaskId` compatibility API remains solely for the four direct GPU test
+files above. RG1 closes after those assertions are re-homed behind the
+crate-private planned path and the raw API has no in-repo caller. The logical
+report's four creations versus two peak-live images makes transient pooling a
+measurement candidate, not yet an implementation mandate.
+
 ## 11.99 Open items — moved (2026-05-05)
 
 The catalogue of deferred refinements that originally lived here
