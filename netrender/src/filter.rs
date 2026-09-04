@@ -9,10 +9,9 @@
 //! that produce intermediate textures consumed by vello scenes via
 //! `Renderer::insert_image_vello`.
 //!
-//! These were previously test-only helpers under `tests/common/`;
-//! promoted here once the box-shadow helper made them production
-//! callers. The high-level `Renderer::build_box_shadow_mask`
-//! orchestration that consumes them lives in `renderer/mod.rs`.
+//! These are crate-internal helpers used by the renderer's image execution
+//! plans. The high-level `Renderer::build_box_shadow_mask` orchestration that
+//! consumes them lives in `renderer/mod.rs`.
 
 use std::sync::Arc;
 
@@ -22,7 +21,7 @@ use crate::render_graph::EncodeCallback;
 
 /// Bilinear-clamp sampler. `brush_blur` and other filter passes use
 /// this to sample their input textures.
-pub fn make_bilinear_sampler(device: &wgpu::Device) -> Arc<wgpu::Sampler> {
+pub(crate) fn make_bilinear_sampler(device: &wgpu::Device) -> Arc<wgpu::Sampler> {
     Arc::new(device.create_sampler(&wgpu::SamplerDescriptor {
         label: Some("netrender bilinear clamp"),
         address_mode_u: wgpu::AddressMode::ClampToEdge,
@@ -41,7 +40,7 @@ pub fn make_bilinear_sampler(device: &wgpu::Device) -> Arc<wgpu::Sampler> {
 /// corners (the underlying WGSL accepts per-corner radii but the
 /// `vec4` slot is filled with `radius` in this helper for parity
 /// with the original test usage).
-pub fn clip_rectangle_callback(
+pub(crate) fn clip_rectangle_callback(
     pipe: ClipRectanglePipeline,
     bounds: [f32; 4],
     corner_radius: f32,
@@ -106,7 +105,7 @@ pub fn clip_rectangle_callback(
 /// `step_x` / `step_y` are the texel-space sample offsets:
 /// `(1/W, 0)` for horizontal, `(0, 1/H)` for vertical. Run two
 /// callbacks back-to-back (H then V) for a separable 2-D blur.
-pub fn blur_pass_callback(
+pub(crate) fn blur_pass_callback(
     pipe: BrushBlurPipeline,
     sampler: Arc<wgpu::Sampler>,
     step_x: f32,
@@ -182,7 +181,7 @@ pub fn blur_pass_callback(
 /// output row, index `row*5 + 4` the bias. Packed to match the WGSL
 /// `ColorMatrixParams { row0..row3: vec4, bias: vec4 }` (80 bytes). Mirrors
 /// [`blur_pass_callback`].
-pub fn color_matrix_callback(
+pub(crate) fn color_matrix_callback(
     pipe: ColorMatrixPipeline,
     sampler: Arc<wgpu::Sampler>,
     matrix: [f32; 20],
