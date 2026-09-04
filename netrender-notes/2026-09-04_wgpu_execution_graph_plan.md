@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-04
 
-**Status:** RG0 delivered; RG1 production migration delivered; legacy receipts still use compatibility API
+**Status:** RG0 and RG1 delivered; repeated-plan measurement is next
 
 **Prior art:**
 
@@ -69,11 +69,18 @@ The implementation is the deliberately small Phase 6 first cut:
 - Every graph execution creates one command encoder and submits it once.
 - Filter, clip-mask, box-shadow, and backdrop-filter paths consume it.
 
-The 2026-09-04 baseline receipt remains green:
+The historical 2026-09-04 baseline receipt was:
 
 ```text
 cargo test -p netrender --test p6_render_graph -j 1
 2 passed; 0 failed
+```
+
+After RG1 retired the compatibility API, its replacement receipt is:
+
+```text
+cargo test -p netrender --lib render_graph_tests -j 1
+8 passed; 0 failed
 ```
 
 RG0 landed in `fa5526051`. Its focused receipt is recorded in the Vello
@@ -415,11 +422,19 @@ that owned `RenderPass` would force lifetime-bound pipeline resources and bind
 groups into a new callback shape without yet improving a public or tenant
 boundary. Planned callbacks therefore remain crate-private trusted machinery.
 
-RG1's production path is delivered. The public raw-`u64` compatibility API
-remains only because four direct integration receipts (`p6_render_graph` and
-the `p9a`/`p9b`/`p9c` tests) still exercise it. Retiring that API requires
-moving their useful GPU assertions behind the crate-private planned path, not
-deleting the receipts or making raw planned callbacks public.
+RG1's compatibility retirement landed in `0af85a62f`. The useful
+`p6_render_graph` and `p9a`/`p9b`/`p9c` assertions now run as crate-local tests
+through the planned path. The public `Task`, `TaskId`, `RenderGraphError`,
+legacy build/execute methods, graph-module re-exports, and public filter
+callback constructors are gone. A crate-local mutex serializes only these
+eight GPU tests because moving them into one library test binary exposed
+unsafe parallel execution in the default test harness.
+
+This removal is source-breaking relative to the published `netrender 0.1.2`.
+It is accepted on unreleased `main`; the first release containing it must be
+`0.2.0`, with `netrender_text` and `paint_list_render` dependency constraints
+aligned in the same release integration pass. The compatibility patch does
+not broaden into that release operation.
 
 RG1 establishes a useful compiled linear plan and the machinery needed to
 describe a DAG. It does not by itself earn crate extraction, prepared shapes,
@@ -608,20 +623,12 @@ without raw-hal access.
 
 ## Next implementation slice
 
-Close RG1's compatibility tail without widening the graph vocabulary:
-
-- re-home the useful `p6_render_graph` and `p9a`/`p9b`/`p9c` GPU assertions so
-  they execute the crate-private planned path;
-- remove the legacy `Task`, `TaskId`, `RenderGraph::push`, legacy `execute`,
-  `RenderGraphError`, and their root re-exports only after `rg` finds no caller;
-- rerun the replacement receipts plus every production filter receipt.
-
-Then measure repeated execution of one real multi-pass plan. If allocation
+Measure repeated execution of one real multi-pass plan. If allocation
 time or retained memory is material, RG5's texture pool is the next
 implementation slice; if it is not, retain per-task allocation and proceed to
 RG2a/RG2b consumer conformance. Keep buffers, Vello execution adaptation,
 prepared templates, crate movement, tenant callbacks, error-scope coordination,
-and paint-list backdrop-filter expansion outside the compatibility patch. The
+and paint-list backdrop-filter expansion outside this measurement pass. The
 combined-filter topology remains the promotion target, but its first honest
 compiled and executed receipt waits for RG2b's explicit Vello boundaries.
 
