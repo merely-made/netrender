@@ -30,7 +30,7 @@ impl Renderer {
         blur_radius_px: f32,
     ) -> wgpu::Texture {
         use crate::filter::{blur_pass_callback, make_bilinear_sampler};
-        use crate::render_graph::{RenderGraph, Task, TaskId};
+        use crate::render_graph::{ImageAccess, ImageLoad, ImageUse, RenderGraph, TransientImageDesc};
         use std::collections::HashMap;
 
         let device = self.wgpu_device.core.device.clone();
@@ -53,62 +53,103 @@ impl Renderer {
         };
         let step_uv = step_px / scaled_dim as f32;
 
-        const INPUT: TaskId = 1;
         let mut graph = RenderGraph::new();
-        let mut prev: TaskId = INPUT;
-        let mut next_id: TaskId = INPUT + 1;
+        let input_node = graph.import_image("blur input", full_extent, format);
+        let mut prev = input_node;
 
         if level > 1 {
-            let down_id = next_id;
-            graph.push(Task {
-                id: down_id,
-                extent: scaled_extent,
+            let down = graph.transient_image(TransientImageDesc {
+                size: scaled_extent,
                 format,
-                inputs: vec![prev],
-                encode: blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), 0.0, 0.0),
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                    | wgpu::TextureUsages::TEXTURE_BINDING
+                    | wgpu::TextureUsages::COPY_SRC,
+                label: Some("blur downsample".into()),
             });
-            prev = down_id;
-            next_id += 1;
+            graph
+                .add_plan_task(
+                    "blur downsample",
+                    vec![ImageUse {
+                        image: prev,
+                        access: ImageAccess::SampledRead,
+                    }],
+                    ImageUse::color_attachment(down, ImageLoad::Clear),
+                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), 0.0, 0.0),
+                )
+                .expect("valid blur downsample task");
+            prev = down;
         }
 
-        for _ in 0..passes {
-            let h_id = next_id;
-            graph.push(Task {
-                id: h_id,
-                extent: scaled_extent,
+        for pass_index in 0..passes {
+            let horizontal = graph.transient_image(TransientImageDesc {
+                size: scaled_extent,
                 format,
-                inputs: vec![prev],
-                encode: blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), step_uv, 0.0),
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                    | wgpu::TextureUsages::TEXTURE_BINDING
+                    | wgpu::TextureUsages::COPY_SRC,
+                label: Some(format!("blur horizontal {pass_index}")),
             });
-            let v_id = h_id + 1;
-            graph.push(Task {
-                id: v_id,
-                extent: scaled_extent,
+            graph
+                .add_plan_task(
+                    format!("blur horizontal {pass_index}"),
+                    vec![ImageUse {
+                        image: prev,
+                        access: ImageAccess::SampledRead,
+                    }],
+                    ImageUse::color_attachment(horizontal, ImageLoad::Clear),
+                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), step_uv, 0.0),
+                )
+                .expect("valid blur horizontal task");
+            let vertical = graph.transient_image(TransientImageDesc {
+                size: scaled_extent,
                 format,
-                inputs: vec![h_id],
-                encode: blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), 0.0, step_uv),
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                    | wgpu::TextureUsages::TEXTURE_BINDING
+                    | wgpu::TextureUsages::COPY_SRC,
+                label: Some(format!("blur vertical {pass_index}")),
             });
-            prev = v_id;
-            next_id = v_id + 1;
+            graph
+                .add_plan_task(
+                    format!("blur vertical {pass_index}"),
+                    vec![ImageUse {
+                        image: horizontal,
+                        access: ImageAccess::SampledRead,
+                    }],
+                    ImageUse::color_attachment(vertical, ImageLoad::Clear),
+                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), 0.0, step_uv),
+                )
+                .expect("valid blur vertical task");
+            prev = vertical;
         }
 
         if level > 1 {
-            let up_id = next_id;
-            graph.push(Task {
-                id: up_id,
-                extent: full_extent,
+            let up = graph.transient_image(TransientImageDesc {
+                size: full_extent,
                 format,
-                inputs: vec![prev],
-                encode: blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), 0.0, 0.0),
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                    | wgpu::TextureUsages::TEXTURE_BINDING
+                    | wgpu::TextureUsages::COPY_SRC,
+                label: Some("blur upsample".into()),
             });
-            prev = up_id;
+            graph
+                .add_plan_task(
+                    "blur upsample",
+                    vec![ImageUse {
+                        image: prev,
+                        access: ImageAccess::SampledRead,
+                    }],
+                    ImageUse::color_attachment(up, ImageLoad::Clear),
+                    blur_pass_callback(blur_pipe, Arc::clone(&sampler), 0.0, 0.0),
+                )
+                .expect("valid blur upsample task");
+            prev = up;
         }
 
-        let mut externals = HashMap::new();
-        externals.insert(INPUT, input);
-
-        let mut outputs = graph
-            .execute(&device, &queue, externals)
+        let mut imported = HashMap::new();
+        imported.insert(input_node, input);
+        let plan = graph.compile(&[prev]).expect("filter blur plan is valid");
+        let (mut outputs, _report) = plan
+            .execute(&device, &queue, imported)
             .expect("filter blur graph is valid");
         outputs.remove(&prev).expect("D1 final blur output")
     }
