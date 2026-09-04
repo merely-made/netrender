@@ -10,6 +10,23 @@ decision in
 The mirror is evidence until upstream disposition and a real Netrender consumer
 gate decide whether the work lands, becomes a maintained fork, or retires.
 
+**Consumer experiment refresh, 2026-09-03:** Mark activated the experiment and
+expanded the question from a future Hybrid replacement to three selectable
+Vello realizations of one Netrender `Scene` contract: Classic, Hybrid, and CPU.
+The public fork branch `mark-ik/all-vellos` at
+`ca3f40ea182216883cd543c7b9deae991268917c` is based on current upstream
+`f6e4999c`, composes the wgpu-30 upgrade (`a34adac3`) with the retained Hybrid
+append (`ca3f40ea`), and is now pinned by Netrender's opt-in `vello-all`
+feature. `cargo test -p vello_hybrid append` passed 4/4 and
+`cargo check -p vello -p vello_cpu -p vello_hybrid --all-targets` passed on
+the combined branch. Netrender's first consumer slice shares one sparse
+lowerer between CPU and Hybrid for geometry, gradients, and layers; unwired
+operations fail admission explicitly. Its focused receipts cover CPU pixels,
+the common gradient/layer subset, identical refusal behavior, Hybrid retained
+append, and Hybrid GPU texture readback using Netrender's own wgpu-30 device.
+This supersedes the dormant-consumer part of the disposition guard, while
+upstream contact remains unauthorized.
+
 Companion to
 [`2026-08-04_rasterizer_backend_seam.md`](2026-08-04_rasterizer_backend_seam.md),
 which established the blocker. This file is the version of that finding
@@ -206,25 +223,23 @@ showing why consumers end up needing to.
   including a full-web engine, and hybrid's WebGL2 target is exactly the
   case we cannot currently reach.
 
-## Fork versus patch, if we prototype first
+## Fork versus pinned consumer branch
 
-No standing fork is needed to build the prototype. `vello_hybrid` lives
-in the `linebender/vello` monorepo, so the working posture is the same
-one this workspace already uses for the genet family: a branch on a
-GitHub fork of the monorepo carrying the append commit(s), consumed via
+The consumer experiment uses a branch on the existing GitHub fork, pinned by
+immutable revision rather than by mutable branch name:
 
 ```toml
-[patch.crates-io]
-vello_hybrid = { git = "https://github.com/mark-ik/vello", branch = "mark-ik/hybrid-scene-append" }
+[workspace.dependencies]
+vello_cpu = { git = "https://github.com/mark-ik/vello", rev = "ca3f40ea182216883cd543c7b9deae991268917c" }
+vello_hybrid = { git = "https://github.com/mark-ik/vello", rev = "ca3f40ea182216883cd543c7b9deae991268917c" }
 ```
 
-in whichever workspace hosts the hybrid-backend experiment. The delta
-rebases forward on upstream; if the PR lands, the patch entry deletes
-itself. A heavy fork (own lineage, like netrender's origin) only enters
+The delta can rebase forward on upstream, after which Netrender deliberately
+repins to the new immutable commit. If the changes ship upstream, these git
+dependencies become released-version dependencies. A heavy fork (own lineage,
+like netrender's origin) only enters
 the picture if upstream rejects the direction *and* the backend still
-needs it, which is a bridge to not build in advance. Note netrender
-itself needs no patch at all today: nothing depends on `vello_hybrid`
-until the backend seam work actually starts.
+needs it, which is a bridge to not build in advance.
 
 ## Two things to decide before sending
 

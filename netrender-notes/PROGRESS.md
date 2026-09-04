@@ -81,6 +81,17 @@ record at the end.
   is drafted, unsent, at
   [`2026-08-10_vello_hybrid_upstream_ask.md`](2026-08-10_vello_hybrid_upstream_ask.md).
 
+  **Experiment activated 2026-09-03.** Netrender now names all three Vello
+  realizations (`Classic`, `Hybrid`, `Cpu`) while retaining one authoritative
+  `Scene`. The opt-in `vello-all` proof pins `mark-ik/all-vellos` at
+  `ca3f40ea182216883cd543c7b9deae991268917c`; CPU and Hybrid share one
+  geometry/gradient/layer lowerer and return typed admission errors for
+  images, patterns, text, filters, and registered fragments that are not yet
+  wired. CPU pixel output and Hybrid retained append are covered by focused
+  tests. Hybrid also renders through Netrender's wgpu-30 device and passes a
+  GPU texture readback. Classic remains the shipping renderer. The next gates
+  are images/text, registered fragments, and the rasterizer-independent corpus.
+
 - **Tenancy boot seam (landed 2026-08-10).** `netrender_device` now owns
   booting one device for netrender *and a tenant renderer* drawing into
   the same frame: `TenantNeeds` (required vs optional features, limits,

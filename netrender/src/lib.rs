@@ -38,6 +38,7 @@ pub mod render_graph;
 mod renderer;
 pub mod scene;
 pub mod tile_cache;
+pub mod vello_backends;
 pub mod vello_rasterizer;
 pub mod vello_tile_rasterizer;
 
