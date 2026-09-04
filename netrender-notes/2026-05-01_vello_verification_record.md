@@ -1733,6 +1733,41 @@ crate-private planned path and the raw API has no in-repo caller. The logical
 report's four creations versus two peak-live images makes transient pooling a
 measurement candidate, not yet an implementation mandate.
 
+### 11.41 RG1 retires the legacy graph API (2026-09-04) — **CLEARED**
+
+Compatibility retirement, commit `0af85a62f`. The two Phase 6 and six Phase 9
+GPU assertions now live under crate-local `render_graph_tests` and construct,
+compile, and execute typed image plans. Their useful pixel oracles remain;
+they no longer keep raw task IDs, graph mutation, encoder callbacks, or the
+graph module public.
+
+The public `Task`, `TaskId`, `RenderGraphError`, `RenderGraph::push`, legacy
+`execute`, and root re-exports are removed. `filter` and `render_graph` are
+private modules, and the filter callback constructors plus `EncodeCallback`
+are crate-private. Repository search found no remaining source or CI caller.
+
+Moving the GPU receipts into one library test binary exposed access violations
+when the default Rust test harness ran independent device tests concurrently.
+A crate-local `OnceLock<Mutex<()>>` now serializes only these eight GPU tests;
+the default parallel harness passes without a global `--test-threads=1`
+setting.
+
+**Receipts** (isolated target directory, `-j 1`):
+
+- `cargo test -p netrender --lib render_graph::tests` — **7 passed**;
+- `cargo test -p netrender --lib render_graph_tests` — **8 passed** under the
+  default parallel test harness;
+- `pd1_backdrop_filter` + `pd2_element_filter` +
+  `p11prime_c_box_shadow` + `pr5_downscale_blur` — **9 passed**;
+- `cargo check -p netrender`, `cargo fmt --all -- --check`, and
+  `git diff --check` — passed.
+
+RG1 is complete. The logical allocation report still needs a repeated-plan
+timing or memory-pressure measurement before RG5 pooling is admitted. This
+source-breaking removal is unreleased relative to `netrender 0.1.2`; any
+release containing it must be `0.2.0` and align the `netrender_text` and
+`paint_list_render` constraints in the release pass.
+
 ## 11.99 Open items — moved (2026-05-05)
 
 The catalogue of deferred refinements that originally lived here

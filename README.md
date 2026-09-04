@@ -14,6 +14,9 @@ sole rasterizer. The pre-pivot WebRender-wgpu work survives only as
 Stable within its scope; in-repo roadmap work is complete per the 2026-08-10
 audit. `netrender`, `netrender_device`, `paint_list_api`, and
 `paint_list_render` are published at 0.1.2. `netrender_text` remains at 0.1.1.
+Unreleased `main` has removed Netrender's public legacy render-graph helper
+API; the first release containing that change must publish `netrender` as
+0.2.0 and align its in-repo dependents.
 
 - The vello pivot is runtime-verified through the tile cache. Landed:
   layers and clips, gradients, box-shadows, nine-patch borders, variable

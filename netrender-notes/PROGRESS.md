@@ -18,6 +18,11 @@ The regenerated lock records those sources. This closes the stale split where
 crates.io consumers selected `netrender` 0.1.2 while git `main` still declared
 0.1.1, producing two incompatible `Scene` types in Turnstone.
 
+Unreleased `main` now removes Netrender's public legacy render-graph helper
+API. The first release containing that source-breaking change must publish
+`netrender` as 0.2.0 and align the `netrender_text` and `paint_list_render`
+dependency constraints in the same release pass.
+
 ## Current canonical plans
 
 Audited 2026-08-10. Four files, each with one job, plus a research
@@ -55,7 +60,7 @@ record at the end.
 
 - [`2026-05-01_vello_verification_record.md`](2026-05-01_vello_verification_record.md)
   — **the evidence.** Split out of the plan on 2026-08-10, where it was
-  62% of the file. 40 entries, 38 CLEARED, one per spike or capability.
+  62% of the file. 41 entries, 39 CLEARED, one per spike or capability.
   Section numbers unchanged, so `§11.x` still resolves. This is the
   append target when a roadmap item lands.
 
@@ -162,8 +167,7 @@ Captures elide font payloads, which is why they are 2 KB rather than
   — WebGL-over-wgpu companion lane. G0–G6 sequence, gated on
   Genet/Pelt consumer pull. Roadmap entry: G.
 - [`2026-09-04_wgpu_execution_graph_plan.md`](2026-09-04_wgpu_execution_graph_plan.md)
-  — **RG0 and the RG1 production image-plan path delivered; legacy GPU
-  receipts still use the compatibility API.** Evolves the
+  — **RG0 and RG1 delivered; repeated-plan measurement is next.** Evolves the
   delivered Phase 6 filter DAG into a validated, inspectable execution plan
   over the existing shared `WgpuHandles`. `vk-graph` informs compiled GPU work;
   AnyRender informs the semantic adapter seam above it. Both are prior art,
@@ -179,8 +183,9 @@ Captures elide font payloads, which is why they are 2 KB rather than
   box-shadow/clip onto the plan too; a new Scene-level `Invert(1)` receipt and
   the existing blur/shadow receipts are green. The scoped encoder facade was
   rejected because it did not strengthen the crate-private pass boundary.
-  Four direct legacy graph receipts keep the public compatibility API alive
-  until their assertions are re-homed. The allocation report makes RG5 a
+  Commit `0af85a62f` re-homes the eight useful legacy GPU assertions behind
+  the planned path and removes the public raw task/callback API. This is an
+  unreleased 0.2.0 boundary. The allocation report makes RG5 a
   measurement candidate; tenant error attribution and presentation policy
   stay RG3. Extraction now requires a second independent execution producer;
   a future resident-buffer path must carry producer-owned revision/epoch
