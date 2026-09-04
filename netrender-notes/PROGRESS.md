@@ -182,7 +182,9 @@ Captures elide font payloads, which is why they are 2 KB rather than
   Four direct legacy graph receipts keep the public compatibility API alive
   until their assertions are re-homed. The allocation report makes RG5 a
   measurement candidate; tenant error attribution and presentation policy
-  stay RG3.
+  stay RG3. Extraction now requires a second independent execution producer;
+  a future resident-buffer path must carry producer-owned revision/epoch
+  metadata, and RG4 must split reusable plan structure from bound callbacks.
 - [`wasm-portability-checklist.md`](wasm-portability-checklist.md)
   — note: this is for the WebRender wgpu-backend work (separate project,
   now the `archive/*` tags), retained for reference. A netrender-specific
