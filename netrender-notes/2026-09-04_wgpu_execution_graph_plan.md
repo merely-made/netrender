@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-04
 
-**Status:** RG0 delivered; pre-RG1 contract probe complete; RG1 not started
+**Status:** RG0 delivered; RG1 image-plan slice delivered; remaining consumers not migrated
 
 **Prior art:**
 
@@ -317,7 +317,7 @@ sequence returned by its pure scheduler test.
 each malformed case names the offending task/resource; all current
 render-graph and filter receipts remain green.
 
-### RG1: Separate build, compile, and execute
+### RG1: Separate build, compile, and execute — first slice delivered 2026-09-04
 
 The pre-RG1 probe found that every current raw `RenderGraph` consumer is a
 unary chain: blur, color matrix, and box-shadow/clip work. Netrender does have
@@ -369,6 +369,25 @@ and report are deterministic. The four selected transient outputs report four
 creations and a peak of two simultaneously live images for one shared
 descriptor. One migrated blur path executes through the plan, and existing
 pixel receipts stay within their current tolerances.
+
+The first slice landed in `975d9df4f`. It introduces graph-local logical image
+handles, imported and transient declarations, named sampled and color-target
+accesses, requested-output compilation and culling, stable scheduling, an
+inspectable plan dump, logical lifetimes, and CPU-side execution/allocation
+reporting. Admission refuses foreign handles, missing producers, duplicate
+producers, cycles, invalid access direction, incompatible texture usage, a
+load from a fresh transient, mixed legacy/planned modes, and imported texture
+bindings whose physical size, format, or usage disagrees with the declaration.
+
+The CPU fixture reports four 2x2 RGBA8 transient creations, 64 logical bytes
+created, and a peak of two images / 32 logical bytes. `build_blurred_image` is
+the first executable consumer and preserves its prior downstream `COPY_SRC`
+contract. The existing backdrop-blur GPU receipt remains green.
+
+This delivers the stated first-slice done condition, not all RG1 work. Color
+matrix and box-shadow/clip consumers still use the compatibility graph; the
+raw callback API therefore remains public. The scoped-encoder experiment,
+physical transient reuse, and the combined-filter fork/join also remain open.
 
 RG1 establishes a useful compiled linear plan and the machinery needed to
 describe a DAG. It does not by itself earn crate extraction, prepared shapes,
@@ -538,19 +557,22 @@ without raw-hal access.
 
 ## Next implementation slice
 
-RG1 begins with the pure image-plan core and one migrated blur path. The first
-patch should touch only:
+Finish RG1 consumer migration without widening the graph vocabulary:
 
-- `netrender/src/render_graph.rs` or a crate-private sibling module;
-- one blur builder/callback seam;
-- CPU-only plan/report tests and the existing blur pixel receipt;
-- this plan and the verification record after the receipt lands.
+- move the single-pass color-matrix builder to the image plan and retain its
+  existing pixel receipt;
+- move box-shadow/clip mask graph construction after the blur path proves the
+  same descriptor/access declarations fit it;
+- run the scoped-encoder facade experiment against those callbacks and keep it
+  only if pass closure becomes enforceable without distorting them;
+- retire the public raw-`u64` compatibility surface once the last in-repo
+  caller is gone.
 
-Do not combine the first RG1 patch with buffers, pooling, Vello execution
-adaptation, prepared templates, crate movement, tenant callbacks, error-scope
-coordination, or paint-list backdrop-filter expansion. The compiled
-combined-filter topology remains the promotion target, but its first honest
-compiled and executed receipt waits for RG2b's explicit Vello boundaries.
+Keep buffers, pooling, Vello execution adaptation, prepared templates, crate
+movement, tenant callbacks, error-scope coordination, and paint-list
+backdrop-filter expansion out of that patch. The compiled combined-filter
+topology remains the promotion target, but its first honest compiled and
+executed receipt waits for RG2b's explicit Vello boundaries.
 
 ## Acceptance summary
 

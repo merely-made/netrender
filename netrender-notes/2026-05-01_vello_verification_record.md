@@ -1627,6 +1627,66 @@ The public deterministic plan dump, typed resources, requested-output culling,
 and separate compile/execute phases remain RG1 work. RG0 establishes the
 admission boundary they require.
 
+### 11.39 RG1 compiles and measures an image plan (2026-09-04) — **CLEARED**
+
+Execution-graph plan RG1 first slice, commit `975d9df4f`. The Phase 6 graph
+previously combined graph construction, sorting, texture allocation, encoding,
+and submission in one call over raw `u64` IDs. It could reject malformed work
+after RG0, but it could not inspect or cull a selected plan, describe logical
+resource lifetimes, or measure allocation pressure before touching the GPU.
+
+The new crate-private plan path gives every graph a process-local `GraphId` and
+every imported or transient image a graph-local `ImageNode`. Tasks declare
+named sampled reads and color-target writes. Compilation starts from requested
+outputs, removes disconnected work and imports, preserves insertion order for
+independent ready tasks, and emits a deterministic dump of resources, accesses,
+edges, selected outputs, lifetimes, the encoder batch, and its submit boundary.
+Foreign handles remain invalid in release builds.
+
+Admission now refuses missing or duplicate producers, dependency cycles,
+invalid input/output access direction, texture descriptors missing required
+attachment or sampled usage, loads from fresh transient outputs, imported task
+outputs, and mixed legacy/planned modes. Execution validates every reachable
+physical import's size, format, and required usage before creating an encoder.
+Callbacks remain trusted crate-private machinery and must begin and close their
+own pass; the public raw callback API remains only for unmigrated compatibility
+callers.
+
+`ExecutionReport` separates compile, allocate, encode, and submit host
+durations. Its allocation fields are descriptor-derived logical evidence, not
+GPU timing or physical allocator measurements: creation count and estimated
+bytes, plus peak-live count/bytes globally and per exact size/format/usage
+descriptor. Footprints use the format's block dimensions and copy-block size;
+formats without one report byte values as unavailable. The committed 2x2
+RGBA8 fixture compiles input -> mask -> horizontal blur -> vertical blur ->
+color matrix while culling another branch. It reports **4 creations / 64
+logical bytes** and **2 peak-live images / 32 logical bytes** for one descriptor.
+
+`build_blurred_image` is the first migrated runtime consumer. Its transient
+descriptors retain `COPY_SRC` because the surrounding Vello path copies the
+exported result. An adversarial run caught that requirement before commit: the
+first draft passed the graph tests but failed wgpu validation in the headed
+backdrop-blur smoke.
+
+**Receipts** (isolated target directory, `-j 1`):
+
+- `cargo test -p netrender --lib render_graph::tests` — **11 passed**,
+  including selected-subgraph culling, four-node lifetime/allocation metrics,
+  foreign-node refusal, deterministic sibling order, access/usage/load
+  refusal, and physical-import metadata matching;
+- `cargo test -p netrender --test p6_render_graph` — **2 passed** on the
+  compatibility path;
+- `cargo test -p netrender --test pd1_backdrop_filter` — **4 passed**,
+  including the migrated backdrop-blur GPU smoke;
+- `cargo check -p netrender`, `cargo fmt --all -- --check`, and
+  `git diff --check` — passed.
+
+This clears the RG1 first-slice receipt, not the whole phase. Color-matrix and
+box-shadow/clip builders still use the compatibility graph, so retiring raw
+task IDs and callbacks waits for their migration. Physical reuse waits for the
+new report, and the first honest combined backdrop-plus-element fork/join
+still waits for RG2b's explicit Vello execution boundaries.
+
 ## 11.99 Open items — moved (2026-05-05)
 
 The catalogue of deferred refinements that originally lived here

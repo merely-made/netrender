@@ -55,7 +55,7 @@ record at the end.
 
 - [`2026-05-01_vello_verification_record.md`](2026-05-01_vello_verification_record.md)
   — **the evidence.** Split out of the plan on 2026-08-10, where it was
-  62% of the file. 38 entries, 36 CLEARED, one per spike or capability.
+  62% of the file. 39 entries, 37 CLEARED, one per spike or capability.
   Section numbers unchanged, so `§11.x` still resolves. This is the
   append target when a roadmap item lands.
 
@@ -162,7 +162,8 @@ Captures elide font payloads, which is why they are 2 KB rather than
   — WebGL-over-wgpu companion lane. G0–G6 sequence, gated on
   Genet/Pelt consumer pull. Roadmap entry: G.
 - [`2026-09-04_wgpu_execution_graph_plan.md`](2026-09-04_wgpu_execution_graph_plan.md)
-  — **RG0 delivered; pre-RG1 contract probe complete; RG1 not started.** Evolves the
+  — **RG0 and the first RG1 image-plan slice delivered; remaining RG1
+  consumers are not migrated.** Evolves the
   delivered Phase 6 filter DAG into a validated, inspectable execution plan
   over the existing shared `WgpuHandles`. `vk-graph` informs compiled GPU work;
   AnyRender informs the semantic adapter seam above it. Both are prior art,
@@ -171,10 +172,14 @@ Captures elide font payloads, which is why they are 2 KB rather than
   collisions, missing inputs, and cycles. The pre-RG1 probe found only unary
   raw graph consumers; the first real logical fork/join is the direct-`Scene`
   combined backdrop-plus-element-filter path, whose execution needs RG2b's
-  opaque Vello boundary. RG1 is therefore image-only: typed logical nodes,
-  compile/execute separation, deterministic plan/report, allocation-pressure
-  evidence, and one migrated blur path. Transient reuse can activate after
-  RG1 if measured; tenant error attribution and presentation policy stay RG3.
+  opaque Vello boundary. Commit `975d9df4f` delivers the image-only compiler:
+  typed logical nodes, compile/execute separation, deterministic culling and
+  plan dump, logical lifetime/allocation evidence, physical import admission,
+  and the first migrated blur path. The fixture reports four transient
+  creations and a two-image peak; the headed backdrop-blur receipt remains
+  green. Color matrix and box-shadow/clip still use the compatibility graph.
+  Transient reuse may activate from this measurement; tenant error attribution
+  and presentation policy stay RG3.
 - [`wasm-portability-checklist.md`](wasm-portability-checklist.md)
   — note: this is for the WebRender wgpu-backend work (separate project,
   now the `archive/*` tags), retained for reference. A netrender-specific
