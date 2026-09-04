@@ -16,6 +16,12 @@ resolver = "2"
 [workspace.dependencies]
 # Linebender visual stack.
 vello = { package = "netrender-vello", version = "0.10.0", default-features = false }
+# Experimental sparse-strips backends. Both are pinned to the same
+# consumer branch so Hybrid's wgpu types stay unified with Netrender's
+# device and the retained-scene append prototype is reproducible.
+vello_cpu = { git = "https://github.com/mark-ik/vello", rev = "ca3f40ea182216883cd543c7b9deae991268917c", default-features = false }
+vello_hybrid = { git = "https://github.com/mark-ik/vello", rev = "ca3f40ea182216883cd543c7b9deae991268917c", default-features = false }
+vello_sparse_common = { package = "vello_common", git = "https://github.com/mark-ik/vello", rev = "ca3f40ea182216883cd543c7b9deae991268917c", default-features = false }
 wgpu = { version = "30", default-features = false }
 peniko = "0.6"
 parley = "0.10"

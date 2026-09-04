@@ -29,6 +29,12 @@ serde = [
 # `Scene::interpolation_color_space` wrap) becomes pickable. The
 # canary feature is gated so default builds stay clean.
 linear-light-canary = []
+# Experimental alternate realizations of the same Netrender Scene.
+# Classic remains the shipping renderer; these features admit only
+# scene operations whose sparse-strips behavior is explicit.
+vello-cpu = ["dep:vello_cpu", "dep:vello_sparse_common"]
+vello-hybrid = ["dep:vello_hybrid", "dep:vello_sparse_common"]
+vello-all = ["vello-cpu", "vello-hybrid"]
 
 [dependencies]
 log.workspace = true
@@ -39,6 +45,9 @@ tracing = "0.1"
 wgpu = { workspace = true, features = ["std", "parking_lot", "wgsl"] }
 netrender_device = { version = "0.1.2", path = "../netrender_device" }
 vello = { workspace = true, features = ["wgpu"] }
+vello_cpu = { workspace = true, features = ["std", "u8_pipeline"], optional = true }
+vello_hybrid = { workspace = true, features = ["std", "wgpu"], optional = true }
+vello_sparse_common = { workspace = true, features = ["std"], optional = true }
 # Roadmap R1 — per-glyph hit testing uses skrifa::metrics::GlyphMetrics
 # to query real font-supplied glyph bounds instead of the em-box
 # approximation. Pinned at the same minor as vello's transitive
