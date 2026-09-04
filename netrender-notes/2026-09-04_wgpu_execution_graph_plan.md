@@ -12,14 +12,17 @@
 
 **Owns:** frame-local GPU dependency planning in Netrender
 
-**Does not own:** scene meaning, product state, GPU synchronization, or device creation
+**Does not own:** scene meaning, product state, physical GPU barriers,
+completion policy or fences, or device creation
 
 ## Decision
 
 Evolve Netrender's existing `RenderGraph` into a validated, inspectable wgpu
 execution graph. Keep one `WgpuHandles` instance as the physical device and
-queue authority. Let wgpu own barriers, resource transitions, backend choice,
-and command submission validity.
+queue authority. The graph owns logical work order and the placement of its
+submission boundaries. Let wgpu own physical barriers, resource transitions,
+backend choice, and command submission validity. The host declares and
+observes completion boundaries through wgpu's completion primitives.
 
 `vk-graph` is design prior art, not a dependency. Its useful contribution is
 the separation between graph construction, typed resource handles, explicit
@@ -39,9 +42,11 @@ faithfully or returns a typed admission error.
 
 The current graph stays in `netrender` while its only real operations are
 Netrender filters and raster/composite work. A move into `netrender_device`, or
-into a sibling crate, requires a second renderer to insert a real operation
-through the same public graph contract. Sharing a device alone is not that
-proof.
+into a sibling crate, requires a second independent execution producer to
+insert real work through the same public graph contract. A second renderer is
+enough evidence for a render-only executor. A resident compute producer such
+as Conatus/CubeCL writing a versioned buffer is stronger evidence for the
+broader unified-GPU-graph ambition. Sharing a device alone is not that proof.
 
 ## Why this is a continuation, not a new direction
 
@@ -258,6 +263,15 @@ but bind a caller-owned physical texture through a per-execution table. A
 stable prepared-template parameter is a different future type,
 `TemplateImageSlot`, introduced only in RG4.
 
+Future `BufferNode` support must distinguish a logical value from its physical
+allocation. Each admitted write produces a new logical buffer version even if
+the executor reuses the same wgpu buffer underneath. An imported resident
+buffer binding may carry the producer's revision/read epoch as an opaque
+equality token. A consumer declares the exact token it expects and execution
+refuses a mismatched binding. The graph does not compare, order, or advance
+those tokens, mint that durable stamp, or depend directly on Conatus's
+`ChunkStamp`; Conatus or the product record remains its authority.
+
 Tasks declare accesses rather than only predecessor IDs. The initial portable
 access vocabulary should match decisions Netrender can actually validate:
 
@@ -287,10 +301,14 @@ independent work, but it cannot use graph optimization to change two reads or
 writes whose relative order was declared by the builder. Scene painter order
 has already been compiled inside the raster task and is not reconstructed here.
 
-`ExecutionPlan` is pure scheduling metadata plus opaque encode operations. It
-has a deterministic text dump containing names, resource descriptions,
-accesses, edges, selected outputs, encoder batches, and submission boundaries.
-The dump excludes raw handles, callback contents, and backend-specific state.
+RG1's `ExecutionPlan` packages scheduling metadata with one-shot opaque encode
+operations. It has a deterministic text dump containing names, resource
+descriptions, accesses, edges, selected outputs, encoder batches, and
+submission boundaries. The dump excludes raw handles, callback contents, and
+backend-specific state. Before RG4 caches a topology, split the reusable
+`PlanStructure` from a per-execution `BoundPlan` (provisional plain names).
+Templates may retain the former; `FnOnce` operations and physical bindings
+belong only to the latter.
 
 ## Work sequence
 
@@ -500,13 +518,28 @@ product-specific graph type.
 
 After both consumers pass, decide whether the neutral graph core belongs in
 `netrender_device`. Netrender-specific Vello/filter builders remain in
-`netrender` either way.
+`netrender` either way. If the intended destination is broader than a render
+executor, require one additional cross-stack receipt before extraction:
+
+```text
+CubeCL opaque submission
+    -> versioned resident buffer
+    -> tenant render task reads that exact version
+    -> Netrender composite
+```
+
+That receipt must use one device, preserve queue order without a CPU wait, and
+emit one plan dump. Its source adapter refuses a stale producer stamp; the
+graph records and requires the exact imported token. It is evidence for a
+general execution core, not a prerequisite for RG3's renderer-tenancy proof.
 
 ### RG4: Prepare repeated graph shapes
 
 Borrow the useful idea from `vk-graph::CommandStream`, not its Vulkan API.
 
 - Add typed resource slots to a reusable graph template.
+- Split reusable `PlanStructure` from per-frame operations and bindings before
+  caching; never retain an RG1 `FnOnce` callback as template structure.
 - Bind per-frame imported targets and parameters when instantiating it.
 - Cache only plan structure proven stable by profiling.
 - Keep dynamic graphs available for irregular filter and tenant workloads.
