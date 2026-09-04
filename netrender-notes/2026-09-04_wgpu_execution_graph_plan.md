@@ -228,6 +228,7 @@ Keep these graphs distinct even when one compiles into another:
 | Rasterizer adapter / native packet | fragment generation or frame | backend-specific realization and capability admission |
 | Mere projection/content graphs | durable application state | content relationships and projection choices |
 | Execution graph | one frame or workload | logical GPU dependencies, lifetimes, and execution boundaries |
+| Frame host | frame and device lifetime | inter-tenant submission order, completion and presentation policy, and shared-device recovery |
 | wgpu | device lifetime | resource validity, barriers, backend synchronization, and queue submission |
 | Mesocosm simulation | saved/replayed world | ecology, matter, causality, and deterministic outcomes |
 
@@ -499,13 +500,21 @@ semantic equivalence or honest refusal; RG2b proves scheduling participation.
 Start with Paredros because it already proves shared-device tenancy. Mesocosm
 then checks that the contract supports a different renderer shape.
 
+RG3 first treats each tenant's internal buffer copies, 3D textures, resident
+compute, and depth composition as one closed tenant operation. It does not
+pull those resources into the shared vocabulary merely because they exist.
+The later CubeCL resident-buffer receipt is the gate for exposing that broader
+topology to a general execution core.
+
 - Import the tenant-owned color target as a graph resource.
 - If the tenant accepts a caller encoder, represent its render as an encoder
   task. Otherwise represent it as an opaque submission boundary.
 - Composite the tenant output at its stated scene-op boundary.
 - End at Netrender's master texture; native/OS presentation remains the
   compositor host's responsibility.
-- Preserve tenant names in graph dumps and timing spans.
+- Preserve tenant names, the adapter-reported producer path, and fallback
+  counters in graph dumps and timing spans. The graph records these diagnostics
+  without interpreting producer revisions or deciding fallback policy.
 - Make the host the sole owner of uncaptured-error and device-loss callbacks;
   tenants cannot replace them.
 - Carry that policy through a host-provided device-health contract rather than
@@ -519,17 +528,18 @@ then checks that the contract supports a different renderer shape.
 - State the presentation policy honestly: an awaited diagnostic mode can
   suppress the current frame, while optimistic interactive presentation can
   only latch the error and suppress the next frame not yet presented.
-- Recreate Netrender, all tenants, caches, pipelines, and imported targets
-  together after actual shared-device loss. Surface-only recovery remains the
-  compositor host's concern.
+- Recreate Netrender, every tenant and resident compute client, their caches,
+  pipelines, allocations, leases, and imported targets together after actual
+  shared-device loss. Surface-only recovery remains the compositor host's
+  concern.
 
 **Done condition:** a Paredros room + Netrender chrome frame is described by
 one logical plan on one `WgpuHandles`, pixel-matches the current composed frame,
-and reports its tenant and submission count. A synthetic tenant validation
-failure is attributed and prevents the promised presentation boundary from
-committing in awaited diagnostic mode, or latches before the next unpresented
-frame in optimistic mode. Mesocosm repeats the contract without a
-product-specific graph type.
+and reports its tenant, producer path, and submission count. A synthetic tenant
+validation failure is attributed and prevents the promised presentation
+boundary from committing in awaited diagnostic mode, or latches before the
+next unpresented frame in optimistic mode. Mesocosm repeats the contract without
+a product-specific graph type.
 
 After both consumers pass, decide whether the neutral graph core belongs in
 `netrender_device`. Netrender-specific Vello/filter builders remain in
