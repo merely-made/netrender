@@ -55,7 +55,7 @@ record at the end.
 
 - [`2026-05-01_vello_verification_record.md`](2026-05-01_vello_verification_record.md)
   — **the evidence.** Split out of the plan on 2026-08-10, where it was
-  62% of the file. 36 entries, 34 CLEARED, one per spike or capability.
+  62% of the file. 38 entries, 36 CLEARED, one per spike or capability.
   Section numbers unchanged, so `§11.x` still resolves. This is the
   append target when a roadmap item lands.
 
@@ -162,16 +162,16 @@ Captures elide font payloads, which is why they are 2 KB rather than
   — WebGL-over-wgpu companion lane. G0–G6 sequence, gated on
   Genet/Pelt consumer pull. Roadmap entry: G.
 - [`2026-09-04_wgpu_execution_graph_plan.md`](2026-09-04_wgpu_execution_graph_plan.md)
-  — **scope probe complete; implementation not started.** Evolves the
+  — **RG0 delivered; RG1 not started.** Evolves the
   delivered Phase 6 filter DAG into a validated, inspectable execution plan
   over the existing shared `WgpuHandles`. `vk-graph` informs compiled GPU work;
   AnyRender informs the semantic adapter seam above it. Both are prior art,
-  not dependencies. RG0 is the bounded first slice: deterministic scheduling
-  plus typed refusals for duplicate tasks, missing inputs, and cycles. RG2a
-  then proves common-scene conformance or typed refusal across all three
-  Vellos; RG2b proves their distinct execution boundaries. Tenant-frame
-  integration, prepared graph shapes, and transient reuse remain later
-  consumer-gated steps.
+  not dependencies. RG0 landed in `fa5526051`: deterministic push-order
+  scheduling plus typed refusals for duplicate tasks, external/task ID
+  collisions, missing inputs, and cycles. RG2a then proves common-scene
+  conformance or typed refusal across all three Vellos; RG2b proves their
+  distinct execution boundaries. Tenant-frame integration, prepared graph
+  shapes, and transient reuse remain later consumer-gated steps.
 - [`wasm-portability-checklist.md`](wasm-portability-checklist.md)
   — note: this is for the WebRender wgpu-backend work (separate project,
   now the `archive/*` tags), retained for reference. A netrender-specific

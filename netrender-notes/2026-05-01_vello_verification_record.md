@@ -7,7 +7,7 @@ evidence log, not architecture, so it lives on its own.
 
 Section numbers are unchanged. An inbound `§11.x` reference resolves here.
 
-36 entries, 34 of them **CLEARED**. The two without a verdict are §11.6
+38 entries, 36 of them **CLEARED**. The two without a verdict are §11.6
 (closed in practice by Phase 1' first-light, see §11.7, but never
 relabelled) and §11.13 (a display-list-format discussion that did not
 need one).
@@ -1589,6 +1589,44 @@ disagreed with the target emitted **nothing at all** across a full zoom-1.0
 scenario, so the numbers reaching vello are bit-identical there. Digest equality
 on these captures is worth about ±1 pixel; prefer the mechanism.
 
+### 11.38 Render graph refuses malformed work (2026-09-04) — **CLEARED**
+
+Execution-graph plan RG0, commit `fa5526051`. The Phase 6 graph previously
+collected tasks into a `HashMap`, silently replaced duplicate IDs, omitted
+unknown inputs through `filter_map`, and returned a partial schedule when a
+cycle blocked work. Its documented insertion-order tie break also depended on
+`HashMap` iteration and therefore was not true.
+
+The repair keeps the public `Task` shape while using insertion-indexed storage
+and a stable Kahn queue. `RenderGraph::execute` now validates before creating
+an encoder and returns `Result<_, RenderGraphError>`. Typed errors cover
+duplicate task IDs, missing inputs, dependency cycles, and a collision between
+an imported texture ID and a task output ID. That fourth case came from the
+independent adversarial review: the old map insertion would silently replace
+the imported texture. Callback views are now built by mapping every declared
+input in its original order, including repeated inputs.
+
+All in-repo graphs are hardcoded renderer machinery, so their callers use
+specific `expect` messages after construction. The fallible public API is
+intentional: an outside caller of `RenderGraph::execute` must now handle a
+malformed graph rather than receiving incomplete output.
+
+**Receipts** (isolated target directory, `-j 1`):
+
+- `cargo test -p netrender --lib render_graph::tests` — **6 passed**, covering
+  deterministic ready order, duplicate IDs, external/task collision, missing
+  input, repeated input, and a direct cycle;
+- `cargo test -p netrender --test p6_render_graph` — **2 passed**;
+- `p9a_clip_rectangle` + `p9b_box_shadow` + `p9c_clip_fast_path` — **6 passed**;
+- `p11prime_c_box_shadow` + `p9prime_rounded_clip` +
+  `pd1_backdrop_filter` + `pr5_downscale_blur` — **11 passed**;
+- `cargo check -p paint_list_render -p netrender_text` — passed;
+- `cargo fmt --check` and `git diff --check` — passed.
+
+The public deterministic plan dump, typed resources, requested-output culling,
+and separate compile/execute phases remain RG1 work. RG0 establishes the
+admission boundary they require.
+
 ## 11.99 Open items — moved (2026-05-05)
 
 The catalogue of deferred refinements that originally lived here
@@ -1610,4 +1648,3 @@ deferred-phase item lands (D1 / D3 / R9), do the same and update
 the relevant follow-up plan.
 
 [roadmap-r]: 2026-05-04_feature_roadmap.md
-
