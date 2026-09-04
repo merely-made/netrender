@@ -594,6 +594,15 @@ registry per call.
 Phase 6 is delivered. Phase 12 (filter chains, nested isolation)
 is queued. Vello's relationship to the render-task graph:
 
+**2026-09-04 follow-up:**
+[`2026-09-04_wgpu_execution_graph_plan.md`](2026-09-04_wgpu_execution_graph_plan.md)
+scopes the next evolution of this delivered first cut: deterministic
+validation, typed resources and accesses, a separately inspectable execution
+plan, explicit encoder/submission boundaries for the three Vello realizations,
+and eventual tenant-frame participation. The ownership stated below remains
+the rule: Vello is a raster operation in Netrender's graph, while wgpu retains
+physical device and synchronization authority.
+
 - **Vello does *not* own the graph.** Webrender's `RenderGraph`
   topology, topo-sort, and per-task encode callback all stay.
 - **Tile rasterization is one node** in the graph. The node's
