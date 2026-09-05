@@ -1762,11 +1762,58 @@ setting.
 - `cargo check -p netrender`, `cargo fmt --all -- --check`, and
   `git diff --check` — passed.
 
-RG1 is complete. The logical allocation report still needs a repeated-plan
-timing or memory-pressure measurement before RG5 pooling is admitted. This
+RG1 is complete. At this commit, the logical allocation report still needed a
+repeated-plan timing or memory-pressure measurement before RG5 pooling could be
+admitted; §11.42 supplies that measurement and keeps RG5 deferred. This
 source-breaking removal is unreleased relative to `netrender 0.1.2`; any
 release containing it must be `0.2.0` and align the `netrender_text` and
 `paint_list_render` constraints in the release pass.
+
+### 11.42 Repeated-plan allocation does not activate RG5 (2026-09-05) — **CLEARED**
+
+Measurement harness and production-helper split, commit `35cb54ea5`. The
+ignored `rg1_repeated_box_shadow_measurement` uses the same crate-private graph
+builder and executor as public `Renderer::build_box_shadow_mask`, while keeping
+the public Vello image registry outside the repeated loop. The public API and
+production output path are unchanged.
+
+One booted NVIDIA GeForce RTX 4060 Laptop GPU, Vulkan backend, NVIDIA driver
+610.88 ran two release workloads. Each used 16 fully completed warmups and 64
+fully completed samples, with a bounded five-second `device.poll` after every
+submission. The harness reports construction, compile, allocation, encode,
+submit, residual execute overhead, completion, and total-to-completion without
+outlier deletion. Pixel/readback oracles for both workloads run outside the
+timed sample sets.
+
+| Workload | Allocation median / p95 | Host-work p95 | Total median / p95 | Creations | Projected peak |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 256 x 256, blur 16 | 0.067 / 0.111 ms | 1.349 ms | 1.429 / 1.978 ms | 33 | 2 |
+| 1024 x 1024, blur 64 | 0.055 / 0.102 ms | 1.091 ms | 1.276 / 1.751 ms | 35 | 2 |
+
+The large row contains two 1024 x 1024 creations with projected peak 1 and 33
+256 x 256 creations with projected peak 2. The small row has 33 exact 256 x
+256 creations with projected peak 2. These establish structural reuse
+pressure. They do not establish physical peak residency: the executor still
+creates every selected task output before encoding, so logical peak-live is a
+projected lower bound for a possible pool.
+
+The materiality rule was fixed before the run. Given exact-descriptor pressure,
+allocation p95 must reach either 2% of `NETRENDER_RG_FRAME_BUDGET_MS` (0.333 ms
+at the default 16.667 ms) or both 15% of host-work p95 and a 0.10 ms floor.
+Both rows return `NOT_MATERIAL`. RG5 texture pooling stays deferred; RG2a is the
+next execution-graph slice.
+
+**Receipts** (isolated target directory, `-j 1`):
+
+- `$env:WGPU_BACKEND='vulkan'; cargo test -p netrender --release --lib
+  render_graph_tests::rg_measurement::rg1_repeated_box_shadow_measurement -j 1
+  --target-dir C:\Users\mark_\.cargo-target-rg-measure -- --ignored --nocapture
+  --test-threads=1` — **1 passed**, including both out-of-band mask oracles;
+- `p11prime_c_box_shadow` + `pr5_downscale_blur` — **4 passed**; the large-blur
+  receipt retained max alpha 139, scanline paint 11298, and transition widths
+  44 at blur 16 versus 128 at blur 64;
+- `cargo test -p netrender --lib render_graph` — **15 passed, 1 ignored**;
+- `cargo fmt --all -- --check` and `git diff --check` — passed.
 
 ## 11.99 Open items — moved (2026-05-05)
 
