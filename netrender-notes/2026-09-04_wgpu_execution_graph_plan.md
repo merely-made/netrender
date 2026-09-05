@@ -2,9 +2,9 @@
 
 **Date:** 2026-09-04
 
-**Status:** RG0 through the RG2b execution-boundary slice and RG3a's Netrender
-tenant envelope delivered; Paredros consumer/error receipts are next; RG2c
-remains the graph-promotion gate; RG5 deferred
+**Status:** RG0 through the RG2b execution-boundary slice and RG3's Paredros
+first-consumer/validation plumbing delivered; headed presentation, Mesocosm,
+and rebuild-all remain; RG2c remains the graph-promotion gate; RG5 deferred
 
 **Prior art:**
 
@@ -596,6 +596,48 @@ tail. RG3's Paredros fixture is deliberately the existing filter-free,
 full-frame boundary-zero case. General prefix/tenant/tail semantics remain a
 separate renderer correction rather than evidence silently borrowed from this
 receipt.
+
+Paredros adopted the envelope in `1491c2b`. Its opt-in fixed-room receipt uses
+one `WgpuHandles`, two fresh composers for the candidate/baseline comparison,
+the real Renderling room target, and the final Netrender master. The final
+master bytes match exactly and contain 466 distinct colors. The dump names
+`paredros-room`, `renderling::Stage::render (opaque)`, fallback count zero, one
+logical opaque producer boundary, one graph encoder/submission, and an unknown
+caller-reported physical producer count. The normal Renderling room path now
+uses the envelope; the DDA/R1 path retains its earlier legacy composition.
+
+Paredros added the host-owned validation and presentation gate in `81a2f08`
+and made optimistic resolution nonblocking in `0bfd2f7`. The host installs
+uncaptured-error and device-loss callbacks once after boot, keeps tenant
+validation scopes on the event-loop thread, and excludes native surface
+acquisition and presentation from those scopes. Optimistic frames retain local
+scope futures, drive wgpu with `PollType::Poll`, inspect each future once, and
+keep unresolved work queued rather than blocking the event loop. Pure reducer
+receipts model awaited current-frame suppression and optimistic suppression of the
+first still-unpresented frame after host observation. The room control flow
+returns before surface acquisition on those dispositions. A physical wgpu
+receipt captures an out-of-bounds disposable buffer copy as the named tenant's
+validation error, then successfully submits a valid copy on the same device.
+This is physical scope/health evidence, not yet a headed failure injected
+through the real room surface; that presentation receipt remains open. Shared
+faults produce a distinct `RebuildAll` disposition. The room currently exits at
+that disposition; rebuilding every shared-device client remains open.
+Netrender's internal empty-surface compositor bookkeeping also is not
+transactionally rolled back when the outer host suppresses native presentation.
+
+Mesocosm's second-consumer edit is paused at an explicit collision boundary.
+Its live checkout has 112 dirty paths, including the active `mesocosm-genet`
+app, section, camera, played-body, tracer, and render files. In that current
+path, `Section` owns the traced/display textures, copies into its sRGB display
+texture, and composites it directly to the acquired surface. `Chrome` renders
+HUD rasters through Netrender but also blends them into that caller-owned
+surface encoder; there is not yet a production Netrender master/tenant
+boundary. The eventual slice is therefore to expose the initialized section
+display texture, move final composition to the Netrender master, place the
+section as the opaque tenant, paint the HUD/chrome over it, then let the host
+blit the master to the surface. A clean `origin/main` worktree would miss the
+load-bearing body, camera, and section WIP, so it is not accepted as evidence
+for the current app.
 
 RG3 first treats each tenant's internal buffer copies, 3D textures, resident
 compute, and depth composition as one closed tenant operation. It does not

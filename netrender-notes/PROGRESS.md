@@ -176,9 +176,10 @@ Captures elide font payloads, which is why they are 2 KB rather than
   — WebGL-over-wgpu companion lane. G0–G6 sequence, gated on
   Genet/Pelt consumer pull. Roadmap entry: G.
 - [`2026-09-04_wgpu_execution_graph_plan.md`](2026-09-04_wgpu_execution_graph_plan.md)
-  — **RG0 through the RG2b execution-boundary slice and RG3a's Netrender
-  tenant envelope delivered; Paredros consumer/error receipts are next; RG2c
-  remains the graph-promotion gate; RG5 deferred.** Evolves the
+  — **RG0 through the RG2b execution-boundary slice and RG3's Paredros
+  first-consumer/validation plumbing delivered; headed presentation,
+  Mesocosm, and rebuild-all remain; RG2c remains the graph-promotion gate; RG5
+  deferred.** Evolves the
   delivered Phase 6 filter DAG into a validated, inspectable execution plan
   over the existing shared `WgpuHandles`. `vk-graph` informs compiled GPU work;
   AnyRender informs the semantic adapter seam above it. Both are prior art,
@@ -215,9 +216,20 @@ Captures elide font payloads, which is why they are 2 KB rather than
   envelope over a real private graph composite. Its sRGB-to-unorm physical
   receipt byte-matches the existing filter-free boundary-zero legacy path and
   reports the logical opaque boundary, caller-reported physical count, and
-  graph-only submission separately. Paredros adoption and host-owned validation
-  and presentation policy remain open. Extraction still requires a second
-  independent execution producer and RG2c's multi-input proof;
+  graph-only submission separately. Paredros commits `1491c2b`, `81a2f08`, and
+  `0bfd2f7` adopt that envelope for the normal Renderling room, byte-match the legacy
+  final master with 466 distinct colors, install the host-owned validation and
+  device-fault gate, keep optimistic scope resolution nonblocking, model
+  awaited and optimistic suppression in pure reducer tests, capture a real
+  scoped wgpu validation failure, and submit valid work afterward. A headed
+  failure injected through the real room surface remains
+  open, as do shared-fault reconstruction and the Mesocosm second-consumer
+  receipt. Mesocosm's current production seam is known, but its active app,
+  section, camera, body, tracer, and render files are part of a 112-path dirty
+  checkout. The second-consumer edit is deferred at that collision boundary;
+  an `origin/main` worktree would not represent the current app. Extraction
+  still requires a second independent execution producer and RG2c's multi-input
+  proof;
   a future resident-buffer path must carry producer-owned revision/epoch
   metadata, and RG4 must split reusable plan structure from bound callbacks.
 - [`wasm-portability-checklist.md`](wasm-portability-checklist.md)
