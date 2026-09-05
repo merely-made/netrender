@@ -176,8 +176,9 @@ Captures elide font payloads, which is why they are 2 KB rather than
   — WebGL-over-wgpu companion lane. G0–G6 sequence, gated on
   Genet/Pelt consumer pull. Roadmap entry: G.
 - [`2026-09-04_wgpu_execution_graph_plan.md`](2026-09-04_wgpu_execution_graph_plan.md)
-  — **RG0 through the RG2b execution-boundary slice delivered; RG3 is next;
-  RG2c remains the graph-promotion gate; RG5 deferred.** Evolves the
+  — **RG0 through the RG2b execution-boundary slice and RG3a's Netrender
+  tenant envelope delivered; Paredros consumer/error receipts are next; RG2c
+  remains the graph-promotion gate; RG5 deferred.** Evolves the
   delivered Phase 6 filter DAG into a validated, inspectable execution plan
   over the existing shared `WgpuHandles`. `vk-graph` informs compiled GPU work;
   AnyRender informs the semantic adapter seam above it. Both are prior art,
@@ -209,8 +210,14 @@ Captures elide font payloads, which is why they are 2 KB rather than
   readback, and the corrected filter-evidence split. Its shared graph remains
   unary; RG2c is the real effect-fork/join promotion gate. RG3 now owns the
   first closed tenant frame plus error attribution and presentation policy and
-  may proceed independently. Extraction still requires a second independent
-  execution producer and RG2c's multi-input proof;
+  may proceed independently. Commits `42ef0420a` and `d08f713d8` add the one
+  legal load-preserving imported color-output shape and a public opaque-tenant
+  envelope over a real private graph composite. Its sRGB-to-unorm physical
+  receipt byte-matches the existing filter-free boundary-zero legacy path and
+  reports the logical opaque boundary, caller-reported physical count, and
+  graph-only submission separately. Paredros adoption and host-owned validation
+  and presentation policy remain open. Extraction still requires a second
+  independent execution producer and RG2c's multi-input proof;
   a future resident-buffer path must carry producer-owned revision/epoch
   metadata, and RG4 must split reusable plan structure from bound callbacks.
 - [`wasm-portability-checklist.md`](wasm-portability-checklist.md)

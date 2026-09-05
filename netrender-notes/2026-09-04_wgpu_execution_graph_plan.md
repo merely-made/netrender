@@ -2,8 +2,9 @@
 
 **Date:** 2026-09-04
 
-**Status:** RG0 through the RG2b execution-boundary slice delivered; RG3 is
-next; RG2c remains the graph-promotion gate; RG5 deferred
+**Status:** RG0 through the RG2b execution-boundary slice and RG3a's Netrender
+tenant envelope delivered; Paredros consumer/error receipts are next; RG2c
+remains the graph-promotion gate; RG5 deferred
 
 **Prior art:**
 
@@ -578,6 +579,24 @@ internal topology opaque.
 Start with Paredros because it already proves shared-device tenancy. Mesocosm
 then checks that the contract supports a different renderer shape.
 
+RG3a landed in `42ef0420a` and `d08f713d8`. The private graph can now write an
+imported, already-initialized color target through the one admitted
+`ColorAttachment { load: Load, store: true }` shape. Netrender's public opaque
+tenant envelope uses that operation between the existing Classic Vello master
+render and tail redraw. Its receipt keeps the tenant's one logical opaque
+producer boundary, its caller-reported physical submission count, and the
+graph's own encoder/submission count separate. An absent caller count means
+unknown, not zero or one.
+
+The RG3a physical receipt byte-matches the existing boundary-zero legacy path
+with an sRGB tenant source and unorm master. It does not generalize that legacy
+sequence into a mathematically complete arbitrary-interleaving proof. The
+current path renders the full Vello scene, inserts the tenant, and redraws the
+tail. RG3's Paredros fixture is deliberately the existing filter-free,
+full-frame boundary-zero case. General prefix/tenant/tail semantics remain a
+separate renderer correction rather than evidence silently borrowed from this
+receipt.
+
 RG3 first treats each tenant's internal buffer copies, 3D textures, resident
 compute, and depth composition as one closed tenant operation. It does not
 pull those resources into the shared vocabulary merely because they exist.
@@ -605,7 +624,8 @@ topology to a general execution core.
   failures as shared-device faults rather than tenant-local recovery.
 - State the presentation policy honestly: an awaited diagnostic mode can
   suppress the current frame, while optimistic interactive presentation can
-  only latch the error and suppress the next frame not yet presented.
+  only latch the error and suppress the first still-unpresented frame after
+  the host observes it. Delayed GPU observation may allow intervening frames.
 - Recreate Netrender, every tenant and resident compute client, their caches,
   pipelines, allocations, leases, and imported targets together after actual
   shared-device loss. Surface-only recovery remains the compositor host's
@@ -613,11 +633,14 @@ topology to a general execution core.
 
 **Done condition:** a Paredros room + Netrender chrome frame is described by
 one logical plan on one `WgpuHandles`, pixel-matches the current composed frame,
-and reports its tenant, producer path, and submission count. A synthetic tenant
-validation failure is attributed and prevents the promised presentation
-boundary from committing in awaited diagnostic mode, or latches before the
-next unpresented frame in optimistic mode. Mesocosm repeats the contract without
-a product-specific graph type.
+and reports its tenant, producer path, one logical opaque producer boundary,
+the graph-only encoder/submission count, and a caller-reported physical tenant
+count or explicit unknown. This does not claim a measured total physical frame
+submission count. A synthetic tenant validation failure is attributed and
+prevents the promised presentation boundary from committing in awaited
+diagnostic mode, or suppresses the first still-unpresented frame after host
+observation in optimistic mode. Mesocosm repeats the contract without a
+product-specific graph type.
 
 After both consumers pass, decide whether the neutral graph core belongs in
 `netrender_device`. Netrender-specific Vello/filter builders remain in
