@@ -10,6 +10,7 @@ mod p6_render_graph;
 mod p9a_clip_rectangle;
 mod p9b_box_shadow;
 mod p9c_clip_fast_path;
+mod rg2b;
 mod rg_measurement;
 
 use std::sync::{Arc, Mutex, MutexGuard, OnceLock};

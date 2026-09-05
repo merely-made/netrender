@@ -55,6 +55,9 @@ use crate::tile_cache::TileCache;
 mod filter_chain;
 mod filter_passes;
 mod filters;
+mod rg2b;
+
+pub(crate) use rg2b::RasterExecution;
 
 use filters::{make_external_tail_target, scene_tail_fragment};
 
@@ -449,21 +452,7 @@ impl Renderer {
         viewport_height: u32,
         placement: ExternalTexturePlacement,
     ) {
-        let pipe = {
-            let mut pipelines = self
-                .external_texture_pipelines
-                .lock()
-                .expect("external_texture_pipelines lock");
-            pipelines
-                .entry(target_format)
-                .or_insert_with(|| {
-                    crate::external_texture::build_external_texture_pipeline(
-                        &self.wgpu_device.core.device,
-                        target_format,
-                    )
-                })
-                .clone()
-        };
+        let pipe = self.external_texture_pipeline(target_format);
 
         crate::external_texture::compose_external_texture(
             &self.wgpu_device.core.device,
@@ -475,6 +464,80 @@ impl Renderer {
             viewport_height,
             placement,
         );
+    }
+
+    fn external_texture_pipeline(
+        &self,
+        target_format: wgpu::TextureFormat,
+    ) -> ExternalTexturePipeline {
+        let mut pipelines = self
+            .external_texture_pipelines
+            .lock()
+            .expect("external_texture_pipelines lock");
+        pipelines
+            .entry(target_format)
+            .or_insert_with(|| {
+                crate::external_texture::build_external_texture_pipeline(
+                    &self.wgpu_device.core.device,
+                    target_format,
+                )
+            })
+            .clone()
+    }
+
+    /// Encode a same-device external texture operation into a caller-owned
+    /// encoder. Graph/executor paths use this participation seam; the public
+    /// [`Self::compose_external_texture`] wrapper retains its legacy
+    /// self-submitting behavior.
+    pub(crate) fn encode_external_texture(
+        &self,
+        source_view: &wgpu::TextureView,
+        target_view: &wgpu::TextureView,
+        target_format: wgpu::TextureFormat,
+        viewport_width: u32,
+        viewport_height: u32,
+        placement: ExternalTexturePlacement,
+        encoder: &mut wgpu::CommandEncoder,
+    ) -> bool {
+        let pipe = self.external_texture_pipeline(target_format);
+        crate::external_texture::encode_external_texture(
+            &self.wgpu_device.core.device,
+            &pipe,
+            source_view,
+            target_view,
+            viewport_width,
+            viewport_height,
+            placement,
+            encoder,
+        )
+    }
+
+    fn submit_external_texture(
+        &self,
+        source_view: &wgpu::TextureView,
+        target_view: &wgpu::TextureView,
+        target_format: wgpu::TextureFormat,
+        viewport_width: u32,
+        viewport_height: u32,
+        placement: ExternalTexturePlacement,
+    ) {
+        let mut encoder =
+            self.wgpu_device
+                .core
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("netrender external texture encoder"),
+                });
+        self.encode_external_texture(
+            source_view,
+            target_view,
+            target_format,
+            viewport_width,
+            viewport_height,
+            placement,
+            &mut encoder,
+        );
+        self.wgpu_device.core.queue.submit([encoder.finish()]);
     }
     /// Number of times the path-(b′) master-texture pool has
     /// allocated a fresh `wgpu::Texture` over this Renderer's
@@ -621,7 +684,7 @@ impl Renderer {
                 );
                 previous_boundary = boundary;
 
-                self.compose_external_texture(
+                self.submit_external_texture(
                     external.source_view,
                     &master_view,
                     master_format,
@@ -653,7 +716,7 @@ impl Renderer {
                     vello::peniko::Color::new([0.0, 0.0, 0.0, 0.0]),
                 )
                 .unwrap_or_else(|e| panic!("vello overlay tail render failed: {:?}", e));
-                self.compose_external_texture(
+                self.submit_external_texture(
                     tail_view,
                     &master_view,
                     master_format,
