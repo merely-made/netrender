@@ -60,7 +60,7 @@ record at the end.
 
 - [`2026-05-01_vello_verification_record.md`](2026-05-01_vello_verification_record.md)
   — **the evidence.** Split out of the plan on 2026-08-10, where it was
-  62% of the file. 43 entries, 41 CLEARED, one per spike or capability.
+  62% of the file. 44 entries, 42 CLEARED, one per spike or capability.
   Section numbers unchanged, so `§11.x` still resolves. This is the
   append target when a roadmap item lands.
 
@@ -99,7 +99,12 @@ record at the end.
   render through all three backends, typed sparse refusals cover unwired
   resource/filter classes, and capability declarations are checked against the
   result. Images, text, filters, and registered fragments remain future sparse
-  adapter work rather than silent fallbacks.
+  adapter work rather than silent fallbacks. Commit `cfa0261c2` adds the first
+  physical execution-graph participation receipt. Classic declares an opaque
+  submit, Hybrid shares the graph encoder, and CPU enters through a named ready
+  upload/import. All three pass one filter-free producer fixture through the
+  same downstream blur/readback topology, while a separate combined-filter
+  scene proves causal Classic pixels and exact Hybrid/CPU refusals.
 
 - **Tenancy boot seam (landed 2026-08-10).** `netrender_device` now owns
   booting one device for netrender *and a tenant renderer* drawing into
@@ -171,7 +176,8 @@ Captures elide font payloads, which is why they are 2 KB rather than
   — WebGL-over-wgpu companion lane. G0–G6 sequence, gated on
   Genet/Pelt consumer pull. Roadmap entry: G.
 - [`2026-09-04_wgpu_execution_graph_plan.md`](2026-09-04_wgpu_execution_graph_plan.md)
-  — **RG0, RG1, and RG2a delivered; RG5 deferred; RG2b is next.** Evolves the
+  — **RG0 through the RG2b execution-boundary slice delivered; RG3 is next;
+  RG2c remains the graph-promotion gate; RG5 deferred.** Evolves the
   delivered Phase 6 filter DAG into a validated, inspectable execution plan
   over the existing shared `WgpuHandles`. `vk-graph` informs compiled GPU work;
   AnyRender informs the semantic adapter seam above it. Both are prior art,
@@ -179,8 +185,9 @@ Captures elide font payloads, which is why they are 2 KB rather than
   scheduling plus typed refusals for duplicate tasks, external/task ID
   collisions, missing inputs, and cycles. The pre-RG1 probe found only unary
   raw graph consumers; the first real logical fork/join is the direct-`Scene`
-  combined backdrop-plus-element-filter path, whose execution needs RG2b's
-  opaque Vello boundary. Commit `975d9df4f` delivers the image-only compiler:
+  combined backdrop-plus-element-filter path. RG2b supplies its required Vello
+  boundaries, while RG2c still owns the compiled multi-input execution proof.
+  Commit `975d9df4f` delivers the image-only compiler:
   typed logical nodes, compile/execute separation, deterministic culling and
   plan dump, logical lifetime/allocation evidence, physical import admission,
   and the first migrated blur path. Commit `69b9179c0` moves color matrix and
@@ -196,9 +203,14 @@ Captures elide font payloads, which is why they are 2 KB rather than
   so RG5 remains deferred despite 33/35 logical creations. Commit `b06a21407`
   delivers RG2a's independent scene corpus and typed three-backend semantic
   preflight. It also fixes sparse transformed primitive clips discovered by
-  the cross-backend anchors. RG2b's explicit Classic/Hybrid/CPU execution
-  boundaries are next; tenant error attribution and presentation policy stay
-  RG3. Extraction still requires a second independent execution producer;
+  the cross-backend anchors. Commit `cfa0261c2` delivers RG2b's explicit
+  Classic/Hybrid/CPU producer boundaries, caller-owned graph encoding,
+  encoder-participating external composition, physical shared-device
+  readback, and the corrected filter-evidence split. Its shared graph remains
+  unary; RG2c is the real effect-fork/join promotion gate. RG3 now owns the
+  first closed tenant frame plus error attribution and presentation policy and
+  may proceed independently. Extraction still requires a second independent
+  execution producer and RG2c's multi-input proof;
   a future resident-buffer path must carry producer-owned revision/epoch
   metadata, and RG4 must split reusable plan structure from bound callbacks.
 - [`wasm-portability-checklist.md`](wasm-portability-checklist.md)
