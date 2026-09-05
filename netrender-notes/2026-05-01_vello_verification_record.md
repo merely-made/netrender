@@ -1815,6 +1815,53 @@ next execution-graph slice.
 - `cargo test -p netrender --lib render_graph` — **15 passed, 1 ignored**;
 - `cargo fmt --all -- --check` and `git diff --check` — passed.
 
+### 11.43 RG2a three-backend scene conformance (2026-09-05) — **CLEARED**
+
+Rasterizer-independent corpus and admission refinement, commit `b06a21407`.
+One feature-gated test binary now sends the same two resource-free direct
+`Scene` fixtures through Classic, Hybrid, and CPU. It boots one shared wgpu
+device for both GPU paths and renders CPU independently. Each backend is judged
+against semantic regions rather than another rasterizer's bytes.
+
+The corpus covers solid and stroked geometry, transforms, device-space clips,
+filled and stroked paths, linear/radial/conic gradients, rounded layer clips,
+and nested alpha layers. Tightening the transformed-clip anchors first failed
+on Hybrid. The shared sparse lowerer had recorded primitive clips under the
+primitive's world transform, while Classic correctly treats `clip_rect` as
+device-space. Rect, Stroke, Shape, and Gradient now record their clip under
+identity and restore the primitive transform before painting; each path has a
+positive and clipped-out corpus anchor.
+
+`BackendCapabilities` now distinguishes transforms, clips, nested layers,
+patterns, element filters, backdrop blur, and backdrop color filters. The last
+distinction closed an existing overclaim: Classic implements element filter
+chains and backdrop blur, but its backdrop preprocessing skips color filters.
+It now reports `backdrop_color_filters = false`, and operation-level
+`validate_scene_for_backend` returns a typed refusal instead of claiming that
+semantic operation is supported. The validator explicitly excludes Classic
+registry/resource state; the registry-bearing `Renderer` remains authoritative
+for external images and retained fragments.
+
+The refusal table checks both sparse adapters for images, patterns, glyph runs,
+retained fragments, element filters, and backdrop filters. Invalid transforms,
+early and end-of-scene layer imbalance, and oversized sparse viewports carry
+backend identity and an operation index where one exists.
+
+**Measured row:** NVIDIA GeForce RTX 4060 Laptop GPU, Vulkan, NVIDIA 610.88;
+wgpu 30; Classic `netrender-vello` 0.10.0; Hybrid and CPU `vello` 0.2.0 at
+`ca3f40ea182216883cd543c7b9deae991268917c`.
+
+**Receipts** (isolated target directory, `-j 1`):
+
+- `cargo test -p netrender --features vello-all --test rg2a_scene_corpus --
+  --nocapture --test-threads=1` — **2 passed**;
+- `cargo test -p netrender --features vello-all --lib -- --test-threads=1` —
+  **70 passed, 1 ignored**;
+- `p3_transforms` + `p8prime_vello_gradients` + `p9prime_rounded_clip` +
+  `p12b_nested_layers` — **20 passed**;
+- all-Vello and default `cargo check`, `cargo fmt --all -- --check`, and
+  `git diff --check` — passed.
+
 ## 11.99 Open items — moved (2026-05-05)
 
 The catalogue of deferred refinements that originally lived here

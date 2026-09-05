@@ -60,7 +60,7 @@ record at the end.
 
 - [`2026-05-01_vello_verification_record.md`](2026-05-01_vello_verification_record.md)
   — **the evidence.** Split out of the plan on 2026-08-10, where it was
-  62% of the file. 42 entries, 40 CLEARED, one per spike or capability.
+  62% of the file. 43 entries, 41 CLEARED, one per spike or capability.
   Section numbers unchanged, so `§11.x` still resolves. This is the
   append target when a roadmap item lands.
 
@@ -94,8 +94,12 @@ record at the end.
   images, patterns, text, filters, and registered fragments that are not yet
   wired. CPU pixel output and Hybrid retained append are covered by focused
   tests. Hybrid also renders through Netrender's wgpu-30 device and passes a
-  GPU texture readback. Classic remains the shipping renderer. The next gates
-  are images/text, registered fragments, and the rasterizer-independent corpus.
+  GPU texture readback. Classic remains the shipping renderer. Commit
+  `b06a21407` adds the rasterizer-independent corpus: two direct semantic scenes
+  render through all three backends, typed sparse refusals cover unwired
+  resource/filter classes, and capability declarations are checked against the
+  result. Images, text, filters, and registered fragments remain future sparse
+  adapter work rather than silent fallbacks.
 
 - **Tenancy boot seam (landed 2026-08-10).** `netrender_device` now owns
   booting one device for netrender *and a tenant renderer* drawing into
@@ -167,8 +171,7 @@ Captures elide font payloads, which is why they are 2 KB rather than
   — WebGL-over-wgpu companion lane. G0–G6 sequence, gated on
   Genet/Pelt consumer pull. Roadmap entry: G.
 - [`2026-09-04_wgpu_execution_graph_plan.md`](2026-09-04_wgpu_execution_graph_plan.md)
-  — **RG0 and RG1 delivered; repeated-plan measurement defers RG5; RG2a is
-  next.** Evolves the
+  — **RG0, RG1, and RG2a delivered; RG5 deferred; RG2b is next.** Evolves the
   delivered Phase 6 filter DAG into a validated, inspectable execution plan
   over the existing shared `WgpuHandles`. `vk-graph` informs compiled GPU work;
   AnyRender informs the semantic adapter seam above it. Both are prior art,
@@ -190,10 +193,12 @@ Captures elide font payloads, which is why they are 2 KB rather than
   and 64 completed release samples of both 256 x 256 and 1024 x 1024 production
   box-shadow plans. Allocation p95 is 0.111 ms and 0.102 ms on the measured
   RTX 4060/Vulkan row, below the predeclared absolute and relative thresholds,
-  so RG5 remains deferred despite 33/35 logical creations. RG2a's independent
-  scene corpus and typed three-backend admission receipts are next; tenant
-  error attribution and presentation policy stay RG3. Extraction now requires
-  a second independent execution producer;
+  so RG5 remains deferred despite 33/35 logical creations. Commit `b06a21407`
+  delivers RG2a's independent scene corpus and typed three-backend semantic
+  preflight. It also fixes sparse transformed primitive clips discovered by
+  the cross-backend anchors. RG2b's explicit Classic/Hybrid/CPU execution
+  boundaries are next; tenant error attribution and presentation policy stay
+  RG3. Extraction still requires a second independent execution producer;
   a future resident-buffer path must carry producer-owned revision/epoch
   metadata, and RG4 must split reusable plan structure from bound callbacks.
 - [`wasm-portability-checklist.md`](wasm-portability-checklist.md)
