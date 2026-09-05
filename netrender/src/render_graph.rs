@@ -472,6 +472,7 @@ pub struct ExecutionPlan {
     requested_outputs: Vec<ImageNode>,
     lifetimes: Vec<ResourceLifetime>,
     compile_duration: Duration,
+    raster_execution: Option<crate::renderer::RasterExecution>,
 }
 
 impl ExecutionPlan {
@@ -479,6 +480,12 @@ impl ExecutionPlan {
     #[allow(dead_code)]
     pub fn dump(&self) -> String {
         let mut out = String::from("ExecutionPlan\n");
+        if let Some(execution) = self.raster_execution {
+            out.push_str(&execution.dump());
+            out.push('\n');
+        } else {
+            out.push_str("rasterizer=unspecified execution_boundary=unspecified\n");
+        }
         out.push_str("resources:\n");
         for (node, decl) in &self.images {
             let index = node.logical_index();
@@ -554,8 +561,19 @@ impl ExecutionPlan {
                 lifetime.last_use
             ));
         }
-        out.push_str("encoder_batches: 1\nsubmission_boundaries: 1 (submit)\n");
+        out.push_str("graph_encoder_batches: 1\ngraph_submission_boundaries: 1 (submit)\n");
         out
+    }
+
+    /// Attach the renderer-owned raster participation label to this plan.
+    /// The label is diagnostic only; it does not alter graph scheduling.
+    #[allow(dead_code)]
+    pub(crate) fn with_raster_execution(
+        mut self,
+        execution: crate::renderer::RasterExecution,
+    ) -> Self {
+        self.raster_execution = Some(execution);
+        self
     }
 
     /// Resource lifetimes retained for allocator/report consumers.
@@ -576,13 +594,15 @@ impl ExecutionPlan {
         )
     }
 
-    /// Execute one image-only encoder batch. Imported bindings own the texture
-    /// values passed here; transient outputs are owned by the returned map.
-    pub(crate) fn execute(
+    /// Encode one image-only batch into a caller-owned encoder. Imported
+    /// bindings own the texture values passed here; transient outputs are
+    /// owned by the returned map. This is the seam for a rasterizer prelude
+    /// that must share the graph executor's submission.
+    pub(crate) fn encode_into(
         self,
         device: &wgpu::Device,
-        queue: &wgpu::Queue,
         mut imported: HashMap<ImageNode, wgpu::Texture>,
+        encoder: &mut wgpu::CommandEncoder,
     ) -> Result<(HashMap<ImageNode, wgpu::Texture>, ExecutionReport), GraphExecutionError> {
         for image in imported.keys().copied().collect::<Vec<_>>() {
             let Some(decl) = find_decl(&self.images, image) else {
@@ -645,9 +665,6 @@ impl ExecutionPlan {
         }
 
         let mut outputs = std::mem::take(&mut imported);
-        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("netrender execution plan"),
-        });
         let allocate_start = Instant::now();
         let mut allocated = Vec::with_capacity(self.tasks.len());
         for task in &self.tasks {
@@ -697,7 +714,7 @@ impl ExecutionPlan {
             // Planned callbacks are internal until a scoped facade can enforce
             // this contract at the type boundary. Existing filter callbacks
             // begin and drop exactly one pass inside this call.
-            (task.encode)(device, &mut encoder, &input_views, &output_view);
+            (task.encode)(device, &mut *encoder, &input_views, &output_view);
             outputs.insert(image, output_texture);
 
             // Keep selected outputs and resources needed by later tasks. This
@@ -722,10 +739,6 @@ impl ExecutionPlan {
         }
         let encode_duration = encode_start.elapsed();
 
-        let submit_start = Instant::now();
-        queue.submit(std::iter::once(encoder.finish()));
-        let submit_duration = submit_start.elapsed();
-
         let mut report = build_report(
             &self.images,
             &[],
@@ -735,7 +748,24 @@ impl ExecutionPlan {
         );
         report.allocate_duration = allocate_duration;
         report.encode_duration = encode_duration;
-        report.submit_duration = submit_duration;
+        Ok((outputs, report))
+    }
+
+    /// Execute one image-only encoder batch. Imported bindings own the texture
+    /// values passed here; transient outputs are owned by the returned map.
+    pub(crate) fn execute(
+        self,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        imported: HashMap<ImageNode, wgpu::Texture>,
+    ) -> Result<(HashMap<ImageNode, wgpu::Texture>, ExecutionReport), GraphExecutionError> {
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("netrender execution plan"),
+        });
+        let (outputs, mut report) = self.encode_into(device, imported, &mut encoder)?;
+        let submit_start = Instant::now();
+        queue.submit(std::iter::once(encoder.finish()));
+        report.submit_duration = submit_start.elapsed();
         Ok((outputs, report))
     }
 }
@@ -1052,6 +1082,7 @@ impl RenderGraph {
             requested_outputs: requested_outputs.to_vec(),
             lifetimes,
             compile_duration,
+            raster_execution: None,
         })
     }
 }

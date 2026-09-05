@@ -298,23 +298,29 @@ fn params_bytes(
     bytes
 }
 
-pub(crate) fn compose_external_texture(
+/// Encode one external-texture composite into a caller-owned command encoder.
+///
+/// The returned flag is false when the placement is empty or fully
+/// transparent. Keeping the encoder ownership with the caller lets this
+/// operation participate in a graph/executor batch; the legacy convenience
+/// wrapper below still submits one private encoder for existing callers.
+pub(crate) fn encode_external_texture(
     device: &wgpu::Device,
-    queue: &wgpu::Queue,
     pipe: &ExternalTexturePipeline,
     source_view: &wgpu::TextureView,
     target_view: &wgpu::TextureView,
     viewport_width: u32,
     viewport_height: u32,
     placement: ExternalTexturePlacement,
-) {
+    encoder: &mut wgpu::CommandEncoder,
+) -> bool {
     if viewport_width == 0
         || viewport_height == 0
         || placement.opacity <= 0.0
         || placement.dest_rect[0] == placement.dest_rect[2]
         || placement.dest_rect[1] == placement.dest_rect[3]
     {
-        return;
+        return false;
     }
 
     let bytes = params_bytes(viewport_width, viewport_height, placement);
@@ -349,9 +355,6 @@ pub(crate) fn compose_external_texture(
         ],
     });
 
-    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-        label: Some("netrender external texture encoder"),
-    });
     {
         let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("netrender external texture pass"),
@@ -377,5 +380,31 @@ pub(crate) fn compose_external_texture(
         pass.set_bind_group(0, &bind_group, &[]);
         pass.draw(0..6, 0..1);
     }
+    true
+}
+
+pub(crate) fn compose_external_texture(
+    device: &wgpu::Device,
+    queue: &wgpu::Queue,
+    pipe: &ExternalTexturePipeline,
+    source_view: &wgpu::TextureView,
+    target_view: &wgpu::TextureView,
+    viewport_width: u32,
+    viewport_height: u32,
+    placement: ExternalTexturePlacement,
+) {
+    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+        label: Some("netrender external texture encoder"),
+    });
+    encode_external_texture(
+        device,
+        pipe,
+        source_view,
+        target_view,
+        viewport_width,
+        viewport_height,
+        placement,
+        &mut encoder,
+    );
     queue.submit([encoder.finish()]);
 }
