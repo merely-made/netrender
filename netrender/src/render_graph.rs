@@ -176,6 +176,7 @@ pub enum GraphBuildError {
         task_label: String,
         access: ImageAccess,
     },
+    #[allow(dead_code)]
     OutputMustBeTransient {
         image: ImageNode,
     },
@@ -186,6 +187,10 @@ pub enum GraphBuildError {
     },
     InvalidOutputLoad {
         task_label: String,
+    },
+    InvalidImportedOutputAccess {
+        task_label: String,
+        access: ImageAccess,
     },
 }
 
@@ -238,6 +243,10 @@ impl fmt::Display for GraphBuildError {
                     "task {task_label:?} cannot load a fresh transient output"
                 )
             }
+            Self::InvalidImportedOutputAccess { task_label, access } => write!(
+                f,
+                "task {task_label:?} imported output requires ColorAttachment {{ load: Load, store: true }}, got {access:?}"
+            ),
         }
     }
 }
@@ -628,18 +637,29 @@ impl ExecutionPlan {
                 else {
                     continue;
                 };
-                let required_usage = self
-                    .tasks
-                    .iter()
-                    .flat_map(|task| task.inputs.iter())
-                    .filter(|input| input.image == *image)
-                    .fold(wgpu::TextureUsages::empty(), |usage, input| {
-                        if matches!(input.access, ImageAccess::SampledRead) {
-                            usage | wgpu::TextureUsages::TEXTURE_BINDING
-                        } else {
-                            usage
-                        }
-                    });
+                let required_usage =
+                    self.tasks
+                        .iter()
+                        .fold(wgpu::TextureUsages::empty(), |usage, task| {
+                            let usage = task
+                                .inputs
+                                .iter()
+                                .filter(|input| input.image == *image)
+                                .fold(usage, |usage, input| {
+                                    if matches!(input.access, ImageAccess::SampledRead) {
+                                        usage | wgpu::TextureUsages::TEXTURE_BINDING
+                                    } else {
+                                        usage
+                                    }
+                                });
+                            if task.output.image == *image
+                                && matches!(task.output.access, ImageAccess::ColorAttachment { .. })
+                            {
+                                usage | wgpu::TextureUsages::RENDER_ATTACHMENT
+                            } else {
+                                usage
+                            }
+                        });
                 let actual_size = texture.size();
                 let actual_format = texture.format();
                 let actual_usage = texture.usage();
@@ -668,24 +688,31 @@ impl ExecutionPlan {
         let allocate_start = Instant::now();
         let mut allocated = Vec::with_capacity(self.tasks.len());
         for task in &self.tasks {
-            let desc = match find_decl(&self.images, task.output.image) {
-                Some(ImageDecl::Transient(desc)) => desc,
-                Some(ImageDecl::Imported { .. }) | None => {
+            let texture = match find_decl(&self.images, task.output.image) {
+                Some(ImageDecl::Transient(desc)) => {
+                    device.create_texture(&wgpu::TextureDescriptor {
+                        label: desc.label.as_deref(),
+                        size: desc.size,
+                        mip_level_count: 1,
+                        sample_count: 1,
+                        dimension: wgpu::TextureDimension::D2,
+                        format: desc.format,
+                        usage: desc.usage,
+                        view_formats: &[],
+                    })
+                }
+                Some(ImageDecl::Imported { .. }) => outputs
+                    .get(&task.output.image)
+                    .cloned()
+                    .ok_or(GraphExecutionError::OutputUnavailable {
+                        image: task.output.image,
+                    })?,
+                None => {
                     return Err(GraphExecutionError::OutputUnavailable {
                         image: task.output.image,
                     });
                 }
             };
-            let texture = device.create_texture(&wgpu::TextureDescriptor {
-                label: desc.label.as_deref(),
-                size: desc.size,
-                mip_level_count: 1,
-                sample_count: 1,
-                dimension: wgpu::TextureDimension::D2,
-                format: desc.format,
-                usage: desc.usage,
-                view_formats: &[],
-            });
             allocated.push((task.output.image, texture));
         }
         let allocate_duration = allocate_start.elapsed();
@@ -715,7 +742,12 @@ impl ExecutionPlan {
             // this contract at the type boundary. Existing filter callbacks
             // begin and drop exactly one pass inside this call.
             (task.encode)(device, &mut *encoder, &input_views, &output_view);
-            outputs.insert(image, output_texture);
+            if matches!(
+                find_decl(&self.images, image),
+                Some(ImageDecl::Transient(_))
+            ) {
+                outputs.insert(image, output_texture);
+            }
 
             // Keep selected outputs and resources needed by later tasks. This
             // models the compiled lifetime rather than retaining every output.
@@ -852,13 +884,22 @@ impl RenderGraph {
                 access: task.output.access,
             });
         }
-        if !matches!(
-            self.images[task.output.image.index as usize],
-            ImageDecl::Transient(_)
-        ) {
-            return Err(GraphBuildError::OutputMustBeTransient {
-                image: task.output.image,
-            });
+        match &self.images[task.output.image.index as usize] {
+            ImageDecl::Transient(_) => {}
+            ImageDecl::Imported { .. } => {
+                if !matches!(
+                    task.output.access,
+                    ImageAccess::ColorAttachment {
+                        load: ImageLoad::Load,
+                        store: true,
+                    }
+                ) {
+                    return Err(GraphBuildError::InvalidImportedOutputAccess {
+                        task_label: task.label.clone(),
+                        access: task.output.access,
+                    });
+                }
+            }
         }
         for input in &task.inputs {
             if let Some(ImageDecl::Transient(desc)) = self.images.get(input.image.index as usize) {
@@ -887,9 +928,14 @@ impl RenderGraph {
                 ..
             }
         ) {
-            return Err(GraphBuildError::InvalidOutputLoad {
-                task_label: task.label.clone(),
-            });
+            if matches!(
+                self.images[task.output.image.index as usize],
+                ImageDecl::Transient(_)
+            ) {
+                return Err(GraphBuildError::InvalidOutputLoad {
+                    task_label: task.label.clone(),
+                });
+            }
         }
         self.planned_tasks.push(task);
         Ok(())
@@ -943,12 +989,33 @@ impl RenderGraph {
                     access: task.output.access,
                 });
             }
-            if !matches!(
+            if matches!(
+                self.images[task.output.image.index as usize],
+                ImageDecl::Imported { .. }
+            ) && !matches!(
+                task.output.access,
+                ImageAccess::ColorAttachment {
+                    load: ImageLoad::Load,
+                    store: true,
+                }
+            ) {
+                return Err(GraphBuildError::InvalidImportedOutputAccess {
+                    task_label: task.label.clone(),
+                    access: task.output.access,
+                });
+            }
+            if matches!(
                 self.images[task.output.image.index as usize],
                 ImageDecl::Transient(_)
+            ) && matches!(
+                task.output.access,
+                ImageAccess::ColorAttachment {
+                    load: ImageLoad::Load,
+                    ..
+                }
             ) {
-                return Err(GraphBuildError::OutputMustBeTransient {
-                    image: task.output.image,
+                return Err(GraphBuildError::InvalidOutputLoad {
+                    task_label: task.label.clone(),
                 });
             }
             if producers.insert(task.output.image, index).is_some() {
@@ -1408,6 +1475,120 @@ mod tests {
             expected_size,
             wgpu::TextureFormat::Rgba8Unorm,
             wgpu::TextureUsages::COPY_SRC,
+        ));
+    }
+
+    #[test]
+    fn imported_image_can_be_a_load_preserving_output() {
+        let size = wgpu::Extent3d {
+            width: 2,
+            height: 2,
+            depth_or_array_layers: 1,
+        };
+        let mut graph = RenderGraph::new();
+        let source = graph.import_image("source", size, wgpu::TextureFormat::Rgba8Unorm);
+        let target = graph.import_image("target", size, wgpu::TextureFormat::Rgba8Unorm);
+        graph
+            .add_plan_task(
+                "composite imported target",
+                vec![ImageUse::sampled_read(source)],
+                ImageUse::color_attachment(target, ImageLoad::Load),
+                noop_callback(),
+            )
+            .unwrap();
+
+        let plan = graph.compile(&[target]).unwrap();
+        assert_eq!(plan.logical_report().transient_creations, 0);
+        let dump = plan.dump();
+        assert!(dump.contains("image#0 imported \"source\""));
+        assert!(dump.contains("image#1 imported \"target\""));
+        assert!(dump.contains("ColorAttachment { load: Load, store: true }"));
+    }
+
+    #[test]
+    fn imported_outputs_require_load_and_store() {
+        let size = wgpu::Extent3d {
+            width: 1,
+            height: 1,
+            depth_or_array_layers: 1,
+        };
+        let mut graph = RenderGraph::new();
+        let target = graph.import_image("target", size, wgpu::TextureFormat::Rgba8Unorm);
+        let error = graph
+            .add_plan_task(
+                "clear imported target",
+                Vec::new(),
+                ImageUse::color_attachment(target, ImageLoad::Clear),
+                noop_callback(),
+            )
+            .expect_err("imported targets must preserve their initialized contents");
+        assert!(matches!(
+            error,
+            GraphBuildError::InvalidImportedOutputAccess {
+                access: ImageAccess::ColorAttachment {
+                    load: ImageLoad::Clear,
+                    store: true
+                },
+                ..
+            }
+        ));
+
+        let mut graph = RenderGraph::new();
+        let target = graph.import_image("target", size, wgpu::TextureFormat::Rgba8Unorm);
+        let error = graph
+            .add_plan_task(
+                "discard imported target",
+                Vec::new(),
+                ImageUse {
+                    image: target,
+                    access: ImageAccess::ColorAttachment {
+                        load: ImageLoad::Load,
+                        store: false,
+                    },
+                },
+                noop_callback(),
+            )
+            .expect_err("imported targets must store their result");
+        assert!(matches!(
+            error,
+            GraphBuildError::InvalidImportedOutputAccess {
+                access: ImageAccess::ColorAttachment {
+                    load: ImageLoad::Load,
+                    store: false
+                },
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn imported_output_duplicate_producers_remain_rejected() {
+        let size = wgpu::Extent3d {
+            width: 1,
+            height: 1,
+            depth_or_array_layers: 1,
+        };
+        let mut graph = RenderGraph::new();
+        let target = graph.import_image("target", size, wgpu::TextureFormat::Rgba8Unorm);
+        graph
+            .add_plan_task(
+                "first imported producer",
+                Vec::new(),
+                ImageUse::color_attachment(target, ImageLoad::Load),
+                noop_callback(),
+            )
+            .unwrap();
+        graph
+            .add_plan_task(
+                "second imported producer",
+                Vec::new(),
+                ImageUse::color_attachment(target, ImageLoad::Load),
+                noop_callback(),
+            )
+            .unwrap();
+        assert!(matches!(
+            graph.compile(&[target]),
+            Err(GraphBuildError::DuplicateProducer { image }) if image == target
         ));
     }
 }
