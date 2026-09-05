@@ -19,6 +19,162 @@ use super::filters::{
 use super::Renderer;
 
 impl Renderer {
+    /// Build the crate-local execution plan used by the public box-shadow
+    /// helper. Keeping plan construction separate lets the measurement receipt
+    /// observe graph construction independently from allocation and encoding.
+    pub(crate) fn build_box_shadow_plan(
+        &self,
+        dim: u32,
+        bounds: [f32; 4],
+        corner_radius: f32,
+        blur_radius_px: f32,
+        invert: bool,
+    ) -> (
+        crate::render_graph::ExecutionPlan,
+        crate::render_graph::ImageNode,
+    ) {
+        use crate::filter::{blur_pass_callback, clip_rectangle_callback, make_bilinear_sampler};
+        use crate::render_graph::{ImageLoad, ImageUse, RenderGraph, TransientImageDesc};
+
+        let device = self.wgpu_device.core.device.clone();
+        let mask_format = wgpu::TextureFormat::Rgba8Unorm;
+        // `invert` builds a `1 - coverage` mask (the inset-shadow primitive).
+        let clip_pipe = self
+            .wgpu_device
+            .ensure_clip_rectangle(mask_format, true, invert);
+        let blur_pipe = self.wgpu_device.ensure_brush_blur(mask_format);
+        let sampler = make_bilinear_sampler(&device);
+
+        let (level, passes, step_px) = blur_kernel_plan_with_downscale(blur_radius_px);
+        // Roadmap R5: large blurs run at a downscaled work resolution, then
+        // upscale to the target. A `step_px` pixel at `scaled_dim` represents
+        // `level * step_px` pixels at full size.
+        let scaled_dim = (dim / level).max(1);
+        let scaled_extent = wgpu::Extent3d {
+            width: scaled_dim,
+            height: scaled_dim,
+            depth_or_array_layers: 1,
+        };
+        let full_extent = wgpu::Extent3d {
+            width: dim,
+            height: dim,
+            depth_or_array_layers: 1,
+        };
+        let step_uv = step_px / scaled_dim as f32;
+
+        let mut graph = RenderGraph::new();
+        let usage = wgpu::TextureUsages::RENDER_ATTACHMENT
+            | wgpu::TextureUsages::TEXTURE_BINDING
+            | wgpu::TextureUsages::COPY_SRC;
+        let mask = graph.transient_image(TransientImageDesc {
+            size: full_extent,
+            format: mask_format,
+            usage,
+            label: Some("box shadow mask".into()),
+        });
+        graph
+            .add_plan_task(
+                "box shadow mask",
+                Vec::new(),
+                ImageUse::color_attachment(mask, ImageLoad::Clear),
+                clip_rectangle_callback(clip_pipe, bounds, corner_radius),
+            )
+            .expect("valid box-shadow mask task");
+
+        let mut prev = mask;
+        if level > 1 {
+            // A zero-step blur performs repeated bilinear samples at the same
+            // UV, giving the downscale the prefiltering the cascade expects.
+            let down = graph.transient_image(TransientImageDesc {
+                size: scaled_extent,
+                format: mask_format,
+                usage,
+                label: Some("box shadow downsample".into()),
+            });
+            graph
+                .add_plan_task(
+                    "box shadow downsample",
+                    vec![ImageUse::sampled_read(prev)],
+                    ImageUse::color_attachment(down, ImageLoad::Clear),
+                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), 0.0, 0.0),
+                )
+                .expect("valid box-shadow downsample task");
+            prev = down;
+        }
+
+        // Chain N horizontal/vertical blur pairs at the work resolution.
+        for pass_index in 0..passes {
+            let horizontal = graph.transient_image(TransientImageDesc {
+                size: scaled_extent,
+                format: mask_format,
+                usage,
+                label: Some(format!("box shadow horizontal {pass_index}")),
+            });
+            graph
+                .add_plan_task(
+                    format!("box shadow horizontal {pass_index}"),
+                    vec![ImageUse::sampled_read(prev)],
+                    ImageUse::color_attachment(horizontal, ImageLoad::Clear),
+                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), step_uv, 0.0),
+                )
+                .expect("valid box-shadow horizontal task");
+            let vertical = graph.transient_image(TransientImageDesc {
+                size: scaled_extent,
+                format: mask_format,
+                usage,
+                label: Some(format!("box shadow vertical {pass_index}")),
+            });
+            graph
+                .add_plan_task(
+                    format!("box shadow vertical {pass_index}"),
+                    vec![ImageUse::sampled_read(horizontal)],
+                    ImageUse::color_attachment(vertical, ImageLoad::Clear),
+                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), 0.0, step_uv),
+                )
+                .expect("valid box-shadow vertical task");
+            prev = vertical;
+        }
+
+        if level > 1 {
+            // The matching zero-step bilinear pass returns the result to the
+            // caller's full-resolution target.
+            let up = graph.transient_image(TransientImageDesc {
+                size: full_extent,
+                format: mask_format,
+                usage,
+                label: Some("box shadow upsample".into()),
+            });
+            graph
+                .add_plan_task(
+                    "box shadow upsample",
+                    vec![ImageUse::sampled_read(prev)],
+                    ImageUse::color_attachment(up, ImageLoad::Clear),
+                    blur_pass_callback(blur_pipe, Arc::clone(&sampler), 0.0, 0.0),
+                )
+                .expect("valid box-shadow upsample task");
+            prev = up;
+        }
+
+        let plan = graph.compile(&[prev]).expect("box-shadow plan is valid");
+        (plan, prev)
+    }
+
+    pub(crate) fn execute_box_shadow_plan(
+        &self,
+        plan: crate::render_graph::ExecutionPlan,
+        output: crate::render_graph::ImageNode,
+    ) -> (wgpu::Texture, crate::render_graph::ExecutionReport) {
+        let device = self.wgpu_device.core.device.clone();
+        let queue = self.wgpu_device.core.queue.clone();
+        let (mut outputs, report) = plan
+            .execute(&device, &queue, std::collections::HashMap::new())
+            .expect("box-shadow graph is valid");
+        (
+            outputs.remove(&output).expect("final blur-pass output"),
+            report,
+        )
+    }
+
     /// Phase 11c' — build a blurred rounded-rect coverage texture
     /// suitable for use as a CSS-style box-shadow mask, register
     /// it under `key`, and make it addressable from subsequent
@@ -34,15 +190,17 @@ impl Renderer {
     ///
     /// # Internals
     ///
-    /// Runs a (1 + 2N)-task render graph:
+    /// Runs a render graph containing:
     ///   1. `cs_clip_rectangle` writes a coverage mask matching
     ///      `bounds` + `corner_radius` into a fresh
     ///      `Rgba8Unorm` `dim × dim` texture.
-    ///   2. N pairs of separable `brush_blur` passes (H then V),
+    ///   2. Large radii optionally downsample the mask.
+    ///   3. N pairs of separable `brush_blur` passes (H then V),
     ///      each pass running the 5-tap binomial kernel. N and the
     ///      per-pass step are chosen by `blur_kernel_plan` so the
     ///      cumulative Gaussian σ matches `blur_radius_px / 2`
     ///      (the standard CSS blur-radius → σ relation).
+    ///   4. A downsampled cascade is upscaled to `dim × dim`.
     ///
     /// `blur_radius_px` is in target-pixel units: `0.0` is no
     /// blur (single tight pass), `8.0` matches a CSS
@@ -63,153 +221,9 @@ impl Renderer {
         blur_radius_px: f32,
         invert: bool,
     ) {
-        use crate::filter::{blur_pass_callback, clip_rectangle_callback, make_bilinear_sampler};
-        use crate::render_graph::{ImageLoad, ImageUse, RenderGraph, TransientImageDesc};
-
-        let device = self.wgpu_device.core.device.clone();
-        let queue = self.wgpu_device.core.queue.clone();
-
-        let mask_format = wgpu::TextureFormat::Rgba8Unorm;
-        // `invert` builds a `1 - coverage` mask (the inset-shadow primitive); blur
-        // is linear so the blurred inverted mask equals `1 - blurred coverage`.
-        let clip_pipe = self
-            .wgpu_device
-            .ensure_clip_rectangle(mask_format, true, invert);
-        let blur_pipe = self.wgpu_device.ensure_brush_blur(mask_format);
-        let sampler = make_bilinear_sampler(&device);
-
-        let (level, passes, step_px) = blur_kernel_plan_with_downscale(blur_radius_px);
-        // Roadmap R5 — large blurs run at a downscaled work
-        // resolution, then upscale to the target. The cascade runs
-        // at `scaled_dim`; a `step_px` pixel at scaled_dim is
-        // `level * step_px` pixels at full dim, so the effective
-        // σ scales accordingly.
-        let scaled_dim = (dim / level).max(1);
-        let scaled_extent = wgpu::Extent3d {
-            width: scaled_dim,
-            height: scaled_dim,
-            depth_or_array_layers: 1,
-        };
-        let full_extent = wgpu::Extent3d {
-            width: dim,
-            height: dim,
-            depth_or_array_layers: 1,
-        };
-        let step_uv = step_px / scaled_dim as f32;
-
-        let mut graph = RenderGraph::new();
-        let mask = graph.transient_image(TransientImageDesc {
-            size: full_extent,
-            format: mask_format,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT
-                | wgpu::TextureUsages::TEXTURE_BINDING
-                | wgpu::TextureUsages::COPY_SRC,
-            label: Some("box shadow mask".into()),
-        });
-        graph
-            .add_plan_task(
-                "box shadow mask",
-                Vec::new(),
-                ImageUse::color_attachment(mask, ImageLoad::Clear),
-                clip_rectangle_callback(clip_pipe, bounds, corner_radius),
-            )
-            .expect("valid box-shadow mask task");
-
-        // R5 — when level > 1, prepend a downscale task that reads
-        // the full-resolution mask and writes it at scaled_dim. We
-        // implement the downscale as a brush_blur pass with step=0:
-        // five taps at the same UV → effectively a bilinear sample
-        // of the source at the target's resolution. The bilinear
-        // filter on the input texture acts as the box-filter
-        // pre-AA expected of a 2x downscale.
-        let mut prev = mask;
-        if level > 1 {
-            let down = graph.transient_image(TransientImageDesc {
-                size: scaled_extent,
-                format: mask_format,
-                usage: wgpu::TextureUsages::RENDER_ATTACHMENT
-                    | wgpu::TextureUsages::TEXTURE_BINDING
-                    | wgpu::TextureUsages::COPY_SRC,
-                label: Some("box shadow downsample".into()),
-            });
-            graph
-                .add_plan_task(
-                    "box shadow downsample",
-                    vec![ImageUse::sampled_read(prev)],
-                    ImageUse::color_attachment(down, ImageLoad::Clear),
-                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), 0.0, 0.0),
-                )
-                .expect("valid box-shadow downsample task");
-            prev = down;
-        }
-
-        // Chain N H+V blur pairs at scaled_extent. The first H pass
-        // reads the (downscaled) mask.
-        for pass_index in 0..passes {
-            let horizontal = graph.transient_image(TransientImageDesc {
-                size: scaled_extent,
-                format: mask_format,
-                usage: wgpu::TextureUsages::RENDER_ATTACHMENT
-                    | wgpu::TextureUsages::TEXTURE_BINDING
-                    | wgpu::TextureUsages::COPY_SRC,
-                label: Some(format!("box shadow horizontal {pass_index}")),
-            });
-            graph
-                .add_plan_task(
-                    format!("box shadow horizontal {pass_index}"),
-                    vec![ImageUse::sampled_read(prev)],
-                    ImageUse::color_attachment(horizontal, ImageLoad::Clear),
-                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), step_uv, 0.0),
-                )
-                .expect("valid box-shadow horizontal task");
-            let vertical = graph.transient_image(TransientImageDesc {
-                size: scaled_extent,
-                format: mask_format,
-                usage: wgpu::TextureUsages::RENDER_ATTACHMENT
-                    | wgpu::TextureUsages::TEXTURE_BINDING
-                    | wgpu::TextureUsages::COPY_SRC,
-                label: Some(format!("box shadow vertical {pass_index}")),
-            });
-            graph
-                .add_plan_task(
-                    format!("box shadow vertical {pass_index}"),
-                    vec![ImageUse::sampled_read(horizontal)],
-                    ImageUse::color_attachment(vertical, ImageLoad::Clear),
-                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), 0.0, step_uv),
-                )
-                .expect("valid box-shadow vertical task");
-            prev = vertical;
-        }
-
-        // R5 — when level > 1, append an upscale task that reads
-        // the blurred scaled-resolution texture and writes at full
-        // dim. Same brush_blur(step=0) trick; bilinear filter
-        // smooths the upsample.
-        if level > 1 {
-            let up = graph.transient_image(TransientImageDesc {
-                size: full_extent,
-                format: mask_format,
-                usage: wgpu::TextureUsages::RENDER_ATTACHMENT
-                    | wgpu::TextureUsages::TEXTURE_BINDING
-                    | wgpu::TextureUsages::COPY_SRC,
-                label: Some("box shadow upsample".into()),
-            });
-            graph
-                .add_plan_task(
-                    "box shadow upsample",
-                    vec![ImageUse::sampled_read(prev)],
-                    ImageUse::color_attachment(up, ImageLoad::Clear),
-                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), 0.0, 0.0),
-                )
-                .expect("valid box-shadow upsample task");
-            prev = up;
-        }
-
-        let plan = graph.compile(&[prev]).expect("box-shadow plan is valid");
-        let (mut outputs, _report) = plan
-            .execute(&device, &queue, std::collections::HashMap::new())
-            .expect("box-shadow graph is valid");
-        let blurred = outputs.remove(&prev).expect("final blur-pass output");
+        let (plan, output) =
+            self.build_box_shadow_plan(dim, bounds, corner_radius, blur_radius_px, invert);
+        let (blurred, _report) = self.execute_box_shadow_plan(plan, output);
         self.insert_image_vello(key, Arc::new(blurred));
     }
     /// Render `scene` into `target_view` via the vello-backed tile
