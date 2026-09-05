@@ -2,7 +2,8 @@
 
 **Date:** 2026-09-04
 
-**Status:** RG0, RG1, and RG2a delivered; RG5 deferred; RG2b is next
+**Status:** RG0 through the RG2b execution-boundary slice delivered; RG3 is
+next; RG2c remains the graph-promotion gate; RG5 deferred
 
 **Prior art:**
 
@@ -359,10 +360,11 @@ layer content Vello -> element filters -> image ----+
 That capability is currently exercised only through direct `Scene` tests;
 `PaintList::LayerSpec` cannot yet express a backdrop filter. Classic Vello's
 internal submission also means an encoder-only RG1 cannot execute the whole
-shape honestly. Keep it as the documented target through RG1; RG2b owns its
-first honest compiled and executed receipt through explicit Vello boundaries.
-Until then, describe production graph use as unary rather than presenting a
-synthetic fork/join as consumer proof. The live seams are
+shape honestly. RG2b now proves the three explicit producer boundaries, but
+its shared downstream graph remains unary. RG2c owns the first honest compiled
+and executed receipt for this multi-input effect shape. Until that lands,
+describe production graph use as unary rather than presenting a synthetic
+fork/join as consumer proof. The live seams are
 [`filter_passes.rs`](../netrender/src/renderer/filter_passes.rs),
 [`filter_chain.rs`](../netrender/src/renderer/filter_chain.rs), and
 [`filters.rs`](../netrender/src/renderer/filters.rs).
@@ -439,8 +441,9 @@ not broaden into that release operation.
 
 RG1 establishes a useful compiled linear plan and the machinery needed to
 describe a DAG. It does not by itself earn crate extraction, prepared shapes,
-pass merging, or claims of a general renderer graph. The combined-filter
-fork/join in RG2b is that promotion gate.
+pass merging, or claims of a general renderer graph. RG2b adds honest producer
+boundaries while retaining a unary shared graph. RG2c's real combined-effect
+fork/join is the promotion gate.
 
 ### RG2a: Prove semantic adapter conformance
 
@@ -495,9 +498,20 @@ registries; resource-bearing Classic scenes still use the registry-bearing
 
 ### RG2b: Prove the three Vello execution shapes
 
-Use one authoritative direct `Scene` whose layer combines backdrop blur and an
-element filter chain. This is Netrender's first real fork/join workload even
-though the paint-list API cannot yet express it.
+The first draft asked one direct `Scene` whose layer combines backdrop blur
+and an element filter chain to run through all three Vello backends. RG2a made
+that requirement visibly contradictory: Hybrid and CPU correctly refuse
+filters until Netrender has a backend-neutral effect decomposition. RG2b
+therefore separates semantic evidence from execution-boundary evidence rather
+than weakening those refusals.
+
+- Classic admits and renders the combined-filter `Scene`. Causal variants
+  prove separate element-filter and backdrop-blur pixel deltas.
+- Hybrid and CPU return the exact typed `PushLayer` refusal for that same
+  `Scene`.
+- A separately named, resource-free and filter-free direct `Scene` proves all
+  three execution shapes through one downstream blur topology and visible
+  readback. This fixture is execution evidence, not a filter fallback.
 
 - Hybrid records into an encoder batch supplied by the graph executor.
 - Classic appears as an explicit submission boundary, followed by a graph
@@ -508,13 +522,56 @@ though the paint-list API cannot yet express it.
 - Convert external-texture composition to an encoder-participating operation.
 - Keep unsupported Hybrid/CPU scene operations as typed admission errors.
 
-**Done condition:** all three paths produce a visible readback through the
-same downstream graph topology; the plan dump names the selected rasterizer
-and its execution boundary; Classic remains the default shipping path.
+**Done condition:** the combined-filter scene produces causal Classic pixels
+and typed sparse refusals; all three admitted execution fixtures produce a
+visible readback through the same downstream graph topology; the plan dump
+names the selected rasterizer and producer boundary while scoping its
+batch/submission counts to the graph segment; Classic remains the default
+shipping path.
 
-This is the first point at which the all-Vello experiment becomes a real
-execution-graph consumer rather than a backend capability probe. RG2a proves
-semantic equivalence or honest refusal; RG2b proves scheduling participation.
+RG2b landed in `cfa0261c2`. `ExecutionPlan::encode_into` lets Hybrid record its
+raster work, external-texture composition, and downstream graph work into one
+caller-owned encoder. Classic remains an opaque Vello submission followed by
+one graph encoder batch. CPU rasterizes outside the graph, enters through a
+named ready queue upload/import, and then uses that same graph batch. The
+external-texture convenience path still owns and submits an encoder for legacy
+callers, while its extracted encode operation can participate in an executor
+batch. Plan diagnostics name `Classic/opaque_submission`,
+`Hybrid/encoder_batch`, or `Cpu/ready_upload_import`; their summary counts are
+explicitly graph-scoped.
+
+This is the first point at which the all-Vello experiment becomes a physical
+execution-graph consumer rather than only a backend capability probe. RG2a
+proves semantic equivalence or honest refusal; RG2b proves scheduling
+participation without claiming sparse filter support.
+
+### RG2c: Prove one real backend-neutral effect fork/join
+
+RG2b deliberately does not convert the combined-filter `Scene` into one
+multi-input graph. Add a renderer-owned decomposition which preserves layer
+bounds, alpha, clip, and painter order while producing filter-free prefix and
+element-content fragments. Each selected backend then supplies those fragment
+targets through its already-proven RG2b boundary.
+
+Compile and execute this actual topology:
+
+```text
+prefix raster -> backdrop blur ---------------------+
+                                                      +-> layer join -> output
+content raster -> element filter chain --------------+
+```
+
+The join needs a real two-input composite callback/pipeline. The original
+filter-bearing `Scene` must continue to receive typed Hybrid/CPU refusal at the
+raw backend-admission seam; only the renderer-owned effect decomposition may
+produce admitted filter-free fragments.
+
+**Done condition:** one physical plan dump contains both producer branches and
+their two-input join; Classic, Hybrid, and CPU reach checked causal anchors
+through their stated boundaries; no branch silently strips an effect. Until
+this passes, graph preparation, extraction, and general-graph promotion claims
+remain closed. RG3 may proceed independently while it keeps each tenant's
+internal topology opaque.
 
 ### RG3: Join one tenant frame
 
@@ -671,21 +728,22 @@ without raw-hal access.
 
 ## Next implementation slice
 
-Implement RG2b's explicit execution boundaries for the three admitted Vello
-backends through one direct-`Scene` combined backdrop-plus-element-filter
-fork/join. Hybrid records into the graph encoder, Classic becomes an opaque
-submission step, and CPU enters through a named ready upload/import before the
-same downstream chain. Retain per-task texture allocation unless a later
-backend or consumer crosses RG5's recorded materiality rule. Buffers, prepared
-templates, crate movement, tenant callbacks, error-scope coordination, and
-paint-list backdrop-filter expansion remain outside RG2b.
+Implement RG3's first real tenant frame with Paredros: import its caller-owned
+color target, declare its actual encoder-participating or opaque producer
+boundary, compose it into Netrender's master texture, and report tenant,
+producer path, and submission count over one `WgpuHandles`. Preserve the
+tenant's internal resource topology as one closed operation. Error attribution
+and presentation commitment must follow RG3's awaited or latched policy rather
+than becoming implicit global callbacks. Mesocosm then repeats the contract
+without a product-specific graph type. Extraction still waits for both
+consumers.
 
 ## Acceptance summary
 
-The plan succeeds when one authoritative `Scene` is admitted consistently by
-each selected rasterizer and Netrender can explain the resulting frame as a
-deterministic, validated logical plan over one shared wgpu device. Each
-producer states how it participates without gaining scene, graph, or device
-authority. It fails if the graph becomes a second device abstraction,
+The plan succeeds when an authoritative `Scene` is either lowered faithfully
+or refused explicitly by each selected rasterizer, and every admitted path can
+be explained as a deterministic, validated logical plan over one shared wgpu
+device. Each producer states how it participates without gaining scene, graph,
+or device authority. It fails if the graph becomes a second device abstraction,
 duplicates wgpu barriers, absorbs durable application authority, permits
 silent backend degradation, or requires a Vulkan-only path.

@@ -1862,6 +1862,57 @@ wgpu 30; Classic `netrender-vello` 0.10.0; Hybrid and CPU `vello` 0.2.0 at
 - all-Vello and default `cargo check`, `cargo fmt --all -- --check`, and
   `git diff --check` — passed.
 
+### 11.44 RG2b Vello execution boundaries (2026-09-05) — **CLEARED**
+
+Three-backend execution-boundary proof, commit `cfa0261c2`. The literal first
+draft of RG2b conflicted with RG2a: Hybrid and CPU correctly refuse a
+filter-bearing `PushLayer`. The delivered receipt keeps that refusal and
+separates two questions:
+
+- one direct `Scene` combines backdrop blur with an element `Invert` filter;
+  Classic renders it, while Hybrid and CPU return exact backend-attributed
+  typed refusals for the same operation;
+- a separate filter-free direct `Scene` supplies the scheduling fixture. All
+  three backends feed one downstream blur plan and visible readback on the same
+  `WgpuHandles`.
+
+This clears the execution-boundary slice only. The shared graph in this
+receipt is unary, and external composition is encoder-participating but not a
+logical graph node. RG2c retains the promotion gate: a physical two-input
+backdrop-plus-element effect graph with a real join. RG3 may proceed as a
+closed-tenant integration proof, but neither slice substitutes for RG2c when
+evaluating general graph claims or extraction.
+
+Classic performs its opaque Vello submission before the graph batch. Hybrid
+records rasterization, external-texture composition, and graph work into one
+caller-owned encoder. CPU rasterizes to a host pixmap, enters through an
+ordered ready queue upload/import, then records external composition and graph
+work in one encoder. `ExecutionPlan::encode_into` supplies the shared-encoder
+seam. External-texture composition now has an encoder-participating form while
+the existing public helper preserves its convenience submit. Plan dumps name
+the selected rasterizer and producer boundary; batch and submission counts are
+labeled as graph-segment counts.
+
+The combined Classic receipt uses partial-alpha element content so the
+backdrop remains observable. Measured anchors were center
+`[161, 180, 59, 255]` versus `[215, 161, 40, 255]` without the element filter,
+and boundary `[40, 59, 180, 255]` versus `[0, 19, 220, 255]` without backdrop
+blur. This proves both effects causally rather than merely checking that the
+frame is nontransparent.
+
+**Measured row:** NVIDIA GeForce RTX 4060 Laptop GPU, Vulkan, NVIDIA 610.88;
+wgpu 30; Classic `netrender-vello` 0.10.0; Hybrid and CPU `vello` 0.2.0 at
+`ca3f40ea182216883cd543c7b9deae991268917c`.
+
+**Receipts** (isolated target directory, `-j 1`):
+
+- focused RG2b unit/semantic tests — **2 passed, 1 physical receipt ignored**;
+- explicit physical three-backend RG2b receipt — **1 passed**;
+- full all-Vello library suite — **72 passed, 2 physical receipts ignored**;
+- RG2a scene corpus — **2 passed**;
+- all-Vello and default `cargo check`, `cargo fmt --all -- --check`, and
+  `git diff --check` — passed.
+
 ## 11.99 Open items — moved (2026-05-05)
 
 The catalogue of deferred refinements that originally lived here
