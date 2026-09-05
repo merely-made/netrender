@@ -2,7 +2,8 @@
 
 **Date:** 2026-09-04
 
-**Status:** RG0 and RG1 delivered; repeated-plan measurement is next
+**Status:** RG0 and RG1 delivered; repeated-plan measurement defers RG5;
+RG2a is next
 
 **Prior art:**
 
@@ -600,8 +601,25 @@ measurement shows allocation-path cost or memory pressure worth addressing.
 RG5 may activate before RG2 if that evidence appears.
 
 The RG1 fixture satisfies the structural half: four creations versus two
-peak-live images for one exact descriptor. A repeated-frame allocation timing
-or memory-pressure receipt is still required before implementing the pool.
+peak-live images for one exact descriptor. The 2026-09-05 repeated production
+box-shadow measurement, commit `35cb54ea5`, satisfies the timing half without
+activating RG5. On an NVIDIA GeForce RTX 4060 Laptop GPU through Vulkan, 16
+completed warmups followed by 64 completed release samples reported:
+
+- 256 x 256, blur radius 16: 33 transient creations, projected exact-descriptor
+  peak 2, allocation median/p95 0.067/0.111 ms, host-work p95 1.349 ms;
+- 1024 x 1024, blur radius 64: 35 transient creations across full- and
+  quarter-resolution descriptors, projected peak 2, allocation median/p95
+  0.055/0.102 ms, host-work p95 1.091 ms.
+
+The decision rule was fixed before measurement. Structural pressure must be
+present, then allocation p95 must reach either 2% of the configurable frame
+budget (0.333 ms at the default 16.667 ms) or both 15% of host-work p95 and a
+0.10 ms floor. Neither row reaches a materiality threshold. The reported
+peak-live value is a logical lower bound for a future pool, not observed
+physical residency: the current executor eagerly creates all selected task
+outputs before encoding. RG5 therefore remains deferred unless a later
+consumer, backend, or memory-pressure receipt crosses the documented trigger.
 
 **Done condition:** allocation counts fall on a repeated multi-pass workload,
 readback remains equivalent, and WebGPU/GL plus one native backend validate
@@ -633,14 +651,14 @@ without raw-hal access.
 
 ## Next implementation slice
 
-Measure repeated execution of one real multi-pass plan. If allocation
-time or retained memory is material, RG5's texture pool is the next
-implementation slice; if it is not, retain per-task allocation and proceed to
-RG2a/RG2b consumer conformance. Keep buffers, Vello execution adaptation,
-prepared templates, crate movement, tenant callbacks, error-scope coordination,
-and paint-list backdrop-filter expansion outside this measurement pass. The
-combined-filter topology remains the promotion target, but its first honest
-compiled and executed receipt waits for RG2b's explicit Vello boundaries.
+Implement RG2a's rasterizer-independent scene corpus and typed admission
+receipts for Classic, Hybrid, and CPU. Keep the existing paint-list corpus as a
+separate ingress receipt. RG2b then gives the three admitted backends explicit
+execution boundaries through one combined backdrop-plus-element-filter
+fork/join. Retain per-task texture allocation unless a later backend or
+consumer crosses RG5's recorded materiality rule. Buffers, prepared templates,
+crate movement, tenant callbacks, error-scope coordination, and paint-list
+backdrop-filter expansion remain outside RG2a.
 
 ## Acceptance summary
 

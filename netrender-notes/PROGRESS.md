@@ -60,7 +60,7 @@ record at the end.
 
 - [`2026-05-01_vello_verification_record.md`](2026-05-01_vello_verification_record.md)
   — **the evidence.** Split out of the plan on 2026-08-10, where it was
-  62% of the file. 41 entries, 39 CLEARED, one per spike or capability.
+  62% of the file. 42 entries, 40 CLEARED, one per spike or capability.
   Section numbers unchanged, so `§11.x` still resolves. This is the
   append target when a roadmap item lands.
 
@@ -167,7 +167,8 @@ Captures elide font payloads, which is why they are 2 KB rather than
   — WebGL-over-wgpu companion lane. G0–G6 sequence, gated on
   Genet/Pelt consumer pull. Roadmap entry: G.
 - [`2026-09-04_wgpu_execution_graph_plan.md`](2026-09-04_wgpu_execution_graph_plan.md)
-  — **RG0 and RG1 delivered; repeated-plan measurement is next.** Evolves the
+  — **RG0 and RG1 delivered; repeated-plan measurement defers RG5; RG2a is
+  next.** Evolves the
   delivered Phase 6 filter DAG into a validated, inspectable execution plan
   over the existing shared `WgpuHandles`. `vk-graph` informs compiled GPU work;
   AnyRender informs the semantic adapter seam above it. Both are prior art,
@@ -185,9 +186,14 @@ Captures elide font payloads, which is why they are 2 KB rather than
   rejected because it did not strengthen the crate-private pass boundary.
   Commit `0af85a62f` re-homes the eight useful legacy GPU assertions behind
   the planned path and removes the public raw task/callback API. This is an
-  unreleased 0.2.0 boundary. The allocation report makes RG5 a
-  measurement candidate; tenant error attribution and presentation policy
-  stay RG3. Extraction now requires a second independent execution producer;
+  unreleased 0.2.0 boundary. Commit `35cb54ea5` measures 16 completed warmups
+  and 64 completed release samples of both 256 x 256 and 1024 x 1024 production
+  box-shadow plans. Allocation p95 is 0.111 ms and 0.102 ms on the measured
+  RTX 4060/Vulkan row, below the predeclared absolute and relative thresholds,
+  so RG5 remains deferred despite 33/35 logical creations. RG2a's independent
+  scene corpus and typed three-backend admission receipts are next; tenant
+  error attribution and presentation policy stay RG3. Extraction now requires
+  a second independent execution producer;
   a future resident-buffer path must carry producer-owned revision/epoch
   metadata, and RG4 must split reusable plan structure from bound callbacks.
 - [`wasm-portability-checklist.md`](wasm-portability-checklist.md)
