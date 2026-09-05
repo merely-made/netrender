@@ -28,11 +28,19 @@ pub struct BackendCapabilities {
     pub solid_geometry: bool,
     pub gradients: bool,
     pub layers: bool,
+    pub transforms: bool,
+    pub clips: bool,
+    pub nested_layers: bool,
     pub images: bool,
+    pub patterns: bool,
     pub text: bool,
+    pub element_filters: bool,
+    pub backdrop_blur: bool,
+    pub backdrop_color_filters: bool,
     /// The backend packet has a native composition operation.
     pub native_scene_append: bool,
-    /// Netrender's fragment registry is connected to that operation.
+    /// Netrender's registry-bearing renderer is connected to that operation.
+    /// The free Classic `scene_to_vello` translator cannot resolve fragments.
     pub retained_fragments: bool,
     pub gpu_output: bool,
     pub cpu_output: bool,
@@ -54,8 +62,15 @@ impl VelloBackend {
                 solid_geometry: true,
                 gradients: true,
                 layers: true,
+                transforms: true,
+                clips: true,
+                nested_layers: true,
                 images: true,
+                patterns: true,
                 text: true,
+                element_filters: true,
+                backdrop_blur: true,
+                backdrop_color_filters: false,
                 native_scene_append: true,
                 retained_fragments: true,
                 gpu_output: true,
@@ -65,8 +80,15 @@ impl VelloBackend {
                 solid_geometry: true,
                 gradients: true,
                 layers: true,
+                transforms: true,
+                clips: true,
+                nested_layers: true,
                 images: false,
+                patterns: false,
                 text: false,
+                element_filters: false,
+                backdrop_blur: false,
+                backdrop_color_filters: false,
                 native_scene_append: true,
                 retained_fragments: false,
                 gpu_output: true,
@@ -76,8 +98,15 @@ impl VelloBackend {
                 solid_geometry: true,
                 gradients: true,
                 layers: true,
+                transforms: true,
+                clips: true,
+                nested_layers: true,
                 images: false,
+                patterns: false,
                 text: false,
+                element_filters: false,
+                backdrop_blur: false,
+                backdrop_color_filters: false,
                 native_scene_append: false,
                 retained_fragments: false,
                 gpu_output: false,
@@ -91,7 +120,11 @@ impl VelloBackend {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BackendAdmissionError {
     /// Sparse scenes use `u16` dimensions internally.
-    ViewportTooLarge { width: u32, height: u32 },
+    ViewportTooLarge {
+        backend: VelloBackend,
+        width: u32,
+        height: u32,
+    },
     /// An operation is outside the adapter's currently verified subset.
     UnsupportedOperation {
         backend: VelloBackend,
@@ -100,17 +133,28 @@ pub enum BackendAdmissionError {
         reason: &'static str,
     },
     /// A primitive references a transform absent from the scene palette.
-    InvalidTransform { op_index: usize, transform_id: u32 },
+    InvalidTransform {
+        backend: VelloBackend,
+        op_index: usize,
+        transform_id: u32,
+    },
     /// Layer pushes and pops are not balanced.
-    UnbalancedLayers { op_index: usize },
+    UnbalancedLayers {
+        backend: VelloBackend,
+        op_index: Option<usize>,
+    },
 }
 
 impl std::fmt::Display for BackendAdmissionError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::ViewportTooLarge { width, height } => write!(
+            Self::ViewportTooLarge {
+                backend,
+                width,
+                height,
+            } => write!(
                 f,
-                "sparse Vello viewport {width}x{height} exceeds the u16 dimension limit"
+                "{backend:?} sparse Vello viewport {width}x{height} exceeds the u16 dimension limit"
             ),
             Self::UnsupportedOperation {
                 backend,
@@ -122,20 +166,161 @@ impl std::fmt::Display for BackendAdmissionError {
                 "{backend:?} cannot admit scene op {op_index} ({operation}): {reason}"
             ),
             Self::InvalidTransform {
+                backend,
                 op_index,
                 transform_id,
             } => write!(
                 f,
-                "scene op {op_index} references missing transform {transform_id}"
+                "{backend:?} scene op {op_index} references missing transform {transform_id}"
             ),
-            Self::UnbalancedLayers { op_index } => {
-                write!(f, "scene layers are unbalanced at op {op_index}")
-            }
+            Self::UnbalancedLayers { backend, op_index } => match op_index {
+                Some(op_index) => write!(
+                    f,
+                    "{backend:?} scene layers are unbalanced at op {op_index}"
+                ),
+                None => write!(f, "{backend:?} scene layers are unbalanced at end of scene"),
+            },
         }
     }
 }
 
 impl std::error::Error for BackendAdmissionError {}
+
+/// Validate the operation-level scene semantics supported by `backend`.
+///
+/// This checks viewport shape, operation kinds, transform references, and
+/// layer balance. It deliberately cannot prove Classic registry state for
+/// external images or retained fragments; resource-bearing Classic scenes
+/// still require the registry-bearing [`crate::Renderer`] path. Callers choose
+/// the backend-specific lowering and execution path after this preflight.
+pub fn validate_scene_for_backend(
+    backend: VelloBackend,
+    scene: &crate::scene::Scene,
+) -> Result<(), BackendAdmissionError> {
+    use crate::scene::{SceneFilter, SceneOp};
+
+    if backend != VelloBackend::Classic
+        && (scene.viewport_width > u16::MAX as u32 || scene.viewport_height > u16::MAX as u32)
+    {
+        return Err(BackendAdmissionError::ViewportTooLarge {
+            backend,
+            width: scene.viewport_width,
+            height: scene.viewport_height,
+        });
+    }
+
+    let mut depth = 0usize;
+    for (op_index, op) in scene.ops.iter().enumerate() {
+        let transform_id = match op {
+            SceneOp::Rect(v) => Some(v.transform_id),
+            SceneOp::Stroke(v) => Some(v.transform_id),
+            SceneOp::Gradient(v) => Some(v.transform_id),
+            SceneOp::Image(v) => Some(v.transform_id),
+            SceneOp::Pattern(v) => Some(v.transform_id),
+            SceneOp::Shape(v) => Some(v.transform_id),
+            SceneOp::GlyphRun(v) => Some(v.transform_id),
+            SceneOp::PushLayer(v) => Some(v.transform_id),
+            SceneOp::Fragment(v) => Some(v.transform_id),
+            SceneOp::PopLayer => None,
+        };
+        if transform_id.is_some_and(|id| id as usize >= scene.transforms.len()) {
+            return Err(BackendAdmissionError::InvalidTransform {
+                backend,
+                op_index,
+                transform_id: transform_id.expect("checked Some transform"),
+            });
+        }
+
+        match op {
+            SceneOp::Image(_) if backend != VelloBackend::Classic => {
+                return Err(unsupported(
+                    backend,
+                    op_index,
+                    "Image",
+                    "sparse image hydration is not wired yet",
+                ));
+            }
+            SceneOp::Pattern(_) if backend != VelloBackend::Classic => {
+                return Err(unsupported(
+                    backend,
+                    op_index,
+                    "Pattern",
+                    "sparse image hydration is not wired yet",
+                ));
+            }
+            SceneOp::GlyphRun(_) if backend != VelloBackend::Classic => {
+                return Err(unsupported(
+                    backend,
+                    op_index,
+                    "GlyphRun",
+                    "sparse text resources are not wired yet",
+                ));
+            }
+            SceneOp::Fragment(_) if backend != VelloBackend::Classic => {
+                return Err(unsupported(
+                    backend,
+                    op_index,
+                    "Fragment",
+                    "fragment registries are backend-owned; only Hybrid append has been proven upstream",
+                ));
+            }
+            SceneOp::PushLayer(layer)
+                if backend != VelloBackend::Classic
+                    && (layer.backdrop_filter.is_some() || !layer.filters.is_empty()) =>
+            {
+                return Err(unsupported(
+                    backend,
+                    op_index,
+                    "PushLayer",
+                    "Netrender filter graphs have not been mapped to sparse filters",
+                ));
+            }
+            SceneOp::PushLayer(layer)
+                if backend == VelloBackend::Classic
+                    && layer
+                        .backdrop_filter
+                        .is_some_and(|filter| !matches!(filter, SceneFilter::Blur(_))) =>
+            {
+                return Err(unsupported(
+                    backend,
+                    op_index,
+                    "PushLayer",
+                    "Classic backdrop preprocessing currently supports Blur only",
+                ));
+            }
+            SceneOp::PushLayer(_) => depth += 1,
+            SceneOp::PopLayer if depth == 0 => {
+                return Err(BackendAdmissionError::UnbalancedLayers {
+                    backend,
+                    op_index: Some(op_index),
+                });
+            }
+            SceneOp::PopLayer => depth -= 1,
+            _ => {}
+        }
+    }
+    if depth != 0 {
+        return Err(BackendAdmissionError::UnbalancedLayers {
+            backend,
+            op_index: None,
+        });
+    }
+    Ok(())
+}
+
+fn unsupported(
+    backend: VelloBackend,
+    op_index: usize,
+    operation: &'static str,
+    reason: &'static str,
+) -> BackendAdmissionError {
+    BackendAdmissionError::UnsupportedOperation {
+        backend,
+        op_index,
+        operation,
+        reason,
+    }
+}
 
 #[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
 mod sparse {
@@ -249,15 +434,20 @@ mod sparse {
         }
     }
 
-    pub(super) fn dimensions(scene: &Scene) -> Result<(u16, u16), BackendAdmissionError> {
+    pub(super) fn dimensions(
+        scene: &Scene,
+        backend: VelloBackend,
+    ) -> Result<(u16, u16), BackendAdmissionError> {
         let width = u16::try_from(scene.viewport_width).map_err(|_| {
             BackendAdmissionError::ViewportTooLarge {
+                backend,
                 width: scene.viewport_width,
                 height: scene.viewport_height,
             }
         })?;
         let height = u16::try_from(scene.viewport_height).map_err(|_| {
             BackendAdmissionError::ViewportTooLarge {
+                backend,
                 width: scene.viewport_width,
                 height: scene.viewport_height,
             }
@@ -270,7 +460,7 @@ mod sparse {
         scene: &Scene,
         backend: VelloBackend,
     ) -> Result<(), BackendAdmissionError> {
-        validate(scene, backend)?;
+        super::validate_scene_for_backend(backend, scene)?;
 
         let has_root_layer =
             scene.root_alpha != 1.0 || scene.root_blend_mode != SceneBlendMode::Normal;
@@ -286,13 +476,18 @@ mod sparse {
         for op in &scene.ops {
             match op {
                 SceneOp::Rect(rect) => {
-                    context.set_transform(transform(&scene.transforms[rect.transform_id as usize]));
-                    context.set_paint_transform(Affine::IDENTITY);
-                    context.set_paint(color(rect.color).into());
+                    let world = transform(&scene.transforms[rect.transform_id as usize]);
                     let clip = primitive_clip(rect.clip_rect, rect.clip_corner_radii);
                     if let Some(path) = clip.as_ref() {
+                        // Primitive clips are carried in device space, unlike
+                        // the primitive itself. Match the Classic adapter by
+                        // recording the clip under identity.
+                        context.set_transform(Affine::IDENTITY);
                         context.push_layer(Some(path), None, None);
                     }
+                    context.set_transform(world);
+                    context.set_paint_transform(Affine::IDENTITY);
+                    context.set_paint(color(rect.color).into());
                     context.fill_rect(&Rect::new(
                         rect.x0 as f64,
                         rect.y0 as f64,
@@ -304,7 +499,13 @@ mod sparse {
                     }
                 }
                 SceneOp::Stroke(rect) => {
-                    context.set_transform(transform(&scene.transforms[rect.transform_id as usize]));
+                    let world = transform(&scene.transforms[rect.transform_id as usize]);
+                    let clip = primitive_clip(rect.clip_rect, rect.clip_corner_radii);
+                    if let Some(path) = clip.as_ref() {
+                        context.set_transform(Affine::IDENTITY);
+                        context.push_layer(Some(path), None, None);
+                    }
+                    context.set_transform(world);
                     context.set_paint_transform(Affine::IDENTITY);
                     context.set_paint(color(rect.color).into());
                     context.set_stroke(stroke_style(
@@ -314,10 +515,6 @@ mod sparse {
                         &rect.dash_pattern,
                         rect.dash_offset,
                     ));
-                    let clip = primitive_clip(rect.clip_rect, rect.clip_corner_radii);
-                    if let Some(path) = clip.as_ref() {
-                        context.push_layer(Some(path), None, None);
-                    }
                     let bounds = Rect::new(
                         rect.x0 as f64,
                         rect.y0 as f64,
@@ -336,13 +533,14 @@ mod sparse {
                 }
                 SceneOp::Gradient(gradient) => lower_gradient(context, gradient, scene),
                 SceneOp::Shape(shape) => {
-                    context
-                        .set_transform(transform(&scene.transforms[shape.transform_id as usize]));
-                    context.set_paint_transform(Affine::IDENTITY);
+                    let world = transform(&scene.transforms[shape.transform_id as usize]);
                     let clip = primitive_clip(shape.clip_rect, shape.clip_corner_radii);
                     if let Some(path) = clip.as_ref() {
+                        context.set_transform(Affine::IDENTITY);
                         context.push_layer(Some(path), None, None);
                     }
+                    context.set_transform(world);
+                    context.set_paint_transform(Affine::IDENTITY);
                     let path = path(&shape.path);
                     if let Some(fill) = shape.fill_color {
                         context.set_fill_rule(Fill::NonZero);
@@ -371,67 +569,6 @@ mod sparse {
             context.pop_layer();
         }
         Ok(())
-    }
-
-    fn validate(scene: &Scene, backend: VelloBackend) -> Result<(), BackendAdmissionError> {
-        let mut depth = 0usize;
-        for (op_index, op) in scene.ops.iter().enumerate() {
-            let transform_id = match op {
-                SceneOp::Rect(v) => Some(v.transform_id),
-                SceneOp::Stroke(v) => Some(v.transform_id),
-                SceneOp::Gradient(v) => Some(v.transform_id),
-                SceneOp::Image(v) => Some(v.transform_id),
-                SceneOp::Pattern(v) => Some(v.transform_id),
-                SceneOp::Shape(v) => Some(v.transform_id),
-                SceneOp::GlyphRun(v) => Some(v.transform_id),
-                SceneOp::PushLayer(v) => Some(v.transform_id),
-                SceneOp::Fragment(v) => Some(v.transform_id),
-                SceneOp::PopLayer => None,
-            };
-            if transform_id.is_some_and(|id| id as usize >= scene.transforms.len()) {
-                return Err(BackendAdmissionError::InvalidTransform {
-                    op_index,
-                    transform_id: transform_id.unwrap(),
-                });
-            }
-            match op {
-                SceneOp::Image(_) => return Err(unsupported(backend, op_index, "Image", "sparse image hydration is not wired yet")),
-                SceneOp::Pattern(_) => return Err(unsupported(backend, op_index, "Pattern", "sparse image hydration is not wired yet")),
-                SceneOp::GlyphRun(_) => return Err(unsupported(backend, op_index, "GlyphRun", "sparse text resources are not wired yet")),
-                SceneOp::Fragment(_) => return Err(unsupported(backend, op_index, "Fragment", "fragment registries are backend-owned; only Hybrid append has been proven upstream")),
-                SceneOp::PushLayer(layer)
-                    if layer.backdrop_filter.is_some() || !layer.filters.is_empty() =>
-                {
-                    return Err(unsupported(backend, op_index, "PushLayer", "Netrender filter graphs have not been mapped to sparse filters"));
-                }
-                SceneOp::PushLayer(_) => depth += 1,
-                SceneOp::PopLayer if depth == 0 => {
-                    return Err(BackendAdmissionError::UnbalancedLayers { op_index });
-                }
-                SceneOp::PopLayer => depth -= 1,
-                _ => {}
-            }
-        }
-        if depth != 0 {
-            return Err(BackendAdmissionError::UnbalancedLayers {
-                op_index: scene.ops.len(),
-            });
-        }
-        Ok(())
-    }
-
-    fn unsupported(
-        backend: VelloBackend,
-        op_index: usize,
-        operation: &'static str,
-        reason: &'static str,
-    ) -> BackendAdmissionError {
-        BackendAdmissionError::UnsupportedOperation {
-            backend,
-            op_index,
-            operation,
-            reason,
-        }
     }
 
     fn lower_gradient<C: SparseContext>(context: &mut C, grad: &SceneGradient, scene: &Scene) {
@@ -484,13 +621,15 @@ mod sparse {
         if grad.repeat {
             paint.extend = Extend::Repeat;
         }
-        context.set_transform(transform(&scene.transforms[grad.transform_id as usize]));
-        context.set_paint_transform(paint_transform);
-        context.set_paint(paint.into());
+        let world = transform(&scene.transforms[grad.transform_id as usize]);
         let clip = primitive_clip(grad.clip_rect, grad.clip_corner_radii);
         if let Some(path) = clip.as_ref() {
+            context.set_transform(Affine::IDENTITY);
             context.push_layer(Some(path), None, None);
         }
+        context.set_transform(world);
+        context.set_paint_transform(paint_transform);
+        context.set_paint(paint.into());
         context.fill_rect(&Rect::new(
             grad.x0 as f64,
             grad.y0 as f64,
@@ -659,7 +798,7 @@ mod sparse {
 pub fn scene_to_vello_cpu(
     scene: &crate::scene::Scene,
 ) -> Result<vello_cpu::RenderContext, BackendAdmissionError> {
-    let (width, height) = sparse::dimensions(scene)?;
+    let (width, height) = sparse::dimensions(scene, VelloBackend::Cpu)?;
     let mut context = vello_cpu::RenderContext::new(width, height);
     sparse::lower(&mut context, scene, VelloBackend::Cpu)?;
     context.flush();
@@ -671,7 +810,7 @@ pub fn scene_to_vello_cpu(
 pub fn scene_to_vello_hybrid(
     scene: &crate::scene::Scene,
 ) -> Result<vello_hybrid::Scene, BackendAdmissionError> {
-    let (width, height) = sparse::dimensions(scene)?;
+    let (width, height) = sparse::dimensions(scene, VelloBackend::Hybrid)?;
     let mut context = vello_hybrid::Scene::new(width, height);
     sparse::lower(&mut context, scene, VelloBackend::Hybrid)?;
     Ok(context)
@@ -698,6 +837,16 @@ mod tests {
         assert!(!VelloBackend::Hybrid.capabilities().retained_fragments);
         assert!(VelloBackend::Cpu.capabilities().cpu_output);
         assert!(!VelloBackend::Cpu.capabilities().gpu_output);
+        for backend in [
+            VelloBackend::Classic,
+            VelloBackend::Hybrid,
+            VelloBackend::Cpu,
+        ] {
+            let capabilities = backend.capabilities();
+            assert!(capabilities.transforms);
+            assert!(capabilities.clips);
+            assert!(capabilities.nested_layers);
+        }
     }
 
     #[cfg(feature = "vello-cpu")]
