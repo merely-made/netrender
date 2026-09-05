@@ -1684,8 +1684,10 @@ backdrop-blur smoke.
 This clears the RG1 first-slice receipt, not the whole phase. Color-matrix and
 box-shadow/clip builders still use the compatibility graph, so retiring raw
 task IDs and callbacks waits for their migration. Physical reuse waits for the
-new report, and the first honest combined backdrop-plus-element fork/join
-still waits for RG2b's explicit Vello execution boundaries.
+new report. At this receipt point, the first honest combined
+backdrop-plus-element fork/join still needed explicit Vello execution
+boundaries. RG2b later delivered those boundaries; RG2c now owns the actual
+multi-input effect graph.
 
 ### 11.40 Production filters use the RG1 image plan (2026-09-04) — **CLEARED**
 
