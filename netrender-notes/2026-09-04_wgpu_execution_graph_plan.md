@@ -2,8 +2,7 @@
 
 **Date:** 2026-09-04
 
-**Status:** RG0 and RG1 delivered; repeated-plan measurement defers RG5;
-RG2a is next
+**Status:** RG0, RG1, and RG2a delivered; RG5 deferred; RG2b is next
 
 **Prior art:**
 
@@ -473,6 +472,27 @@ scene behavior, not identical lowered data structures.
 Hybrid, and CPU; every case produces a checked image or an expected typed
 refusal; capability declarations and observed results cannot drift silently.
 
+Delivered 2026-09-05 in `b06a21407`. The `vello-all` corpus runs two direct
+`Scene` fixtures through Classic, Hybrid, and CPU on one device row. Semantic
+regions, rather than cross-backend byte identity, check solid geometry,
+transforms, device-space primitive clips, filled and stroked paths, all three
+gradient kinds, a rounded layer clip, and nested alpha layers. The stronger
+clip fixture exposed and fixed a sparse-lowerer error: Rect, Stroke, Shape, and
+Gradient clips were recorded under the primitive transform even though the
+`Scene` contract carries them in device space.
+
+The same command checks exact sparse refusals for images, patterns, glyph runs,
+retained fragments, element filters, and backdrop filters, plus attributed
+invalid-transform, layer-balance, and viewport failures. Capabilities now name
+the corpus-visible distinctions, including element filters, backdrop blur, and
+backdrop color filters separately. Classic truthfully reports backdrop color
+filters as unsupported and returns a typed semantic refusal for them.
+
+`validate_scene_for_backend` is deliberately operation-level preflight. It
+does not claim to validate Classic's external image or retained-fragment
+registries; resource-bearing Classic scenes still use the registry-bearing
+`Renderer`. The paint-list corpus remains a separate ingress/wire receipt.
+
 ### RG2b: Prove the three Vello execution shapes
 
 Use one authoritative direct `Scene` whose layer combines backdrop blur and an
@@ -651,14 +671,14 @@ without raw-hal access.
 
 ## Next implementation slice
 
-Implement RG2a's rasterizer-independent scene corpus and typed admission
-receipts for Classic, Hybrid, and CPU. Keep the existing paint-list corpus as a
-separate ingress receipt. RG2b then gives the three admitted backends explicit
-execution boundaries through one combined backdrop-plus-element-filter
-fork/join. Retain per-task texture allocation unless a later backend or
-consumer crosses RG5's recorded materiality rule. Buffers, prepared templates,
-crate movement, tenant callbacks, error-scope coordination, and paint-list
-backdrop-filter expansion remain outside RG2a.
+Implement RG2b's explicit execution boundaries for the three admitted Vello
+backends through one direct-`Scene` combined backdrop-plus-element-filter
+fork/join. Hybrid records into the graph encoder, Classic becomes an opaque
+submission step, and CPU enters through a named ready upload/import before the
+same downstream chain. Retain per-task texture allocation unless a later
+backend or consumer crosses RG5's recorded materiality rule. Buffers, prepared
+templates, crate movement, tenant callbacks, error-scope coordination, and
+paint-list backdrop-filter expansion remain outside RG2b.
 
 ## Acceptance summary
 
