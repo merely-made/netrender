@@ -48,7 +48,10 @@ pub use crate::hit_test::{HitOpKind, HitResult, hit_test, hit_test_topmost};
 pub use crate::external_texture::{ExternalTextureComposite, ExternalTexturePlacement, SourceAlpha};
 pub use crate::registry::{FontRegistry, ImageRegistry};
 pub use crate::renderer::init::{NetrenderOptions, create_netrender_instance};
-pub use crate::renderer::{ColorLoad, Renderer, RendererError};
+pub use crate::renderer::{
+    ColorLoad, OpaqueTenantInput, OpaqueTenantMetadata, OpaqueTenantReceipt, Renderer,
+    RendererError,
+};
 
 // `FontBlob.data` is `peniko::Blob<u8>`; consumers constructing one
 // directly need access to the `Blob` type. Re-export the peniko

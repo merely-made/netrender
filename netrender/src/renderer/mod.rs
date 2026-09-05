@@ -49,6 +49,7 @@ use netrender_device::WgpuDevice;
 use crate::external_texture::{
     ExternalTextureComposite, ExternalTexturePipeline, ExternalTexturePlacement,
 };
+use crate::render_graph::{ImageLoad, ImageUse, RenderGraph};
 use crate::scene::{ImageKey, Scene};
 use crate::tile_cache::TileCache;
 
@@ -125,6 +126,81 @@ const MAX_SURFACE_TILE_STATES: usize = 64;
 pub enum ColorLoad {
     Clear(wgpu::Color),
     Load,
+}
+
+/// Host-supplied metadata for one opaque tenant producer in a frame.
+///
+/// Netrender records these values in the returned receipt and deterministic
+/// logical plan dump. It does not interpret the producer's internal resource
+/// topology or submission policy.
+#[derive(Clone, Debug)]
+#[non_exhaustive]
+pub struct OpaqueTenantMetadata {
+    pub tenant_name: String,
+    pub producer_path: String,
+    pub fallback_count: u64,
+    pub scene_op_boundary: usize,
+    pub placement: ExternalTexturePlacement,
+    /// `None` means that the caller did not report the tenant's physical
+    /// submissions. This is caller-declared metadata, not a Netrender count.
+    pub caller_reported_physical_submission_count: Option<u64>,
+}
+
+impl OpaqueTenantMetadata {
+    pub fn new(
+        tenant_name: impl Into<String>,
+        producer_path: impl Into<String>,
+        fallback_count: u64,
+        scene_op_boundary: usize,
+        placement: ExternalTexturePlacement,
+    ) -> Self {
+        Self {
+            tenant_name: tenant_name.into(),
+            producer_path: producer_path.into(),
+            fallback_count,
+            scene_op_boundary,
+            placement,
+            caller_reported_physical_submission_count: None,
+        }
+    }
+
+    pub fn with_reported_physical_submission_count(mut self, count: u64) -> Self {
+        self.caller_reported_physical_submission_count = Some(count);
+        self
+    }
+}
+
+/// One tenant-owned, same-device physical color texture plus its frame
+/// metadata. The texture handle is cloned into Netrender's private graph;
+/// ownership remains with the caller's handle lifetime.
+#[non_exhaustive]
+pub struct OpaqueTenantInput<'a> {
+    pub texture: &'a wgpu::Texture,
+    pub metadata: OpaqueTenantMetadata,
+}
+
+impl<'a> OpaqueTenantInput<'a> {
+    pub fn new(texture: &'a wgpu::Texture, metadata: OpaqueTenantMetadata) -> Self {
+        Self { texture, metadata }
+    }
+}
+
+/// Receipt for one opaque tenant graph participation.
+#[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct OpaqueTenantReceipt {
+    pub tenant_name: String,
+    pub producer_path: String,
+    pub fallback_count: u64,
+    pub scene_op_boundary: usize,
+    pub caller_reported_physical_submission_count: Option<u64>,
+    pub logical_opaque_producer_boundaries: usize,
+    /// Graph-only encoder count. It does not count Vello or tenant submits.
+    pub graph_encoder_batches: usize,
+    /// Graph-only submission count. It does not imply a single physical frame
+    /// submission because opaque producers may submit independently.
+    pub graph_submission_boundaries: usize,
+    pub logical_plan_dump: String,
 }
 
 impl Default for ColorLoad {
@@ -538,6 +614,169 @@ impl Renderer {
             &mut encoder,
         );
         self.wgpu_device.core.queue.submit([encoder.finish()]);
+    }
+
+    /// Render one opaque tenant through a private graph task, then hand the
+    /// resulting master texture to the compositor. The tenant's physical
+    /// texture is imported as a sampled input; the initialized Vello master is
+    /// imported as the single load-preserving color output.
+    ///
+    /// The existing Vello render and tail redraw remain intact. The returned
+    /// receipt describes the logical opaque producer boundary separately from
+    /// the caller-reported physical submission count. This first slice uses
+    /// the existing full-master plus tail-redraw behavior for one tenant; more
+    /// general interleaving remains outside this method.
+    ///
+    /// Invalid graph admission or execution panics consistently with the
+    /// existing renderer methods. Host error disposition is a later RG3b
+    /// concern.
+    pub fn render_with_opaque_tenant(
+        &self,
+        scene: &Scene,
+        master_format: wgpu::TextureFormat,
+        compositor: &mut dyn Compositor,
+        base_color: vello::peniko::Color,
+        tenant: &OpaqueTenantInput<'_>,
+    ) -> OpaqueTenantReceipt {
+        let rast_mutex = self.vello_rasterizer.as_ref().expect(
+            "Renderer::render_with_opaque_tenant requires NetrenderOptions::enable_vello = true",
+        );
+        let tc_mutex = self.tile_cache.as_ref().expect(
+            "Renderer::render_with_opaque_tenant requires NetrenderOptions::tile_cache_size = Some(_) ",
+        );
+
+        let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
+        let mut tc = tc_mutex.lock().expect("tile_cache lock");
+        let processed = self.preprocess_filters(scene, &mut rast, &mut tc);
+        let render_scene = processed.as_ref().unwrap_or(scene);
+
+        rast.render_to_internal_master(render_scene, &mut tc, master_format, base_color)
+            .unwrap_or_else(|e| panic!("vello render_to_texture failed: {:?}", e));
+
+        let master_texture = rast
+            .master_texture()
+            .expect("master pool guaranteed by render_to_internal_master above")
+            .clone();
+        let size = wgpu::Extent3d {
+            width: scene.viewport_width,
+            height: scene.viewport_height,
+            depth_or_array_layers: 1,
+        };
+        let mut graph = RenderGraph::new();
+        let tenant_image = graph.import_image(
+            tenant.metadata.tenant_name.clone(),
+            tenant.texture.size(),
+            tenant.texture.format(),
+        );
+        let master_image = graph.import_image("netrender initialized master", size, master_format);
+        let pipe = self.external_texture_pipeline(master_format);
+        let placement = tenant.metadata.placement;
+        graph
+            .add_plan_task(
+                "opaque tenant composite",
+                vec![ImageUse::sampled_read(tenant_image)],
+                ImageUse::color_attachment(master_image, ImageLoad::Load),
+                Box::new(move |device, encoder, inputs, output| {
+                    assert_eq!(inputs.len(), 1);
+                    assert!(crate::external_texture::encode_external_texture(
+                        device,
+                        &pipe,
+                        &inputs[0],
+                        output,
+                        size.width,
+                        size.height,
+                        placement,
+                        encoder,
+                    ));
+                }),
+            )
+            .expect("opaque tenant graph task admission");
+        let plan = graph
+            .compile(&[master_image])
+            .expect("opaque tenant graph compilation")
+            .with_raster_execution(crate::renderer::RasterExecution::classic());
+        let graph_dump = plan.dump();
+        let mut imported = HashMap::new();
+        imported.insert(tenant_image, tenant.texture.clone());
+        imported.insert(master_image, master_texture.clone());
+        plan.execute(
+            &self.wgpu_device.core.device,
+            &self.wgpu_device.core.queue,
+            imported,
+        )
+        .expect("opaque tenant graph execution");
+
+        let boundary = tenant.metadata.scene_op_boundary.min(scene.ops.len());
+        if boundary < scene.ops.len() {
+            let tail_scene = scene_tail_fragment(scene, boundary);
+            if !tail_scene.ops.is_empty() {
+                let (_, tail_view) = make_external_tail_target(
+                    &self.wgpu_device.core.device,
+                    scene.viewport_width,
+                    scene.viewport_height,
+                    master_format,
+                );
+                rast.render_overlay_fragment(
+                    &tail_scene,
+                    &tail_view,
+                    vello::peniko::Color::new([0.0, 0.0, 0.0, 0.0]),
+                )
+                .unwrap_or_else(|e| panic!("vello overlay tail render failed: {:?}", e));
+                let master_view =
+                    master_texture.create_view(&wgpu::TextureViewDescriptor::default());
+                self.submit_external_texture(
+                    &tail_view,
+                    &master_view,
+                    master_format,
+                    scene.viewport_width,
+                    scene.viewport_height,
+                    ExternalTexturePlacement::new([
+                        0.0,
+                        0.0,
+                        scene.viewport_width as f32,
+                        scene.viewport_height as f32,
+                    ]),
+                );
+            }
+        }
+
+        let (declares, destroys) = rast.diff_compositor_surfaces(scene);
+        for key in &destroys {
+            compositor.destroy_surface(*key);
+        }
+        for (key, bounds) in &declares {
+            compositor.declare_surface(*key, *bounds);
+        }
+        let layers = rast.build_layer_presents(scene, &tc);
+        let handles = rast.handles_ref();
+        compositor.present_frame(PresentedFrame {
+            master: &master_texture,
+            handles,
+            layers: &layers,
+        });
+        rast.commit_compositor_state(scene);
+
+        let metadata = &tenant.metadata;
+        OpaqueTenantReceipt {
+            tenant_name: metadata.tenant_name.clone(),
+            producer_path: metadata.producer_path.clone(),
+            fallback_count: metadata.fallback_count,
+            scene_op_boundary: boundary,
+            caller_reported_physical_submission_count:
+                metadata.caller_reported_physical_submission_count,
+            logical_opaque_producer_boundaries: 1,
+            graph_encoder_batches: 1,
+            graph_submission_boundaries: 1,
+            logical_plan_dump: format!(
+                "opaque_tenant tenant_name={:?} producer_path={:?} fallback_count={} scene_op_boundary={} caller_reported_physical_submission_count={:?}\n{}",
+                metadata.tenant_name,
+                metadata.producer_path,
+                metadata.fallback_count,
+                boundary,
+                metadata.caller_reported_physical_submission_count,
+                graph_dump,
+            ),
+        }
     }
     /// Number of times the path-(b′) master-texture pool has
     /// allocated a fresh `wgpu::Texture` over this Renderer's
