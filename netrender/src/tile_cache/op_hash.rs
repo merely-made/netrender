@@ -83,19 +83,3 @@ pub(crate) fn op_transform_id(op: &SceneOp) -> Option<u32> {
         SceneOp::Fragment(f) => Some(f.transform_id),
     }
 }
-
-/// Set `op`'s transform id. No-op for ops that carry none.
-pub(crate) fn set_op_transform_id(op: &mut SceneOp, new_id: u32) {
-    match op {
-        SceneOp::Rect(r) => r.transform_id = new_id,
-        SceneOp::Stroke(s) => s.transform_id = new_id,
-        SceneOp::Gradient(g) => g.transform_id = new_id,
-        SceneOp::Image(i) => i.transform_id = new_id,
-        SceneOp::Pattern(p) => p.transform_id = new_id,
-        SceneOp::Shape(s) => s.transform_id = new_id,
-        SceneOp::GlyphRun(r) => r.transform_id = new_id,
-        SceneOp::PushLayer(l) => l.transform_id = new_id,
-        SceneOp::PopLayer => {}
-        SceneOp::Fragment(f) => f.transform_id = new_id,
-    }
-}

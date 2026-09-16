@@ -58,8 +58,8 @@ use crate::scene::{ImageKey, Scene, SceneOp, Transform};
 
 mod emit;
 mod emit_paint;
-pub(crate) use emit::build_bez_path;
-use emit::{emit_glyph_run, emit_push_layer, emit_rect, emit_shape, emit_stroke};
+pub(crate) use emit::{build_bez_path, emit_push_layer};
+use emit::{emit_glyph_run, emit_rect, emit_shape, emit_stroke};
 use emit_paint::{emit_gradient, emit_image, emit_pattern};
 /// Phase 2' / 5' scope: rects + images, with per-primitive transform
 /// and clip. Gradients in `scene` are silently ignored (Phase 8').

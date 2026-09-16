@@ -4,8 +4,9 @@
 
 **Status:** RG0 through RG3 and render-executor extraction delivered; Paredros
 and Mesocosm consumer receipts, headed presentation, and Paredros rebuild-all
-delivered; RG4 untriggered; RG5 deferred; broader GPU execution still gated
-on a versioned resident-buffer receipt
+delivered; retained placements inside layer scopes delivered 2026-09-16; RG4
+untriggered; RG5 deferred; broader GPU execution still gated on a versioned
+resident-buffer receipt
 
 **Prior art:**
 
@@ -797,6 +798,85 @@ Mesocosm commit `f16e802` pins the exact revision and passes its 74 active
 adapter tests, two raster tests, 18 render tests, and physical RG3 byte-match.
 The extraction adds none of the buffer/revision, reusable-template, or
 transient-pool scope reserved for later gates.
+
+### Retained placements inside layer scopes — delivered 2026-09-16
+
+The E4 retained-fragment master path lowered a placement twice over. At layer
+depth zero it appended a cached `vello::Scene` for the fragment; inside any
+open `PushLayer` scope it inlined the fragment's ops un-retained and warned
+once per frame, because the layer lived in the run's netrender sub-scene and
+an append to the master would have escaped it. That fallback was the whole
+cost of a clipped scene: Genet has no standalone clip operation and lowers
+every `PushClip` to a `SceneLayer`, so a clipped page retained nothing.
+
+The fix moves the layer scope up rather than pushing the fragment down.
+`SceneOp::PushLayer` and `SceneOp::PopLayer` now flush the pending run and
+then push or pop on the master `vello::Scene` itself, through the same
+`emit_push_layer` the ordinary lowering path uses. Appends into an open master
+layer are already the move `compose_master` makes for every tile, so the
+placement arm needs no depth test at all: one `SceneOp::Fragment` arm appends
+the cached lowering, and the open layers contain it. `Run::inline_fragment`
+and its transform-composition helper are gone with the fallback, and a run no
+longer rebuilds its transform and font tables on each flush, because layers and
+fragments no longer enter it.
+
+The alternative considered was keeping the layer in the sub-scene and teaching
+the run to append a lowered `vello::Scene` into it. That needs the run to
+become an incrementally built `vello::Scene` rather than an op list, which is a
+larger change to the same effect.
+
+Receipts, on an NVIDIA GeForce RTX 4060 Laptop GPU through Vulkan, driver
+NVIDIA 610.88, against `3961aca91`:
+
+- `netrender/tests/pe4b_retained_in_layers.rs`, seven headless GPU tests. A
+  placement inside a rect-clip layer, an alpha layer, and an element-filter
+  layer each reads back byte-identical to an independently expanded reference
+  — a second `Renderer` whose scene pushes the same content directly under
+  the same layer and never touches the retained path — with
+  `fragment_lower_count` at one. Each case also asserts its own non-vacuity:
+  the reference under the layer must differ from the same content with no
+  layer. Nested layers with direct ops above and below the placement hold
+  painter order. Across four placement-only frames in all three layer kinds
+  the count stays at one. The planar per-body clip fixture emits no
+  fragment-path warning of any kind.
+- The L0a face-ceiling probe, copied out of mere unmodified and given a
+  clip-wrapped variant of its fragment mode — every body's placement inside its
+  own content-box clip layer, which is the shape `emit_push_clip` produces.
+  Same method as the 2026-09-11 L0a receipt: 1920x1080, tile cache 256 px, five
+  warmup frames then sixty measured, medians, `frame ms` = build +
+  `render_vello` + `device.poll(Wait)`. At 1000 bodies x 200 rects (200,000
+  rectangles) the clipped cell falls from 40.46 / 44.26 / 52.04 ms to 8.80 /
+  9.56 / 9.37 ms over three settled runs, and `fragment_lower_count` rises from
+  zero to one per body, flat across all sixty-five frames. At 200 bodies it
+  falls from 9.86 / 10.41 / 14.58 ms to 3.78 / 3.98 / 4.03 ms. The stated rule,
+  fixed before the after numbers were read, was that the clipped cell must land
+  within the same run's unclipped cell plus 15%; the measured ratios are 1.00x,
+  1.07x and 1.02x at 1000 bodies and 1.07x, 1.06x and 1.05x at 200. The clipped
+  median of 9.37 ms is also under the 2026-09-11 unclipped absolute of 9.96 ms
+  for that cell, though this host's own run-to-run spread on the unclipped
+  control was 8.34 to 15.45 ms, which is why the in-run ratio is the primary
+  statement and the absolute the secondary one.
+- `cargo test --locked -p netrender`: 47 suites, 272 passed, 1 ignored. The
+  rest of the workspace: 15 suites, 63 passed, 1 ignored.
+
+Receipt directory: `C:\Users\mark_\Code\testing\netrender\t4_20260916\`
+(raw probe JSON per run, readback PNGs and their digests, `results.md`).
+
+What still cannot retain, and still warns: a fragment whose content places
+another fragment, skipped at lower time by `scene_to_vello`'s own warn arm, and
+a placement naming an unregistered `FragmentId`, warned and skipped. Neither is
+a layer question.
+
+One residual was found while building the receipt and deliberately not fixed
+here. A `Renderer` reused across frames loses element-filter content from frame
+one when the filtered layer's content moves: the filter passes mint a fresh GPU
+texture under the same sentinel `ImageKey` each frame while cached tile scenes
+keep the previous vello image handle. It reproduces with no fragment anywhere
+in the scene, so it is not caused by or affected by this change; the doc comment
+on `preprocess_filters` already names a tile-cache-aware key and handle reuse
+scheme as the proper fix. The per-frame pixel comparison in
+`pe4b_retained_in_layers.rs` uses a fresh renderer per frame to step around it
+and says so.
 
 ### RG4: Prepare repeated graph shapes
 
