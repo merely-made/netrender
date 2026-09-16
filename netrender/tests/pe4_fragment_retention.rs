@@ -283,11 +283,12 @@ fn placement_composes_with_fragment_local_transforms() {
     );
 }
 
-/// The layer fallback: a fragment placed inside a PushLayer scope
-/// inlines un-retained but must still be pixel-correct, including the
-/// layer's alpha.
+/// A fragment placed inside a PushLayer scope. Layers are hoisted onto
+/// the master (genet T4), so this retains and stays pixel-correct,
+/// including the layer's alpha. Depth and nesting live in
+/// `pe4b_retained_in_layers.rs`.
 #[test]
-fn layer_scoped_placement_falls_back_correctly() {
+fn layer_scoped_placement_retains_and_stays_correct() {
     use netrender::scene::{SceneClip, SceneLayer, SceneOp};
 
     let handles = boot().expect("wgpu boot");
@@ -314,11 +315,11 @@ fn layer_scoped_placement_falls_back_correctly() {
 
     assert_eq!(
         got, expected,
-        "a layer-scoped placement must fall back to a pixel-correct inline"
+        "a layer-scoped placement must match its flat reference"
     );
     assert_eq!(
         frag_r.fragment_lower_count(),
-        Some(0),
-        "the layer fallback inlines; it must not populate the retained cache"
+        Some(1),
+        "a layer-scoped placement retains: exactly one lowering"
     );
 }

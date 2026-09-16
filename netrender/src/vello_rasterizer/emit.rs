@@ -276,7 +276,7 @@ pub(super) fn emit_stroke(
 /// Phase 12b' — emit a `vscene.push_layer` for a [`SceneLayer`] op.
 /// The matching `pop_layer` is emitted by the `SceneOp::PopLayer`
 /// arm of `scene_to_vello_with_overrides`.
-pub(super) fn emit_push_layer(vscene: &mut vello::Scene, layer: &SceneLayer, scene: &Scene) {
+pub(crate) fn emit_push_layer(vscene: &mut vello::Scene, layer: &SceneLayer, scene: &Scene) {
     // Roadmap C3 — thread the layer's compose mode through so
     // alpha-mask layers (`SceneCompose::DestIn`) get their special
     // composite at pop time.

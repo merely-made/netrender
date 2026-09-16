@@ -23,11 +23,17 @@
 //!
 //! Scenes containing `SceneOp::Fragment` take this module's master
 //! path and bypass the tile cache entirely; scenes without fragments
-//! keep the exact pre-E4 tile path. Two spike limitations, both
-//! deliberate and warned on: a placement inside a `PushLayer` scope
-//! falls back to un-retained inlining (correct, just not cached), and
-//! nested fragments (fragment content placing another fragment) are
-//! skipped at lower time by `scene_to_vello`'s own warn arm.
+//! keep the exact pre-E4 tile path.
+//!
+//! Layer scopes are hoisted onto the master: `PushLayer` / `PopLayer`
+//! flush the pending run and then push / pop on the master
+//! `vello::Scene` itself, so a placement inside an open layer appends
+//! its cached lowering *into* that layer (genet T4, 2026-09-16).
+//! Before that the layer lived in the run's sub-scene and a
+//! layer-scoped placement had to inline un-retained. One spike
+//! limitation survives: nested fragments (fragment content placing
+//! another fragment) are skipped at lower time by `scene_to_vello`'s
+//! own warn arm.
 
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
@@ -38,7 +44,7 @@ use vello::peniko::{Fill, Mix};
 
 use crate::scene::{FragmentId, Scene, SceneFragment, SceneOp, Transform};
 use crate::tile_cache::op_hash;
-use crate::vello_rasterizer::{scene_to_vello_with_overrides, transform_to_affine};
+use crate::vello_rasterizer::{emit_push_layer, scene_to_vello_with_overrides, transform_to_affine};
 
 use super::VelloTileRasterizer;
 
@@ -47,7 +53,7 @@ pub(super) struct RetainedFragment {
     /// Bumped by `update_fragment`; participates in the frame
     /// signature so content changes rebuild the master.
     generation: u64,
-    /// The content, kept for (re-)lowering and the layer fallback.
+    /// The content, kept for (re-)lowering.
     fragment: SceneFragment,
     /// Cached lowering, dropped on update. Lazy: first placement
     /// lowers.
@@ -199,9 +205,10 @@ fn fragment_to_scene(fragment: &SceneFragment) -> Scene {
     s
 }
 
-/// A painter-order run of non-fragment ops, accumulated into a scratch
-/// `Scene` that starts from the parent's tables. Owning real tables is
-/// what lets the layer fallback splice composed transforms in.
+/// A painter-order run of leaf ops, accumulated into a scratch `Scene`
+/// carrying the parent's tables. Layers and fragments are master-level,
+/// so a run never holds `PushLayer` / `PopLayer` / `Fragment` and its
+/// tables never change after construction.
 struct Run {
     scene: Scene,
     is_empty: bool,
@@ -223,37 +230,12 @@ impl Run {
         self.is_empty = false;
     }
 
-    /// Layer fallback: splice a fragment's ops in, remapped by E2's
-    /// `append_fragment` and with the placement composed onto every
-    /// spliced op's transform.
-    fn inline_fragment(&mut self, fragment: &SceneFragment, placement: Transform) {
-        let base = self.scene.ops.len();
-        self.scene.append_fragment(fragment.clone());
-        self.is_empty = self.scene.ops.is_empty() && self.is_empty;
-
-        // Compose placement * local for each distinct transform the
-        // spliced ops reference. Identity (id 0) composes to the
-        // placement itself.
-        let mut remap: HashMap<u32, u32> = HashMap::new();
-        let mut ops = std::mem::take(&mut self.scene.ops);
-        for op in &mut ops[base..] {
-            if let Some(tid) = op_hash::op_transform_id(op) {
-                let new_id = *remap.entry(tid).or_insert_with(|| {
-                    let composed = matmul(&placement, &self.scene.transforms[tid as usize]);
-                    let id = self.scene.transforms.len() as u32;
-                    self.scene.transforms.push(composed);
-                    id
-                });
-                op_hash::set_op_transform_id(op, new_id);
-            }
-        }
-        self.scene.ops = ops;
-    }
-
+    /// Lower what has accumulated and append it at the master's
+    /// current layer depth. Appending into an open master layer is the
+    /// move `compose_master` already makes per tile.
     fn flush_into(
         &mut self,
         master: &mut vello::Scene,
-        parent: &Scene,
         merged_images: &HashMap<u64, vello::peniko::ImageData>,
     ) {
         if self.is_empty {
@@ -261,7 +243,8 @@ impl Run {
         }
         let sub = scene_to_vello_with_overrides(&self.scene, merged_images);
         master.append(&sub, None);
-        *self = Run::new(parent);
+        self.scene.ops.clear();
+        self.is_empty = true;
     }
 }
 
@@ -334,12 +317,11 @@ impl VelloTileRasterizer {
 
         let mut run = Run::new(scene);
         let mut layer_depth: u32 = 0;
-        let mut warned_layer_fallback = false;
         let mut relowered: u64 = 0;
 
         for op in &scene.ops {
             match op {
-                SceneOp::Fragment(f) if layer_depth == 0 => {
+                SceneOp::Fragment(f) => {
                     let Some(retained) = self.retained.fragments.get(&f.id) else {
                         log::warn!(
                             "fragment path: placed FragmentId {} is not registered; skipped",
@@ -347,7 +329,7 @@ impl VelloTileRasterizer {
                         );
                         continue;
                     };
-                    run.flush_into(&mut master, scene, &merged_images);
+                    run.flush_into(&mut master, &merged_images);
                     if retained.lowered.is_none() {
                         let tmp = fragment_to_scene(&retained.fragment);
                         let lowered = scene_to_vello_with_overrides(&tmp, &merged_images);
@@ -358,43 +340,40 @@ impl VelloTileRasterizer {
                     }
                     let r = &self.retained.fragments[&f.id];
                     let affine = transform_to_affine(&scene.transforms[f.transform_id as usize]);
+                    // Open master layers, if any, contain this append
+                    // — which is the point: retention survives a layer
+                    // scope.
                     master.append(r.lowered.as_ref().unwrap(), Some(affine));
                 }
-                SceneOp::Fragment(f) => {
-                    // Inside a layer scope: the open layer lives in the
-                    // run's sub-scene, so an append to the master would
-                    // escape it. Inline instead — correct, un-retained.
-                    if !warned_layer_fallback {
-                        log::warn!(
-                            "fragment path: FragmentId {} placed inside a PushLayer scope; \
-                             inlining un-retained for layer-scoped placements this frame",
-                            f.id
-                        );
-                        warned_layer_fallback = true;
-                    }
-                    match self.retained.fragments.get(&f.id) {
-                        Some(r) => {
-                            let placement = scene.transforms[f.transform_id as usize];
-                            run.inline_fragment(&r.fragment, placement);
-                        }
-                        None => log::warn!(
-                            "fragment path: placed FragmentId {} is not registered; skipped",
-                            f.id
-                        ),
-                    }
-                }
-                SceneOp::PushLayer(_) => {
+                SceneOp::PushLayer(layer) => {
+                    // Hoisted to the master so the scope is open around
+                    // fragment appends, not buried in the run sub-scene.
+                    run.flush_into(&mut master, &merged_images);
+                    emit_push_layer(&mut master, layer, scene);
                     layer_depth += 1;
-                    run.push(op.clone());
                 }
                 SceneOp::PopLayer => {
-                    layer_depth = layer_depth.saturating_sub(1);
-                    run.push(op.clone());
+                    debug_assert!(
+                        layer_depth > 0,
+                        "SceneOp::PopLayer with no matching PushLayer"
+                    );
+                    if layer_depth > 0 {
+                        run.flush_into(&mut master, &merged_images);
+                        master.pop_layer();
+                        layer_depth -= 1;
+                    }
                 }
                 other => run.push(other.clone()),
             }
         }
-        run.flush_into(&mut master, scene, &merged_images);
+        run.flush_into(&mut master, &merged_images);
+
+        // An unbalanced scene would otherwise trap the root wrap inside
+        // a stray layer.
+        debug_assert_eq!(layer_depth, 0, "Scene ended with unclosed PushLayer(s)");
+        for _ in 0..layer_depth {
+            master.pop_layer();
+        }
 
         if needs_root_layer {
             master.pop_layer();
@@ -410,19 +389,4 @@ impl VelloTileRasterizer {
         self.retained.cached_master = Some((signature, master.clone()));
         master
     }
-}
-
-/// 4x4 column-major multiply: `a * b` (apply `b`, then `a`).
-fn matmul(a: &Transform, b: &Transform) -> Transform {
-    let mut m = [0.0f32; 16];
-    for col in 0..4 {
-        for row in 0..4 {
-            let mut acc = 0.0;
-            for k in 0..4 {
-                acc += a.m[k * 4 + row] * b.m[col * 4 + k];
-            }
-            m[col * 4 + row] = acc;
-        }
-    }
-    Transform { m }
 }
