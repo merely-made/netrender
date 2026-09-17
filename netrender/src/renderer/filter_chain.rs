@@ -242,6 +242,7 @@ impl Renderer {
         scene: &Scene,
         rast: &mut crate::vello_tile_rasterizer::VelloTileRasterizer,
         tc: &mut TileCache,
+        used: &mut Vec<ImageKey>,
     ) -> Scene {
         use crate::scene::{SceneClip, SceneFilter, SceneImage, SceneOp, NO_CLIP, SHARP_CLIP};
 
@@ -294,7 +295,7 @@ impl Renderer {
             let content = build_layer_content_scene(scene, push_idx, pop_idx);
             let content_tex = self.render_scene_to_texture(rast, tc, &content);
             let filtered = self.apply_filter_chain(content_tex, scene.viewport_width, &filters);
-            rast.register_texture(next_key, filtered);
+            self.publish_filter_texture(rast, tc, next_key, filtered, used);
 
             let vw = scene.viewport_width as f32;
             let vh = scene.viewport_height as f32;

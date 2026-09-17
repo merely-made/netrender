@@ -97,6 +97,11 @@ pub struct Renderer {
     /// producer; entries are explicitly retired by `unregister_external_image`.
     external_images: Mutex<HashMap<ImageKey, ExternalImageState>>,
     external_image_staging_pipeline: Mutex<Option<ExternalImageStagingPipeline>>,
+    /// Filter-result texture slots: sentinel `ImageKey` -> the size of the
+    /// texture currently registered under it. One entry per filtered layer
+    /// the frame needs, reused frame to frame so a cached tile's baked Vello
+    /// handle stays valid. See `Renderer::publish_filter_texture`.
+    pub(crate) filter_image_slots: Mutex<HashMap<ImageKey, [u32; 2]>>,
 }
 
 #[derive(Clone, Copy)]
@@ -393,6 +398,18 @@ impl Renderer {
         let rast_mutex = self.vello_rasterizer.as_ref()?;
         let rast = rast_mutex.lock().expect("vello_rasterizer lock");
         Some(rast.cached_tile_count())
+    }
+
+    /// Live Vello texture handles held by the rasterizer — every
+    /// `register_texture` that has not been retired, host external images and
+    /// filter results alike. On a scene whose only image overrides come from
+    /// filters this is the filter-texture count, and it is the receipt that
+    /// the filter passes reuse handles instead of minting one per frame.
+    /// Returns `None` if `enable_vello` was false.
+    pub fn vello_live_texture_registrations(&self) -> Option<usize> {
+        let rast_mutex = self.vello_rasterizer.as_ref()?;
+        let rast = rast_mutex.lock().expect("vello_rasterizer lock");
+        Some(rast.live_texture_registrations())
     }
 
     /// Roadmap E4 — register a retained fragment. The returned id is

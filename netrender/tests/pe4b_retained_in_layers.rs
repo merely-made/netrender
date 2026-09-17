@@ -236,14 +236,9 @@ fn nested_layers_keep_painter_order_around_a_placement() {
 
 /// Done-condition 1 across a moving placement: every frame of a
 /// placement-only walk must match its independent expansion, in all three
-/// layer kinds. A fresh `Renderer` per frame on both sides isolates the
-/// comparison from cross-frame cache state (`..._lowers_once_...` below owns
-/// the cross-frame half) and steps around a pre-existing element-filter
-/// defect: on a *reused* renderer the filter passes mint a new texture under
-/// the same sentinel key each frame while cached tile scenes keep the old
-/// handle, and the filtered layer renders blank from frame 1. That is
-/// fragment-independent (it reproduces with no fragment in the scene); see
-/// the note on `preprocess_filters`, and `netrender-notes`, 2026-09-16.
+/// layer kinds. One long-lived `Renderer` walks the placement, so the whole
+/// cross-frame cache lattice is under test; the reference side stays a fresh
+/// `Renderer` per frame because it is the independent oracle.
 #[test]
 fn moving_placements_match_expanded_references() {
     let handles = boot().expect("wgpu boot");
@@ -255,9 +250,9 @@ fn moving_placements_match_expanded_references() {
         ("alpha", alpha_layer()),
         ("element filter", filter_layer()),
     ] {
+        let r = renderer(&handles);
+        let id = r.register_fragment(card_fragment()).expect("register");
         for (i, (dx, dy)) in places.iter().enumerate() {
-            let r = renderer(&handles);
-            let id = r.register_fragment(card_fragment()).expect("register");
             let got = render_bytes(&r, &handles, &placed_in_layer(id, layer.clone(), *dx, *dy));
 
             let ref_r = renderer(&handles);

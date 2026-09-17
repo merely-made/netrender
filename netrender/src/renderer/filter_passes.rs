@@ -252,16 +252,23 @@ impl Renderer {
     /// prefix), then element CSS `filter` on the result (the layer's own output).
     /// Shared by every render entry so filters apply on all paths.
     ///
-    /// Note on the per-frame `register_texture`: the filter passes mint a fresh
-    /// GPU texture under a deterministic sentinel key each frame and never
-    /// `unregister` it. This is deliberate, matching the backdrop pass: the tile
-    /// cache bakes the vello image handle into cached per-tile Scenes, so a clean
-    /// (reused) tile must still resolve its filter image next frame — which
-    /// requires the prior handle to stay alive. Freeing it would break tile reuse
-    /// for static filtered content. The cost is a slow growth of vello's
-    /// paint-texture table on heavily-animated filtered pages; a tile-cache-aware
-    /// key/handle reuse scheme is the proper fix and a shared follow-up with
-    /// backdrop-filter.
+    /// Filter-result texture policy (both passes share it, via
+    /// [`Self::publish_filter_texture`]). Each filtered layer owns a *slot* —
+    /// a deterministic sentinel `ImageKey`, assigned by painter order. A slot
+    /// registers its GPU texture with Vello once and thereafter is
+    /// **refreshed in place**: `refresh_texture` swaps the backing texture
+    /// while keeping the Vello `ImageData` identity that cached per-tile
+    /// Scenes baked in. That is what makes the three requirements hold at
+    /// once — a reused tile resolves the handle it was baked with and sees
+    /// this frame's pixels through it; a tile whose filter input moved is
+    /// dirty by the ordinary scene diff (the injected image op's bounds / uv /
+    /// key changed) and re-bakes; and the live handle count stays at one per
+    /// filtered layer instead of one per frame. Slots the frame no longer
+    /// claims are unregistered by [`Self::retire_unused_filter_slots`]; a tile
+    /// that referenced one necessarily held an image op the scene has dropped,
+    /// so it is already dirty and needs no extra invalidation. Only a slot
+    /// whose texture changes SIZE mints a new identity, and that path clears
+    /// the tile cache explicitly, because the baked handle is then stale.
     pub(super) fn preprocess_filters(
         &self,
         scene: &Scene,
@@ -269,17 +276,88 @@ impl Renderer {
         tc: &mut TileCache,
     ) -> Option<Scene> {
         if !has_backdrop_filter(scene) && !has_element_filter(scene) {
+            // A page that stopped filtering must not keep the textures alive.
+            self.retire_unused_filter_slots(rast, &[]);
             return None;
         }
+        let mut used: Vec<ImageKey> = Vec::new();
         let mut pre = if has_backdrop_filter(scene) {
-            self.preprocess_backdrop_filters(scene, rast, tc)
+            self.preprocess_backdrop_filters(scene, rast, tc, &mut used)
         } else {
             scene.clone()
         };
         if has_element_filter(&pre) {
-            pre = self.preprocess_element_filters(&pre, rast, tc);
+            pre = self.preprocess_element_filters(&pre, rast, tc, &mut used);
         }
+        self.retire_unused_filter_slots(rast, &used);
         Some(pre)
+    }
+
+    /// Hand `texture` to the rasterizer as filter slot `key`, reusing the
+    /// slot's existing Vello handle when the size matches (the frame-to-frame
+    /// case) and minting a fresh one only when it cannot. Records `key` in
+    /// `used` so [`Self::retire_unused_filter_slots`] keeps it.
+    ///
+    /// The mint path is the one that invalidates: a new `ImageData` identity
+    /// is invisible to the tile hash (a scene's `ImageKey` is deliberately
+    /// stable across resource replacement), so every cached tile that baked
+    /// the old handle has to re-bake.
+    pub(super) fn publish_filter_texture(
+        &self,
+        rast: &mut crate::vello_tile_rasterizer::VelloTileRasterizer,
+        tc: &mut TileCache,
+        key: ImageKey,
+        texture: wgpu::Texture,
+        used: &mut Vec<ImageKey>,
+    ) {
+        used.push(key);
+        let size = [texture.width(), texture.height()];
+        let mut slots = self
+            .filter_image_slots
+            .lock()
+            .expect("filter_image_slots lock");
+        let known = slots.get(&key).copied();
+        let refreshed = known == Some(size) && rast.refresh_texture(key, texture.clone());
+        if !refreshed {
+            if known.is_some() {
+                rast.unregister_texture(key);
+            }
+            rast.register_texture(key, texture);
+            if known.is_some() {
+                // Replacement, not first sight: cached scenes hold the dead
+                // handle. (First sight needs nothing — no cached scene can
+                // reference a key the scene has never carried.)
+                tc.clear();
+                rast.invalidate_image_override_caches();
+            }
+        }
+        slots.insert(key, size);
+    }
+
+    /// Unregister every filter slot the current frame did not claim. A cheap
+    /// no-op on the ordinary frame (nothing registered, or the same slots as
+    /// last frame).
+    pub(super) fn retire_unused_filter_slots(
+        &self,
+        rast: &mut crate::vello_tile_rasterizer::VelloTileRasterizer,
+        used: &[ImageKey],
+    ) {
+        let mut slots = self
+            .filter_image_slots
+            .lock()
+            .expect("filter_image_slots lock");
+        if slots.is_empty() {
+            return;
+        }
+        let stale: Vec<ImageKey> = slots
+            .keys()
+            .copied()
+            .filter(|k| !used.contains(k))
+            .collect();
+        for key in stale {
+            rast.unregister_texture(key);
+            slots.remove(&key);
+        }
     }
     /// Roadmap D1 — pre-process backdrop filters: for each layer
     /// carrying a [`SceneFilter`], render the scene-prefix to an
@@ -298,6 +376,7 @@ impl Renderer {
         scene: &Scene,
         rast: &mut crate::vello_tile_rasterizer::VelloTileRasterizer,
         tc: &mut TileCache,
+        used: &mut Vec<ImageKey>,
     ) -> Scene {
         use crate::scene::{SceneClip, SceneFilter, SceneImage, SceneOp, NO_CLIP, SHARP_CLIP};
 
@@ -359,9 +438,10 @@ impl Renderer {
             };
             let blurred = self.build_blurred_image(prefix_tex, scene.viewport_width, radius);
 
-            // Register as an ImageKey on the rasterizer's
-            // `image_overrides` (Path B).
-            rast.register_texture(next_key, blurred);
+            // Publish under this backdrop's slot on the rasterizer's
+            // `image_overrides` (Path B) — reusing the slot's Vello handle
+            // where it can, so cached tiles keep resolving it.
+            self.publish_filter_texture(rast, tc, next_key, blurred, used);
 
             // Compute UV: the blurred texture is the FULL viewport;
             // we sample the bounds region.
