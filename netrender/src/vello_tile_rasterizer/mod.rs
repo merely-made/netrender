@@ -86,6 +86,9 @@ pub struct VelloTileRasterizer {
     /// Persists across frames; entries survive until the texture is
     /// explicitly unregistered or the rasterizer is dropped.
     image_overrides: HashMap<ImageKey, ImageData>,
+    /// Count of live Vello texture handles — see
+    /// [`Self::live_texture_registrations`].
+    live_texture_registrations: usize,
     last_dirty_count: usize,
     /// Retained from the most recent `tile_cache.invalidate(scene)`
     /// call, used by `build_layer_presents` to compute per-surface
@@ -145,6 +148,7 @@ impl VelloTileRasterizer {
             tile_scenes: HashMap::new(),
             image_data: HashMap::new(),
             image_overrides: HashMap::new(),
+            live_texture_registrations: 0,
             last_dirty_count: 0,
             last_dirty_tiles: Vec::new(),
             master_pool: None,
@@ -372,7 +376,11 @@ impl VelloTileRasterizer {
     /// `scene.image_sources` entries with the same `ImageKey`.
     pub fn register_texture(&mut self, key: ImageKey, texture: wgpu::Texture) {
         let image = self.vello_renderer.register_texture(texture);
+        // A replaced entry abandons its Vello identity rather than retiring
+        // it, so the counter rises either way; only `unregister_texture`
+        // brings it down. See [`Self::live_texture_registrations`].
         self.image_overrides.insert(key, image);
+        self.live_texture_registrations += 1;
     }
 
     /// Drop a previously-registered `register_texture` entry.
@@ -380,6 +388,7 @@ impl VelloTileRasterizer {
     pub fn unregister_texture(&mut self, key: ImageKey) {
         if let Some(image) = self.image_overrides.remove(&key) {
             self.vello_renderer.unregister_texture(image);
+            self.live_texture_registrations = self.live_texture_registrations.saturating_sub(1);
         }
     }
 
@@ -417,6 +426,17 @@ impl VelloTileRasterizer {
     /// `render` call. Useful for tile-cache hit-rate assertions.
     pub fn last_dirty_count(&self) -> usize {
         self.last_dirty_count
+    }
+
+    /// Live `vello::Renderer::register_texture` handles — registrations
+    /// minus retirements. Deliberately NOT `image_overrides.len()`: handing
+    /// a key a second texture mints a fresh Vello `ImageData` identity and
+    /// abandons the previous one, which stays in Vello's paint-texture table
+    /// while the map keeps one key. The leak is only visible per handle, so
+    /// this is the receipt the filter passes' key/handle reuse is measured
+    /// against.
+    pub fn live_texture_registrations(&self) -> usize {
+        self.live_texture_registrations
     }
 
     /// Number of tile-Scenes currently held in the rasterizer's

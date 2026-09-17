@@ -4,7 +4,8 @@
 
 **Status:** RG0 through RG3 and render-executor extraction delivered; Paredros
 and Mesocosm consumer receipts, headed presentation, and Paredros rebuild-all
-delivered; retained placements inside layer scopes delivered 2026-09-16; RG4
+delivered; retained placements inside layer scopes and filter texture slots
+delivered 2026-09-16; RG4
 untriggered; RG5 deferred; broader GPU execution still gated on a versioned
 resident-buffer receipt
 
@@ -876,7 +877,106 @@ in the scene, so it is not caused by or affected by this change; the doc comment
 on `preprocess_filters` already names a tile-cache-aware key and handle reuse
 scheme as the proper fix. The per-frame pixel comparison in
 `pe4b_retained_in_layers.rs` uses a fresh renderer per frame to step around it
-and says so.
+and says so. **Closed the same day** — see the next entry; the workaround and
+its comment are gone.
+
+### Filter texture slots: key/handle reuse — delivered 2026-09-16
+
+The residual above, fixed at its cause. Both filter passes — element CSS
+`filter` in `preprocess_element_filters` and `backdrop-filter` in
+`preprocess_backdrop_filters` — rendered each filtered layer's result into a
+brand-new GPU texture every frame and handed it to the rasterizer with
+`register_texture` under a deterministic sentinel `ImageKey`, never
+unregistering the previous one. Two things follow from that, and both were
+live. A cached per-tile `vello::Scene` bakes the Vello `ImageData` *identity*,
+not the `ImageKey`; the key is deliberately stable across resource
+replacement, so nothing in the tile hash can see the swap. A filtered layer
+whose injected image op is geometrically unchanged frame to frame — an
+unclipped element filter, or a fixed backdrop pane over moving content —
+therefore dirties no tile at all, and every reused tile keeps resolving last
+frame's dead handle: the layer stops tracking its content. Separately, the
+abandoned identities accumulated in Vello's paint-texture table at one per
+frame, for the life of the renderer.
+
+The scheme is a *slot*. Each filtered layer owns one sentinel key, assigned by
+painter order exactly as before. `Renderer::publish_filter_texture` registers
+that key's texture with Vello once, and on every later frame calls
+`refresh_texture`, which swaps the backing texture while preserving the
+`ImageData` identity and marks it dirty for the next atlas copy — the update
+path the host external-image staging path already used for a same-sized
+source. All three requirements then hold together, and for one reason rather
+than three: a reused tile resolves the handle it baked and sees this frame's
+pixels through it; a tile whose filter input actually moved is dirty by the
+ordinary scene diff, because the injected image op's bounds, uv or key
+changed; and the live-handle count stays at one per filtered layer instead of
+one per frame. `retire_unused_filter_slots` unregisters any slot the frame did
+not claim, including all of them on a frame that stopped filtering, with no
+extra invalidation: a tile that referenced a retired slot necessarily held an
+image op the scene has dropped, so it is already dirty. Only a slot whose
+texture changes *size* mints a fresh identity, and that path clears the tile
+cache explicitly, because the baked handle is then genuinely stale. Backdrop
+and element filters share the whole of it, as the old code note asked.
+
+The alternative was making the identity visible to the tile hash — mixing a
+per-slot generation into the image op's hash so a new texture dirties the
+tiles that reference it. It is a larger change (the hash is a scene-level
+concern and the generation would have to reach it), and it buys the wrong
+thing: it would re-bake tiles on every animated frame that the refresh path
+now reuses, turning a correctness fix into a tile-reuse regression.
+
+`VelloTileRasterizer::live_texture_registrations` is the new receipt: Vello
+handles registered minus retired. It is deliberately not
+`image_overrides.len()`, which hides the leak entirely — handing a key a
+second texture replaces one map entry while abandoning one Vello identity, so
+the key count reads 1 while the table grows without bound.
+
+Receipts, on an NVIDIA GeForce RTX 4060 Laptop GPU through Vulkan, against
+`06f3a12f4`:
+
+- `netrender/tests/filter_texture_lifecycle.rs`, eight headless GPU tests.
+  A four-frame walk of a moving card inside an unclipped element-`filter`
+  layer, and of a moving card behind a fixed `backdrop-filter` pane, each read
+  back from ONE reused `Renderer` and compared byte-for-byte against a fresh
+  `Renderer` per frame — the oracle that cannot hold cross-frame cache state.
+  Each frame carries its own non-vacuity: the reference must differ from an
+  empty scene, and from the previous frame, so a renderer frozen on frame 0
+  cannot pass. Before the fix the element case failed at frame 1 with 6,912 of
+  65,536 pixels differing (the card's new position reading back as bare
+  background) and the backdrop case at frame 2 with 144 pixels; after, all
+  four frames of both match exactly. Over 60 animated frames the live
+  registration count stays at **1** for each — the bound is one per filtered
+  layer in the frame, and these fixtures carry one each; before the fix the
+  counter equalled the frame number (2 after frame 1, and so on). A frame that
+  stops filtering returns the count to 0. Two more tests pin what the old
+  never-unregister policy existed to protect: an unchanged filtered scene,
+  element and backdrop, dirties zero tiles on its second frame and reads back
+  byte-identical.
+- `netrender/tests/pe4b_retained_in_layers.rs` keeps all seven tests, with
+  `moving_placements_match_expanded_references` now walking the placement on
+  one long-lived `Renderer` instead of a fresh one per frame. The
+  fresh-renderer workaround and the comment explaining it are gone; the
+  reference side stays fresh per frame because it is the independent oracle.
+  `fragment_lower_count` is unchanged at one per fragment.
+- `cargo test --locked --offline -p netrender`: 48 suites, 280 passed, 1
+  ignored (47 / 272 / 1 at base, plus this file's eight). The rest of the
+  workspace, `--workspace --exclude netrender`: 15 suites, 63 passed, 1 ignored.
+  Adapter: NVIDIA GeForce RTX 4060 Laptop GPU / Vulkan / NVIDIA 610.88,
+  printed by the file's own `report_adapter` test.
+
+Receipt directory: `C:\Users\mark_\Code\testing\netrender\a_filter_cache_20260916\`
+(`results.md`, the two suite logs, and before/after readback PNGs of the
+compared frames — written by the test itself when
+`NETRENDER_FILTER_CAPTURE_DIR` is set, so the `before` set stops at the frame
+that failed).
+
+Residual: slots are keyed globally, so a host that interleaves two SURFACES
+with filters through one `Renderer` — the `render_vello_scaled_for` path —
+has them share slot keys and overwrite each other's pixels. That shape was
+already broken before this change, in the same place and for the same reason
+(it got a fresh identity per call, so each surface's cached tiles went stale
+instead); nothing here makes it worse, and the fix is to scope the slot key by
+surface id, which means plumbing the surface through `preprocess_filters`.
+Deferred, unmeasured, and not exercised by any test in the suite.
 
 ### RG4: Prepare repeated graph shapes
 
