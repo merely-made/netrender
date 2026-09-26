@@ -505,6 +505,7 @@ fn main() {
             enable_tile_dirty_overlay: false,
             tile_dirty_overlay_window_frames: 0,
             backends: None,
+            optional_features: wgpu::Features::empty(),
         },
     )
     .expect("create_netrender_instance");
