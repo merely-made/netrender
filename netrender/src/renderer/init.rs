@@ -68,6 +68,12 @@ pub struct NetrenderOptions {
     /// (e.g. `genet_winit_host::RenderCore::boot`), not embedder-supplied
     /// (`with_external`) devices.
     pub backends: Option<wgpu::Backends>,
+    /// Device features the host uses when the adapter offers them, such as
+    /// `TIMESTAMP_QUERY` for GPU frame timing; an adapter without one boots
+    /// without it. Read only where the device is booted from these options,
+    /// the same as [`Self::backends`], and passed there as
+    /// [`TenantNeeds::optional_features`](netrender_device::TenantNeeds::optional_features).
+    pub optional_features: wgpu::Features,
 }
 
 impl NetrenderOptions {
