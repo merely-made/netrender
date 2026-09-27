@@ -15,7 +15,7 @@ resolver = "2"
 # and matches the Mere workspace convention.
 [workspace.dependencies]
 # Linebender visual stack.
-vello = { package = "netrender-vello", version = "0.10.0", default-features = false }
+vello = { package = "netrender-vello", version = "0.10.1", default-features = false }
 # Experimental sparse-strips backends. Both are pinned to the same
 # consumer branch so Hybrid's wgpu types stay unified with Netrender's
 # device and the retained-scene append prototype is reproducible.

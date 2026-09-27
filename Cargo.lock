@@ -1121,9 +1121,9 @@ dependencies = [
 
 [[package]]
 name = "netrender-vello"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a8804d9aea76067d4b1b19dda02c567151d7ca878c996a6c94e80208fa5c16f"
+checksum = "35f7845140bb5b2cbb3ebebbb341b14d08bfdbcea6bcad345fd91e4c4c768e26"
 dependencies = [
  "bytemuck",
  "futures-intrusive",
