@@ -9,6 +9,11 @@ sole rasterizer. The pre-pivot WebRender-wgpu work survives only as
 `archive/*` annotated tags (indexed in
 [`netrender-notes/archive/2026-08-10_branch_archive.md`](netrender-notes/archive/2026-08-10_branch_archive.md)).
 
+The Classic backend uses `netrender-vello` 0.10.1 on wgpu 30. Its dynamic
+GPU buffers grow from asynchronously read-back allocation counts. An
+overflowing frame can be blank until a later render uses those counts;
+recovery remains bounded by the device's storage-buffer limits.
+
 ## Status (2026-08-25)
 
 Stable within its scope; in-repo roadmap work is complete per the 2026-08-10

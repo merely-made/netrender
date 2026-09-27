@@ -10,6 +10,13 @@ every phase through 12b' has shipped. See §12 for the mapping.
 into [`2026-05-01_vello_verification_record.md`](2026-05-01_vello_verification_record.md).
 Section numbers are unchanged, so every `§11.x` below resolves there.
 
+**Current dependency row (2026-09-27):** Classic uses the published
+`netrender-vello` 0.10.1 fork on wgpu 30, including asynchronous GPU-count
+buffer growth. This supersedes the May 1 no-fork ruling below for the
+compatibility and buffer-sizing changes. It does not add encoder sharing
+or change the retained-scene architecture. Overflow recovery needs later
+renders after readback and remains subject to device storage limits.
+
 **Verification spike outcome (2026-05-01)**:
 
 - **§11.1 wgpu/vello compatibility**: cleared. vello main is bumped

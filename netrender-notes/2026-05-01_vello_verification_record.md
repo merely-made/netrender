@@ -1942,6 +1942,31 @@ API retains its flat composition contract; callers must choose one composition
 path per producer. GPU staging and atlas copying are additional work, without
 CPU readback; this receipt makes no performance or full WebGL conformance claim.
 
+## Classic buffer growth dependency — CLEARED (2026-09-27)
+
+The Classic dependency minimum and lockfile now use the published
+`netrender-vello` 0.10.1. This fork retains GPU allocation high-water counts
+between renders and grows later frames within device storage-buffer limits.
+The renderer is retained by Netrender's tile rasterizer. An overflowing
+frame can still be blank until asynchronous readback and a later render;
+this change does not itself schedule host redraws.
+
+Verified on Windows with Rust 1.97.1, from base `c8c09f16b`, using the
+registry package without a local Vello override:
+
+- `cargo test --locked -j 2 -p netrender --test p2prime_vello_rects
+  --test p5prime_vello_image --test p8prime_vello_gradients -- --test-threads=1`:
+  **11 passed**, zero failed or ignored.
+- `cargo check --locked -j 2 -p netrender --target wasm32-unknown-unknown`:
+  **passed**.
+- Logs: `Code/testing/mere/netrender-vello-0.10.1-tests.log` and
+  `Code/testing/mere/netrender-vello-0.10.1-wasm.log`.
+
+The fork's overflow regression and full serial suite are recorded in
+`Code/testing/mere/HANDOFF_2026-09-27.md`. The Genet/Mere/web repins and
+headed 2,000-node scenarios remain separate downstream gates; these
+consumer tests do not establish their performance or complete rendering.
+
 ## 11.99 Open items — moved (2026-05-05)
 
 The catalogue of deferred refinements that originally lived here
