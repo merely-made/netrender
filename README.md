@@ -14,10 +14,19 @@ GPU buffers grow from asynchronously read-back allocation counts. An
 overflowing frame can be blank until a later render uses those counts;
 recovery remains bounded by the device's storage-buffer limits.
 
-## Status (2026-08-25)
+## Status (2026-09-27)
 
-Stable within its scope; in-repo roadmap work is complete per the 2026-08-10
-audit. `netrender`, `netrender_device`, `paint_list_api`, and
+Classic's original roadmap scope passed its 2026-08-10 audit. Experimental
+CPU/Hybrid adapters have since landed, with resource and host-integration gaps
+tracked in the [sparse backend plan](netrender-notes/2026-09-27_sparse_backends_plan.md).
+The opt-in `vello-cpu` and `vello-hybrid` features now expose `CpuSession`
+and `HybridSession` for CPU-owned RGBA images, with persistent sources,
+bounded crop/tint caches and typed admission errors. CPU renders to pixels
+without requesting a device; Hybrid uses the host's existing device and
+encoder. Patterns, shaped text, external producer image import and host
+selection remain open. See the [validation receipt](netrender-notes/receipts/2026-09-27_sparse_backends/README.md)
+for the tested scope. Classic remains the default.
+`netrender`, `netrender_device`, `paint_list_api`, and
 `paint_list_render` are published at 0.1.2. `netrender_text` remains at 0.1.1.
 Unreleased `main` has removed Netrender's public legacy render-graph helper
 API; the first release containing that change must publish `netrender` as
@@ -35,7 +44,7 @@ API; the first release containing that change must publish `netrender` as
   golden scene-op streams.
 - Full workspace suite passed on macOS/Metal 2026-07-20, including system
   fonts, color emoji, and compositor plumbing.
-- The two open items are gated outside this repo: the genet-side
+- The original audit's two externally gated items were the genet-side
   native-compositor adapter, and linear-light blending (blocked upstream on
   vello's GPU compute path; an opt-in canary test fires when it clears).
 
@@ -51,7 +60,8 @@ plans live in `netrender-notes/`, indexed by
 The rendering leaf for the genet web-engine family and sibling projects:
 engines emit a `PaintList` via `paint_list_api`, `paint_list_render`
 translates it into a `Scene`, and `Renderer::render_vello` rasterizes it.
-Consumed from crates.io or as a git dependency; it depends only on crates.io.
+Consumed from crates.io or as a git dependency. The experimental sparse
+backends on Git `main` use pinned Git dependencies.
 
 ```sh
 cargo build
@@ -61,8 +71,11 @@ cargo test    # many tests use the GPU; WGPU_BACKEND selects the backend
 cargo run -p netrender --example demo_card_grid
 ```
 
-Optional features on `netrender`: `serde` (scene capture/replay) and
-`linear-light-canary` (the upstream-gate test).
+Optional features on `netrender`: `serde` (scene capture/replay),
+`linear-light-canary` (the upstream-gate test), `vello-cpu`, `vello-hybrid`,
+and `vello-all` (both experimental sparse adapters). Classic is always
+compiled. The sparse features do not yet provide a general host renderer
+switch or full scene parity; unsupported operations return admission errors.
 
 ## License
 

@@ -197,6 +197,14 @@ pub fn validate_scene_for_backend(
     backend: VelloBackend,
     scene: &crate::scene::Scene,
 ) -> Result<(), BackendAdmissionError> {
+    validate_scene_operations(backend, scene, false)
+}
+
+fn validate_scene_operations(
+    backend: VelloBackend,
+    scene: &crate::scene::Scene,
+    owned_images: bool,
+) -> Result<(), BackendAdmissionError> {
     use crate::scene::{SceneFilter, SceneOp};
 
     if backend != VelloBackend::Classic
@@ -232,12 +240,12 @@ pub fn validate_scene_for_backend(
         }
 
         match op {
-            SceneOp::Image(_) if backend != VelloBackend::Classic => {
+            SceneOp::Image(_) if backend != VelloBackend::Classic && !owned_images => {
                 return Err(unsupported(
                     backend,
                     op_index,
                     "Image",
-                    "sparse image hydration is not wired yet",
+                    "image resources require an owned CpuSession or HybridSession",
                 ));
             }
             SceneOp::Pattern(_) if backend != VelloBackend::Classic => {
@@ -245,7 +253,7 @@ pub fn validate_scene_for_backend(
                     backend,
                     op_index,
                     "Pattern",
-                    "sparse image hydration is not wired yet",
+                    "sparse pattern lowering is not wired yet",
                 ));
             }
             SceneOp::GlyphRun(_) if backend != VelloBackend::Classic => {
@@ -462,6 +470,21 @@ mod sparse {
     ) -> Result<(), BackendAdmissionError> {
         super::validate_scene_for_backend(backend, scene)?;
 
+        lower_admitted(context, scene, &std::collections::HashMap::new());
+        Ok(())
+    }
+
+    pub(super) struct ImagePaint {
+        pub image: vello_sparse_common::paint::Image,
+        pub transform: Affine,
+    }
+
+    /// Called only after complete resource and operation admission.
+    pub(super) fn lower_admitted<C: SparseContext>(
+        context: &mut C,
+        scene: &Scene,
+        images: &std::collections::HashMap<usize, ImagePaint>,
+    ) {
         let has_root_layer =
             scene.root_alpha != 1.0 || scene.root_blend_mode != SceneBlendMode::Normal;
         if has_root_layer {
@@ -473,8 +496,29 @@ mod sparse {
             );
         }
 
-        for op in &scene.ops {
+        for (op_index, op) in scene.ops.iter().enumerate() {
             match op {
+                SceneOp::Image(image) => {
+                    let paint = &images[&op_index];
+                    let clip = primitive_clip(image.clip_rect, image.clip_corner_radii);
+                    if let Some(path) = clip.as_ref() {
+                        context.set_transform(Affine::IDENTITY);
+                        context.push_layer(Some(path), None, None);
+                    }
+                    context
+                        .set_transform(transform(&scene.transforms[image.transform_id as usize]));
+                    context.set_paint_transform(paint.transform);
+                    context.set_paint(paint.image.clone().into());
+                    context.fill_rect(&Rect::new(
+                        image.x0 as f64,
+                        image.y0 as f64,
+                        image.x1 as f64,
+                        image.y1 as f64,
+                    ));
+                    if clip.is_some() {
+                        context.pop_layer();
+                    }
+                }
                 SceneOp::Rect(rect) => {
                     let world = transform(&scene.transforms[rect.transform_id as usize]);
                     let clip = primitive_clip(rect.clip_rect, rect.clip_corner_radii);
@@ -558,17 +602,15 @@ mod sparse {
                 }
                 SceneOp::PushLayer(layer) => push_scene_layer(context, layer, scene),
                 SceneOp::PopLayer => context.pop_layer(),
-                SceneOp::Image(_)
-                | SceneOp::Pattern(_)
-                | SceneOp::GlyphRun(_)
-                | SceneOp::Fragment(_) => unreachable!("validated before lowering"),
+                SceneOp::Pattern(_) | SceneOp::GlyphRun(_) | SceneOp::Fragment(_) => {
+                    unreachable!("validated before lowering")
+                }
             }
         }
 
         if has_root_layer {
             context.pop_layer();
         }
-        Ok(())
     }
 
     fn lower_gradient<C: SparseContext>(context: &mut C, grad: &SceneGradient, scene: &Scene) {
@@ -792,6 +834,15 @@ mod sparse {
         BlendMode::new(mix, compose)
     }
 }
+
+#[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+mod sessions;
+#[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+pub use sessions::{SparseResourceLimits, SparseResourceStats, SparseSessionError};
+#[cfg(feature = "vello-cpu")]
+pub use sessions::CpuSession;
+#[cfg(feature = "vello-hybrid")]
+pub use sessions::HybridSession;
 
 /// Lower a Netrender scene into Vello CPU's stateful render context.
 #[cfg(feature = "vello-cpu")]

@@ -1,0 +1,223 @@
+bit-set v0.8.0
+└── lalrpop v0.22.2
+    [build-dependencies]
+    └── wgsl-parse v0.4.0
+        └── wesl v0.4.0
+            [build-dependencies]
+            └── vello_sparse_shaders v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+                └── vello_hybrid v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+                    └── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+                        └── netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text)
+                            [dev-dependencies]
+                            └── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+        [build-dependencies]
+        └── vello_sparse_shaders v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea) (*)
+
+bit-set v0.9.1
+└── naga v29.0.4
+    [build-dependencies]
+    └── vello_shaders v0.10.0
+        └── netrender-vello v0.10.1
+            └── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+
+bit-set v0.10.0
+├── naga v30.0.0
+│   ├── wgpu-core v30.0.0
+│   │   └── wgpu v30.0.0
+│   │       ├── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+│   │       ├── netrender-vello v0.10.1 (*)
+│   │       ├── netrender_device v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender_device)
+│   │       │   └── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+│   │       └── vello_hybrid v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea) (*)
+│   ├── wgpu-hal v30.0.0
+│   │   ├── wgpu v30.0.0 (*)
+│   │   ├── wgpu-core v30.0.0 (*)
+│   │   └── wgpu-core-deps-windows-linux-android v30.0.0
+│   │       └── wgpu-core v30.0.0 (*)
+│   └── wgpu-naga-bridge v30.0.0
+│       ├── wgpu-core v30.0.0 (*)
+│       └── wgpu-hal v30.0.0 (*)
+├── naga v30.0.0
+│   [build-dependencies]
+│   └── vello_sparse_shaders v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea) (*)
+├── wgpu-core v30.0.0 (*)
+└── wgpu-hal v30.0.0 (*)
+
+bit-vec v0.8.0
+└── bit-set v0.8.0 (*)
+
+bit-vec v0.9.1
+├── bit-set v0.9.1 (*)
+├── bit-set v0.10.0 (*)
+└── wgpu-core v30.0.0 (*)
+
+bitflags v1.3.2
+└── png v0.17.16
+    [dev-dependencies]
+    └── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+
+bitflags v2.11.1
+├── harfrust v0.8.4
+│   └── parley v0.10.0
+│       └── netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text) (*)
+├── naga v29.0.4 (*)
+├── naga v30.0.0 (*)
+├── naga v30.0.0 (*)
+├── png v0.18.1
+│   └── netrender-vello v0.10.1 (*)
+├── spirv v0.4.0+sdk-1.4.341.0
+│   └── naga v30.0.0 (*)
+├── wgpu v30.0.0 (*)
+├── wgpu-core v30.0.0 (*)
+├── wgpu-hal v30.0.0 (*)
+└── wgpu-types v30.0.0
+    ├── wgpu v30.0.0 (*)
+    ├── wgpu-core v30.0.0 (*)
+    ├── wgpu-hal v30.0.0 (*)
+    └── wgpu-naga-bridge v30.0.0 (*)
+
+font-types v0.11.3
+└── read-fonts v0.39.2
+    ├── fontique v0.10.0
+    │   └── parley v0.10.0 (*)
+    ├── harfrust v0.8.4 (*)
+    └── skrifa v0.42.1
+        └── parley v0.10.0 (*)
+
+font-types v0.12.3
+└── read-fonts v0.41.0
+    └── skrifa v0.44.0
+        ├── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+        ├── netrender-vello v0.10.1 (*)
+        └── vello_encoding v0.10.0
+            ├── netrender-vello v0.10.1 (*)
+            └── vello_shaders v0.10.0 (*)
+
+half v2.7.1
+├── naga v29.0.4 (*)
+├── naga v30.0.0 (*)
+├── wesl v0.4.0 (*)
+└── wgsl-types v0.4.0
+    ├── wesl v0.4.0 (*)
+    └── wgsl-parse v0.4.0 (*)
+    [build-dependencies]
+    └── vello_sparse_shaders v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea) (*)
+
+half v2.7.1
+└── naga v30.0.0 (*)
+
+hashbrown v0.16.1
+└── gpu-allocator v0.28.0
+    └── wgpu-hal v30.0.0 (*)
+
+hashbrown v0.16.1
+└── naga v29.0.4 (*)
+
+hashbrown v0.17.1
+├── indexmap v2.14.0
+│   ├── naga v29.0.4 (*)
+│   ├── naga v30.0.0 (*)
+│   ├── naga-types v30.0.0
+│   │   └── naga v30.0.0 (*)
+│   └── petgraph v0.7.1
+│       └── lalrpop v0.22.2 (*)
+├── naga v30.0.0 (*)
+└── naga-types v30.0.0 (*)
+
+hashbrown v0.17.1
+├── fontique v0.10.0 (*)
+├── indexmap v2.14.0
+│   ├── naga v30.0.0 (*)
+│   ├── naga-types v30.0.0
+│   │   ├── naga v30.0.0 (*)
+│   │   ├── wgpu-core v30.0.0 (*)
+│   │   ├── wgpu-hal v30.0.0 (*)
+│   │   └── wgpu-types v30.0.0 (*)
+│   └── wgpu-core v30.0.0 (*)
+├── naga v30.0.0 (*)
+├── naga-types v30.0.0 (*)
+├── parley v0.10.0 (*)
+├── vello_cpu v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+│   └── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+├── vello_hybrid v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea) (*)
+├── wgpu v30.0.0 (*)
+├── wgpu-core v30.0.0 (*)
+└── wgpu-hal v30.0.0 (*)
+
+indexmap v2.14.0 (*)
+
+indexmap v2.14.0 (*)
+
+naga v29.0.4 (*)
+
+naga v30.0.0 (*)
+
+naga v30.0.0 (*)
+
+naga-types v30.0.0 (*)
+
+naga-types v30.0.0 (*)
+
+num-traits v0.2.19
+├── half v2.7.1 (*)
+├── naga v29.0.4 (*)
+├── naga v30.0.0 (*)
+├── wesl v0.4.0 (*)
+└── wgsl-types v0.4.0 (*)
+
+num-traits v0.2.19
+├── euclid v0.22.14
+│   └── guillotiere v0.7.0
+│       ├── vello_common v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+│       │   ├── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+│       │   ├── vello_cpu v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea) (*)
+│       │   └── vello_hybrid v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea) (*)
+│       └── vello_encoding v0.10.0 (*)
+├── half v2.7.1 (*)
+├── naga v30.0.0 (*)
+└── ordered-float v5.3.0
+    └── wgpu-hal v30.0.0 (*)
+
+once_cell v1.21.4
+├── naga v30.0.0 (*)
+├── read-fonts v0.41.0 (*)
+├── tracing-core v0.1.36
+│   └── tracing v0.1.44
+│       └── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+├── wgpu-core v30.0.0 (*)
+└── wgpu-hal v30.0.0 (*)
+
+once_cell v1.21.4
+├── naga v29.0.4 (*)
+└── naga v30.0.0 (*)
+
+png v0.17.16 (*)
+
+png v0.18.1 (*)
+
+read-fonts v0.39.2 (*)
+
+read-fonts v0.41.0 (*)
+
+skrifa v0.42.1 (*)
+
+skrifa v0.44.0 (*)
+
+thiserror v2.0.18
+├── gpu-allocator v0.28.0 (*)
+├── naga v30.0.0 (*)
+├── naga-types v30.0.0 (*)
+├── netrender-vello v0.10.1 (*)
+├── vello_common v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea) (*)
+├── vello_hybrid v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea) (*)
+├── wgpu-core v30.0.0 (*)
+└── wgpu-hal v30.0.0 (*)
+
+thiserror v2.0.18
+├── naga v29.0.4 (*)
+├── naga v30.0.0 (*)
+├── naga-types v30.0.0 (*)
+├── wesl v0.4.0 (*)
+└── wgsl-parse v0.4.0 (*)
+[build-dependencies]
+└── vello_shaders v0.10.0 (*)

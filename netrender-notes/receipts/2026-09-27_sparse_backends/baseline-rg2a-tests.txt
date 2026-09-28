@@ -1,0 +1,10 @@
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.58s
+     Running tests\rg2a_scene_corpus.rs (C:\t\cargo-targets\netrender\debug\deps\rg2a_scene_corpus-7ae8f6cd9f456b41.exe)
+
+running 2 tests
+rg2a adapter name="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA" driver_info="610.88"; Classic=netrender-vello@0.10.0; Hybrid/CPU=mark-ik/vello@ca3f40ea; wgpu=30
+test rg2a_direct_scene_corpus_is_semantically_consistent ... ok
+test rg2a_sparse_refusal_table_is_typed_and_attributed ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.65s

@@ -1,0 +1,54 @@
+   Compiling hashbrown v0.17.1
+   Compiling num-traits v0.2.19
+   Compiling indexmap v2.14.0
+   Compiling windows-sys v0.61.2
+   Compiling half v2.7.1
+   Compiling thiserror v2.0.18
+   Compiling parking_lot_core v0.9.12
+   Compiling winapi-util v0.1.11
+   Compiling same-file v1.0.6
+   Compiling parking_lot v0.12.5
+   Compiling term v1.2.1
+   Compiling string_cache v0.8.9
+   Compiling petgraph v0.7.1
+   Compiling ascii-canvas v4.0.0
+   Compiling walkdir v2.5.0
+   Compiling ena v0.14.4
+   Compiling logos-codegen v0.16.1
+   Compiling lalrpop v0.22.2
+   Compiling derive_more-impl v2.1.1
+   Compiling logos-derive v0.16.1
+   Compiling color v0.3.3
+   Compiling annotate-snippets v0.12.16
+   Compiling peniko v0.6.1
+   Compiling logos v0.16.1
+   Compiling derive_more v2.1.1
+   Compiling wgsl-types v0.4.0
+   Compiling wgsl-parse v0.4.0
+   Compiling wesl-macros v0.4.0
+   Compiling naga-types v30.0.0
+   Compiling naga v29.0.4
+   Compiling naga v30.0.0
+   Compiling vello_shaders v0.10.0
+   Compiling fearless_simd v0.7.0
+   Compiling wesl v0.4.0
+   Compiling vello_common v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+   Compiling vello_encoding v0.10.0
+   Compiling netrender-vello v0.10.1
+   Compiling vello_sparse_shaders v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+   Compiling vello_cpu v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+   Compiling vello_hybrid v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+   Compiling netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 09s
+     Running unittests src\lib.rs (C:\t\cargo-targets\netrender\debug\deps\netrender-2436a34efca63aa2.exe)
+
+running 6 tests
+test vello_backends::tests::capabilities_keep_one_contract_and_three_realizations ... ok
+test vello_backends::tests::cpu_lowerer_rasterizes_a_netrender_scene ... ok
+test vello_backends::tests::hybrid_gpu_renders_on_netrenders_wgpu_device ... ok
+test vello_backends::tests::hybrid_lowerer_produces_an_appendable_scene ... ok
+test vello_backends::tests::sparse_backends_admit_the_same_gradient_layer_subset ... ok
+test vello_backends::tests::sparse_backends_refuse_unwired_images_identically ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 72 filtered out; finished in 2.29s

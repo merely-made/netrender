@@ -3,6 +3,13 @@
 **Status: draft, not sent.** This is prepared for review, not filed.
 Nothing has been posted to Linebender's tracker.
 
+**Consumer planning refresh, 2026-09-27:** the current source/registry audit
+and resource/host completion sequence live in the
+[sparse backends plan](2026-09-27_sparse_backends_plan.md). The append prototype
+below remains bounded to consumed scenes and tile-aligned translation; it is
+not a completed retained-fragment implementation. Upstream contact remains
+unauthorized by that plan.
+
 **Disposition guard, 2026-09-02:** keep the prototype branch at `c73ba2c3`
 and the green `mark-ik/vello-ci#1` runner receipt reachable through the V0-V4
 decision in
