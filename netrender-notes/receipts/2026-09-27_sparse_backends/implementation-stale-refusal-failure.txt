@@ -1,0 +1,32 @@
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.39s
+     Running tests\p5prime_vello_image.rs (C:\t\cargo-targets\netrender\debug\deps\p5prime_vello_image-c4017847dc52380b.exe)
+
+running 3 tests
+test p5prime_01_full_image_round_trip ... ok
+test p5prime_02_uv_subregion ... ok
+test p5prime_03_alpha_tint ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.84s
+
+     Running tests\rg2a_scene_corpus.rs (C:\t\cargo-targets\netrender\debug\deps\rg2a_scene_corpus-7ae8f6cd9f456b41.exe)
+
+running 2 tests
+rg2a adapter name="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA" driver_info="610.88"; Classic=netrender-vello (resolved version in Cargo.lock); Hybrid/CPU=mark-ik/vello@ca3f40ea; wgpu=30
+test rg2a_direct_scene_corpus_is_semantically_consistent ... ok
+
+thread 'rg2a_sparse_refusal_table_is_typed_and_attributed' (56228) panicked at netrender\tests\rg2a_scene_corpus.rs:482:17:
+assertion `left == right` failed
+  left: "image resources require an owned CpuSession or HybridSession"
+ right: "sparse image hydration is not wired yet"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test rg2a_sparse_refusal_table_is_typed_and_attributed ... FAILED
+
+failures:
+
+failures:
+    rg2a_sparse_refusal_table_is_typed_and_attributed
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.82s
+
+error: test failed, to rerun pass `-p netrender --test rg2a_scene_corpus`

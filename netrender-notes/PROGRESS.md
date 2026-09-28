@@ -25,13 +25,24 @@ dependency constraints in the same release pass.
 
 ## Current canonical plans
 
-Audited 2026-08-10. Four files, each with one job, plus a research
-record at the end.
+The original plan audit was 2026-08-10. Later activated work is indexed
+below; dated completion statements describe their original scope.
+
+- [`2026-09-27_sparse_backends_plan.md`](2026-09-27_sparse_backends_plan.md)
+  — **VB1 and VB2 image subgate complete; patterns and consumer gates open.** CPU/Hybrid
+  features are experimental adapters, not interchangeable production renderers.
+  Published `vello_gpu` 0.1.0 is a name reservation; the audited working
+  upstream Git package uses wgpu 30. The fork's consumed, tile-aligned append
+  is not general fragment retention. VB0-VB6 in the feature roadmap sequence
+  dependency proof, image resources, text, host selection, retention/effects
+  and a real specimen consumer budget. Isometer remains the spatial producer.
+  Owned image sessions and their CPU/GPU evidence are recorded in
+  [the validation receipt](receipts/2026-09-27_sparse_backends/README.md).
 
 - [`2026-05-04_feature_roadmap.md`](2026-05-04_feature_roadmap.md)
   — **the only live checklist.** Phase R plus Phases A–G, every entry
   with a trigger and a done condition. Start here to answer "what is
-  left". As of 2026-08-10 the answer is **nothing in this repo**: the two
+  left". The **2026-08-10 audit** found no further activated in-repo work: the two
   remaining items are **D3** (native-compositor handoff, netrender side
   complete, genet adapter 5.5 outstanding and out-of-repo) and **R9**
   (linear-light blending, upstream-blocked on vello's compute path,
@@ -98,8 +109,9 @@ record at the end.
   `b06a21407` adds the rasterizer-independent corpus: two direct semantic scenes
   render through all three backends, typed sparse refusals cover unwired
   resource/filter classes, and capability declarations are checked against the
-  result. Images, text, filters, and registered fragments remain future sparse
-  adapter work rather than silent fallbacks. Commit `cfa0261c2` adds the first
+  result. The later 2026-09-27 owned sessions add bounded CPU-owned images;
+  the free lowerers retain their image refusal. Patterns, text, filters, and
+  registered fragments remain future sparse adapter work. Commit `cfa0261c2` adds the first
   physical execution-graph participation receipt. Classic declares an opaque
   submit, Hybrid shares the graph encoder, and CPU enters through a named ready
   upload/import. All three pass one filter-free producer fixture through the

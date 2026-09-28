@@ -351,7 +351,7 @@ fn rg2a_direct_scene_corpus_is_semantically_consistent() {
     let handles = boot().expect("wgpu device");
     let adapter = handles.adapter.get_info();
     eprintln!(
-        "rg2a adapter name={:?} backend={:?} driver={:?} driver_info={:?}; Classic=netrender-vello@0.10.0; Hybrid/CPU=mark-ik/vello@ca3f40ea; wgpu=30",
+        "rg2a adapter name={:?} backend={:?} driver={:?} driver_info={:?}; Classic=netrender-vello (resolved version in Cargo.lock); Hybrid/CPU=mark-ik/vello@ca3f40ea; wgpu=30",
         adapter.name, adapter.backend, adapter.driver, adapter.driver_info
     );
     let renderer = create_netrender_instance(
@@ -519,11 +519,15 @@ fn rg2a_sparse_refusal_table_is_typed_and_attributed() {
         assert!(!capabilities.backdrop_color_filters);
         assert!(!capabilities.retained_fragments);
     }
-    assert_unsupported("Image", "Image", "sparse image hydration is not wired yet");
+    assert_unsupported(
+        "Image",
+        "Image",
+        "image resources require an owned CpuSession or HybridSession",
+    );
     assert_unsupported(
         "Pattern",
         "Pattern",
-        "sparse image hydration is not wired yet",
+        "sparse pattern lowering is not wired yet",
     );
     assert_unsupported(
         "GlyphRun",

@@ -1,0 +1,10 @@
+    Checking color v0.3.3
+    Checking fearless_simd v0.7.0
+    Checking peniko v0.6.1
+    Checking vello_encoding v0.10.0
+    Checking vello_shaders v0.10.0
+    Checking netrender-vello v0.10.1
+    Checking vello_common v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+    Checking vello_cpu v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+    Checking netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.82s

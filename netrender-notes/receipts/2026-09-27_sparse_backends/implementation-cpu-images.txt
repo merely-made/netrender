@@ -1,0 +1,11 @@
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+   Compiling netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.39s
+     Running tests\vb2_sparse_images.rs (C:\t\cargo-targets\netrender\debug\deps\vb2_sparse_images-08f8cb2e4714208b.exe)
+
+running 3 tests
+test cpu::cpu_image_semantics_without_device ... ok
+test cpu::cpu_resource_budget_without_device ... ok
+test cpu::cpu_source_lifecycle_without_device ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s

@@ -1967,6 +1967,27 @@ The fork's overflow regression and full serial suite are recorded in
 headed 2,000-node scenarios remain separate downstream gates; these
 consumer tests do not establish their performance or complete rendering.
 
+## Sparse dependency and owned image sessions — PARTIAL (2026-09-27)
+
+VB1 is complete on the existing sparse `ca3f40ea` pin, preserving the bounded
+consuming append extension. Default, CPU, Hybrid and combined feature checks
+pass; shared wgpu 30.0.0 and Peniko 0.6.1 identities are unchanged.
+
+The VB2 image subgate adds opt-in `CpuSession` and `HybridSession` with
+persistent CPU-owned RGBA sources, explicit removal, bounded crop/tint caches,
+and typed admission before resource/target mutation. Three CPU image tests
+and two Hybrid GPU-readback tests pass. Full library validation passes 75
+tests with three intentional measurement/physical tests ignored; Classic
+image regression passes three tests. Baseline/final logs and source hashes
+are in the [receipt](receipts/2026-09-27_sparse_backends/README.md).
+
+These fixtures prove image semantics and lifecycle on Windows/NVIDIA Vulkan.
+They do not close patterns, text, external producer GPU import, host selection,
+native panel interaction or integrated Isocosm performance. Resource counters
+cover logical owned image payloads, not total renderer/process memory. The
+free lowerers remain resource-free and refuse images. The current scope and
+next gates are in the [sparse backend plan](2026-09-27_sparse_backends_plan.md).
+
 ## 11.99 Open items — moved (2026-05-05)
 
 The catalogue of deferred refinements that originally lived here

@@ -1,0 +1,12 @@
+    Blocking waiting for file lock on package cache
+    Checking netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+error[E0599]: no associated function or constant named `new` found for struct `ImageBrush<ImageSource>` in the current scope
+   --> netrender\src\vello_backends\sessions.rs:428:23
+    |
+428 |         image: Image::new(source)
+    |                       ^^^ associated function or constant not found in `ImageBrush<ImageSource>`
+    |
+    = note: the associated function or constant was found for `ImageBrush`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `netrender` (lib) due to 1 previous error

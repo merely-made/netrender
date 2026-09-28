@@ -38,6 +38,46 @@ each item by its individual trigger, not by phase position.
 
 ---
 
+## Vello backend completion
+
+Activated planning 2026-09-27 by the specimen/Isocosm consumer discussion.
+The [sparse backends plan](2026-09-27_sparse_backends_plan.md) contains the
+source audit, ownership boundaries and exact acceptance conditions. These
+items extend the earlier Classic completion scope; they do not reopen it.
+
+- [x] **VB0. Source and registry audit.** Completed 2026-09-27, source-only.
+  Distinguishes the published GPU name reservation, working upstream Git,
+  wgpu identity, and the fork's bounded append. No build receipt claimed.
+- [x] **VB1. Tested dependency choice.** Completed 2026-09-27 on retained
+  `ca3f40ea`; append preserved. [Receipts](receipts/2026-09-27_sparse_backends/README.md).
+  Trigger: prepare useful alternate
+  adapters. Done: feature matrix and focused semantic/readback/append gates
+  on a chosen immutable source, with one shared wgpu device and explicit
+  disposition of the local append extension.
+- [ ] **VB2. Image resources and sessions.** Trigger: specimen imagery.
+  Done: ordinary images and then patterns preserve admitted UV/tint/clip/
+  sampling behavior, with replacement/removal and bounded resource counts
+  proven on CPU and GPU. Unsupported combinations return typed errors.
+  **Image subgate complete 2026-09-27:** owned CPU/Hybrid sessions pass
+  synthetic pixel, lifecycle and refusal gates. Patterns remain open.
+- [ ] **VB3. Shaped text.** Trigger: actual specimen controls and status.
+  Done: real glyph runs, font identity/variations/clips and lifecycle pass
+  semantic checks; shaping remains caller-owned.
+- [ ] **VB4. Explicit host selection and real panel.** Trigger: VB2/VB3.
+  Done: requested/effective backend is reported; real panel selection,
+  stepping, resize and resource updates work within declared capabilities;
+  CPU pixel output does not request a GPU device. VB4b separately proves the
+  live specimen's same-device Hybrid external image lifecycle and declared
+  CPU snapshot/refusal mode; a panel-only capture does not close that gate.
+- [ ] **VB5. Retention and effects.** Trigger: operations and costs observed
+  in the real consumer. Done per subcapability: fragment invalidation and
+  reuse/re-lowering are distinguished, and filters preserve their ordering
+  and alpha semantics. Do not infer completion from downstream graph blur.
+- [ ] **VB6. Integrated consumer budget.** Trigger: a working panel beside
+  the existing Isometer scene and accepted sim activity. Done: whole-loop
+  timings and budget behavior are recorded, including input-to-present;
+  presentation settings preserve authoritative simulation results.
+
 ## Phase R — Open refinements (consumer-pull-gated wart fixes)
 
 Each entry says what the wart is, when it bites, what specific signal
