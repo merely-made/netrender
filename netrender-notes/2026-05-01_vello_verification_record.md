@@ -1988,6 +1988,30 @@ cover logical owned image payloads, not total renderer/process memory. The
 free lowerers remain resource-free and refuse images. The current scope and
 next gates are in the [sparse backend plan](2026-09-27_sparse_backends_plan.md).
 
+## Sparse owned patterns — PARTIAL (2026-09-27)
+
+Owned CPU sessions now admit nearest and bilinear patterns; Hybrid sessions
+admit explicit nearest patterns. Repetition follows the extent origin and
+per-axis scale, with finite nonpositive scale normalized to 1. Patterns reuse
+the full untinted source variant, including when an ordinary image references
+the same pixels. Repetition count and sampler/scale changes do not allocate
+additional pixel variants. Free lowerers retain their resource refusal.
+
+The initial independent seam fixture passed CPU but failed Hybrid: at a
+red/blue repeat boundary Hybrid returned pure blue rather than mixing the
+edge taps. The pinned shader wraps the center then clamps bilinear neighbors;
+atlas and external image paths share that helper. Hybrid bilinear patterns
+now return a typed refusal before resource/target mutation. The failing
+fixture, source hashes and observed pixels are preserved in the
+[pattern receipt](receipts/2026-09-27_sparse_patterns/README.md).
+
+Final validation: CPU patterns 2/2, Hybrid patterns 2/2, image regressions
+5/5, full library 75 passed with three intentional ignores, RG2a 2/2, Classic
+pattern API/scale regressions 10/10, and all four feature configurations pass.
+GPU evidence is Windows/NVIDIA Vulkan readback. This closes the admitted
+pattern subset, while VB2 remains open for Hybrid bilinear seam repair.
+The dependency pin is unchanged; native consumer acceptance is still open.
+
 ## 11.99 Open items — moved (2026-05-05)
 
 The catalogue of deferred refinements that originally lived here

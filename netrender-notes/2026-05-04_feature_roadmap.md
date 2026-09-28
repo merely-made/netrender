@@ -59,7 +59,11 @@ items extend the earlier Classic completion scope; they do not reopen it.
   sampling behavior, with replacement/removal and bounded resource counts
   proven on CPU and GPU. Unsupported combinations return typed errors.
   **Image subgate complete 2026-09-27:** owned CPU/Hybrid sessions pass
-  synthetic pixel, lifecycle and refusal gates. Patterns remain open.
+  synthetic pixel, lifecycle and refusal gates. Pattern support now admits
+  CPU nearest/bilinear and Hybrid nearest. **Hybrid bilinear remains open:**
+  a measured pinned-sampler seam bug is explicitly refused. Lift only after
+  tap-wrapping repair and regression evidence; see the
+  [pattern receipt](receipts/2026-09-27_sparse_patterns/README.md).
 - [ ] **VB3. Shaped text.** Trigger: actual specimen controls and status.
   Done: real glyph runs, font identity/variations/clips and lifecycle pass
   semantic checks; shaping remains caller-owned.

@@ -2,7 +2,9 @@
 
 **Status:** source and registry audit and VB1 dependency gate complete,
 2026-09-27. The bounded VB2 CPU-owned image/session slice is implemented and
-passes CPU pixels and Hybrid GPU readback. VB2 remains open for patterns.
+passes CPU pixels and Hybrid GPU readback. Pattern support is validated for
+CPU nearest/bilinear and Hybrid nearest; Hybrid bilinear remains an explicit
+dependency gap after a measured repeat-seam failure.
 See the [baseline and implementation receipts](receipts/2026-09-27_sparse_backends/README.md).
 No new dependency pin or alternate default has been promoted.
 
@@ -65,7 +67,7 @@ See [`vello_backends.rs`](../netrender/src/vello_backends.rs),
 | --- | --- | --- |
 | Geometry, gradients, transforms, clips, nested alpha | Lowered; bounded RG2a receipts exist | Preserve semantic anchors and refusal tests. |
 | CPU-owned image | Owned `CpuSession` / `HybridSession`; synthetic CPU/GPU acceptance passed | Real consumer capture remains open. Free lowerers still refuse images. |
-| Pattern | Typed refusal | Build on the owned image lifecycle; prove repeat/transform semantics separately. |
+| Pattern | CPU nearest/bilinear and Hybrid nearest passed synthetic acceptance | Hybrid bilinear repeat-seam repair remains open. Free lowerers retain typed refusal. |
 | Glyph run | Typed refusal; sparse `text` features disabled | Enable text explicitly, supply persistent Resources, map existing shaped glyphs and font variations. |
 | Registered fragment | Typed refusal | Resolve registry and generations; design backend-specific reuse and invalidation. |
 | Element / backdrop filters | Typed refusal | Admit exact supported operations with painter-order and alpha evidence. |
@@ -160,7 +162,33 @@ replacement/removal, cache reuse/budgets and refusal preserving the target.
 These are synthetic fixtures, not panel acceptance. Admitted UVs must be
 finite, ordered and within [0,1]; clamp crops round to whole source pixels,
 and empty rounded crops refuse. Parameters outside the documented subset
-return typed errors. Patterns remain the next VB2 subgate.
+return typed errors. Pattern support extends this lifecycle below.
+
+**Pattern subset completed:** owned sessions now repeat the full untinted
+source at `image_size * scale`, anchored at the extent's top-left. Finite
+nonpositive scales normalize independently to 1, preserving the Scene contract;
+nonfinite or unrepresentable mappings refuse before mutation. Pattern repeats,
+scale and sampler changes share the same cached pixels as a full untinted
+image. No image allocation is created per repeated tile. Tests exercise phase,
+transformed/device-clipped output, sampling and source lifecycle.
+Two CPU and two Hybrid pattern tests passed, alongside the five prior image
+tests, four feature builds, 75 library tests (three intentionally ignored),
+RG2a and ten Classic pattern tests.
+
+The initial seam fixture passed on CPU and failed on Hybrid: the pixel before
+a red/blue repeat boundary was pure blue `[0,0,255,255]` instead of blending
+both edges. In the pinned shader, the center coordinate wraps, then bilinear
+neighbor taps clamp to the source bounds. Atlas and external image paths use
+the same helper, so changing texture storage cannot fix it. Hybrid sessions
+therefore refuse `Pattern { nearest: false, .. }` before source/cache/target
+mutation; CPU admits both samplers. No silent nearest downgrade occurs.
+
+**Remaining VB2 sampler gate:** repair or adopt a dependency that wraps each
+bilinear tap at the repeat seam. Preserve pad-image behavior, source subrect
+isolation, alpha and bounded append; rerun the retained failing fixture plus
+the full image/pattern feature matrix before lifting the refusal. No dependency
+pin changes or fork edits are included in this pattern slice. See the
+[pattern receipt](receipts/2026-09-27_sparse_patterns/README.md).
 
 **VB3: shaped text.** Enable `text` deliberately for each sparse dependency.
 Pass existing glyph positions and font data into the backend builders; preserve

@@ -141,6 +141,16 @@ pub(super) fn scene(scene: &Scene, limits: SparseResourceLimits) -> Result<(), S
                 }
                 valid
             }
+            SceneOp::Pattern(v) => {
+                if v.clip_rect != NO_CLIP {
+                    budget("layer depth", depth.saturating_add(1), limits.max_layers)?;
+                }
+                rect(v.extent)
+                    && v.extent[0] < v.extent[2]
+                    && v.extent[1] < v.extent[3]
+                    && finite(&v.scale)
+                    && clip(v.clip_rect, v.clip_corner_radii)
+            }
             SceneOp::Rect(v) => {
                 if v.clip_rect != NO_CLIP {
                     budget("layer depth", depth.saturating_add(1), limits.max_layers)?;
@@ -216,7 +226,7 @@ pub(super) fn scene(scene: &Scene, limits: SparseResourceLimits) -> Result<(), S
                 true
             }
             // Operation-level admission rejects these before parameter checks.
-            SceneOp::Pattern(_) | SceneOp::GlyphRun(_) | SceneOp::Fragment(_) => unreachable!(),
+            SceneOp::GlyphRun(_) | SceneOp::Fragment(_) => unreachable!(),
         };
         if !valid {
             return Err(invalid(
@@ -277,6 +287,11 @@ fn path_safe(affine: Affine, path: &ScenePath, margin: f64) -> bool {
 
 fn derived_geometry(scene: &Scene, op: &SceneOp) -> bool {
     match op {
+        SceneOp::Pattern(v) => {
+            let world = world(scene, v.transform_id);
+            let brush = super::pattern_transform(v);
+            safe_affine(brush) && safe_affine(world * brush) && bounds_safe(world, v.extent, 0.0)
+        }
         SceneOp::Rect(v) => {
             bounds_safe(world(scene, v.transform_id), [v.x0, v.y0, v.x1, v.y1], 0.0)
         }

@@ -1,0 +1,32 @@
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.68s
+     Running tests\pc2_pattern_op.rs (C:\t\cargo-targets\netrender\debug\deps\pc2_pattern_op-43c2d53ce9dcbdaa.exe)
+
+running 8 tests
+test pc2_changing_extent_invalidates_tile ... ok
+test pc2_changing_scale_invalidates_tile ... ok
+test pc2_changing_tile_key_invalidates_tile ... ok
+test pc2_dump_ops_labels_pattern ... ok
+test pc2_hit_inside_extent_registers_pattern_kind ... ok
+test pc2_pattern_not_iterated_as_image_or_rect ... ok
+test pc2_push_pattern_appends_op ... ok
+test pc2_unchanged_pattern_keeps_tiles_clean ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\pc2b_pattern_scale_render.rs (C:\t\cargo-targets\netrender\debug\deps\pc2b_pattern_scale_render-5762e2ee0e76760a.exe)
+
+running 2 tests
+test pc2b_scaled_pattern_tile_is_image_times_scale ... ok
+test pc2b_scaled_pattern_under_world_translate ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.29s
+
+     Running tests\rg2a_scene_corpus.rs (C:\t\cargo-targets\netrender\debug\deps\rg2a_scene_corpus-7ae8f6cd9f456b41.exe)
+
+running 2 tests
+rg2a adapter name="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA" driver_info="610.88"; Classic=netrender-vello (resolved version in Cargo.lock); Hybrid/CPU=mark-ik/vello@ca3f40ea; wgpu=30
+test rg2a_direct_scene_corpus_is_semantically_consistent ... ok
+test rg2a_sparse_refusal_table_is_typed_and_attributed ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.44s

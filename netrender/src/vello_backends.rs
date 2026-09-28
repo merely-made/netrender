@@ -23,6 +23,8 @@ pub enum VelloBackend {
 
 /// Operations admitted by Netrender's current adapter, rather than every
 /// operation the upstream renderer may eventually support.
+/// Sparse capabilities describe the resource-free lowerers; owned sessions
+/// additionally admit their documented image/pattern parameter subsets.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BackendCapabilities {
     pub solid_geometry: bool,
@@ -248,12 +250,12 @@ fn validate_scene_operations(
                     "image resources require an owned CpuSession or HybridSession",
                 ));
             }
-            SceneOp::Pattern(_) if backend != VelloBackend::Classic => {
+            SceneOp::Pattern(_) if backend != VelloBackend::Classic && !owned_images => {
                 return Err(unsupported(
                     backend,
                     op_index,
                     "Pattern",
-                    "sparse pattern lowering is not wired yet",
+                    "pattern resources require an owned CpuSession or HybridSession",
                 ));
             }
             SceneOp::GlyphRun(_) if backend != VelloBackend::Classic => {
@@ -519,6 +521,23 @@ mod sparse {
                         context.pop_layer();
                     }
                 }
+                SceneOp::Pattern(pattern) => {
+                    let paint = &images[&op_index];
+                    let clip = primitive_clip(pattern.clip_rect, pattern.clip_corner_radii);
+                    if let Some(path) = clip.as_ref() {
+                        context.set_transform(Affine::IDENTITY);
+                        context.push_layer(Some(path), None, None);
+                    }
+                    context
+                        .set_transform(transform(&scene.transforms[pattern.transform_id as usize]));
+                    context.set_paint_transform(paint.transform);
+                    context.set_paint(paint.image.clone().into());
+                    let [x0, y0, x1, y1] = pattern.extent;
+                    context.fill_rect(&Rect::new(x0 as f64, y0 as f64, x1 as f64, y1 as f64));
+                    if clip.is_some() {
+                        context.pop_layer();
+                    }
+                }
                 SceneOp::Rect(rect) => {
                     let world = transform(&scene.transforms[rect.transform_id as usize]);
                     let clip = primitive_clip(rect.clip_rect, rect.clip_corner_radii);
@@ -602,7 +621,7 @@ mod sparse {
                 }
                 SceneOp::PushLayer(layer) => push_scene_layer(context, layer, scene),
                 SceneOp::PopLayer => context.pop_layer(),
-                SceneOp::Pattern(_) | SceneOp::GlyphRun(_) | SceneOp::Fragment(_) => {
+                SceneOp::GlyphRun(_) | SceneOp::Fragment(_) => {
                     unreachable!("validated before lowering")
                 }
             }

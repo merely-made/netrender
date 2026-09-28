@@ -308,10 +308,13 @@ fn source_lifecycle(session: &mut impl Session) {
         session.render(&invalid_uv),
         Err(SparseSessionError::InvalidScene { .. })
     ));
-    let mut pattern = Scene::new(DIM, DIM);
-    pattern.push_pattern(KEY, [0.0, 0.0, 32.0, 32.0], [1.0; 2]);
+    let mut filtered = Scene::new(DIM, DIM);
+    let mut layer = SceneLayer::alpha(1.0);
+    layer.filters.push(netrender::SceneFilter::Blur(2.0));
+    filtered.push_layer(layer);
+    filtered.pop_layer();
     assert!(matches!(
-        session.render(&pattern),
+        session.render(&filtered),
         Err(SparseSessionError::Admission(_))
     ));
 }

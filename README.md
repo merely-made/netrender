@@ -23,8 +23,12 @@ The opt-in `vello-cpu` and `vello-hybrid` features now expose `CpuSession`
 and `HybridSession` for CPU-owned RGBA images, with persistent sources,
 bounded crop/tint caches and typed admission errors. CPU renders to pixels
 without requesting a device; Hybrid uses the host's existing device and
-encoder. Patterns, shaped text, external producer image import and host
-selection remain open. See the [validation receipt](netrender-notes/receipts/2026-09-27_sparse_backends/README.md)
+encoder. Owned sessions also support repeated patterns: CPU admits nearest
+and bilinear sampling; Hybrid admits nearest and explicitly refuses bilinear
+because the pinned GPU sampler clamps taps at repeat seams. Shaped text,
+external producer image import and host selection remain open. See the
+[image receipt](netrender-notes/receipts/2026-09-27_sparse_backends/README.md)
+and [pattern receipt](netrender-notes/receipts/2026-09-27_sparse_patterns/README.md)
 for the tested scope. Classic remains the default.
 `netrender`, `netrender_device`, `paint_list_api`, and
 `paint_list_render` are published at 0.1.2. `netrender_text` remains at 0.1.1.

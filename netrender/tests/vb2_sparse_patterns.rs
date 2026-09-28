@@ -1,0 +1,461 @@
+// Copyright 2026 Mark Alan Boykin
+// SPDX-License-Identifier: MPL-2.0
+
+//! Independent VB2 pattern acceptance. CPU entry points never request a device.
+//! Synthetic pixels establish admitted pattern semantics, not consumer acceptance.
+#![cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+
+use netrender::vello_backends::{SparseResourceLimits, SparseResourceStats, SparseSessionError};
+use netrender::{ImageData, NO_CLIP, Scene, SceneClip, SceneLayer, SceneOp, ScenePattern, Transform};
+
+const DIM: u32 = 48;
+const KEY: u64 = 72;
+
+trait Session {
+    fn bilinear_patterns(&self) -> bool {
+        true
+    }
+    fn set(&mut self, key: u64, image: ImageData) -> Result<(), SparseSessionError>;
+    fn remove(&mut self, key: u64) -> bool;
+    fn stats(&self) -> SparseResourceStats;
+    fn render(&mut self, scene: &Scene) -> Result<Vec<u8>, SparseSessionError>;
+}
+
+fn solid(color: [u8; 4]) -> ImageData {
+    ImageData::from_bytes(2, 2, color.repeat(4))
+}
+
+fn pattern(scene: &mut Scene) -> &mut ScenePattern {
+    scene
+        .ops
+        .iter_mut()
+        .find_map(|op| match op {
+            SceneOp::Pattern(pattern) => Some(pattern),
+            _ => None,
+        })
+        .expect("pattern fixture")
+}
+
+fn scene() -> Scene {
+    let mut scene = Scene::new(DIM, DIM);
+    scene.push_pattern(KEY, [5.0, 7.0, 43.0, 41.0], [6.0, 4.0]);
+    pattern(&mut scene).nearest = true;
+    scene
+}
+
+fn pixel(bytes: &[u8], x: u32, y: u32) -> [u8; 4] {
+    bytes[((y * DIM + x) * 4) as usize..][..4]
+        .try_into()
+        .unwrap()
+}
+
+#[track_caller]
+fn near(actual: [u8; 4], expected: [u8; 4], tolerance: u8) {
+    assert!(
+        actual
+            .into_iter()
+            .zip(expected)
+            .all(|(a, b)| a.abs_diff(b) <= tolerance),
+        "pixel {actual:?}, expected {expected:?}, tolerance {tolerance}"
+    );
+}
+
+fn pattern_semantics(session: &mut impl Session) {
+    session
+        .set(
+            KEY,
+            ImageData::from_bytes(
+                2,
+                2,
+                vec![
+                    255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 255, 255,
+                ],
+            ),
+        )
+        .unwrap();
+    let mut scene = scene();
+    let bytes = session.render(&scene).unwrap();
+    // The extent origin is deliberately not aligned to the 12x8 repeated tile.
+    for (x, y, color) in [
+        (6, 8, [255, 0, 0, 255]),
+        (12, 8, [0, 255, 0, 255]),
+        (6, 12, [0, 0, 255, 255]),
+        (12, 12, [255; 4]),
+        (18, 8, [255, 0, 0, 255]),
+        (6, 16, [255, 0, 0, 255]),
+    ] {
+        near(pixel(&bytes, x, y), color, 2);
+    }
+    assert_eq!(pixel(&bytes, 4, 8)[3], 0);
+    assert_eq!(pixel(&bytes, 6, 6)[3], 0);
+    assert_eq!(pixel(&bytes, 44, 24)[3], 0);
+    pattern(&mut scene).scale = [3.0; 2];
+    let uniform = session.render(&scene).unwrap();
+    near(pixel(&uniform, 6, 8), [255, 0, 0, 255], 2);
+    near(pixel(&uniform, 9, 8), [0, 255, 0, 255], 2);
+    near(pixel(&uniform, 12, 8), [255, 0, 0, 255], 2);
+    near(pixel(&uniform, 6, 11), [0, 0, 255, 255], 2);
+
+    // Preserve the documented Classic normalization independently on each axis.
+    pattern(&mut scene).scale = [0.0, -2.0];
+    let normalized = session.render(&scene).unwrap();
+    near(pixel(&normalized, 5, 7), [255, 0, 0, 255], 2);
+    near(pixel(&normalized, 6, 7), [0, 255, 0, 255], 2);
+    near(pixel(&normalized, 5, 8), [0, 0, 255, 255], 2);
+    near(pixel(&normalized, 7, 7), [255, 0, 0, 255], 2);
+
+    session
+        .set(
+            KEY,
+            ImageData::from_bytes(2, 1, vec![255, 0, 0, 255, 0, 0, 255, 255]),
+        )
+        .unwrap();
+    pattern(&mut scene).scale = [8.0; 2];
+    let nearest = session.render(&scene).unwrap();
+    near(pixel(&nearest, 20, 24), [0, 0, 255, 255], 2);
+    near(pixel(&nearest, 21, 24), [255, 0, 0, 255], 2);
+    pattern(&mut scene).nearest = false;
+    if session.bilinear_patterns() {
+        let smooth = session.render(&scene).unwrap();
+        for x in [20, 21] {
+            let boundary = pixel(&smooth, x, 24);
+            assert!(
+                boundary[0] > 80 && boundary[2] > 80 && boundary[3] > 250,
+                "bilinear repeat boundary at x={x}: {boundary:?}"
+            );
+        }
+    } else {
+        // The pinned Hybrid sampler clamps neighboring taps at a repeat seam.
+        // Refuse this exact fixture instead of presenting a visibly wrong tile.
+        let mut refused = scene.clone();
+        refused.image_sources.insert(
+            KEY,
+            ImageData::from_bytes(2, 1, vec![0, 255, 0, 255, 0, 255, 0, 255]),
+        );
+        let before = session.stats();
+        assert!(matches!(
+            session.render(&refused),
+            Err(SparseSessionError::Admission(
+                netrender::vello_backends::BackendAdmissionError::UnsupportedOperation {
+                    operation: "Pattern",
+                    ..
+                }
+            ))
+        ));
+        assert_eq!(session.stats(), before);
+        pattern(&mut scene).nearest = true;
+        let retained = session.render(&scene).unwrap();
+        near(pixel(&retained, 20, 24), [0, 0, 255, 255], 2);
+        near(pixel(&retained, 21, 24), [255, 0, 0, 255], 2);
+    }
+
+    session.set(KEY, solid([255, 0, 0, 255])).unwrap();
+    let transform = scene
+        .push_transform(Transform::scale_2d(2.0, 2.0).then(&Transform::translate_2d(2.0, 4.0)));
+    let pat = pattern(&mut scene);
+    pat.extent = [5.0, 7.0, 17.0, 15.0];
+    pat.transform_id = transform;
+    pat.clip_rect = [16.0, 20.0, 32.0, 32.0];
+    let clipped = session.render(&scene).unwrap();
+    near(pixel(&clipped, 24, 26), [255, 0, 0, 255], 2);
+    for (x, y) in [(14, 24), (34, 24), (24, 19), (24, 33)] {
+        assert_eq!(
+            pixel(&clipped, x, y)[3],
+            0,
+            "device-space pattern clip at {x},{y}"
+        );
+    }
+
+    // Source alpha and two nested opacity layers compose before the later solid.
+    session.set(KEY, solid([255, 255, 255, 128])).unwrap();
+    let mut layered = Scene::new(DIM, DIM);
+    layered.push_rect(0.0, 0.0, 48.0, 48.0, [0.0, 0.0, 0.0, 1.0]);
+    let mut outer = SceneLayer::alpha(0.5);
+    outer.clip = SceneClip::Rect {
+        rect: [8.0, 8.0, 40.0, 40.0],
+        radii: [12.0; 4],
+    };
+    layered.push_layer(outer);
+    layered.push_layer_alpha(0.5);
+    layered.push_pattern(KEY, [0.0, 0.0, 48.0, 48.0], [4.0; 2]);
+    pattern(&mut layered).nearest = !session.bilinear_patterns();
+    layered.pop_layer();
+    layered.pop_layer();
+    layered.push_rect(20.0, 20.0, 28.0, 28.0, [0.0, 1.0, 0.0, 1.0]);
+    let output = session.render(&layered).unwrap();
+    near(pixel(&output, 12, 24), [32, 32, 32, 255], 3);
+    near(pixel(&output, 24, 24), [0, 255, 0, 255], 2);
+    near(pixel(&output, 8, 8), [0, 0, 0, 255], 2);
+    near(pixel(&output, 4, 24), [0, 0, 0, 255], 2);
+}
+
+fn lifecycle_and_refusals(session: &mut impl Session) {
+    let mut scene = scene();
+    scene.image_sources.insert(KEY, solid([255, 0, 0, 255]));
+    near(
+        pixel(&session.render(&scene).unwrap(), 24, 24),
+        [255, 0, 0, 255],
+        2,
+    );
+    let first = session.stats();
+    scene.image_sources.clear();
+    pattern(&mut scene).scale = [3.0, 7.0];
+    pattern(&mut scene).nearest = !session.bilinear_patterns();
+    scene.push_image_full(
+        0.0,
+        0.0,
+        4.0,
+        4.0,
+        [0.0, 0.0, 1.0, 1.0],
+        [1.0; 4],
+        KEY,
+        0,
+        NO_CLIP,
+    );
+    let shared = session.render(&scene).unwrap();
+    near(pixel(&shared, 24, 24), [255, 0, 0, 255], 2);
+    near(pixel(&shared, 2, 2), [255, 0, 0, 255], 2);
+    assert_eq!(
+        session.stats().cached_images,
+        1,
+        "image and repeated pattern share a source variant"
+    );
+    assert_eq!(session.stats().hydrated_images, first.hydrated_images);
+    assert_eq!(session.stats().uploaded_images, first.uploaded_images);
+
+    for index in 0..8 {
+        let color = if index % 2 == 0 {
+            [0, 0, 255, 255]
+        } else {
+            [0, 255, 0, 255]
+        };
+        session.set(KEY, solid(color)).unwrap();
+        let pixels = session.render(&scene).unwrap();
+        near(pixel(&pixels, 24, 24), color, 2);
+        near(pixel(&pixels, 2, 2), color, 2);
+        let stats = session.stats();
+        assert_eq!(
+            (stats.source_count, stats.cached_images, stats.cached_bytes),
+            (1, 1, 16)
+        );
+        assert!(stats.gpu_texture_bytes <= 16);
+    }
+    for scale in [
+        [f32::NAN, 1.0],
+        [1.0, f32::INFINITY],
+        [f32::MIN_POSITIVE, 1.0],
+    ] {
+        let mut bad = scene.clone();
+        pattern(&mut bad).scale = scale;
+        bad.image_sources.insert(KEY, solid([255, 0, 0, 255]));
+        let before = session.stats();
+        assert!(
+            matches!(
+                session.render(&bad),
+                Err(SparseSessionError::InvalidScene { .. })
+            ),
+            "invalid scale {scale:?}"
+        );
+        assert_eq!(session.stats(), before);
+        near(
+            pixel(&session.render(&scene).unwrap(), 24, 24),
+            [0, 255, 0, 255],
+            2,
+        );
+    }
+    let mut bad_extent = scene.clone();
+    pattern(&mut bad_extent).extent = [5.0, 7.0, 5.0, 41.0];
+    assert!(matches!(
+        session.render(&bad_extent),
+        Err(SparseSessionError::InvalidScene { .. })
+    ));
+    let mut bad_mapping = scene.clone();
+    let huge = bad_mapping.push_transform(Transform::scale_2d(f32::MAX, 1.0));
+    pattern(&mut bad_mapping).transform_id = huge;
+    assert!(matches!(
+        session.render(&bad_mapping),
+        Err(SparseSessionError::InvalidScene { .. })
+    ));
+    let mut bad_payload = scene.clone();
+    bad_payload
+        .image_sources
+        .insert(KEY, ImageData::from_bytes(2, 2, vec![0; 15]));
+    assert!(matches!(
+        session.render(&bad_payload),
+        Err(SparseSessionError::InvalidImage { key: KEY, .. })
+    ));
+
+    // The resource limits allow two sources but only one simultaneous hydrated variant.
+    session.set(KEY + 1, solid([255, 255, 0, 255])).unwrap();
+    let mut over_budget = scene.clone();
+    over_budget.push_pattern(KEY + 1, [0.0, 0.0, 8.0, 8.0], [1.0; 2]);
+    if let Some(SceneOp::Pattern(value)) = over_budget.ops.last_mut() {
+        value.nearest = true;
+    }
+    let before = session.stats();
+    assert!(matches!(
+        session.render(&over_budget),
+        Err(SparseSessionError::ResourceBudgetExceeded { .. })
+    ));
+    assert_eq!(session.stats(), before);
+    session.remove(KEY + 1);
+    assert!(matches!(
+        session.set(KEY, ImageData::from_bytes(4, 4, vec![255; 64])),
+        Err(SparseSessionError::ResourceBudgetExceeded { .. })
+    ));
+    near(
+        pixel(&session.render(&scene).unwrap(), 24, 24),
+        [0, 255, 0, 255],
+        2,
+    );
+    assert!(session.remove(KEY));
+    assert_eq!(
+        (
+            session.stats().source_count,
+            session.stats().cached_images,
+            session.stats().gpu_texture_bytes
+        ),
+        (0, 0, 0)
+    );
+    assert!(matches!(
+        session.render(&scene),
+        Err(SparseSessionError::MissingImage { key: KEY, .. })
+    ));
+    session.set(KEY, solid([255, 0, 255, 255])).unwrap();
+    near(
+        pixel(&session.render(&scene).unwrap(), 24, 24),
+        [255, 0, 255, 255],
+        2,
+    );
+}
+
+fn bounded_limits() -> SparseResourceLimits {
+    SparseResourceLimits {
+        max_sources: 2,
+        max_source_bytes: 32,
+        max_cached_images: 1,
+        max_cached_bytes: 16,
+        ..Default::default()
+    }
+}
+
+#[cfg(feature = "vello-cpu")]
+mod cpu {
+    use super::*;
+    use netrender::vello_backends::CpuSession;
+    impl Session for CpuSession {
+        fn set(&mut self, key: u64, image: ImageData) -> Result<(), SparseSessionError> {
+            self.set_image_source(key, image)
+        }
+        fn remove(&mut self, key: u64) -> bool {
+            self.remove_image_source(key)
+        }
+        fn stats(&self) -> SparseResourceStats {
+            CpuSession::stats(self)
+        }
+        fn render(&mut self, scene: &Scene) -> Result<Vec<u8>, SparseSessionError> {
+            CpuSession::render(self, scene).map(|pixels| pixels.data_as_u8_slice().to_vec())
+        }
+    }
+    #[test]
+    fn cpu_pattern_semantics_without_device() {
+        pattern_semantics(&mut CpuSession::new(SparseResourceLimits::default()));
+    }
+    #[test]
+    fn cpu_pattern_lifecycle_and_refusals_without_device() {
+        lifecycle_and_refusals(&mut CpuSession::new(bounded_limits()));
+    }
+}
+
+#[cfg(all(feature = "vello-hybrid", not(target_arch = "wasm32")))]
+mod hybrid {
+    use super::*;
+    use netrender::vello_backends::HybridSession;
+    struct Gpu {
+        session: HybridSession,
+        handles: netrender::WgpuHandles,
+        readback: netrender::WgpuDevice,
+        texture: wgpu::Texture,
+    }
+    impl Gpu {
+        fn new(limits: SparseResourceLimits) -> Self {
+            let handles = netrender::boot().expect("VB2 pattern shared device");
+            let info = handles.adapter.get_info();
+            eprintln!(
+                "VB2 pattern adapter={:?} backend={:?} driver={:?}",
+                info.name, info.backend, info.driver
+            );
+            let session = HybridSession::new(&handles.device, &handles.queue, limits).unwrap();
+            let readback = netrender::WgpuDevice::with_external(handles.clone()).unwrap();
+            let texture = handles.device.create_texture(&wgpu::TextureDescriptor {
+                label: Some("VB2 pattern acceptance target"),
+                size: wgpu::Extent3d {
+                    width: DIM,
+                    height: DIM,
+                    depth_or_array_layers: 1,
+                },
+                mip_level_count: 1,
+                sample_count: 1,
+                dimension: wgpu::TextureDimension::D2,
+                format: wgpu::TextureFormat::Rgba8Unorm,
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT
+                    | wgpu::TextureUsages::COPY_SRC
+                    | wgpu::TextureUsages::TEXTURE_BINDING,
+                view_formats: &[],
+            });
+            Self {
+                session,
+                handles,
+                readback,
+                texture,
+            }
+        }
+    }
+    impl Session for Gpu {
+        fn bilinear_patterns(&self) -> bool {
+            false
+        }
+        fn set(&mut self, key: u64, image: ImageData) -> Result<(), SparseSessionError> {
+            self.session.set_image_source(key, image)
+        }
+        fn remove(&mut self, key: u64) -> bool {
+            self.session.remove_image_source(key)
+        }
+        fn stats(&self) -> SparseResourceStats {
+            self.session.stats()
+        }
+        fn render(&mut self, scene: &Scene) -> Result<Vec<u8>, SparseSessionError> {
+            let before = self.readback.read_rgba8_texture(&self.texture, DIM, DIM);
+            let mut encoder =
+                self.handles
+                    .device
+                    .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                        label: Some("VB2 pattern session render"),
+                    });
+            let result = self.session.render(
+                scene,
+                &self.handles.device,
+                &self.handles.queue,
+                &mut encoder,
+                &self.texture,
+            );
+            self.handles.queue.submit([encoder.finish()]);
+            let after = self.readback.read_rgba8_texture(&self.texture, DIM, DIM);
+            if result.is_err() {
+                assert_eq!(
+                    after, before,
+                    "refused pattern must leave visible target unchanged"
+                );
+            }
+            result.map(|()| after)
+        }
+    }
+    #[test]
+    fn hybrid_pattern_semantics_on_existing_device() {
+        pattern_semantics(&mut Gpu::new(SparseResourceLimits::default()));
+    }
+    #[test]
+    fn hybrid_pattern_lifecycle_and_refusals_on_existing_device() {
+        lifecycle_and_refusals(&mut Gpu::new(bounded_limits()));
+    }
+}
