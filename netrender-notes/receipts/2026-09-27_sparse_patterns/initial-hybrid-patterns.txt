@@ -1,0 +1,23 @@
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+   Compiling netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.59s
+     Running tests\vb2_sparse_patterns.rs (C:\t\cargo-targets\netrender\debug\deps\vb2_sparse_patterns-842687503464330b.exe)
+
+running 2 tests
+VB2 pattern adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_pattern_lifecycle_and_refusals_on_existing_device ... ok
+VB2 pattern adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+
+thread 'hybrid::hybrid_pattern_semantics_on_existing_device' (49232) panicked at netrender\tests\vb2_sparse_patterns.rs:118:9:
+bilinear repeat boundary at x=20: [0, 0, 255, 255]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test hybrid::hybrid_pattern_semantics_on_existing_device ... FAILED
+
+failures:
+
+failures:
+    hybrid::hybrid_pattern_semantics_on_existing_device
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.51s
+
+error: test failed, to rerun pass `-p netrender --test vb2_sparse_patterns`

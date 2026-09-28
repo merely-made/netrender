@@ -1,0 +1,10 @@
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+   Compiling netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.67s
+     Running tests\vb2_sparse_patterns.rs (C:\t\cargo-targets\netrender\debug\deps\vb2_sparse_patterns-f95f82c0ff747d32.exe)
+
+running 2 tests
+test cpu::cpu_pattern_lifecycle_and_refusals_without_device ... ok
+test cpu::cpu_pattern_semantics_without_device ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s

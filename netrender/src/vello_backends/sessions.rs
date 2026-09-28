@@ -6,7 +6,7 @@
 //! subset and never import an external producer's GPU image implicitly.
 
 use super::{BackendAdmissionError, VelloBackend, sparse};
-use crate::scene::{ImageData, ImageKey, Scene, SceneImage, SceneOp};
+use crate::scene::{ImageData, ImageKey, Scene, SceneImage, SceneOp, ScenePattern};
 use std::{collections::HashMap, sync::Arc};
 use vello_sparse_common::{
     kurbo::Affine,
@@ -283,12 +283,53 @@ impl ImageState {
     fn plan(&self, scene: &Scene, backend: VelloBackend) -> Result<FramePlan, SparseSessionError> {
         super::validate_scene_operations(backend, scene, true)?;
         validate::scene(scene, self.limits)?;
+        if backend == VelloBackend::Hybrid {
+            for (index, op) in scene.ops.iter().enumerate() {
+                if matches!(op, SceneOp::Pattern(pattern) if !pattern.nearest) {
+                    return Err(super::unsupported(
+                        backend,
+                        index,
+                        "Pattern",
+                        "pinned Hybrid bilinear repeat clamps filter taps at tile seams; only explicit nearest sampling is admitted",
+                    ).into());
+                }
+            }
+        }
         let sources =
             self.updated_sources(scene.image_sources.iter().map(|(key, value)| (*key, value)))?;
         let mut variants = HashMap::new();
         let mut ops = HashMap::new();
         let mut bytes = 0usize;
         for (index, op) in scene.ops.iter().enumerate() {
+            if let SceneOp::Pattern(pattern) = op {
+                let source = sources
+                    .get(&pattern.tile)
+                    .ok_or(SparseSessionError::MissingImage { key: pattern.tile })?;
+                let key = VariantKey {
+                    key: pattern.tile,
+                    blob: source.data.id(),
+                    source_size: [source.width, source.height],
+                    crop: [0, 0, source.width, source.height],
+                    tint: [1.0_f32.to_bits(); 4],
+                };
+                if let std::collections::hash_map::Entry::Vacant(entry) = variants.entry(key) {
+                    bytes =
+                        bytes
+                            .checked_add(key.bytes())
+                            .ok_or(SparseSessionError::InvalidImage {
+                                key: pattern.tile,
+                                reason: "derived image byte accounting overflow",
+                            })?;
+                    budget("cached image bytes", bytes, self.limits.max_cached_bytes)?;
+                    entry.insert(source.clone());
+                    budget(
+                        "cached image count",
+                        variants.len(),
+                        self.limits.max_cached_images,
+                    )?;
+                }
+                ops.insert(index, key);
+            }
             if let SceneOp::Image(image) = op {
                 let source = sources
                     .get(&image.key)
@@ -432,19 +473,34 @@ fn paint_transform(image: &SceneImage, key: VariantKey) -> Affine {
     )) * Affine::scale_non_uniform(sx, sy)
 }
 
-fn paint(image: &SceneImage, key: VariantKey, source: ImageSource) -> sparse::ImagePaint {
+fn pattern_transform(pattern: &ScenePattern) -> Affine {
+    // ScenePattern's existing contract normalizes each nonpositive axis to 1.
+    // Nonfinite values are refused during preflight before this helper runs.
+    let [sx, sy] = pattern
+        .scale
+        .map(|value| if value > 0.0 { value as f64 } else { 1.0 });
+    Affine::translate((pattern.extent[0] as f64, pattern.extent[1] as f64))
+        * Affine::scale_non_uniform(sx, sy)
+}
+
+fn paint(op: &SceneOp, key: VariantKey, source: ImageSource) -> sparse::ImagePaint {
+    let (extend, nearest, transform) = match op {
+        SceneOp::Image(image) => (Extend::Pad, image.nearest, paint_transform(image, key)),
+        SceneOp::Pattern(pattern) => (Extend::Repeat, pattern.nearest, pattern_transform(pattern)),
+        _ => unreachable!("only admitted image/pattern operations have resource paints"),
+    };
     sparse::ImagePaint {
         image: Image {
             image: source,
             sampler: Default::default(),
         }
-        .with_extend(Extend::Pad)
-        .with_quality(if image.nearest {
+        .with_extend(extend)
+        .with_quality(if nearest {
             ImageQuality::Low
         } else {
             ImageQuality::Medium
         }),
-        transform: paint_transform(image, key),
+        transform,
     }
 }
 
@@ -460,7 +516,14 @@ fn paint(image: &SceneImage, key: VariantKey, source: ImageSource) -> sparse::Im
 /// bilinear sampling, device-space rounded clips and 2D affine transforms are
 /// admitted. RGBA tint must be premultiplied (`0 <= RGB <= A <= 1`) and is
 /// multiplied into derived source pixels. Degenerate or overflowing derived
-/// transforms, patterns, text, filters and registered fragments are refused.
+/// transforms, text, filters and registered fragments are refused.
+///
+/// Patterns repeat an untinted full source tile on both axes, with phase
+/// anchored at the extent's top-left. Extents must be finite, ordered and
+/// nonempty. Per-axis scales must be finite; zero and negative values normalize
+/// to 1, matching Classic. Nearest/bilinear sampling, affine transforms and
+/// device-space rounded clips are supported. Pattern scale/sampling does not
+/// create new pixel variants: patterns share the full untinted image cache.
 #[cfg(feature = "vello-cpu")]
 pub struct CpuSession {
     state: ImageState,
@@ -512,13 +575,10 @@ impl CpuSession {
             .ops
             .iter()
             .map(|(index, key)| {
-                let SceneOp::Image(image) = &scene.ops[*index] else {
-                    unreachable!()
-                };
                 (
                     *index,
                     paint(
-                        image,
+                        &scene.ops[*index],
                         *key,
                         ImageSource::Pixmap(self.state.cache[key].pixmap.clone()),
                     ),
@@ -543,6 +603,14 @@ impl CpuSession {
 /// Image parameter, crop, tint and source-lifetime semantics match
 /// `CpuSession` when that feature is enabled; the same subset is available
 /// in Hybrid-only builds. See this module's session admission documentation.
+///
+/// Patterns require explicit nearest sampling (`nearest = true`). Bilinear
+/// patterns are refused before resource/target mutation because the pinned
+/// shader clamps filtering taps at repeated tile boundaries. The requested
+/// sampler is never silently changed. CPU sessions support bilinear repeat.
+/// Admitted patterns repeat a full untinted source, anchored at the extent's
+/// top-left, with finite nonpositive scale axes normalized to 1. Extent,
+/// affine and device-space clip validation match the CPU pattern subset.
 #[cfg(feature = "vello-hybrid")]
 pub struct HybridSession {
     state: ImageState,
@@ -681,10 +749,10 @@ impl HybridSession {
             .ops
             .iter()
             .map(|(index, key)| {
-                let SceneOp::Image(image) = &scene.ops[*index] else {
-                    unreachable!()
-                };
-                (*index, paint(image, *key, sources[key].clone()))
+                (
+                    *index,
+                    paint(&scene.ops[*index], *key, sources[key].clone()),
+                )
             })
             .collect();
         let mut packet =

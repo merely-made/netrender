@@ -1,0 +1,22 @@
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+   Compiling netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.41s
+     Running tests\vb2_sparse_images.rs (C:\t\cargo-targets\netrender\debug\deps\vb2_sparse_images-896b974b20e3b6d6.exe)
+
+running 2 tests
+VB2 Hybrid adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_image_budget_on_existing_device ... ok
+VB2 Hybrid adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_images_on_existing_device ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.66s
+
+     Running tests\vb2_sparse_patterns.rs (C:\t\cargo-targets\netrender\debug\deps\vb2_sparse_patterns-842687503464330b.exe)
+
+running 2 tests
+VB2 pattern adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_pattern_lifecycle_and_refusals_on_existing_device ... ok
+VB2 pattern adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_pattern_semantics_on_existing_device ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.28s

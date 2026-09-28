@@ -1,0 +1,36 @@
+
+Algorithm : SHA256
+Hash      : 9E135E5C856CD2C3FEF2EA1E91289259E6A2B31B1FDA4FA92BFB2D5365F07E69
+Path      : C:\Users\mark_\Code\repos\netrender\Cargo.lock
+
+Algorithm : SHA256
+Hash      : 352D4E36C37AB1ABF6951B32AD18D903EBC2D511FBBAB4E4FE815893B35A5595
+Path      : C:\Users\mark_\Code\repos\netrender\Cargo.toml
+
+Algorithm : SHA256
+Hash      : D61707309C24220E06F4E7BCE70B2229BA207AAE2525987DABBCAF9EC4E291AB
+Path      : C:\Users\mark_\Code\repos\netrender\netrender\Cargo.toml
+
+Algorithm : SHA256
+Hash      : A654FD15113FD103F0B118E7D87DAC1CA83B62A84C1C2F7744F2EAF6866FEF0C
+Path      : C:\Users\mark_\Code\repos\netrender\netrender\src\vello_backends.rs
+
+Algorithm : SHA256
+Hash      : 9AA538F49BBD144CB09DF7338B1018356C7695272327FAC4ADC98E2E19FBF539
+Path      : C:\Users\mark_\Code\repos\netrender\netrender\src\vello_backends\sessions.rs
+
+Algorithm : SHA256
+Hash      : EC5B6AFD2FF89A65F09CF419624D59389C3E13E8047A3932D9B570A4D65FC0EE
+Path      : C:\Users\mark_\Code\repos\netrender\netrender\src\vello_backends\sessions\validate.rs
+
+Algorithm : SHA256
+Hash      : EA787A0EB9BF178E3698FBCB2D52D816AB2388C302F2F5E94AB5430A8BB1AB9A
+Path      : C:\Users\mark_\Code\repos\netrender\netrender\tests\vb2_sparse_patterns.rs
+
+Algorithm : SHA256
+Hash      : FF59C697BBBA47CC91DE98A76AF8EDC75AC9601A0E8A63D4DBB3B3E9EA03FA90
+Path      : C:\Users\mark_\Code\repos\netrender\netrender\tests\vb2_sparse_images.rs
+
+Algorithm : SHA256
+Hash      : 09C6D76F43241F6EC55114C05EC3C85AECF4B6333C330C171D4141AF94B4A57A
+Path      : C:\Users\mark_\Code\repos\netrender\netrender\tests\rg2a_scene_corpus.rs
