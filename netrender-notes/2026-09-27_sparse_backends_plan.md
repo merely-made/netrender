@@ -5,6 +5,8 @@
 passes CPU pixels and Hybrid GPU readback. Pattern support is validated for
 CPU nearest/bilinear and Hybrid nearest; Hybrid bilinear remains an explicit
 dependency gap after a measured repeat-seam failure.
+The VB3 outline-text adapter passes synthetic CPU/GPU acceptance; actual
+Isocosm panel text capture/replay remains open.
 See the [baseline and implementation receipts](receipts/2026-09-27_sparse_backends/README.md).
 No new dependency pin or alternate default has been promoted.
 
@@ -68,7 +70,7 @@ See [`vello_backends.rs`](../netrender/src/vello_backends.rs),
 | Geometry, gradients, transforms, clips, nested alpha | Lowered; bounded RG2a receipts exist | Preserve semantic anchors and refusal tests. |
 | CPU-owned image | Owned `CpuSession` / `HybridSession`; synthetic CPU/GPU acceptance passed | Real consumer capture remains open. Free lowerers still refuse images. |
 | Pattern | CPU nearest/bilinear and Hybrid nearest passed synthetic acceptance | Hybrid bilinear repeat-seam repair remains open. Free lowerers retain typed refusal. |
-| Glyph run | Typed refusal; sparse `text` features disabled | Enable text explicitly, supply persistent Resources, map existing shaped glyphs and font variations. |
+| Glyph run | Owned unhinted outline-text sessions passed synthetic CPU/GPU acceptance | Real panel text acceptance remains open. Free lowerers retain typed refusal. |
 | Registered fragment | Typed refusal | Resolve registry and generations; design backend-specific reuse and invalidation. |
 | Element / backdrop filters | Typed refusal | Admit exact supported operations with painter-order and alpha evidence. |
 | External GPU scene image | Classic's staging path exists | VB4b gives sparse GPU a same-device route; CPU requires an explicit CPU source or refuses. |
@@ -197,6 +199,45 @@ panel text, a variable-font fixture, a fallback-font fixture, clear handling
 of missing/invalid resources, and bounded resource lifetime. Use semantic
 pixel regions/tolerances, not universal byte identity between rasterizers.
 Color/bitmap glyph cases remain explicit subcapabilities until tested.
+
+**Outline adapter completed:** the sparse `text` features and direct
+same-pin Glifo dependency are enabled. Owned sessions preserve caller glyph
+positions, font collection indices and normalized user-axis variations, with
+solid premultiplied color, affine placement, device-space clips and layers.
+Shaping and fallback font selection remain caller-owned. Hinting, color,
+bitmap and SVG font tables are excluded from this first subset.
+
+`SparseTextLimits` separately bounds font count/bytes, positioned glyphs,
+variation axes, per-frame outline work, retained glyph/segment counts, font
+size and cache-epoch duration. The public Glifo preparation cache is owned by
+NetRender. At an epoch limit it is replaced only after the next whole frame
+passes admission; `clear_text_cache()` explicitly drops it without touching
+image resources or reconstructing GPU pipelines. `text_stats()` reports
+conservative logical residency and resets, not allocator bytes or exact RSS.
+Malformed requested fonts/outlines and invalid mappings refuse before image,
+text-cache or target mutation. Font assets remain trusted parser inputs; this
+is not a sanitizer or parser CPU-time sandbox.
+
+Portable fixtures under `netrender/tests/fixtures/vb3_fonts` exercise a
+variable-font geometric oracle, real disjoint-font coverage and a generated
+collection face. These remain synthetic scenes, not an Isocosm panel capture.
+Five tests pass independently with each sparse backend, including repeated
+glyphs exceeding the frame-work budget without increasing unique-cache count.
+Image/pattern, Classic text, RG2a, full library and feature-build regressions
+also pass. The [text receipt](receipts/2026-09-27_sparse_text/README.md) records
+versions, commands, hashes and the distinction between logical segment counts
+and allocator memory. The lock change adds only the direct Glifo dependency
+edge; versions and sparse pin remain unchanged.
+
+**Remaining consumer evidence:** the Isocosm reviewer found no existing
+resource-complete panel capture. The paused tick-0 `sim-founded` checkpoint in
+`mesocosm/testing/bench/sim.scenario` is the reproducible target. The shared
+host's pre-translation paint list contains font bytes and positioned glyphs;
+`PaintEnvelope::from_list` plus postcard and `translate_envelope` provide the
+export/replay path. The reviewer is implementing that opt-in host capture
+separately. PNG screenshots and the synthetic `cambium_panel.paintlist` do not
+close VB3. Preserve the full captured operations/assets and report any typed
+refusal rather than removing unsupported content to produce a pass.
 
 **VB4a: host selection and real panel.** Expose requested and effective backend,
 compiled availability, and diagnostic refusal. Default stays Classic. Begin

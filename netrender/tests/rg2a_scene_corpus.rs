@@ -532,7 +532,7 @@ fn rg2a_sparse_refusal_table_is_typed_and_attributed() {
     assert_unsupported(
         "GlyphRun",
         "GlyphRun",
-        "sparse text resources are not wired yet",
+        "text resources require an owned CpuSession or HybridSession",
     );
     assert_unsupported(
         "Fragment",

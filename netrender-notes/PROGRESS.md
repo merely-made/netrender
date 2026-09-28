@@ -41,6 +41,10 @@ below; dated completion statements describe their original scope.
   Owned patterns admit CPU nearest/bilinear and Hybrid nearest. Hybrid bilinear
   is explicitly refused after a measured repeat-seam bug; the
   [pattern receipt](receipts/2026-09-27_sparse_patterns/README.md) preserves the failure.
+  The owned outline-text adapter now passes CPU/Hybrid positioned-glyph,
+  variable-font, collection and cache-lifecycle tests. The
+  [text receipt](receipts/2026-09-27_sparse_text/README.md) keeps actual Isocosm
+  panel capture/replay open. Shaping/fallback remain caller-owned.
 
 - [`2026-05-04_feature_roadmap.md`](2026-05-04_feature_roadmap.md)
   — **the only live checklist.** Phase R plus Phases A–G, every entry
@@ -114,7 +118,8 @@ below; dated completion statements describe their original scope.
   resource/filter classes, and capability declarations are checked against the
   result. The later 2026-09-27 owned sessions add bounded CPU-owned images;
   the free lowerers retain their image/pattern refusal. Pattern sessions are
-  sampler-qualified as described above. Text, filters, and
+  sampler-qualified as described above; owned text admits unhinted solid
+  outlines with variations and bounded cache epochs. Filters and
   registered fragments remain future sparse adapter work. Commit `cfa0261c2` adds the first
   physical execution-graph participation receipt. Classic declares an opaque
   submit, Hybrid shares the graph encoder, and CPU enters through a named ready

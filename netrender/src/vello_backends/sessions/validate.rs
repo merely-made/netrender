@@ -1,4 +1,7 @@
 // Copyright 2026 Mark Alan Boykin
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // SPDX-License-Identifier: MPL-2.0
 
 //! Parameter admission for owned sessions; intentionally separate from legacy
@@ -124,6 +127,22 @@ pub(super) fn scene(scene: &Scene, limits: SparseResourceLimits) -> Result<(), S
     budget("layer depth", depth, limits.max_layers)?;
     for (index, op) in scene.ops.iter().enumerate() {
         let valid = match op {
+            SceneOp::GlyphRun(v) => {
+                cost = cost
+                    .saturating_add(v.glyphs.len())
+                    .saturating_add(v.font_axis_values.len());
+                if v.clip_rect != NO_CLIP {
+                    budget("layer depth", depth.saturating_add(1), limits.max_layers)?;
+                }
+                v.font_size.is_finite()
+                    && v.font_size > 0.0
+                    && color(v.color)
+                    && clip(v.clip_rect, v.clip_corner_radii)
+                    && v.glyphs.iter().all(|glyph| finite(&[glyph.x, glyph.y]))
+                    && v.font_axis_values.iter().all(|(tag, value)| {
+                        value.is_finite() && tag.iter().all(|byte| (32..=126).contains(byte))
+                    })
+            }
             SceneOp::Image(v) => {
                 // Ordered normalized UVs are this slice's supported subset.
                 // Degenerate/flipped/out-of-range UVs are explicit refusals.
@@ -226,7 +245,7 @@ pub(super) fn scene(scene: &Scene, limits: SparseResourceLimits) -> Result<(), S
                 true
             }
             // Operation-level admission rejects these before parameter checks.
-            SceneOp::GlyphRun(_) | SceneOp::Fragment(_) => unreachable!(),
+            SceneOp::Fragment(_) => unreachable!(),
         };
         if !valid {
             return Err(invalid(

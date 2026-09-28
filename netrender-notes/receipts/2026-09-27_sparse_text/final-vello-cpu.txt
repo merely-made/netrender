@@ -1,0 +1,29 @@
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.68s
+     Running tests\vb2_sparse_images.rs (C:\t\cargo-targets\netrender\debug\deps\vb2_sparse_images-3d9b6e00f63680e7.exe)
+
+running 3 tests
+test cpu::cpu_image_semantics_without_device ... ok
+test cpu::cpu_resource_budget_without_device ... ok
+test cpu::cpu_source_lifecycle_without_device ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests\vb2_sparse_patterns.rs (C:\t\cargo-targets\netrender\debug\deps\vb2_sparse_patterns-9fb1b36f09407873.exe)
+
+running 2 tests
+test cpu::cpu_pattern_lifecycle_and_refusals_without_device ... ok
+test cpu::cpu_pattern_semantics_without_device ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests\vb3_sparse_text.rs (C:\t\cargo-targets\netrender\debug\deps\vb3_sparse_text-e19858e814738b3d.exe)
+
+running 5 tests
+test cpu::cpu_bounded_text_lifecycle_without_device ... ok
+test cpu::cpu_invalid_text_without_device ... ok
+test cpu::cpu_positions_composition_without_device ... ok
+test cpu::cpu_repeated_outline_budget_without_device ... ok
+test cpu::cpu_variations_fallback_without_device ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
