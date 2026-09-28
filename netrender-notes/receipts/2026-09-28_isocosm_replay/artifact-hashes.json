@@ -1,0 +1,37 @@
+[
+  {
+    "path": "C:\\Users\\mark_\\Code\\testing\\netrender\\receipts\\2026-09-28_isocosm_replay\\classic.json",
+    "bytes": 3282,
+    "sha256": "CE7FE075E117FAF9C8492CFD8FA527A1ADBCE3BB7B9EA2B112420B77A33E5CC7"
+  },
+  {
+    "path": "C:\\Users\\mark_\\Code\\testing\\netrender\\receipts\\2026-09-28_isocosm_replay\\classic.png",
+    "bytes": 709375,
+    "sha256": "9061FB4263EEAD6CD540AF4D53760AE4566C00947172485D522532EDC66B2CFB"
+  },
+  {
+    "path": "C:\\Users\\mark_\\Code\\testing\\netrender\\receipts\\2026-09-28_isocosm_replay\\cpu.json",
+    "bytes": 3557,
+    "sha256": "42CB0C57695880A168E546F3A2A404ED1DD799CD363821147124DDDB01834A6F"
+  },
+  {
+    "path": "C:\\Users\\mark_\\Code\\testing\\netrender\\receipts\\2026-09-28_isocosm_replay\\cpu.png",
+    "bytes": 711388,
+    "sha256": "45D8806312917BD2DC37EB8775A91590C5F9FA1A72B9BC4A2F72A198C4721327"
+  },
+  {
+    "path": "C:\\Users\\mark_\\Code\\testing\\netrender\\receipts\\2026-09-28_isocosm_replay\\hybrid.json",
+    "bytes": 3751,
+    "sha256": "D7C556B77A2782D85BF05C4FB51F1696BB99F93208448155CB4392728CEA01BC"
+  },
+  {
+    "path": "C:\\Users\\mark_\\Code\\testing\\netrender\\receipts\\2026-09-28_isocosm_replay\\hybrid.png",
+    "bytes": 710641,
+    "sha256": "CCD9AA0A1523F6F8D8AB944ABA552A6C5AE0BEC9A446DECEE9F17B5E24D2E257"
+  },
+  {
+    "path": "C:\\Users\\mark_\\Code\\testing\\netrender\\receipts\\2026-09-28_isocosm_replay\\wrong-scale\\classic.json",
+    "bytes": 2204,
+    "sha256": "B9A9A765BE7225A2FAD76252A29332538094DC4DFA0F0590BCD51BB9E5DF2A72"
+  }
+]

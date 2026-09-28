@@ -5,8 +5,9 @@
 passes CPU pixels and Hybrid GPU readback. Pattern support is validated for
 CPU nearest/bilinear and Hybrid nearest; Hybrid bilinear remains an explicit
 dependency gap after a measured repeat-seam failure.
-The VB3 outline-text adapter passes synthetic CPU/GPU acceptance; actual
-Isocosm panel text capture/replay remains open.
+The VB3 outline-text adapter passes synthetic CPU/GPU acceptance and the
+intact paused Isocosm panel capture/replay (2026-09-28). Native interaction
+and live Isometer producer composition remain open.
 See the [baseline and implementation receipts](receipts/2026-09-27_sparse_backends/README.md).
 No new dependency pin or alternate default has been promoted.
 
@@ -70,7 +71,7 @@ See [`vello_backends.rs`](../netrender/src/vello_backends.rs),
 | Geometry, gradients, transforms, clips, nested alpha | Lowered; bounded RG2a receipts exist | Preserve semantic anchors and refusal tests. |
 | CPU-owned image | Owned `CpuSession` / `HybridSession`; synthetic CPU/GPU acceptance passed | Real consumer capture remains open. Free lowerers still refuse images. |
 | Pattern | CPU nearest/bilinear and Hybrid nearest passed synthetic acceptance | Hybrid bilinear repeat-seam repair remains open. Free lowerers retain typed refusal. |
-| Glyph run | Owned unhinted outline-text sessions passed synthetic CPU/GPU acceptance | Real panel text acceptance remains open. Free lowerers retain typed refusal. |
+| Glyph run | Owned unhinted outline-text sessions passed synthetic tests and intact Isocosm panel replay | Native interaction and broader font subsets remain open. Free lowerers retain typed refusal. |
 | Registered fragment | Typed refusal | Resolve registry and generations; design backend-specific reuse and invalidation. |
 | Element / backdrop filters | Typed refusal | Admit exact supported operations with painter-order and alpha evidence. |
 | External GPU scene image | Classic's staging path exists | VB4b gives sparse GPU a same-device route; CPU requires an explicit CPU source or refuses. |
@@ -229,15 +230,22 @@ versions, commands, hashes and the distinction between logical segment counts
 and allocator memory. The lock change adds only the direct Glifo dependency
 edge; versions and sparse pin remain unchanged.
 
-**Remaining consumer evidence:** the Isocosm reviewer found no existing
-resource-complete panel capture. The paused tick-0 `sim-founded` checkpoint in
-`mesocosm/testing/bench/sim.scenario` is the reproducible target. The shared
-host's pre-translation paint list contains font bytes and positioned glyphs;
-`PaintEnvelope::from_list` plus postcard and `translate_envelope` provide the
-export/replay path. The reviewer is implementing that opt-in host capture
-separately. PNG screenshots and the synthetic `cambium_panel.paintlist` do not
-close VB3. Preserve the full captured operations/assets and report any typed
-refusal rather than removing unsupported content to produce a pass.
+**Consumer text evidence completed 2026-09-28:** the reviewer implemented the
+resource-complete host export. The real paused tick-0 `sim-founded` inspector
+capture now replays through all three backends without stripping any of its
+221 commands, 73 text runs, 1,228 glyphs or three fonts. Classic matches the
+paired PNG exactly. CPU/Hybrid pass independent visual and regional checks;
+differences greater than one channel value occur only on reference color
+edges. The [replay receipt](receipts/2026-09-28_isocosm_replay/README.md)
+qualifies this selected panel state, not selection/step/resize behavior or
+live Isometer images. CPU replay initializes no GPU. The cold dev-profile
+timings on a shared host are diagnostic and cannot close VB6.
+
+The harness is `paint_list_render/examples/sparse_panel_replay.rs`, using
+`PaintEnvelope` and unchanged font/glyph payloads. Explicit presentation
+scaling handles world transforms and device clips separately. Classic's exact
+match verifies that conversion for this capture. Raw system-font packets and
+PNG outputs remain local; Git records hashes and text/JSON evidence.
 
 **VB4a: host selection and real panel.** Expose requested and effective backend,
 compiled availability, and diagnostic refusal. Default stays Classic. Begin
@@ -278,6 +286,48 @@ cache residency and quality settings. Isometer remains the spatial producer.
 Use existing configurable residency policies; record what happens when a
 budget is exceeded. Changing appearance/detail must leave authoritative sim
 outcomes unchanged. A renderer completion timer alone cannot close this gate.
+
+### Host integration audit (2026-09-28)
+
+Read-only source survey: Mere `5ce144ffe58945746b7dabc21de499725219beaf`
+(shared checkout with unrelated pending work), Genet
+`ff52bd2b62a64bb5bb512ad936e2e060f1ccbc20`, and Isometry
+`bfa1b369ef2add8f3c4511b62be92cd5f479e549`. This is source evidence,
+not a headed integration receipt. No host or product files changed.
+
+The next implementation slices have distinct owners and prerequisites:
+
+1. **Genet/Rootstock backend selection.** Rootstock `src/frame.rs` calls
+   `RenderCore::rasterize_scaled`; `genet-render-host/src/lib.rs` invokes
+   Classic directly. `NetrenderOptions.backends` selects graphics APIs, not
+   Vello implementations. Add a fallible opt-in host path with persistent
+   sparse sessions and requested/effective/refusal reporting. Preserve the
+   existing Classic path and carry policy through suspend/resume. CPU window
+   presentation requires explicit upload and an explicit alpha convention.
+2. **Mere producer composition.** Rootstock `src/producer/registry.rs` stages
+   external Isometer images into Classic only. Sparse host selection alone
+   cannot accept those images. VB4b must qualify shared-device import before
+   claiming an integrated Hybrid frame. A CPU source mode needs separate
+   ownership; GPU readback must not appear implicitly in the frame loop.
+3. **Isometry simulation projection.** `mesocosm-genet/src/app/bench/state.rs`
+   stores the simulation `Panel`/`Session` separately from `Specimen`;
+   `bench/producer.rs` renders the specimen model. The sim view returns before
+   `ViewportCard`, and the sim-open frame hook skips producer registration and
+   specimen polling. Making the views co-visible does not connect their data.
+   The product owner must define the typed projection and selection mapping
+   from accepted simulation records before a viewport can demonstrate this
+   simulation. Preserve simulation scheduling and atomic advance semantics.
+4. **Integrated measurement.** Reuse Rootstock frame spans and Mesquite's
+   bounded cost distributions. Record input sequence, simulation revision,
+   and presented frame; separate simulation, layout, raster, upload, producer,
+   staging, and present costs. Dispatch-to-present-call is not display
+   completion. Compare identical logical ticks/actions because Play advances
+   once per host frame. Capture frames must stay out of ordinary latency
+   distributions. Consumer dependency pins also need coordinated advancement.
+
+These prerequisites keep VB4 and VB6 open. The intact replay closes the
+admitted VB3 text slice without implying that a live spatial scene already
+exists or that cold replay timings predict its performance.
 
 ## 5. Ownership and useful outcomes
 

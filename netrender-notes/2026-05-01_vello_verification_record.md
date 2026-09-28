@@ -2042,6 +2042,32 @@ hashes and Windows/NVIDIA Vulkan readback evidence. VB3 remains open for real
 Isocosm panel capture/replay; these fixtures do not prove shaping, automatic
 fallback, native interaction or full text parity.
 
+## Intact Isocosm panel replay — CLEARED, bounded VB3 (2026-09-28)
+
+The real paused tick-0 Isocosm Simulation/Inspect panel now replays through
+CPU, Hybrid and Classic with all 221 commands, 73 text runs, 1,228 glyphs and
+three font payloads intact. Translation yields 260 operations. The 1232x752
+logical scene is presented at scale 2, preserving local geometry and scaling
+device clips once. Classic reproduces the paired 2464x1504 PNG exactly.
+
+CPU and Hybrid pass independent visual checks and six preregistered regions.
+All differences above one channel value are localized to reference color
+edges. They are not byte-identical to Classic. CPU initializes no GPU;
+the GPU replays use the same recorded NVIDIA Vulkan adapter. No session
+admission change, operation stripping or font replacement was necessary.
+
+The new replay example checks lossless packet roundtrip and font/glyph
+identity, missing-font refusal, reference scale, and output non-overwrite.
+Two example controls and 18 translator/corpus tests pass. The
+[receipt](receipts/2026-09-28_isocosm_replay/README.md) records hashes, numeric
+differences, independent review and raw-output alpha conventions. Embedded
+system-font packets and PNGs remain local; repository evidence is text/JSON.
+
+This closes VB3's real-panel requirement for solid unhinted outlines in this
+snapshot. It does not close host selection, selection/step/resize behavior,
+live Isometer image import or whole-loop performance. Single cold dev-frame
+timings on the shared host are explicitly not an interactive benchmark.
+
 ## 11.99 Open items — moved (2026-05-05)
 
 The catalogue of deferred refinements that originally lived here

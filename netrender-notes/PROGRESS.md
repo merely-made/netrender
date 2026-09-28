@@ -43,8 +43,11 @@ below; dated completion statements describe their original scope.
   [pattern receipt](receipts/2026-09-27_sparse_patterns/README.md) preserves the failure.
   The owned outline-text adapter now passes CPU/Hybrid positioned-glyph,
   variable-font, collection and cache-lifecycle tests. The
-  [text receipt](receipts/2026-09-27_sparse_text/README.md) keeps actual Isocosm
-  panel capture/replay open. Shaping/fallback remain caller-owned.
+  [text receipt](receipts/2026-09-27_sparse_text/README.md) is followed by the
+  [intact Isocosm panel replay](receipts/2026-09-28_isocosm_replay/README.md):
+  CPU/Hybrid preserve the real panel's text and Classic matches exactly.
+  VB3 closes for admitted outlines; interaction and live producer composition
+  remain open. Shaping/fallback remain caller-owned.
 
 - [`2026-05-04_feature_roadmap.md`](2026-05-04_feature_roadmap.md)
   — **the only live checklist.** Phase R plus Phases A–G, every entry

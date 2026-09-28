@@ -1,0 +1,48 @@
+   Compiling hashbrown v0.17.1
+   Compiling gpu-allocator v0.28.0
+   Compiling indexmap v2.14.0
+   Compiling naga-types v30.0.0
+   Compiling naga v29.0.4
+   Compiling wgpu-types v30.0.0
+   Compiling naga v30.0.0
+   Compiling vello_shaders v0.10.0
+   Compiling wgpu-naga-bridge v30.0.0
+   Compiling wgpu-hal v30.0.0
+   Compiling wgpu-core-deps-windows-linux-android v30.0.0
+   Compiling wgpu-core v30.0.0
+   Compiling vello_encoding v0.10.0
+   Compiling wgpu v30.0.0
+   Compiling netrender_device v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender_device)
+   Compiling netrender-vello v0.10.1
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+   Compiling paint_list_render v0.1.2 (C:\Users\mark_\Code\repos\netrender\paint_list_render)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 41.34s
+     Running unittests src\lib.rs (C:\t\cargo-targets\netrender\debug\deps\paint_list_render-bc4bc67f2284ba25.exe)
+
+running 14 tests
+test tests::commands_only_layers_concatenate_into_one_scene ... ok
+test tests::draw_rect_emits_scene_rect ... ok
+test tests::draw_stroke_carries_cap_join_dash ... ok
+test tests::draw_stroke_emits_stroked_scene_shape ... ok
+test tests::empty_list_translates_to_empty_scene ... ok
+test tests::external_texture_keeps_the_active_transform_and_layer_scope ... ok
+test tests::external_texture_stages_an_in_order_scene_image ... ok
+test tests::merge_namespaces_colliding_font_keys ... ok
+test tests::nested_transforms_compose ... ok
+test tests::push_clip_rect_emits_clipped_layer ... ok
+test tests::push_layer_carries_filter_chain ... ok
+test tests::push_pop_layer_emits_layer_pair ... ok
+test tests::push_transform_adds_palette_entry_and_positions_child_ops ... ok
+test tests::translucent_colors_premultiply_at_lowering ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\pcorpus_replay.rs (C:\t\cargo-targets\netrender\debug\deps\pcorpus_replay-0f34d5209fa9bdb2.exe)
+
+running 4 tests
+test corpus_is_populated ... ok
+test every_fixture_has_provenance ... ok
+test translation_matches_recorded_ops ... ok
+test wire_encoding_round_trips ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s

@@ -1,0 +1,3 @@
+cpu exit 0
+hybrid exit 0
+classic exit 0

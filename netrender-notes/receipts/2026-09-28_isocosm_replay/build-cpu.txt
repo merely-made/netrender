@@ -1,0 +1,2 @@
+   Compiling paint_list_render v0.1.2 (C:\Users\mark_\Code\repos\netrender\paint_list_render)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.81s

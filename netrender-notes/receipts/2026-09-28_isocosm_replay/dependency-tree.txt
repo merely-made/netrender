@@ -1,0 +1,21 @@
+glifo v0.3.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+├── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+│   └── paint_list_render v0.1.2 (C:\Users\mark_\Code\repos\netrender\paint_list_render)
+├── vello_cpu v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+│   └── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+└── vello_hybrid v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+    └── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+wgpu v30.0.0
+├── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+│   └── paint_list_render v0.1.2 (C:\Users\mark_\Code\repos\netrender\paint_list_render)
+├── netrender-vello v0.10.1
+│   └── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+├── netrender_device v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender_device)
+│   └── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+└── vello_hybrid v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+    └── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender) (*)
+[dev-dependencies]
+└── paint_list_render v0.1.2 (C:\Users\mark_\Code\repos\netrender\paint_list_render)
+netrender-vello v0.10.1
+└── netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+    └── paint_list_render v0.1.2 (C:\Users\mark_\Code\repos\netrender\paint_list_render)

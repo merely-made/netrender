@@ -1,0 +1,23 @@
+{
+  "verified_local_time": "2026-09-28T04:32:04.6169250-04:00",
+  "netrender_baseline": "da229106de51a2f939546d673039d490690ca32c",
+  "original_receipt": "C:\\Users\\mark_\\Code\\repos\\isometry\\mesocosm\\testing\\bench\\receipts\\2026-09-27\\paint-capture\\source.json",
+  "original_receipt_sha256": "ADCACE0213F96822BCC5F639EFC42409E0274806C05D8F345B402574FD067BF4",
+  "inputs": [
+    {
+      "path": "C:\\Users\\mark_\\Code\\testing\\isometry\\receipts\\2026-09-27\\paint-capture\\sim-sim-founded.paintlist",
+      "bytes": 2511691,
+      "sha256": "73C4A9CE901957BCCCDC371CDEDE05F12C671D7780376BE71F2C2A02FF3DDD7D",
+      "matches_source_receipt": true
+    },
+    {
+      "path": "C:\\Users\\mark_\\Code\\testing\\isometry\\receipts\\2026-09-27\\paint-capture\\sim-sim-founded.png",
+      "bytes": 709375,
+      "sha256": "9061FB4263EEAD6CD540AF4D53760AE4566C00947172485D522532EDC66B2CFB",
+      "matches_source_receipt": true
+    }
+  ],
+  "source_capture_scope": "Native paused tick-0 Simulation/Inspect panel; raw paint/font bytes and images remain local",
+  "target": "C:\\t\\cargo-targets\\netrender",
+  "shared_host": "Other Mere compile/test processes active at input verification; replay timings cannot establish isolated interactive performance"
+}

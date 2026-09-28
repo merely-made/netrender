@@ -28,12 +28,15 @@ and bilinear sampling; Hybrid admits nearest and explicitly refuses bilinear
 because the pinned GPU sampler clamps taps at repeat seams. Both sessions
 also render caller-shaped, unhinted solid outline text with font variations
 and bounded glyph-cache epochs. Shaping and fallback selection stay with the
-caller; color/bitmap/SVG fonts are explicitly refused. Real panel acceptance,
-external producer image import and host selection remain open. See the
+caller; color/bitmap/SVG fonts are explicitly refused. The intact paused Isocosm
+panel now passes CPU/Hybrid replay, with exact Classic replay as its control.
+Native interaction, external producer image import and host selection remain
+open. See the
 [image](netrender-notes/receipts/2026-09-27_sparse_backends/README.md),
 [pattern](netrender-notes/receipts/2026-09-27_sparse_patterns/README.md)
 and [text receipts](netrender-notes/receipts/2026-09-27_sparse_text/README.md)
-for the tested scope. Classic remains the default.
+for the tested adapter scope, and the [real-panel replay receipt](netrender-notes/receipts/2026-09-28_isocosm_replay/README.md)
+for consumer evidence. Classic remains the default.
 `netrender`, `netrender_device`, `paint_list_api`, and
 `paint_list_render` are published at 0.1.2. `netrender_text` remains at 0.1.1.
 Unreleased `main` has removed Netrender's public legacy render-graph helper

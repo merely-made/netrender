@@ -1,0 +1,22 @@
+   Compiling foldhash v0.2.0
+   Compiling color v0.3.3
+   Compiling hashbrown v0.17.1
+   Compiling indexmap v2.14.0
+   Compiling hashbrown v0.16.1
+   Compiling naga-types v30.0.0
+   Compiling gpu-allocator v0.28.0
+   Compiling wgpu-types v30.0.0
+   Compiling naga v30.0.0
+   Compiling peniko v0.6.1
+   Compiling vello_encoding v0.10.0
+   Compiling vello_shaders v0.10.0
+   Compiling wgpu-naga-bridge v30.0.0
+   Compiling wgpu-hal v30.0.0
+   Compiling wgpu-core-deps-windows-linux-android v30.0.0
+   Compiling wgpu-core v30.0.0
+   Compiling wgpu v30.0.0
+   Compiling netrender_device v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender_device)
+   Compiling netrender-vello v0.10.1
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+   Compiling paint_list_render v0.1.2 (C:\Users\mark_\Code\repos\netrender\paint_list_render)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 38.22s
