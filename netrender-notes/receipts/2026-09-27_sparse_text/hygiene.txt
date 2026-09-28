@@ -1,0 +1,19 @@
+Header removal reproduces tested SHA256: netrender/src/vello_backends/sessions.rs
+Header removal reproduces tested SHA256: netrender/src/vello_backends/sessions/validate.rs
+Header removal reproduces tested SHA256: netrender/src/vello_backends/sessions/text.rs
+warning: in the working copy of 'Cargo.lock', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'LICENSES.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'netrender-notes/2026-09-27_sparse_backends_plan.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'netrender/Cargo.toml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'netrender/src/vello_backends.rs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'netrender/src/vello_backends/sessions.rs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'netrender/src/vello_backends/sessions/validate.rs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'netrender/tests/rg2a_scene_corpus.rs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'netrender/tests/vb2_sparse_images.rs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'netrender/tests/vb2_sparse_patterns.rs', LF will be replaced by CRLF the next time Git touches it
+Runtime gates completed with no NetRender Cargo/compiler/test process remaining.
+License-header-only changes verified by reproducing all three tested implementation hashes.
+Final format command: rustfmt --check --edition 2021 --config skip_children=true netrender/src/vello_backends.rs netrender/src/vello_backends/sessions.rs netrender/src/vello_backends/sessions/validate.rs netrender/src/vello_backends/sessions/text.rs netrender/tests/vb3_sparse_text.rs netrender/tests/vb2_sparse_images.rs netrender/tests/vb2_sparse_patterns.rs
+rustfmt check passed for all seven touched implementation/test modules.
+All new receipt, fixture notice, source and test text files pass staged-equivalent whitespace checks (CRLF accepted).
+Final source hashes reverified unchanged after hygiene checks.

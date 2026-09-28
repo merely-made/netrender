@@ -24,7 +24,7 @@ pub enum VelloBackend {
 /// Operations admitted by Netrender's current adapter, rather than every
 /// operation the upstream renderer may eventually support.
 /// Sparse capabilities describe the resource-free lowerers; owned sessions
-/// additionally admit their documented image/pattern parameter subsets.
+/// additionally admit their documented image/pattern/outline-text subsets.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BackendCapabilities {
     pub solid_geometry: bool,
@@ -205,7 +205,7 @@ pub fn validate_scene_for_backend(
 fn validate_scene_operations(
     backend: VelloBackend,
     scene: &crate::scene::Scene,
-    owned_images: bool,
+    owned_resources: bool,
 ) -> Result<(), BackendAdmissionError> {
     use crate::scene::{SceneFilter, SceneOp};
 
@@ -242,7 +242,7 @@ fn validate_scene_operations(
         }
 
         match op {
-            SceneOp::Image(_) if backend != VelloBackend::Classic && !owned_images => {
+            SceneOp::Image(_) if backend != VelloBackend::Classic && !owned_resources => {
                 return Err(unsupported(
                     backend,
                     op_index,
@@ -250,7 +250,7 @@ fn validate_scene_operations(
                     "image resources require an owned CpuSession or HybridSession",
                 ));
             }
-            SceneOp::Pattern(_) if backend != VelloBackend::Classic && !owned_images => {
+            SceneOp::Pattern(_) if backend != VelloBackend::Classic && !owned_resources => {
                 return Err(unsupported(
                     backend,
                     op_index,
@@ -258,12 +258,12 @@ fn validate_scene_operations(
                     "pattern resources require an owned CpuSession or HybridSession",
                 ));
             }
-            SceneOp::GlyphRun(_) if backend != VelloBackend::Classic => {
+            SceneOp::GlyphRun(_) if backend != VelloBackend::Classic && !owned_resources => {
                 return Err(unsupported(
                     backend,
                     op_index,
                     "GlyphRun",
-                    "sparse text resources are not wired yet",
+                    "text resources require an owned CpuSession or HybridSession",
                 ));
             }
             SceneOp::Fragment(_) if backend != VelloBackend::Classic => {
@@ -472,7 +472,12 @@ mod sparse {
     ) -> Result<(), BackendAdmissionError> {
         super::validate_scene_for_backend(backend, scene)?;
 
-        lower_admitted(context, scene, &std::collections::HashMap::new());
+        lower_admitted(
+            context,
+            scene,
+            &std::collections::HashMap::new(),
+            |_, _, _| unreachable!("free lowerers refuse text"),
+        );
         Ok(())
     }
 
@@ -486,6 +491,7 @@ mod sparse {
         context: &mut C,
         scene: &Scene,
         images: &std::collections::HashMap<usize, ImagePaint>,
+        mut draw_text: impl FnMut(&mut C, usize, &crate::scene::SceneGlyphRun),
     ) {
         let has_root_layer =
             scene.root_alpha != 1.0 || scene.root_blend_mode != SceneBlendMode::Normal;
@@ -500,6 +506,21 @@ mod sparse {
 
         for (op_index, op) in scene.ops.iter().enumerate() {
             match op {
+                SceneOp::GlyphRun(run) => {
+                    let clip = primitive_clip(run.clip_rect, run.clip_corner_radii);
+                    if let Some(path) = clip.as_ref() {
+                        context.set_transform(Affine::IDENTITY);
+                        context.push_layer(Some(path), None, None);
+                    }
+                    context.set_transform(transform(&scene.transforms[run.transform_id as usize]));
+                    context.set_paint_transform(Affine::IDENTITY);
+                    context.set_fill_rule(Fill::NonZero);
+                    context.set_paint(color(run.color).into());
+                    draw_text(context, op_index, run);
+                    if clip.is_some() {
+                        context.pop_layer();
+                    }
+                }
                 SceneOp::Image(image) => {
                     let paint = &images[&op_index];
                     let clip = primitive_clip(image.clip_rect, image.clip_corner_radii);
@@ -621,7 +642,7 @@ mod sparse {
                 }
                 SceneOp::PushLayer(layer) => push_scene_layer(context, layer, scene),
                 SceneOp::PopLayer => context.pop_layer(),
-                SceneOp::GlyphRun(_) | SceneOp::Fragment(_) => {
+                SceneOp::Fragment(_) => {
                     unreachable!("validated before lowering")
                 }
             }
@@ -857,7 +878,10 @@ mod sparse {
 #[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
 mod sessions;
 #[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
-pub use sessions::{SparseResourceLimits, SparseResourceStats, SparseSessionError};
+pub use sessions::{
+    SparseResourceLimits, SparseResourceStats, SparseSessionError, SparseTextLimits,
+    SparseTextStats,
+};
 #[cfg(feature = "vello-cpu")]
 pub use sessions::CpuSession;
 #[cfg(feature = "vello-hybrid")]

@@ -1,0 +1,91 @@
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+   Compiling netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 15.26s
+     Running unittests src\lib.rs (C:\t\cargo-targets\netrender\debug\deps\netrender-6293f13f7fc0dc4c.exe)
+
+running 78 tests
+test external_texture::tests::external_image_key_keeps_producer_keys_in_a_disjoint_namespace ... ok
+
+thread 'external_texture::tests::external_image_key_rejects_the_first_aliasing_key' (38084) panicked at netrender\src\external_texture.rs:44:5:
+external producer key 0x4000000000000000 exceeds the lower-62-bit namespace
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test external_texture::tests::external_image_key_rejects_the_first_aliasing_key - should panic ... ok
+test hit_test::tests::clip_rect_excludes_outside_points ... ok
+test hit_test::tests::empty_scene_hits_nothing ... ok
+test hit_test::tests::layer_clip_culls_inner_op_outside_clip ... ok
+test hit_test::tests::layer_ops_skipped_in_hit_walk ... ok
+test hit_test::tests::mixed_kinds_in_stack ... ok
+test hit_test::tests::nested_layer_clips_intersect ... ok
+test hit_test::tests::per_glyph_hit_returns_glyph_index ... ok
+test hit_test::tests::point_inside_rect_hits ... ok
+test hit_test::tests::point_outside_rect_misses ... ok
+test hit_test::tests::stack_returns_top_first ... ok
+test hit_test::tests::topmost_short_circuits ... ok
+test interpolate::tests::cubic_bezier_clamps_endpoints ... ok
+test interpolate::tests::ease_curves_endpoints_are_zero_and_one ... ok
+test interpolate::tests::ease_in_out_is_symmetric_around_midpoint ... ok
+test interpolate::tests::ease_in_starts_slow ... ok
+test interpolate::tests::ease_out_starts_fast ... ok
+test interpolate::tests::easing_composes_with_keyframes ... ok
+test interpolate::tests::lerp_array_blends_componentwise ... ok
+test interpolate::tests::lerp_color_blends_premultiplied ... ok
+test interpolate::tests::lerp_scalar ... ok
+test interpolate::tests::linear_is_identity ... ok
+test interpolate::tests::sample_keyframes_handles_empty_and_clamping ... ok
+test interpolate::tests::sample_keyframes_lerps_between_bracketing_pair ... ok
+test interpolate::tests::sample_keyframes_zero_span_uses_later_value ... ok
+test interpolate::tests::step_start_step_end_match_css ... ok
+test registry::tests::font_registry_dedups_within_call ... ok
+test registry::tests::font_registry_separates_distinct_blobs ... ok
+test registry::tests::font_registry_separates_distinct_indices ... ok
+test registry::tests::image_registry_allocates_distinct_keys_for_distinct_consumer_keys ... ok
+test registry::tests::image_registry_dedups_by_consumer_key ... ok
+test registry::tests::image_registry_get_does_not_insert ... ok
+test render_graph_tests::p6_render_graph::p6_01_blur_uniform_source ... ok
+test render_graph_tests::p6_render_graph::p6_02_drop_shadow ... ok
+test render_graph_tests::p9a_clip_rectangle::p9a_01_mask_pixels_match_sdf ... ok
+test render_graph_tests::p9a_clip_rectangle::p9a_02_mask_composes_as_red_rect ... ok
+test render_graph_tests::p9b_box_shadow::p9b_01_blur_softens_mask_edges ... ok
+test render_graph_tests::p9b_box_shadow::p9b_02_drop_shadow_composite ... ok
+test render_graph_tests::p9c_clip_fast_path::p9c_01_fast_path_is_axis_aligned_step ... ok
+test render_graph_tests::p9c_clip_fast_path::p9c_02_fast_path_pixel_match_rounded_at_zero_radius ... ok
+rg2b combined anchors center=[161, 180, 59, 255] no_element=[215, 161, 40, 255] boundary=[40, 59, 180, 255] no_backdrop=[0, 19, 220, 255]
+test render_graph_tests::rg2b::rg2b_combined_filter_scene_is_classic_only_and_visible ... ok
+test render_graph_tests::rg2b::rg2b_dump_names_three_execution_boundaries_over_one_topology ... ok
+test render_graph_tests::rg2b::rg2b_three_execution_shapes_share_downstream_readback ... ignored, physical RG2b three-backend execution receipt
+test render_graph_tests::rg2c::rg2c_three_backends_execute_real_effect_fork_join ... ignored, physical RG2c backend-neutral combined-effect receipt
+test render_graph_tests::rg3_imported_output::rg3_imported_output_load_preserves_untouched_pixels ... ok
+test render_graph_tests::rg3a_opaque_tenant::rg3a_boundary_zero_matches_legacy_final_master ... ok
+test render_graph_tests::rg3a_opaque_tenant::rg3a_receipt_has_stable_opaque_boundary_fields ... ok
+test render_graph_tests::rg_measurement::rg1_repeated_box_shadow_measurement ... ignored, physical repeated-plan measurement receipt
+test renderer::filters::blur_plan_tests::large_radius_cascades ... ok
+test renderer::filters::blur_plan_tests::pass_count_capped ... ok
+test renderer::filters::blur_plan_tests::pr5_large_radius_picks_higher_level ... ok
+test renderer::filters::blur_plan_tests::pr5_medium_radius_picks_level_two ... ok
+test renderer::filters::blur_plan_tests::pr5_passes_stay_unclipped_for_realistic_radii ... ok
+test renderer::filters::blur_plan_tests::pr5_small_radius_keeps_level_one ... ok
+test renderer::filters::blur_plan_tests::radius_at_step_cap_still_one_pass ... ok
+test renderer::filters::blur_plan_tests::small_radius_uses_one_pass_with_step_eq_sigma ... ok
+test renderer::filters::blur_plan_tests::zero_radius_collapses_to_single_tight_pass ... ok
+test renderer::filters::scene_tail_tests::tail_after_closed_layers_does_not_reopen_or_duplicate_them ... ok
+test renderer::filters::scene_tail_tests::tail_reopens_nested_layers_without_replaying_prefix_content ... ok
+test renderer::rg2c::tests::decomposes_one_bounded_trailing_combined_effect ... ok
+test renderer::rg2c::tests::refuses_a_tail_instead_of_losing_painter_order ... ok
+test renderer::tests::external_image_stages_premultiplied_pixels_inside_scene_layers_at_fractional_dpr ... ok
+test renderer::tests::invalidating_a_surface_drops_only_its_retained_tile_state ... ok
+test tile_cache::index::tests::agrees_on_a_color_change ... ok
+test tile_cache::index::tests::agrees_on_a_positional_nudge ... ok
+test tile_cache::index::tests::agrees_on_degenerate_and_tile_aligned_primitives ... ok
+test tile_cache::index::tests::agrees_on_out_of_bounds_and_full_bleed_primitives ... ok
+test tile_cache::index::tests::agrees_on_scene_level_alpha_and_blend ... ok
+test tile_cache::index::tests::agrees_when_a_primitive_moves_across_a_layer_boundary ... ok
+test tile_cache::index::tests::agrees_when_nothing_changed ... ok
+test tile_cache::index::tests::agrees_when_two_overlapping_primitives_swap_order ... ok
+test vello_backends::tests::capabilities_keep_one_contract_and_three_realizations ... ok
+test vello_backends::tests::cpu_lowerer_rasterizes_a_netrender_scene ... ok
+test vello_backends::tests::hybrid_gpu_renders_on_netrenders_wgpu_device ... ok
+test vello_backends::tests::hybrid_lowerer_produces_an_appendable_scene ... ok
+test vello_backends::tests::sparse_backends_admit_the_same_gradient_layer_subset ... ok
+test vello_backends::tests::sparse_backends_refuse_unwired_images_identically ... ok
+
+test result: ok. 75 passed; 0 failed; 3 ignored; 0 measured; 0 filtered out; finished in 10.16s

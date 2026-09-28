@@ -32,8 +32,8 @@ linear-light-canary = []
 # Experimental alternate realizations of the same Netrender Scene.
 # Classic remains the shipping renderer; these features admit only
 # scene operations whose sparse-strips behavior is explicit.
-vello-cpu = ["dep:vello_cpu", "dep:vello_sparse_common"]
-vello-hybrid = ["dep:vello_hybrid", "dep:vello_sparse_common"]
+vello-cpu = ["dep:vello_cpu", "dep:vello_sparse_common", "dep:vello_sparse_text"]
+vello-hybrid = ["dep:vello_hybrid", "dep:vello_sparse_common", "dep:vello_sparse_text"]
 vello-all = ["vello-cpu", "vello-hybrid"]
 
 [dependencies]
@@ -45,9 +45,11 @@ tracing = "0.1"
 wgpu = { workspace = true, features = ["std", "parking_lot", "wgsl"] }
 netrender_device = { version = "0.1.2", path = "../netrender_device" }
 vello = { workspace = true, features = ["wgpu"] }
-vello_cpu = { workspace = true, features = ["std", "u8_pipeline"], optional = true }
-vello_hybrid = { workspace = true, features = ["std", "wgpu"], optional = true }
+vello_cpu = { workspace = true, features = ["std", "u8_pipeline", "text"], optional = true }
+vello_hybrid = { workspace = true, features = ["std", "wgpu", "text"], optional = true }
 vello_sparse_common = { workspace = true, features = ["std"], optional = true }
+# Same source/type identity as the sparse renderers; Hybrid does not re-export Glyph.
+vello_sparse_text = { package = "glifo", git = "https://github.com/mark-ik/vello", rev = "ca3f40ea182216883cd543c7b9deae991268917c", default-features = false, features = ["std"], optional = true }
 # Roadmap R1 — per-glyph hit testing uses skrifa::metrics::GlyphMetrics
 # to query real font-supplied glyph bounds instead of the em-box
 # approximation. Pinned at the same minor as vello's transitive

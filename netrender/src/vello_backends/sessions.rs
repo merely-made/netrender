@@ -1,4 +1,7 @@
 // Copyright 2026 Mark Alan Boykin
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // SPDX-License-Identifier: MPL-2.0
 
 //! Owned, image-bearing sparse sessions. The legacy free lowerers deliberately
@@ -69,6 +72,16 @@ pub enum SparseSessionError {
     },
     InvalidImage {
         key: ImageKey,
+        reason: &'static str,
+    },
+    InvalidFont {
+        op_index: usize,
+        font_id: u32,
+        reason: &'static str,
+    },
+    InvalidGlyph {
+        op_index: usize,
+        glyph_id: u32,
         reason: &'static str,
     },
     InvalidScene {
@@ -516,7 +529,7 @@ fn paint(op: &SceneOp, key: VariantKey, source: ImageSource) -> sparse::ImagePai
 /// bilinear sampling, device-space rounded clips and 2D affine transforms are
 /// admitted. RGBA tint must be premultiplied (`0 <= RGB <= A <= 1`) and is
 /// multiplied into derived source pixels. Degenerate or overflowing derived
-/// transforms, text, filters and registered fragments are refused.
+/// transforms, filters and registered fragments are refused.
 ///
 /// Patterns repeat an untinted full source tile on both axes, with phase
 /// anchored at the extent's top-left. Extents must be finite, ordered and
@@ -524,10 +537,19 @@ fn paint(op: &SceneOp, key: VariantKey, source: ImageSource) -> sparse::ImagePai
 /// to 1, matching Classic. Nearest/bilinear sampling, affine transforms and
 /// device-space rounded clips are supported. Pattern scale/sampling does not
 /// create new pixel variants: patterns share the full untinted image cache.
+///
+/// Outline text consumes caller-shaped glyphs and the current Scene font
+/// palette, including collection indices and user-space variations. Text is
+/// unhinted and uses solid premultiplied color; color/bitmap/SVG font tables
+/// are refused. Unknown printable axis tags are ignored as in Classic.
+/// `SparseTextLimits` bounds a conservative cache epoch; a full epoch is
+/// replaced only after the complete next frame passes admission. Font assets
+/// remain trusted parser inputs, not a font-sanitizer or CPU-time sandbox.
 #[cfg(feature = "vello-cpu")]
 pub struct CpuSession {
     state: ImageState,
     resources: vello_cpu::Resources,
+    text: text::TextState,
 }
 
 macro_rules! image_api {
@@ -552,15 +574,31 @@ macro_rules! image_api {
         pub fn stats(&self) -> SparseResourceStats {
             self.state.stats()
         }
+        /// Conservative outline-cache epoch accounting, separate from images.
+        pub fn text_stats(&self) -> SparseTextStats {
+            self.text.stats()
+        }
+        /// Drop all retained font references and outline preparation storage.
+        /// Does not clear image resources or reconstruct GPU pipelines.
+        pub fn clear_text_cache(&mut self) {
+            self.text.clear();
+        }
     };
 }
 
 #[cfg(feature = "vello-cpu")]
 impl CpuSession {
     pub fn new(limits: SparseResourceLimits) -> Self {
+        Self::new_with_text_limits(limits, SparseTextLimits::default())
+    }
+    pub fn new_with_text_limits(
+        limits: SparseResourceLimits,
+        text_limits: SparseTextLimits,
+    ) -> Self {
         Self {
             state: ImageState::new(limits, u16::MAX as u32),
             resources: vello_cpu::Resources::new(),
+            text: text::TextState::new(text_limits),
         }
     }
     image_api!();
@@ -570,7 +608,9 @@ impl CpuSession {
     /// successful admission; original sources persist until explicitly removed.
     pub fn render(&mut self, scene: &Scene) -> Result<Pixmap, SparseSessionError> {
         let plan = self.state.plan(scene, VelloBackend::Cpu)?;
+        let text_plan = self.text.plan(scene)?;
         self.state.hydrate(&plan);
+        self.text.commit(&text_plan);
         let paints = plan
             .ops
             .iter()
@@ -589,10 +629,13 @@ impl CpuSession {
             scene.viewport_width as u16,
             scene.viewport_height as u16,
         );
-        sparse::lower_admitted(&mut context, scene, &paints);
+        sparse::lower_admitted(&mut context, scene, &paints, |context, index, run| {
+            self.text.draw(context, scene, run, &text_plan.runs[&index]);
+        });
         context.flush();
         let mut target = Pixmap::new(scene.viewport_width as u16, scene.viewport_height as u16);
         context.render(&mut target, &mut self.resources);
+        self.text.maintain();
         Ok(target)
     }
 }
@@ -611,6 +654,12 @@ impl CpuSession {
 /// Admitted patterns repeat a full untinted source, anchored at the extent's
 /// top-left, with finite nonpositive scale axes normalized to 1. Extent,
 /// affine and device-space clip validation match the CPU pattern subset.
+///
+/// Outline text uses the same caller-shaped, unhinted solid-color subset and
+/// `SparseTextLimits` as CPU. An owned Glifo preparation cache is replaced at
+/// epoch limits or explicit clear; GPU pipelines and image textures survive.
+/// Color/bitmap/SVG font tables are refused. The Scene font palette is required
+/// each frame; fonts are trusted parser inputs, not a security sandbox.
 #[cfg(feature = "vello-hybrid")]
 pub struct HybridSession {
     state: ImageState,
@@ -618,6 +667,7 @@ pub struct HybridSession {
     queue: wgpu::Queue,
     renderer: vello_hybrid::Renderer,
     resources: vello_hybrid::Resources,
+    text: text::TextState,
 }
 
 #[cfg(feature = "vello-hybrid")]
@@ -627,6 +677,14 @@ impl HybridSession {
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         limits: SparseResourceLimits,
+    ) -> Result<Self, SparseSessionError> {
+        Self::new_with_text_limits(device, queue, limits, SparseTextLimits::default())
+    }
+    pub fn new_with_text_limits(
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        limits: SparseResourceLimits,
+        text_limits: SparseTextLimits,
     ) -> Result<Self, SparseSessionError> {
         let (renderer, resources) = vello_hybrid::Renderer::new(
             device,
@@ -648,6 +706,7 @@ impl HybridSession {
             queue: queue.clone(),
             renderer,
             resources,
+            text: text::TextState::new(text_limits),
         })
     }
     image_api!();
@@ -690,7 +749,9 @@ impl HybridSession {
             });
         }
         let plan = self.state.plan(scene, VelloBackend::Hybrid)?;
+        let text_plan = self.text.plan(scene)?;
         self.state.hydrate(&plan);
+        self.text.commit(&text_plan);
         let mut bindings = vello_hybrid::TextureBindings::new();
         let mut sources = HashMap::new();
         for (index, (key, cached)) in self.state.cache.iter_mut().enumerate() {
@@ -757,8 +818,11 @@ impl HybridSession {
             .collect();
         let mut packet =
             vello_hybrid::Scene::new(scene.viewport_width as u16, scene.viewport_height as u16);
-        sparse::lower_admitted(&mut packet, scene, &paints);
-        self.renderer
+        sparse::lower_admitted(&mut packet, scene, &paints, |context, index, run| {
+            self.text.draw(context, scene, run, &text_plan.runs[&index]);
+        });
+        let result = self
+            .renderer
             .render(
                 &packet,
                 &mut self.resources,
@@ -773,8 +837,12 @@ impl HybridSession {
                 None,
                 &bindings,
             )
-            .map_err(|error| SparseSessionError::HybridRender(error.to_string()))
+            .map_err(|error| SparseSessionError::HybridRender(error.to_string()));
+        self.text.maintain();
+        result
     }
 }
 
+mod text;
 mod validate;
+pub use text::{SparseTextLimits, SparseTextStats};

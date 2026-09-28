@@ -1,0 +1,33 @@
+   Compiling foldhash v0.2.0
+   Compiling naga v29.0.4
+   Compiling hashbrown v0.17.1
+   Compiling indexmap v2.14.0
+   Compiling naga-types v30.0.0
+   Compiling wgpu-types v30.0.0
+   Compiling naga v30.0.0
+   Compiling hashbrown v0.16.1
+   Compiling gpu-allocator v0.28.0
+   Compiling wgpu-naga-bridge v30.0.0
+   Compiling wgpu-hal v30.0.0
+   Compiling wgpu-core-deps-windows-linux-android v30.0.0
+   Compiling wgpu-core v30.0.0
+   Compiling vello_shaders v0.10.0
+   Compiling glifo v0.3.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+   Compiling wgpu v30.0.0
+   Compiling fontique v0.10.0
+   Compiling netrender_device v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender_device)
+   Compiling netrender-vello v0.10.1
+   Compiling vello_cpu v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+   Compiling parley v0.10.0
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+   Compiling netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 48.22s
+     Running tests\vb3_sparse_text.rs (C:\t\cargo-targets\netrender\debug\deps\vb3_sparse_text-e19858e814738b3d.exe)
+
+running 4 tests
+test cpu::cpu_positions_composition_without_device ... ok
+test cpu::cpu_invalid_text_without_device ... ok
+test cpu::cpu_variations_fallback_without_device ... ok
+test cpu::cpu_bounded_text_lifecycle_without_device ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s

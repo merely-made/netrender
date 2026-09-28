@@ -1,0 +1,47 @@
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.71s
+     Running tests\p10prime_a_glyph_api.rs (C:\t\cargo-targets\netrender\debug\deps\p10prime_a_glyph_api-d6e8dccc72c3cdd2.exe)
+
+running 5 tests
+test p10a_01_font_palette_starts_at_one ... ok
+test p10a_02_push_font_returns_nonzero_id ... ok
+test p10a_03_push_glyph_run_storage ... ok
+test p10a_04_tile_cache_hashes_glyph_runs ... ok
+test p10a_05_changing_glyph_invalidates_tile ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\p10prime_b_glyph_render.rs (C:\t\cargo-targets\netrender\debug\deps\p10prime_b_glyph_render-1fb1870859dec22a.exe)
+
+running 1 test
+p10b: loaded C:\Windows\Fonts\arial.ttf (1045956 bytes)
+p10b_01: painted 980 non-background pixels (of 16384)
+test p10b_01_render_real_font_glyph ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.94s
+
+     Running tests\pc4_variable_fonts.rs (C:\t\cargo-targets\netrender\debug\deps\pc4_variable_fonts-15669dee6b999ef7.exe)
+
+running 7 tests
+pc4: loaded C:\Windows\Fonts\bahnschrift.ttf (361564 bytes)
+pc4: loaded C:\Windows\Fonts\bahnschrift.ttf (361564 bytes)
+pc4: loaded C:\Windows\Fonts\bahnschrift.ttf (361564 bytes)
+pc4: ink load at wght=300: 1105464, wght=400: 1453095, wght=700: 1860417
+test gpu_smoke::pc4_three_weights_produce_distinct_ink_loads ... ok
+test pc4_adding_axis_value_invalidates_tile ... ok
+test pc4_axis_tag_change_invalidates_tile ... ok
+test pc4_axis_value_change_invalidates_tile ... ok
+test pc4_default_push_glyph_run_has_empty_axis_values ... ok
+test pc4_push_glyph_run_variable_applies_axis_values ... ok
+test pc4_unchanged_axis_values_keep_tiles_clean ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.01s
+
+     Running tests\rg2a_scene_corpus.rs (C:\t\cargo-targets\netrender\debug\deps\rg2a_scene_corpus-e1635bf450ffe212.exe)
+
+running 2 tests
+rg2a adapter name="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA" driver_info="610.88"; Classic=netrender-vello (resolved version in Cargo.lock); Hybrid/CPU=mark-ik/vello@ca3f40ea; wgpu=30
+test rg2a_direct_scene_corpus_is_semantically_consistent ... ok
+test rg2a_sparse_refusal_table_is_typed_and_attributed ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.37s

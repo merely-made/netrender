@@ -72,14 +72,14 @@ lines in them to any Mozilla author.
 Third-party code keeps its own license and its own notices. Nothing here is
 relicensed, and nothing here receives a Merely copyright line.
 
-**None.** The only candidates, the two `netrender/res` assets, were deleted on
-2026-09-03 (see Servo heritage). A row here is what makes the tool skip a path,
-so add one before importing anything.
+| Path | License | Upstream and retained notices |
+|---|---|---|
+| `netrender/tests/fixtures/vb3_fonts/` | SIL Open Font License 1.1 | Unchanged Inter and Chromium variable-box WPT test fonts; separate full notices, source revision and SHA-256 hashes in the subtree's [provenance](netrender/tests/fixtures/vb3_fonts/README.md). |
 
-No source file in this repository carries a `Copyright`, `Licensed under`,
-`Permission is hereby granted`, or `Apache License` line, and no SPDX tag names
-anything but MPL-2.0. The discovery grep of the sweep plan's invariant 1, run
-unqualified over every tracked file, returns hits only inside `LICENSE` itself.
+The old `netrender/res` assets were deleted on 2026-09-03 (see Servo
+heritage). The small deterministic text fixtures above were added on
+2026-09-27. Their authors' notices remain separate from the MPL-2.0 owned
+Rust test harness; header sweeps must skip the retained subtree.
 
 ## Derivatives carrying MPL-2.0 with an upstream notice retained
 

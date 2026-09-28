@@ -67,6 +67,11 @@ items extend the earlier Classic completion scope; they do not reopen it.
 - [ ] **VB3. Shaped text.** Trigger: actual specimen controls and status.
   Done: real glyph runs, font identity/variations/clips and lifecycle pass
   semantic checks; shaping remains caller-owned.
+  **Outline adapter complete 2026-09-27:** CPU/Hybrid caller-shaped solid
+  unhinted text, variable axes, collection faces and bounded cache epochs
+  pass portable fixtures and regressions. [Receipt](receipts/2026-09-27_sparse_text/README.md).
+  Real Isocosm panel capture/replay remains open; color/bitmap/SVG font tables
+  remain explicitly outside the admitted subset.
 - [ ] **VB4. Explicit host selection and real panel.** Trigger: VB2/VB3.
   Done: requested/effective backend is reported; real panel selection,
   stepping, resize and resource updates work within declared capabilities;

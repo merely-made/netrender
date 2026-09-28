@@ -1101,6 +1101,7 @@ dependencies = [
 name = "netrender"
 version = "0.1.2"
 dependencies = [
+ "glifo",
  "log",
  "netrender-vello",
  "netrender_device",

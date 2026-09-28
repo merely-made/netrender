@@ -2012,6 +2012,36 @@ GPU evidence is Windows/NVIDIA Vulkan readback. This closes the admitted
 pattern subset, while VB2 remains open for Hybrid bilinear seam repair.
 The dependency pin is unchanged; native consumer acceptance is still open.
 
+## Sparse outline text — PARTIAL (2026-09-27)
+
+Owned CPU and Hybrid sessions now lower caller-shaped solid outline glyphs,
+including font collections, user-axis variations, affine placement,
+device-space clips and layers. The existing pin supplies Glifo directly;
+sparse text features are enabled, with only one new direct dependency edge
+in Cargo.lock. Hinting and experimental glyph-atlas caching are disabled.
+
+NetRender owns the preparation cache and replaces it at configurable epoch
+limits or explicit `clear_text_cache()`. `SparseTextLimits` bounds font data,
+positioned glyphs, per-frame outline work including repeats, normalized
+variation axes and retained glyph/segment counts. Complete image/text plans
+admit before either cache changes or target commands are encoded. These are
+logical resource/work limits for trusted font assets, not exact allocator
+memory accounting or a parser sandbox. Color/bitmap/SVG font tables refuse.
+
+Five portable text tests pass independently on CPU and Hybrid, covering
+positions/composition, variable-axis reference shapes, caller-selected
+two-font fallback, collection face 1, invalid-resource refusals, cache epochs
+and repeated-outline work limits. The unchanged test fonts total 9,112 bytes
+and retain their OFL notices in the license ledger. Image/pattern regressions,
+four feature builds, library (75 passed, three intentional ignores), RG2a and
+13 Classic text/API/variation checks pass. The Classic system-font tests ran
+with Arial and Bahnschrift rather than vacuous skips.
+
+The [text receipt](receipts/2026-09-27_sparse_text/README.md) records commands,
+hashes and Windows/NVIDIA Vulkan readback evidence. VB3 remains open for real
+Isocosm panel capture/replay; these fixtures do not prove shaping, automatic
+fallback, native interaction or full text parity.
+
 ## 11.99 Open items — moved (2026-05-05)
 
 The catalogue of deferred refinements that originally lived here

@@ -1,0 +1,2 @@
+    Checking netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.03s

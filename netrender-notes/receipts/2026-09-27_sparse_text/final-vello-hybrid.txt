@@ -1,0 +1,37 @@
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.23s
+     Running tests\vb2_sparse_images.rs (C:\t\cargo-targets\netrender\debug\deps\vb2_sparse_images-b85c474c2420c78d.exe)
+
+running 2 tests
+VB2 Hybrid adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_image_budget_on_existing_device ... ok
+VB2 Hybrid adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_images_on_existing_device ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.21s
+
+     Running tests\vb2_sparse_patterns.rs (C:\t\cargo-targets\netrender\debug\deps\vb2_sparse_patterns-6c34b883bfa075a5.exe)
+
+running 2 tests
+VB2 pattern adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_pattern_lifecycle_and_refusals_on_existing_device ... ok
+VB2 pattern adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_pattern_semantics_on_existing_device ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.18s
+
+     Running tests\vb3_sparse_text.rs (C:\t\cargo-targets\netrender\debug\deps\vb3_sparse_text-e04ce57114622fc5.exe)
+
+running 5 tests
+VB3 text adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_bounded_text_lifecycle_on_existing_device ... ok
+VB3 text adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_invalid_text_on_existing_device ... ok
+VB3 text adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_positions_composition_on_existing_device ... ok
+VB3 text adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_repeated_outline_budget_on_existing_device ... ok
+VB3 text adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_variations_fallback_on_existing_device ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.16s

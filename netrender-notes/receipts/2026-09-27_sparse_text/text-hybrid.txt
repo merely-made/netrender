@@ -1,0 +1,28 @@
+   Compiling indexmap v2.14.0
+   Compiling petgraph v0.7.1
+   Compiling naga-types v30.0.0
+   Compiling naga v30.0.0
+   Compiling lalrpop v0.22.2
+   Compiling naga v29.0.4
+   Compiling wgsl-parse v0.4.0
+   Compiling vello_shaders v0.10.0
+   Compiling netrender-vello v0.10.1
+   Compiling wesl v0.4.0
+   Compiling vello_sparse_shaders v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+   Compiling vello_hybrid v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+   Compiling netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 54.44s
+     Running tests\vb3_sparse_text.rs (C:\t\cargo-targets\netrender\debug\deps\vb3_sparse_text-e04ce57114622fc5.exe)
+
+running 4 tests
+VB3 text adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_bounded_text_lifecycle_on_existing_device ... ok
+VB3 text adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_invalid_text_on_existing_device ... ok
+VB3 text adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_positions_composition_on_existing_device ... ok
+VB3 text adapter="NVIDIA GeForce RTX 4060 Laptop GPU" backend=Vulkan driver="NVIDIA"
+test hybrid::hybrid_variations_fallback_on_existing_device ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.86s
