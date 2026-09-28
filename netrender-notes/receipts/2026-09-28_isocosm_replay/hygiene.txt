@@ -1,0 +1,8 @@
+rustfmt --check --edition 2021 --config skip_children=true paint_list_render/examples/sparse_panel_replay.rs: PASS
+git diff --check: PASS
+git diff --no-index --check against NUL for every new receipt and example text file (CRLF accepted): PASS
+All source hashes unchanged after builds/runs: PASS
+Original packet and reference hashes unchanged: PASS
+All local rendered artifact hashes reverified: PASS
+No remaining NetRender Cargo/compiler process: PASS
+Receipt-only trailing whitespace and blank EOF lines normalized; local originals and rendered artifacts untouched.

@@ -1,0 +1,26 @@
+{
+  "reviewer": "independent image_tests lane",
+  "selection": "Six physical pixel regions selected before CPU/Hybrid outputs were available",
+  "rectangle_convention": "[x0,y0,x1,y1], exclusive end",
+  "dark_pixel": "max(R,G,B) < 140",
+  "regions": [
+    {"name":"title","rect":[40,32,850,125],"reference_dark":7868,"cpu_dark":7867,"hybrid_dark":7867},
+    {"name":"controls","rect":[40,155,2280,440],"reference_dark":13995,"cpu_dark":14000,"hybrid_dark":14000},
+    {"name":"status","rect":[40,445,1420,495],"reference_dark":4870,"cpu_dark":4888,"hybrid_dark":4888},
+    {"name":"sites","rect":[40,500,1430,1340],"reference_dark":23146,"cpu_dark":23135,"hybrid_dark":23135},
+    {"name":"individual","rect":[1450,505,2416,896],"reference_dark":8325,"cpu_dark":8337,"hybrid_dark":8337},
+    {"name":"footer","rect":[40,1345,1910,1495],"reference_dark":5541,"cpu_dark":5545,"hybrid_dark":5545}
+  ],
+  "reference_edge": "A pixel whose RGB differs from at least one immediate horizontal or vertical neighbor; no wrapping at image boundaries",
+  "difference": "Maximum absolute RGBA channel delta per pixel",
+  "localization": [
+    {"backend":"cpu","threshold":1,"pixels_above":40064,"above_off_reference_edges":0},
+    {"backend":"cpu","threshold":8,"pixels_above":888,"above_off_reference_edges":0},
+    {"backend":"cpu","threshold":32,"pixels_above":93,"above_off_reference_edges":0},
+    {"backend":"hybrid","threshold":1,"pixels_above":41802,"above_off_reference_edges":0},
+    {"backend":"hybrid","threshold":8,"pixels_above":834,"above_off_reference_edges":0},
+    {"backend":"hybrid","threshold":32,"pixels_above":92,"above_off_reference_edges":0}
+  ],
+  "visual_result": "CPU and Hybrid preserve the title, controls, status, six site cards, Individual 6 inspector and footer with aligned text and no observed missing content",
+  "scope": "Diagnostic localization and visual review of one intact paused panel; not a universal image tolerance or interactive performance claim"
+}

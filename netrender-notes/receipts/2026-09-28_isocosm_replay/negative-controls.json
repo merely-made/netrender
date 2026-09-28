@@ -1,0 +1,8 @@
+{
+  "overwrite_exit": 1,
+  "wrong_scale_exit": 1,
+  "wrong_scale_gpu_initialized": false,
+  "wrong_scale_png_created": false,
+  "inputs_and_existing_classic_outputs_unchanged": true,
+  "missing_font_negative_control": "Passed inside all three replay processes before rendering"
+}

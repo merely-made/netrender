@@ -1,0 +1,56 @@
+{
+Error: "reference dimensions require exact uniform presentation scale (or explicit matching --scale)"
+  "backend": "classic",
+  "box_shadow_masks": 0,
+  "clear": "transparent; backend alpha convention converted to opaque-black presentation after readback",
+  "command_counts": {
+    "DrawBorder": 36,
+    "DrawRect": 38,
+    "DrawText": 73,
+    "PopClip": 37,
+    "PushClip": 37
+  },
+  "commands": 221,
+  "engine": 0,
+  "error": "reference dimensions require exact uniform presentation scale (or explicit matching --scale)",
+  "external_textures": 0,
+  "font_and_glyph_identity": true,
+  "fonts": [
+    {
+      "bytes": 1045956,
+      "index": 0,
+      "key": "FontInstanceKey(IdNamespace(1992177178), 4245495265)",
+      "sha256": "edfbd22a3d088fc2f5d7c79b8c9c732df6dc878a60f0a80be0f92a3c7a634404"
+    },
+    {
+      "bytes": 990008,
+      "index": 0,
+      "key": "FontInstanceKey(IdNamespace(1998304299), 3868941439)",
+      "sha256": "4d59199834e7439c67ea4949407639961060b21b173833f566eb60ac6fd8f5af"
+    },
+    {
+      "bytes": 453088,
+      "index": 0,
+      "key": "FontInstanceKey(IdNamespace(3419282597), 1968547787)",
+      "sha256": "cf00b507b3286870cc5064ebd0633c303f70b491a4af25eec2d32df413db0179"
+    }
+  ],
+  "generation": 3,
+  "glyphs": 1228,
+  "gpu_initialized": false,
+  "images": [],
+  "kind": "intact-paint-envelope-replay",
+  "lossless_round_trip": true,
+  "missing_font_control_rejected": true,
+  "packet": "C:\\Users\\mark_\\Code\\testing\\isometry\\receipts\\2026-09-27\\paint-capture\\sim-sim-founded.paintlist",
+  "packet_bytes": 2511691,
+  "packet_sha256": "73c4a9ce901957bcccdc371cdede05f12c671d7780376be71f2c2a02ff3ddd7d",
+  "positioned_text_sha256": "c069c2fc5bdc25601f71d92b64833ce16f43fa69a20f8c36aaf5c27adda129a3",
+  "reference": "C:\\Users\\mark_\\Code\\testing\\isometry\\receipts\\2026-09-27\\paint-capture\\sim-sim-founded.png",
+  "reference_sha256": "9061fb4263eead6cd540af4d53760ae4566c00947172485d522532edc66b2cfb",
+  "scope": "one cold frame; render encoding/submission, GPU completion wait, and readback measured separately; not interactive performance",
+  "session_limits": "unchanged SparseResourceLimits and SparseTextLimits defaults",
+  "status": "refused_or_failed",
+  "text_runs": 73,
+  "working_tree_revision": "da229106de51a2f939546d673039d490690ca32c"
+}

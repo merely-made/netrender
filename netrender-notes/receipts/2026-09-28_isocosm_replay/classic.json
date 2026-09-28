@@ -1,0 +1,94 @@
+{
+  "adapter": {
+    "backend": "Vulkan",
+    "device_type": "DiscreteGpu",
+    "driver": "NVIDIA",
+    "driver_info": "610.88",
+    "name": "NVIDIA GeForce RTX 4060 Laptop GPU"
+  },
+  "backend": "classic",
+  "box_shadow_masks": 0,
+  "clear": "transparent; backend alpha convention converted to opaque-black presentation after readback",
+  "command_counts": {
+    "DrawBorder": 36,
+    "DrawRect": 38,
+    "DrawText": 73,
+    "PopClip": 37,
+    "PushClip": 37
+  },
+  "commands": 221,
+  "comparison": {
+    "changed_pixels": 0,
+    "max_channel_delta": 0,
+    "mean_absolute_channel_delta": 0.0,
+    "policy": "measure only; anti-aliasing equality is not assumed across renderers"
+  },
+  "engine": 0,
+  "external_textures": 0,
+  "font_and_glyph_identity": true,
+  "fonts": [
+    {
+      "bytes": 1045956,
+      "index": 0,
+      "key": "FontInstanceKey(IdNamespace(1992177178), 4245495265)",
+      "sha256": "edfbd22a3d088fc2f5d7c79b8c9c732df6dc878a60f0a80be0f92a3c7a634404"
+    },
+    {
+      "bytes": 990008,
+      "index": 0,
+      "key": "FontInstanceKey(IdNamespace(1998304299), 3868941439)",
+      "sha256": "4d59199834e7439c67ea4949407639961060b21b173833f566eb60ac6fd8f5af"
+    },
+    {
+      "bytes": 453088,
+      "index": 0,
+      "key": "FontInstanceKey(IdNamespace(3419282597), 1968547787)",
+      "sha256": "cf00b507b3286870cc5064ebd0633c303f70b491a4af25eec2d32df413db0179"
+    }
+  ],
+  "generation": 3,
+  "glyphs": 1228,
+  "gpu_completion_wait_ms": 8.353599999999998,
+  "gpu_initialized": true,
+  "images": [],
+  "initialize_ms": 1395.957,
+  "kind": "intact-paint-envelope-replay",
+  "logical_viewport": [
+    1232,
+    752
+  ],
+  "lossless_round_trip": true,
+  "missing_font_control_rejected": true,
+  "output": "C:\\Users\\mark_\\Code\\testing\\netrender\\receipts\\2026-09-28_isocosm_replay\\classic.png",
+  "packet": "C:\\Users\\mark_\\Code\\testing\\isometry\\receipts\\2026-09-27\\paint-capture\\sim-sim-founded.paintlist",
+  "packet_bytes": 2511691,
+  "packet_sha256": "73c4a9ce901957bcccdc371cdede05f12c671d7780376be71f2c2a02ff3ddd7d",
+  "physical_viewport": [
+    2464,
+    1504
+  ],
+  "positioned_text_sha256": "c069c2fc5bdc25601f71d92b64833ce16f43fa69a20f8c36aaf5c27adda129a3",
+  "prepare_ms": 314.5408,
+  "presentation_scale": 2.0,
+  "presented_rgba_sha256": "b897e9a0d4cd323b3718fb6d38de1f676beb053e7bfbf05157a4b0e10fbe8c0e",
+  "raw_alpha_convention": "straight",
+  "raw_nonopaque_pixels": 0,
+  "raw_rgba_sha256": "b897e9a0d4cd323b3718fb6d38de1f676beb053e7bfbf05157a4b0e10fbe8c0e",
+  "readback_ms": 5.504099999999999,
+  "reference": "C:\\Users\\mark_\\Code\\testing\\isometry\\receipts\\2026-09-27\\paint-capture\\sim-sim-founded.png",
+  "reference_sha256": "9061fb4263eead6cd540af4d53760ae4566c00947172485d522532edc66b2cfb",
+  "render_encode_submit_ms": 25.321199999999997,
+  "scene_op_counts": {
+    "GlyphRun": 73,
+    "PopLayer": 37,
+    "PushLayer": 37,
+    "Rect": 90,
+    "Stroke": 23
+  },
+  "scene_ops": 260,
+  "scope": "one cold frame; render encoding/submission, GPU completion wait, and readback measured separately; not interactive performance",
+  "session_limits": "unchanged SparseResourceLimits and SparseTextLimits defaults",
+  "status": "rendered",
+  "text_runs": 73,
+  "working_tree_revision": "da229106de51a2f939546d673039d490690ca32c"
+}

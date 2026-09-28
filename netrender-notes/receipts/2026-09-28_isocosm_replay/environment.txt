@@ -1,0 +1,11 @@
+Local: 2026-09-28T04:38:34.2340383-04:00
+Baseline: da229106de51a2f939546d673039d490690ca32c
+Target: C:\t\cargo-targets\netrender; bounded Cargo -j2; offline resolution
+rustc 1.97.1 (8bab26f4f 2026-07-14)
+binary: rustc
+commit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452
+commit-date: 2026-07-14
+host: x86_64-pc-windows-msvc
+release: 1.97.1
+LLVM version: 22.1.6
+cargo 1.97.1 (c980f4866 2026-06-30)

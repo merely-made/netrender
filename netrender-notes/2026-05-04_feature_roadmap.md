@@ -64,14 +64,18 @@ items extend the earlier Classic completion scope; they do not reopen it.
   a measured pinned-sampler seam bug is explicitly refused. Lift only after
   tap-wrapping repair and regression evidence; see the
   [pattern receipt](receipts/2026-09-27_sparse_patterns/README.md).
-- [ ] **VB3. Shaped text.** Trigger: actual specimen controls and status.
+- [x] **VB3. Shaped outline text.** Completed 2026-09-28 for the admitted
+  unhinted solid-outline subset. Trigger: actual specimen controls and status.
   Done: real glyph runs, font identity/variations/clips and lifecycle pass
   semantic checks; shaping remains caller-owned.
   **Outline adapter complete 2026-09-27:** CPU/Hybrid caller-shaped solid
   unhinted text, variable axes, collection faces and bounded cache epochs
   pass portable fixtures and regressions. [Receipt](receipts/2026-09-27_sparse_text/README.md).
-  Real Isocosm panel capture/replay remains open; color/bitmap/SVG font tables
-  remain explicitly outside the admitted subset.
+  Intact paused Isocosm panel replay now passes CPU/Hybrid, with exact Classic
+  reference replay and independent regional/visual controls.
+  [Consumer receipt](receipts/2026-09-28_isocosm_replay/README.md).
+  Native interaction belongs to VB4; color/bitmap/SVG font tables remain
+  explicitly outside the admitted subset.
 - [ ] **VB4. Explicit host selection and real panel.** Trigger: VB2/VB3.
   Done: requested/effective backend is reported; real panel selection,
   stepping, resize and resource updates work within declared capabilities;
