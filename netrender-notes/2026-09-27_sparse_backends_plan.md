@@ -11,6 +11,11 @@ and live Isometer producer composition remain open.
 See the [baseline and implementation receipts](receipts/2026-09-27_sparse_backends/README.md).
 No new dependency pin or alternate default has been promoted.
 
+**Upstream refresh, 2026-10-08:** the separate
+[Vello adoption lane](2026-10-08_vello_upstream_lane.md) owns the stable 0.11
+crate migration, extension preservation, and coordinated consumer repins. The
+capability evidence and remaining VB gates below continue to apply.
+
 **Purpose:** make CPU and Hybrid useful selectable realizations of NetRender's
 existing `Scene`, driven by a real specimen document. Classic stays the shipping
 path while each alternate earns an explicit scope. The canonical task checklist
