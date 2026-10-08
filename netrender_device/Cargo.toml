@@ -26,7 +26,7 @@ serde = { workspace = true, optional = true }
 # from a browser executor.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 wgpu = { workspace = true, features = ["dx12", "metal", "vulkan"] }
-pollster = "0.4"
+pollster = "1.0"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wgpu = { workspace = true, features = ["webgpu"] }
