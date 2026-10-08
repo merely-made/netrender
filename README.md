@@ -37,6 +37,9 @@ open. See the
 and [text receipts](netrender-notes/receipts/2026-09-27_sparse_text/README.md)
 for the tested adapter scope, and the [real-panel replay receipt](netrender-notes/receipts/2026-09-28_isocosm_replay/README.md)
 for consumer evidence. Classic remains the default.
+The separate [Vello upstream adoption lane](netrender-notes/2026-10-08_vello_upstream_lane.md)
+scopes the stable-release crate moves and preservation of append and buffer
+recovery before any renderer repin.
 `netrender`, `netrender_device`, `paint_list_api`, and
 `paint_list_render` are published at 0.1.2. `netrender_text` remains at 0.1.1.
 Unreleased `main` has removed Netrender's public legacy render-graph helper
