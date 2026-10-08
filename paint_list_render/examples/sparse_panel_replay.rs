@@ -25,8 +25,13 @@ use std::{
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
+/// Lowercase hex SHA-256. sha2 0.11's digest array has no `LowerHex`, so bytes
+/// are encoded explicitly; the text matches the 0.10-era receipts.
 fn hash(bytes: &[u8]) -> String {
-    format!("{:x}", Sha256::digest(bytes))
+    Sha256::digest(bytes)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
 }
 
 fn command_name(command: &PaintCmd) -> &'static str {
@@ -678,6 +683,23 @@ fn main() -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn receipt_hash_is_canonical_lowercase_sha256() {
+        // FIPS 180-2 vectors: the receipt text format predates sha2 0.11.
+        assert_eq!(
+            hash(b""),
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        );
+        assert_eq!(
+            hash(b"abc"),
+            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+        );
+        assert_eq!(
+            hash(b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
+            "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1"
+        );
+    }
 
     #[test]
     fn black_presentation_respects_backend_alpha_conventions() {
