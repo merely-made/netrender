@@ -33,6 +33,17 @@ Retain their behavior or account for its tested upstream replacement. Append
 remains constrained to consumed scenes and tile-aligned translations; this
 lane does not expand it into arbitrary retained fragment composition.
 
+## Text-family coordination
+
+Mere's `2026-10-08_dependency_currency_plan.md`, currently in its active
+`dep-currency` lane, records this refresh as the preceding stage (D8). It assigns
+the Linebender text migration to this Vello lane: Parley/Parley data, Skrifa,
+read-fonts, and Harfrust across Netrender and Genet. The provider's glyph-facing
+types, shaping results, pixels, and measured footprint must qualify together.
+The other dependency stage keeps its provider-first order for accessibility,
+security/runtime, storage, parsers, and compatible registry updates. Its plan
+lands with its Rapier work; this scope does not publish those active branches.
+
 ## Execution gates
 
 1. **Provider map.** Inventory moved crates/APIs and compare stable against main
