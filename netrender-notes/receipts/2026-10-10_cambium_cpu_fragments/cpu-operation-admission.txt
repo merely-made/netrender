@@ -1,0 +1,11 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling netrender v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.22s
+     Running unittests src/lib.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/netrender-f3b97c310376a122)
+
+running 2 tests
+test vello_backends::tests::capabilities_keep_one_contract_and_three_realizations ... ok
+test vello_backends::tests::cpu_lowerer_rasterizes_a_netrender_scene ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 69 filtered out; finished in 0.00s

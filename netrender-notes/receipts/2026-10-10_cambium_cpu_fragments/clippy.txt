@@ -1,0 +1,150 @@
+   Compiling syn v2.0.117
+   Compiling indexmap v2.14.0
+    Checking foldhash v0.2.0
+    Checking hashbrown v0.17.1
+   Compiling num-traits v0.2.19
+   Compiling libc v0.2.186
+   Compiling scopeguard v1.2.0
+   Compiling parking_lot_core v0.9.12
+   Compiling lock_api v0.4.14
+   Compiling parking_lot v0.12.5
+   Compiling petgraph v0.7.1
+   Compiling thiserror-impl v2.0.18
+   Compiling zerocopy-derive v0.8.48
+   Compiling bytemuck_derive v1.10.2
+   Compiling zerocopy v0.8.48
+    Checking bytemuck v1.25.0
+    Checking thiserror v2.0.18
+    Checking naga-types v30.0.0
+   Compiling half v2.7.1
+   Compiling string_cache v0.8.9
+   Compiling ena v0.14.4
+    Checking wgpu-types v30.0.1
+   Compiling lalrpop v0.22.2
+    Checking naga v30.0.1
+   Compiling logos-codegen v0.16.1
+    Checking font-types v0.12.3
+    Checking color v0.3.3
+    Checking peniko v0.6.1
+    Checking read-fonts v0.41.0
+   Compiling wgsl-parse v0.4.0
+   Compiling logos-derive v0.16.1
+    Checking wgpu-naga-bridge v30.0.0
+   Compiling derive_more-impl v2.1.1
+    Checking wgpu-hal v30.0.1
+    Checking skrifa v0.44.0
+   Compiling annotate-snippets v0.12.16
+   Compiling derive_more v2.1.1
+   Compiling logos v0.16.1
+   Compiling wgsl-types v0.4.0
+    Checking wgpu-core-deps-apple v30.0.0
+   Compiling wesl-macros v0.4.0
+   Compiling bit-set v0.10.0
+   Compiling naga v29.0.4
+    Checking wgpu-core v30.0.1
+   Compiling wesl v0.4.0
+    Checking fearless_simd v0.7.0
+    Checking vello_common v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+    Checking wgpu v30.0.1
+   Compiling vello_shaders v0.10.0
+    Checking glifo v0.3.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+    Checking vello_encoding v0.10.0
+   Compiling tracing-attributes v0.1.31
+   Compiling vello_sparse_shaders v0.2.0 (https://github.com/mark-ik/vello?rev=ca3f40ea182216883cd543c7b9deae991268917c#ca3f40ea)
+    Checking netrender_device v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender_device)
+error: the following explicit lifetimes could be elided: 'a
+   --> netrender_device/src/render_graph.rs:340:14
+    |
+340 | fn find_decl<'a>(images: &'a [(ImageNode, ImageDecl)], image: ImageNode) -> Option<&'a ImageDecl> {
+    |              ^^           ^^                                                        ^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#needless_lifetimes
+    = note: `-D clippy::needless-lifetimes` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::needless_lifetimes)]`
+help: elide the lifetimes
+    |
+340 - fn find_decl<'a>(images: &'a [(ImageNode, ImageDecl)], image: ImageNode) -> Option<&'a ImageDecl> {
+340 + fn find_decl(images: &[(ImageNode, ImageDecl)], image: ImageNode) -> Option<&ImageDecl> {
+    |
+
+error: casting to the same type is unnecessary (`u32` -> `u32`)
+   --> netrender_device/src/render_graph.rs:363:15
+    |
+363 |     u64::from(format.block_copy_size(None)? as u32)
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: try: `format.block_copy_size(None)?`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#unnecessary_cast
+    = note: `-D clippy::unnecessary-cast` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::unnecessary_cast)]`
+
+error: unnecessary map of the identity function
+   --> netrender_device/src/render_graph.rs:430:54
+    |
+430 |         entry.peak_live_bytes = entry.estimated_bytes.map(|bytes| bytes);
+    |                                                      ^^^^^^^^^^^^^^^^^^^ help: remove the call to `map`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#map_identity
+    = note: `-D clippy::map-identity` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::map_identity)]`
+
+error: explicit call to `.into_iter()` in function argument accepting `IntoIterator`
+   --> netrender_device/src/render_graph.rs:744:18
+    |
+744 |             .zip(allocated.into_iter())
+    |                  ^^^^^^^^^^^^^^^^^^^^^
+    |
+note: this parameter accepts any `IntoIterator`, so you don't need to call `.into_iter()`
+   --> /Users/markik/.rustup/toolchains/1.97.1-x86_64-apple-darwin/lib/rustlib/src/rust/library/core/src/iter/traits/iterator.rs:632:12
+    |
+632 |         U: IntoIterator,
+    |            ^^^^^^^^^^^^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#useless_conversion
+    = note: `-D clippy::useless-conversion` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::useless_conversion)]`
+help: consider removing the `.into_iter()`
+    |
+744 -             .zip(allocated.into_iter())
+744 +             .zip(allocated)
+    |
+
+error: this `if` statement can be collapsed
+   --> netrender_device/src/render_graph.rs:967:9
+    |
+967 | /         if matches!(
+968 | |             task.output.access,
+969 | |             ImageAccess::ColorAttachment {
+970 | |                 load: ImageLoad::Load,
+...   |
+982 | |         }
+    | |_________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+973 ~         )
+974 ~             && matches!(
+975 |                 self.images[task.output.image.index as usize],
+...
+980 |                 });
+981 ~             }
+    |
+
+error: the loop variable `index` is used to index `indegree`
+    --> netrender_device/src/render_graph.rs:1088:22
+     |
+1088 |         for index in 0..self.planned_tasks.len() {
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.97.0/index.html#needless_range_loop
+     = note: `-D clippy::needless-range-loop` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::needless_range_loop)]`
+help: consider using an iterator and enumerate()
+     |
+1088 -         for index in 0..self.planned_tasks.len() {
+1088 +         for (index, <item>) in indegree.iter_mut().enumerate().take(self.planned_tasks.len()) {
+     |
+
+error: could not compile `netrender_device` (lib) due to 6 previous errors
+warning: build failed, waiting for other jobs to finish...

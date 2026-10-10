@@ -1,0 +1,177 @@
+[
+  {
+    "name": "cpu-fragments-and-resources",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "netrender",
+      "--features",
+      "vello-cpu",
+      "--test",
+      "vb5_sparse_fragments",
+      "--test",
+      "vb2_sparse_images",
+      "--test",
+      "vb2_sparse_patterns",
+      "--test",
+      "vb3_sparse_text",
+      "-j",
+      "2"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "default-check",
+    "command": [
+      "cargo",
+      "check",
+      "--locked",
+      "-p",
+      "netrender",
+      "-j",
+      "2"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "hybrid-source-fragments",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "netrender",
+      "--features",
+      "vello-hybrid",
+      "--test",
+      "vb5_sparse_fragments",
+      "-j",
+      "2"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "all-fragments",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "netrender",
+      "--features",
+      "vello-all",
+      "--test",
+      "vb5_sparse_fragments",
+      "-j",
+      "2"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "cpu-operation-admission",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "netrender",
+      "--features",
+      "vello-cpu",
+      "--lib",
+      "vello_backends::tests",
+      "-j",
+      "2"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "ingress",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "paint_list_render",
+      "--lib",
+      "--test",
+      "pcorpus_replay",
+      "-j",
+      "2"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "all-fragments-final",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "netrender",
+      "--features",
+      "vello-all",
+      "--test",
+      "vb5_sparse_fragments",
+      "-j",
+      "2"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "hybrid-source-fragments-final",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "-p",
+      "netrender",
+      "--features",
+      "vello-hybrid",
+      "--test",
+      "vb5_sparse_fragments",
+      "-j",
+      "2"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "-p",
+      "netrender",
+      "--features",
+      "vello-all",
+      "--lib",
+      "-j",
+      "2",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit": 101
+  },
+  {
+    "name": "clippy-scoped",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--no-deps",
+      "-p",
+      "netrender",
+      "--features",
+      "vello-all",
+      "--lib",
+      "-j",
+      "2"
+    ],
+    "exit": 0,
+    "existing_warnings": 4,
+    "new_fragment_warnings": 0
+  }
+]

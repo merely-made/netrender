@@ -1,0 +1,142 @@
+[
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/composed-narrow.png",
+    "bytes": 115922,
+    "sha256": "eb9cacb40ffc63bb0b1c4bd859cdd8797f2d5a19638a512fef0a9157be35db92"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/reader-light.png",
+    "bytes": 75138,
+    "sha256": "2cf2210c759e915b8c28d5a069345411556204c37067d17bf179d02bf3120137"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/composed-light.png",
+    "bytes": 118600,
+    "sha256": "37d9f59b5953c69967e3b14c4f6f824e4eaafcd8df6182101530c7320e43623f"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/stylesheet-dark.png",
+    "bytes": 43208,
+    "sha256": "aa0455762f7d77c6f647977d51be83ca28969c626b4ec7a39df0c18993cb78be"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/stylesheet-light.png",
+    "bytes": 43578,
+    "sha256": "d4c0173ed0745fa091ad73c580db2661503bf9ae2382a2ba6a82456c96b126b3"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/reader-authored.png",
+    "bytes": 75138,
+    "sha256": "2cf2210c759e915b8c28d5a069345411556204c37067d17bf179d02bf3120137"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/reader-narrow.png",
+    "bytes": 73893,
+    "sha256": "107ed17b4a3e918ef6edd4574fd9ecadd755f2f1d4611c8bd4b636a4d792673a"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/composed-dark.png",
+    "bytes": 117999,
+    "sha256": "ed47085915b3e74681510678ef302fc18ae2a12d409d7cdbee7e5f5391a36698"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/stylesheet-authored.png",
+    "bytes": 37081,
+    "sha256": "422ae41a43d084b428d678d40e72c39c38312afb04992d90c41b94b97560d2d1"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/stylesheet-narrow.png",
+    "bytes": 42145,
+    "sha256": "7f93edb7182896129995771fa0ec5ac025679f4b6158cb39b461daf5b1baf4fe"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/reader-dark.png",
+    "bytes": 74908,
+    "sha256": "e705755c65cd0aa9148610d18e64ad9167cdd65b8be5d732b1fa01e907ba1aad"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/composed-authored.png",
+    "bytes": 112102,
+    "sha256": "5a8bd2aa6937697d1cb77e39927b03718316d03d9e074e0b36eb4d95abde2967"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/stylesheet-light.scene",
+    "bytes": 5895050,
+    "sha256": "e5e1c7ffd979b1687226b5d2f1b059ba0e8e3d2153a8e6ca32e35547388007e9"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/reader-light.scene",
+    "bytes": 1841474,
+    "sha256": "b897b24124196497876c6647b2b2a3adce17656fbc0ad50654a8ade8a785ad1d"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/reader-narrow.scene",
+    "bytes": 1841684,
+    "sha256": "849661ec3d2782b479f2f11d0c86f35e4dfd0f492ed49cbb10a684c8ddb2fd11"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/stylesheet-dark.scene",
+    "bytes": 5895050,
+    "sha256": "54fcdda9332c0e057596757ffa741b719a9bf2b73385668f6710abc27be45377"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/composed-light.scene",
+    "bytes": 2865753,
+    "sha256": "d102334f09b7887fb89014d994c398267fa8af1f5dc8df3f1d77b8ecc652cc32"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/reader-authored.scene",
+    "bytes": 1841474,
+    "sha256": "b8d9d9ed4ca29477c1d3047664c6289682dd711ad44d39af8fc20a268cd15849"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/reader-dark.scene",
+    "bytes": 1841474,
+    "sha256": "3f08834cf723a79ee872e7754ca80f5b943fa001e661f09c6a21114a386a073c"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/stylesheet-narrow.scene",
+    "bytes": 5895092,
+    "sha256": "3f258c3f5156edb86bf630fe217796b5e933210fd77e640b8b55d1f1b1b294fe"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/composed-authored.scene",
+    "bytes": 2865753,
+    "sha256": "4be0ec960dafccba2d72852ba2174d7063d107979c7bc4e966582a1d183e79ae"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/stylesheet-authored.scene",
+    "bytes": 5895050,
+    "sha256": "8e4ae0d4817a45404af323fbe5b94dc9a724067151d173e84ba431f980ec5739"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/composed-dark.scene",
+    "bytes": 2865753,
+    "sha256": "97390f8897e1e551f00be8b0108d783bfff7fa0064fc63f9356904692ed26ca2"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/production-previews-v2/composed-narrow.scene",
+    "bytes": 2481963,
+    "sha256": "94a407108cd63f2c108f2234d7b2b54e55a4e4802651c12bc4eaf2849cda5043"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/probe/Cargo.toml",
+    "bytes": 13941,
+    "sha256": "0806ed0520dbfd4b8b4c54aa014dd5ecae0e71ed80c7138b2859d1eb53d06f37"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/probe/Cargo.lock",
+    "bytes": 96615,
+    "sha256": "9b88f052f48708f022856e2a4f14a5c8d712806962da7bddf0cae4db6f9072a6"
+  },
+  {
+    "path": "/Users/markik/Code/output/vello-cambium-cpu-20261010/probe/src/main.rs",
+    "bytes": 8355,
+    "sha256": "0f82ab4fd6eadca9c0027a6c63cc519b6b4c2b6e656eeb4014f55383bd46692e"
+  },
+  {
+    "path": "/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/cambium-cpu-source-proof",
+    "bytes": 67153720,
+    "sha256": "0238a2099f624cb235baeef6926f2c95f08e2be036e15eb187b60c0dba4e29d4"
+  }
+]

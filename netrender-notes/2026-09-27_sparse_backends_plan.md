@@ -11,6 +11,16 @@ and live Isometer producer composition remain open.
 See the [baseline and implementation receipts](receipts/2026-09-27_sparse_backends/README.md).
 No new dependency pin or alternate default has been promoted.
 
+**CPU resource bridge, 2026-10-10:** `SparseFragmentRegistry` retains bounded
+source fragments and resolves their fonts, images, placements and clips into
+one Scene for the owned CPU/Hybrid adapters. This is source expansion and
+re-lowering, not sparse packet retention. Production Tabard reader and
+stylesheet previews pass CPU direct/retained pixel identity in four states;
+a declared CPU snapshot composition exercises text, images and retention in
+one ledger. Full-workshop capture still refuses missing external preview
+textures. Hybrid execution, host presentation and reset recovery remain open.
+See the [CPU fragment receipt](receipts/2026-10-10_cambium_cpu_fragments/README.md).
+
 **Upstream refresh, 2026-10-08:** the separate
 [Vello adoption lane](2026-10-08_vello_upstream_lane.md) owns the stable 0.11
 crate migration, extension preservation, and coordinated consumer repins. The
@@ -77,7 +87,7 @@ See [`vello_backends.rs`](../netrender/src/vello_backends.rs),
 | CPU-owned image | Owned `CpuSession` / `HybridSession`; synthetic CPU/GPU acceptance passed | Real consumer capture remains open. Free lowerers still refuse images. |
 | Pattern | CPU nearest/bilinear and Hybrid nearest passed synthetic acceptance | Hybrid bilinear repeat-seam repair remains open. Free lowerers retain typed refusal. |
 | Glyph run | Owned unhinted outline-text sessions passed synthetic tests and intact Isocosm panel replay | Native interaction and broader font subsets remain open. Free lowerers retain typed refusal. |
-| Registered fragment | Typed refusal | Resolve registry and generations; design backend-specific reuse and invalidation. |
+| Registered fragment | Free lowerers/sessions retain typed refusal; explicit source registry resolves a bounded non-nested subset | CPU source correctness proven; Hybrid pixel parity and backend packet reuse remain open. |
 | Element / backdrop filters | Typed refusal | Admit exact supported operations with painter-order and alpha evidence. |
 | External GPU scene image | Classic's staging path exists | VB4b gives sparse GPU a same-device route; CPU requires an explicit CPU source or refuses. |
 | Host backend selection | Cargo gates, free lowerers and opt-in owned image sessions | Connect host selection and explicit requested/effective backend reporting. |

@@ -1,0 +1,99 @@
+   Compiling syn v2.0.117
+   Compiling foldhash v0.2.0
+   Compiling num-traits v0.2.19
+   Compiling objc2 v0.6.4
+   Compiling objc2-core-foundation v0.3.2
+   Compiling hashbrown v0.17.1
+   Compiling indexmap v2.14.0
+   Compiling thiserror-impl v2.0.18
+   Compiling zerocopy-derive v0.8.48
+   Compiling thiserror v2.0.18
+   Compiling bytemuck_derive v1.10.2
+   Compiling zerocopy v0.8.48
+   Compiling bytemuck v1.25.0
+   Compiling serde_core v1.0.229
+   Compiling syn v3.0.6
+   Compiling naga-types v30.0.0
+   Compiling objc2-foundation v0.3.2
+   Compiling serde_derive v1.0.229
+   Compiling block2 v0.6.2
+   Compiling objc2-metal v0.3.2
+   Compiling serde v1.0.229
+   Compiling half v2.7.1
+   Compiling objc2-core-graphics v0.3.2
+   Compiling wgpu-types v30.0.1
+   Compiling objc2-quartz-core v0.3.2
+   Compiling naga v30.0.1
+   Compiling raw-window-metal v1.1.0
+   Compiling euclid v0.22.14
+   Compiling font-types v0.12.3
+   Compiling hashbrown v0.16.1
+   Compiling naga v29.0.4
+   Compiling wgpu-naga-bridge v30.0.0
+   Compiling wgpu-hal v30.0.1
+   Compiling read-fonts v0.41.0
+   Compiling wgpu-core-deps-apple v30.0.0
+   Compiling color v0.3.3
+   Compiling peniko v0.6.1
+   Compiling guillotiere v0.7.0
+   Compiling wgpu-core v30.0.1
+   Compiling skrifa v0.44.0
+   Compiling vello_shaders v0.10.0
+   Compiling typenum v1.20.1
+   Compiling hybrid-array v0.4.15
+   Compiling vello_encoding v0.10.0
+   Compiling wgpu v30.0.1
+   Compiling tracing-attributes v0.1.31
+   Compiling byteorder v1.5.0
+   Compiling tracing v0.1.44
+   Compiling hash32 v0.2.1
+   Compiling netrender_device v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender_device)
+   Compiling netrender-vello v0.10.1
+   Compiling block-buffer v0.12.1
+   Compiling crypto-common v0.2.2
+   Compiling spin v0.9.8
+   Compiling const-oid v0.10.2
+   Compiling stable_deref_trait v1.2.1
+   Compiling heapless v0.7.17
+   Compiling digest v0.11.3
+   Compiling netrender v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender)
+   Compiling zmij v1.0.21
+   Compiling paint_list_api v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_api)
+   Compiling cobs v0.3.0
+   Compiling memchr v2.8.0
+   Compiling itoa v1.0.18
+   Compiling cpufeatures v0.3.1
+   Compiling sha2 v0.11.0
+   Compiling serde_json v1.0.151
+   Compiling postcard v1.1.3
+   Compiling paint_list_render v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_render)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 16s
+     Running unittests src/lib.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/paint_list_render-9151ce27123d48cc)
+
+running 14 tests
+test tests::commands_only_layers_concatenate_into_one_scene ... ok
+test tests::draw_stroke_carries_cap_join_dash ... ok
+test tests::draw_rect_emits_scene_rect ... ok
+test tests::draw_stroke_emits_stroked_scene_shape ... ok
+test tests::empty_list_translates_to_empty_scene ... ok
+test tests::external_texture_stages_an_in_order_scene_image ... ok
+test tests::nested_transforms_compose ... ok
+test tests::push_layer_carries_filter_chain ... ok
+test tests::external_texture_keeps_the_active_transform_and_layer_scope ... ok
+test tests::push_transform_adds_palette_entry_and_positions_child_ops ... ok
+test tests::push_clip_rect_emits_clipped_layer ... ok
+test tests::push_pop_layer_emits_layer_pair ... ok
+test tests::merge_namespaces_colliding_font_keys ... ok
+test tests::translucent_colors_premultiply_at_lowering ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pcorpus_replay.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/pcorpus_replay-84c60c196692b287)
+
+running 4 tests
+test corpus_is_populated ... ok
+test every_fixture_has_provenance ... ok
+test wire_encoding_round_trips ... ok
+test translation_matches_recorded_ops ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

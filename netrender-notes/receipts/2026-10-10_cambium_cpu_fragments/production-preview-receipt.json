@@ -1,0 +1,224 @@
+{
+  "application_authority_preserved": true,
+  "frames": [
+    {
+      "accessible_name": "Read-only reader preview. The garden after rain Every path begins with a small act of attention. The leaves hold yesterday's weather; the ground makes room for what comes next. We return to the garden to notice what has changed. A seed becomes a leaf, the light shifts, and familiar colors tell a different story. Continue reading the field notes",
+      "direct_cpu_ms": 79.101693,
+      "fonts": 2,
+      "fragment_generation": 0,
+      "glyphs": 318,
+      "gpu_initialized": false,
+      "hybrid_source_admission": true,
+      "images": 0,
+      "label": "reader-light",
+      "nonempty_pixels": 256000,
+      "ops": 7,
+      "retained_cpu_ms": 73.12966899999999,
+      "retained_pixel_identity": true,
+      "size": [
+        640,
+        400
+      ]
+    },
+    {
+      "accessible_name": "Read-only application stylesheet preview. Garden notebook Explore gemini://garden.example/ A place to begin Every path begins with a small act of attention. Continue reading grow ( \"spring\" , 24 );",
+      "direct_cpu_ms": 52.678866,
+      "fonts": 3,
+      "fragment_generation": 0,
+      "glyphs": 146,
+      "gpu_initialized": false,
+      "hybrid_source_admission": true,
+      "images": 0,
+      "label": "stylesheet-light",
+      "nonempty_pixels": 256000,
+      "ops": 24,
+      "retained_cpu_ms": 50.674886,
+      "retained_pixel_identity": true,
+      "size": [
+        640,
+        400
+      ]
+    },
+    {
+      "cached_images": 1,
+      "fonts": 2,
+      "gpu_initialized": false,
+      "hybrid_source_admission": true,
+      "image_generation": 0,
+      "image_source": "explicit opaque CPU snapshot of production stylesheet preview; no GPU readback",
+      "images": 1,
+      "label": "composed-light",
+      "ops": 8,
+      "retained_pixel_identity": true,
+      "size": [
+        640,
+        800
+      ]
+    },
+    {
+      "accessible_name": "Read-only reader preview. The garden after rain Every path begins with a small act of attention. The leaves hold yesterday's weather; the ground makes room for what comes next. We return to the garden to notice what has changed. A seed becomes a leaf, the light shifts, and familiar colors tell a different story. Continue reading the field notes",
+      "direct_cpu_ms": 73.22225999999999,
+      "fonts": 2,
+      "fragment_generation": 1,
+      "glyphs": 318,
+      "gpu_initialized": false,
+      "hybrid_source_admission": true,
+      "images": 0,
+      "label": "reader-dark",
+      "nonempty_pixels": 256000,
+      "ops": 7,
+      "retained_cpu_ms": 71.448986,
+      "retained_pixel_identity": true,
+      "size": [
+        640,
+        400
+      ]
+    },
+    {
+      "accessible_name": "Read-only application stylesheet preview. Garden notebook Explore gemini://garden.example/ A place to begin Every path begins with a small act of attention. Continue reading grow ( \"spring\" , 24 );",
+      "direct_cpu_ms": 51.876729000000005,
+      "fonts": 3,
+      "fragment_generation": 1,
+      "glyphs": 146,
+      "gpu_initialized": false,
+      "hybrid_source_admission": true,
+      "images": 0,
+      "label": "stylesheet-dark",
+      "nonempty_pixels": 256000,
+      "ops": 24,
+      "retained_cpu_ms": 51.156836,
+      "retained_pixel_identity": true,
+      "size": [
+        640,
+        400
+      ]
+    },
+    {
+      "cached_images": 1,
+      "fonts": 2,
+      "gpu_initialized": false,
+      "hybrid_source_admission": true,
+      "image_generation": 1,
+      "image_source": "explicit opaque CPU snapshot of production stylesheet preview; no GPU readback",
+      "images": 1,
+      "label": "composed-dark",
+      "ops": 8,
+      "retained_pixel_identity": true,
+      "size": [
+        640,
+        800
+      ]
+    },
+    {
+      "accessible_name": "Read-only reader preview. The garden after rain Every path begins with a small act of attention. The leaves hold yesterday's weather; the ground makes room for what comes next. We return to the garden to notice what has changed. A seed becomes a leaf, the light shifts, and familiar colors tell a different story. Continue reading the field notes",
+      "direct_cpu_ms": 64.682579,
+      "fonts": 2,
+      "fragment_generation": 2,
+      "glyphs": 318,
+      "gpu_initialized": false,
+      "hybrid_source_admission": true,
+      "images": 0,
+      "label": "reader-narrow",
+      "nonempty_pixels": 160000,
+      "ops": 12,
+      "retained_cpu_ms": 62.91860200000001,
+      "retained_pixel_identity": true,
+      "size": [
+        320,
+        500
+      ]
+    },
+    {
+      "accessible_name": "Read-only application stylesheet preview. Garden notebook Explore gemini://garden.example/ A place to begin Every path begins with a small act of attention. Continue reading grow ( \"spring\" , 24 );",
+      "direct_cpu_ms": 42.453112000000004,
+      "fonts": 3,
+      "fragment_generation": 2,
+      "glyphs": 146,
+      "gpu_initialized": false,
+      "hybrid_source_admission": true,
+      "images": 0,
+      "label": "stylesheet-narrow",
+      "nonempty_pixels": 160000,
+      "ops": 25,
+      "retained_cpu_ms": 41.713867,
+      "retained_pixel_identity": true,
+      "size": [
+        320,
+        500
+      ]
+    },
+    {
+      "cached_images": 1,
+      "fonts": 2,
+      "gpu_initialized": false,
+      "hybrid_source_admission": true,
+      "image_generation": 2,
+      "image_source": "explicit opaque CPU snapshot of production stylesheet preview; no GPU readback",
+      "images": 1,
+      "label": "composed-narrow",
+      "ops": 13,
+      "retained_pixel_identity": true,
+      "size": [
+        320,
+        1000
+      ]
+    },
+    {
+      "accessible_name": "Read-only reader preview. The garden after rain Every path begins with a small act of attention. The leaves hold yesterday's weather; the ground makes room for what comes next. We return to the garden to notice what has changed. A seed becomes a leaf, the light shifts, and familiar colors tell a different story. Continue reading the field notes",
+      "direct_cpu_ms": 74.37284500000001,
+      "fonts": 2,
+      "fragment_generation": 3,
+      "glyphs": 318,
+      "gpu_initialized": false,
+      "hybrid_source_admission": true,
+      "images": 0,
+      "label": "reader-authored",
+      "nonempty_pixels": 256000,
+      "ops": 7,
+      "retained_cpu_ms": 71.272457,
+      "retained_pixel_identity": true,
+      "size": [
+        640,
+        400
+      ]
+    },
+    {
+      "accessible_name": "Read-only application stylesheet preview. Garden notebook Explore gemini://garden.example/ A place to begin Every path begins with a small act of attention. Continue reading grow ( \"spring\" , 24 );",
+      "direct_cpu_ms": 52.364073,
+      "fonts": 3,
+      "fragment_generation": 3,
+      "glyphs": 146,
+      "gpu_initialized": false,
+      "hybrid_source_admission": true,
+      "images": 0,
+      "label": "stylesheet-authored",
+      "nonempty_pixels": 256000,
+      "ops": 24,
+      "retained_cpu_ms": 50.982694,
+      "retained_pixel_identity": true,
+      "size": [
+        640,
+        400
+      ]
+    },
+    {
+      "cached_images": 1,
+      "fonts": 2,
+      "gpu_initialized": false,
+      "hybrid_source_admission": true,
+      "image_generation": 3,
+      "image_source": "explicit opaque CPU snapshot of production stylesheet preview; no GPU readback",
+      "images": 1,
+      "label": "composed-authored",
+      "ops": 8,
+      "retained_pixel_identity": true,
+      "size": [
+        640,
+        800
+      ]
+    }
+  ],
+  "gpu_initialized": false,
+  "retention": "source expansion and re-lowering, no packet cache",
+  "scope": "production Tabard reader and stylesheet preview components; whole workshop external-texture capture remains refused"
+}
