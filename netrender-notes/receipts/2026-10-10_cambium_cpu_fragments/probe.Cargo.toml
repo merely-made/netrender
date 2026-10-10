@@ -1,0 +1,191 @@
+[package]
+name = "cambium-cpu-source-proof"
+version = "0.0.0"
+edition = "2024"
+[workspace]
+[dependencies]
+tabard-workshop = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/cambium/tabard-workshop" }
+tabard = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/system/tabard" }
+cambium = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/cambium/cambium" }
+netrender = { path = "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender", features = ["serde", "vello-cpu"] }
+serde_json = "1"
+png = "0.17"
+
+[patch."https://github.com/merely-made/mere.git"]
+cambium = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/cambium/cambium" }
+cambium-genet-winit-host = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/cambium/cambium-genet-winit-host" }
+chartulary = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/eidetic/chartulary" }
+chirograph = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/chirograph" }
+eidetic = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/eidetic/eidetic-core" }
+esp = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/intel/esp" }
+mere-fetch = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/system/fetch" }
+gemot = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/moot/gemot" }
+graphshell = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/ports/graphshell" }
+graphshell-endpoint = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/graphshell/graphshell-endpoint" }
+illume = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/nematic/illume" }
+inker = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/inker/inker" }
+insigne = { git = "https://github.com/merely-made/dramatis.git", rev = "c1d620764315b4c750fcffea30b8c898b8bb73bc" }
+knot-editor-host = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/inker/knot-editor-host" }
+mere-proofs = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/system/proofs" }
+mere-surface-api = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/system/surface-api" }
+mere-transport = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/murm/transport" }
+mora-cmudict = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/intel/mora-cmudict" }
+reference-data = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/intel/reference-data" }
+muniment = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/eidetic/muniment" }
+nematic = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/nematic/nematic" }
+notochord = { git = "https://github.com/merely-made/dramatis.git", rev = "c1d620764315b4c750fcffea30b8c898b8bb73bc" }
+pandect = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/system/pandect" }
+personae = { git = "https://github.com/merely-made/dramatis.git", rev = "c1d620764315b4c750fcffea30b8c898b8bb73bc" }
+sceno = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/cambium/scenes/sceno" }
+# Knot has named these two since its `5516606`; they arrived with the
+# `c966e31` pin (wing ruling 586, "With djinn's Knot repin (Recommended)").
+scenograph = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/cambium/scenes/scenograph" }
+scenomise = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/cambium/scenes/scenomise" }
+scenotime = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/cambium/scenes/scenotime" }
+script-rhai = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/script/rhai" }
+servitor = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/servitor" }
+stickleback = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/stickleback" }
+
+# ─── Cross-repo render-stack alignment (Mere → Genet) ───────────────────────
+# Livery/Buckram consume Genet's Taffy fork directly. The retired Stylo layout
+# cone has no root patch in this workspace.
+[patch.crates-io]
+# gaz (dramatis) takes muniment from crates.io so dramatis never pins mere;
+# this swaps in mere's own, so the graph holds one muniment and castellan's
+# stores and gaz's agree on its types.
+muniment = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/crates/eidetic/muniment" }
+# Vello on wgpu 30, from the owned fork. Upstream vello 0.10 still requires
+# wgpu 29 and their own migration PR is stalled, so netrender (and through it
+# this workspace's render path) takes vello from the v0.10.0 tag plus the API
+# changes in linebender/vello#1754. `[patch]` is not inherited from genet or
+# netrender, so this workspace restates it. Retires by deletion when upstream
+# ships a wgpu-30 vello.
+vello = { git = "https://github.com/mark-ik/vello.git", tag = "vello-0.10.0" }
+# Radeon coarse repair plus validated native shader command progress guards.
+# Keep Classic and its encoding/shader types on the same 0.10 maintenance source.
+netrender-vello = { git = "https://github.com/mark-ik/vello.git", rev = "10f01d6d88e94eac087daf033b24895cf97b8e82" }
+vello_encoding = { git = "https://github.com/mark-ik/vello.git", rev = "10f01d6d88e94eac087daf033b24895cf97b8e82" }
+vello_shaders = { git = "https://github.com/mark-ik/vello.git", rev = "10f01d6d88e94eac087daf033b24895cf97b8e82" }
+# cubecl-wgpu 0.10.0, vendored from the registry and moved to wgpu 30. This is
+# the "narrow CubeCL backport" of the 2026-08-15 wgpu 30 unification: it is the
+# ONLY crate in the burn 0.21 / cubecl 0.10 stack that names wgpu at all, so
+# one vendored crate carries the whole resident lane across the major.
+#
+# The alternative was burn 0.22.0-pre.2 with cubecl 0.11.0-pre.2, which already
+# require wgpu ^30. When this was written that was not resolvable, because
+# cubecl-runtime 0.11 depends on cubecl-environment with the `cache` feature
+# NON-optionally, pulling rusqlite 0.40 -> libsqlite3-sys ^0.38, while this
+# graph also carried sqlx -> libsqlite3-sys <0.38. libsqlite3-sys sets
+# `links = "sqlite3"`, so exactly one may exist in a graph.
+#
+# 2026-08-16: OUR HALF OF THAT CONFLICT IS GONE. sqlx and libsqlite3-sys are no
+# longer in this workspace's graph at all. The note above misattributed the
+# cause to p2panda-store's `groups`/`encryption` features; `cargo tree -e
+# features` showed neither was ever enabled here. The real enablers were
+# `p2panda-net/address_book`, which forced `p2panda-store/sqlite` outright, and
+# `p2panda-store/default` arriving through p2panda-sync and p2panda-stream. The
+# address book now runs on stickleback's muniment-backed store and every
+# consumer opts out of the `sqlite` feature. See docs:
+# 2026-08-16_address_book_muniment_port_plan.md.
+#
+# So this vendored crate is now retire-ABLE on the sqlite axis, but that has not
+# been attempted: whether burn 0.22.0-pre.2 / cubecl 0.11.0-pre.2 resolve and
+# behave here is the burn migration's question, not this patch entry's. See
+# docs: 2026-08-09_burn_0_22_migration_plan.md.
+# RETIRED 2026-08-20 with the burn 0.22 migration: cubecl-wgpu 0.11.0-pre.2
+# from the registry already names wgpu 30, which is all the vendored backport
+# existed to do. The vendored copy remains at support/patches/cubecl-wgpu for
+# archaeology until a stable 0.22 lands, but it is no longer patched in.
+# cubecl-wgpu = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/support/patches/cubecl-wgpu" }
+# cubecl-runtime 0.11.0: the source is pristine upstream. The manifest
+# removes persistence from default features (ruling 375), avoiding the Turso
+# cache in Mere's defaults-disabled GPU graph. Remove when upstream makes
+# persistence opt-in or fixes the defaults-on edge in cubecl-wgpu.
+cubecl-runtime = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/support/patches/cubecl-runtime" }
+# burn-cubecl 0.22.0-pre.4: the selector was retired under ruling 410 after
+# the old pre.2 browser failure reproduced while upstream pre.4 passed all 21
+# cases, plus nine unfused native launcher controls. Vendored patch source
+# remains for provenance; current consumers select the registry crate.
+# burn-remote 0.22.0: pump-observed targeted close and session receipts
+# let owner reclaim stop one admitted lease without dropping the protocol.
+# Remove when upstream provides equivalent control and passes the lifecycle
+# receipt, including reclaim and recovery.
+burn-remote = { path = "/Users/markik/Code/worktrees/mere-vello-cpu-source/support/patches/burn-remote" }
+layout-dom-api = { git = "https://github.com/merely-made/genet.git", rev = "7422e90613f9017e5bb790e3acb48f61776b2eda", version = "=0.1.1" }
+genet-scripted-dom = { git = "https://github.com/merely-made/genet.git", rev = "7422e90613f9017e5bb790e3acb48f61776b2eda", version = "=0.1.2" }
+# Livery/Buckram require Genet's Taffy fork. Genet's workspace patch is not
+# inherited by consumers, so Mere restates the same immutable Genet revision.
+taffy = { package = "genet-taffy", version = "=0.14.0", git = "https://github.com/merely-made/genet.git", rev = "7422e90613f9017e5bb790e3acb48f61776b2eda" }
+# No parley/fontique patch rows: as of genet 5ae30cad the forks are published as
+# `genet-parley` and `genet-fontique`, so nothing in genet answers to the name
+# `parley` and a patch row here would match no package and fail resolution.
+# genet-livery reaches the fork by path inside the git checkout, and Mere's own
+# `parley` workspace dep names the fork by package (see [workspace.dependencies]).
+# The tagged `mere-p2panda-net =0.7.5` fork release owns the exact-ALPN net
+# crate and its seven sibling packages. The correctly named net patch supplies
+# the renamed package while the sibling patches keep the dalek-3 family on the
+# same immutable release tag.
+mere-p2panda-net = { git = "https://github.com/mark-ik/p2panda.git", tag = "mere-p2panda-net-0.7.5" }
+p2panda-auth = { git = "https://github.com/mark-ik/p2panda.git", tag = "mere-p2panda-net-0.7.5" }
+p2panda-core = { git = "https://github.com/mark-ik/p2panda.git", tag = "mere-p2panda-net-0.7.5" }
+p2panda-discovery = { git = "https://github.com/mark-ik/p2panda.git", tag = "mere-p2panda-net-0.7.5" }
+p2panda-encryption = { git = "https://github.com/mark-ik/p2panda.git", tag = "mere-p2panda-net-0.7.5" }
+p2panda-store = { git = "https://github.com/mark-ik/p2panda.git", tag = "mere-p2panda-net-0.7.5" }
+p2panda-stream = { git = "https://github.com/mark-ik/p2panda.git", tag = "mere-p2panda-net-0.7.5" }
+p2panda-sync = { git = "https://github.com/mark-ik/p2panda.git", tag = "mere-p2panda-net-0.7.5" }
+
+# ─── LAN peer discovery (H10): one dead theory ───────────────────────────────
+# swarm-discovery 0.6.3 keeps its sockets for the life of the process. The
+# fork's `mere` branch rebuilds an interface socket after three consecutive
+# send failures, on the theory that a macOS Wi-Fi transition wedges existing
+# multicast sockets into permanent EHOSTUNREACH.
+#
+# That premise is dead (H10 final, dfe95f3e). The rebuild fired 272-350 times
+# against a live wedge and every fresh socket failed identically, while
+# Apple-signed python3 sent 72/72 on the same host in the same seconds. The
+# real cause is macOS policy: an unsigned binary with no responsible GUI app is
+# denied local-network egress on Sequoia and never becomes grantable, so a
+# resident Mere peer must ship as a signed app with the local-network usage
+# declaration.
+#
+# The branch stays pinned because it is harmless, but it is not upstreamed and
+# it fixes nothing. Drop it whenever this pin is next revisited.
+swarm-discovery = { git = "https://github.com/mark-ik/swarm-discovery.git", branch = "mere", version = "=0.6.3" }
+
+# Boa JS engine, for the meerkat `scripted` render rung (the `genet.scripted` lane
+# runs page JS through `ScriptedDocument` on Boa). Mirrors genet's own patch
+# (`script-engine-boa` names `boa_engine`/`boa_gc` `=1.0.0-dev`, resolved to the fork).
+# `script-engine-boa` is an *optional* meerkat dep, so the base build's compile graph
+# stays JS-engine-free (the profile ladder's witness discipline); this patch only
+# satisfies resolution. Git deps so a bare clone resolves.
+boa_engine = { git = "https://github.com/mark-ik/boa.git", branch = "genet" }
+boa_gc = { git = "https://github.com/mark-ik/boa.git", branch = "genet" }
+
+# Physics in dev builds (physics catalog plan, ruled 2026-10-04, "Opt 3 in dev
+# for physics"): one Density start took 146.5 s at the dev profile's
+# opt-level 0 and 6.0 s with these six crates at 3, the pictograph suite
+# 102.5 s and 12.6 s, with the rebuild after a one-line seiche edit unchanged
+# and backtraces keeping file and line. graphshell-web's own manifest names the
+# same six.
+[profile.dev.package.seiche]
+opt-level = 3
+[profile.dev.package.rapier2d]
+opt-level = 3
+[profile.dev.package.parry2d]
+opt-level = 3
+[profile.dev.package.nalgebra]
+opt-level = 3
+[profile.dev.package.simba]
+opt-level = 3
+[profile.dev.package.glamx]
+opt-level = 3
+
+[patch."https://github.com/merely-made/netrender.git"]
+netrender = { path = "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender" }
+paint_list_api = { path = "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_api" }
+paint_list_render = { path = "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_render" }
+
+[patch."https://github.com/mark-ik/netrender.git"]
+netrender = { path = "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender" }
+paint_list_api = { path = "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_api" }
+paint_list_render = { path = "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_render" }

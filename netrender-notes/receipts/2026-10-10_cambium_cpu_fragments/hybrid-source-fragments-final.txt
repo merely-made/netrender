@@ -1,0 +1,10 @@
+   Compiling netrender v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender)
+   Compiling netrender_text v0.1.1 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender_text)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.87s
+     Running tests/vb5_sparse_fragments.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/vb5_sparse_fragments-df21f6dad3492839)
+
+running 2 tests
+test malformed_and_unsupported_content_is_refused ... ok
+test keys_generations_removal_and_budgets ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

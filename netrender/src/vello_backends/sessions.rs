@@ -67,6 +67,9 @@ pub struct SparseResourceStats {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SparseSessionError {
     Admission(BackendAdmissionError),
+    MissingFragment {
+        id: crate::scene::FragmentId,
+    },
     MissingImage {
         key: ImageKey,
     },
@@ -844,5 +847,5 @@ impl HybridSession {
 }
 
 mod text;
-mod validate;
+pub(super) mod validate;
 pub use text::{SparseTextLimits, SparseTextStats};

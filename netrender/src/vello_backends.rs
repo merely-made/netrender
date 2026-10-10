@@ -876,7 +876,11 @@ mod sparse {
 }
 
 #[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+mod fragments;
+#[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
 mod sessions;
+#[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+pub use fragments::{SparseFragmentLimits, SparseFragmentRegistry, SparseFragmentStats};
 #[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
 pub use sessions::{
     SparseResourceLimits, SparseResourceStats, SparseSessionError, SparseTextLimits,

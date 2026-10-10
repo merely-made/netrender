@@ -1,0 +1,13 @@
+   Compiling netrender v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.13s
+     Running tests/vb5_sparse_fragments.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/vb5_sparse_fragments-11789139047f5e9f)
+
+running 6 tests
+test malformed_and_unsupported_content_is_refused ... ok
+test keys_generations_removal_and_budgets ... ok
+test cpu::local_geometry_and_rounded_device_clip_rotate_under_placement ... ok
+test cpu::placement_moves_fragment_clip_but_preserves_parent_clip_opacity_and_order ... ok
+test cpu::external_cpu_source_replacement_and_resource_refusal_are_atomic ... ok
+test cpu::retained_text_images_match_direct_scene_and_update_without_stale_pixels ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s

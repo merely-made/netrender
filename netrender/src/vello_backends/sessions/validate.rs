@@ -70,7 +70,10 @@ fn path(value: &ScenePath) -> bool {
     true
 }
 
-pub(super) fn scene(scene: &Scene, limits: SparseResourceLimits) -> Result<(), SparseSessionError> {
+pub(in crate::vello_backends) fn scene(
+    scene: &Scene,
+    limits: SparseResourceLimits,
+) -> Result<(), SparseSessionError> {
     if scene.viewport_width == 0 || scene.viewport_height == 0 {
         return Err(invalid(None, "viewport dimensions must be nonzero"));
     }

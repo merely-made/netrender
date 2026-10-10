@@ -1,0 +1,57 @@
+{
+  "backend": "cpu",
+  "clear": "transparent; backend alpha convention converted to opaque-black presentation after readback",
+  "command_counts": {
+    "DrawBorder": 62,
+    "DrawExternalTexture": 2,
+    "DrawPath": 7,
+    "DrawRect": 64,
+    "DrawText": 127,
+    "PopClip": 77,
+    "PopLayer": 3,
+    "PopTransform": 6,
+    "PushClip": 77,
+    "PushLayer": 3,
+    "PushTransform": 6
+  },
+  "commands": 434,
+  "engine": 0,
+  "error": "packet command 253 (DrawExternalTexture): external texture producer is absent from serialized capture",
+  "fonts": [
+    {
+      "bytes": 1153400,
+      "index": 0,
+      "key": "FontInstanceKey(IdNamespace(1708648117), 1841958684)",
+      "sha256": "449a068ddd88f179b50b4d6dbb86aa08a30981148b510d5cc30d4ff0cb29e9a6"
+    },
+    {
+      "bytes": 2369592,
+      "index": 0,
+      "key": "FontInstanceKey(IdNamespace(1933310940), 2725462381)",
+      "sha256": "25eceb458d4baf628ee0b6a135a9f8ac5ec7b2826646720834bd2bf00dfc825a"
+    },
+    {
+      "bytes": 2369592,
+      "index": 1,
+      "key": "FontInstanceKey(IdNamespace(3544272852), 1279100124)",
+      "sha256": "25eceb458d4baf628ee0b6a135a9f8ac5ec7b2826646720834bd2bf00dfc825a"
+    }
+  ],
+  "generation": 8,
+  "glyphs": 2042,
+  "gpu_initialized": false,
+  "images": [],
+  "kind": "intact-paint-envelope-replay",
+  "lossless_round_trip": true,
+  "packet": "/Users/markik/Code/worktrees/turnstone-tabard-apps/docs/receipts/tabard_adoption_20261010/native/native-11/seed/workshop/workshop_authored.paintlist",
+  "packet_bytes": 5932835,
+  "packet_sha256": "56efcb2a8198fdc5b6f80575cbdc69d93f931b808c53093d79debb305bd9945d",
+  "positioned_text_sha256": "8baba5040f826689cc5624e33a6e7cde909d430d4a56fa06949800365b946cd7",
+  "reference": "/Users/markik/Code/worktrees/turnstone-tabard-apps/docs/receipts/tabard_adoption_20261010/native/native-11/seed/workshop/workshop_authored.png",
+  "reference_sha256": "831f060af1488c131cfcf5bad2a5e1a21b28e748c2000c1b763ece31bfbade8c",
+  "scope": "one cold frame; render encoding/submission, GPU completion wait, and readback measured separately; not interactive performance",
+  "session_limits": "unchanged SparseResourceLimits and SparseTextLimits defaults",
+  "status": "refused_or_failed",
+  "text_runs": 127,
+  "working_tree_revision": "99d8d71ec527a2ee5f32aa1e4d5ef197c4e71131"
+}
