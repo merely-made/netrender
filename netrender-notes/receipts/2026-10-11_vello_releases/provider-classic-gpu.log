@@ -1,0 +1,162 @@
+   Compiling syn v2.0.117
+   Compiling crossbeam-utils v0.8.21
+   Compiling crossbeam-epoch v0.9.18
+   Compiling crossbeam-deque v0.8.6
+   Compiling rayon-core v1.13.0
+   Compiling either v1.15.0
+   Compiling rayon v1.12.0
+   Compiling zerocopy-derive v0.8.48
+   Compiling bytemuck_derive v1.10.2
+   Compiling zerocopy v0.8.48
+   Compiling bytemuck v1.25.0
+   Compiling thiserror-impl v2.0.18
+   Compiling thiserror v2.0.18
+   Compiling indexmap v2.14.0
+   Compiling shlex v1.3.0
+   Compiling find-msvc-tools v0.1.9
+   Compiling cc v1.2.62
+   Compiling naga-types v30.0.1
+   Compiling half v2.7.1
+   Compiling wgpu-types v30.0.1
+   Compiling naga v30.0.1
+   Compiling font-types v0.12.1
+   Compiling getrandom v0.3.4
+   Compiling wgpu-naga-bridge v30.0.0
+   Compiling wgpu-hal v30.0.1
+   Compiling read-fonts v0.41.0
+   Compiling euclid v0.22.14
+   Compiling utf8parse v0.2.2
+   Compiling color v0.3.3
+   Compiling guillotiere v0.7.0
+   Compiling peniko v0.6.1
+   Compiling anstyle-parse v1.0.0
+   Compiling wgpu-core-deps-apple v30.0.1
+   Compiling vello_shaders v0.11.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/vello_shaders)
+   Compiling libdeflate-sys v1.25.2
+   Compiling anstyle-query v1.1.5
+   Compiling anstyle v1.0.14
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling colorchoice v1.0.5
+   Compiling radium v0.7.0
+   Compiling skrifa v0.44.0
+   Compiling vello_encoding v0.11.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/vello_encoding)
+   Compiling anstream v1.0.0
+   Compiling rand_core v0.9.5
+   Compiling wgpu-core v30.0.1
+   Compiling nv-flip-sys v0.1.1
+   Compiling ppv-lite86 v0.2.21
+   Compiling clap_lex v1.1.0
+   Compiling strsim v0.11.1
+   Compiling anyhow v1.0.102
+   Compiling heck v0.5.0
+   Compiling tap v1.0.1
+   Compiling zune-core v0.5.1
+   Compiling pxfm v0.1.29
+   Compiling moxcms v0.8.1
+   Compiling wgpu v30.0.1
+   Compiling zune-jpeg v0.5.15
+   Compiling wyz v0.5.1
+   Compiling clap_derive v4.6.1
+   Compiling futures-intrusive v0.5.0
+   Compiling clap_builder v4.6.0
+   Compiling rand_chacha v0.9.0
+   Compiling funty v2.0.0
+   Compiling bitvec v1.0.1
+   Compiling image v0.25.10
+   Compiling netrender-vello v0.11.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research)
+   Compiling libdeflater v1.25.2
+   Compiling clap v4.6.1
+   Compiling rand v0.9.4
+   Compiling rgb v0.8.53
+   Compiling vello_research_tests v0.0.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests)
+   Compiling rustc-hash v2.1.2
+   Compiling oxipng v10.1.1
+   Compiling scenes v0.0.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/examples/scenes)
+warning: this lint expectation is unfulfilled
+  --> research/examples/scenes/src/simple_text.rs:35:5
+   |
+35 |     single_use_lifetimes,
+   |     ^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: False positive: https://github.com/rust-lang/rust/issues/129255
+   = note: `#[warn(unfulfilled_lint_expectations)]` on by default
+
+   Compiling nv-flip v0.1.2
+warning: `scenes` (lib) generated 1 warning
+    Finished `test` profile [unoptimized] target(s) in 2m 14s
+     Running tests/coarse_bitmap.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/coarse_bitmap-de050557b276107d)
+
+running 2 tests
+test coarse_bitmap_clip_closes_after_multiple_slices ... Wrote debug result (64x32) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/coarse_bitmap_clip_closes_after_multiple_slices_gpu.png"
+Wrote debug result (64x32) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/coarse_bitmap_clip_closes_after_multiple_slices_cpu.png"
+ok
+test coarse_bitmap_empty_slices_and_late_bits ... Wrote debug result (64x32) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/coarse_bitmap_empty_slices_and_late_bits_gpu.png"
+Wrote debug result (64x32) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/coarse_bitmap_empty_slices_and_late_bits_cpu.png"
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.87s
+
+     Running tests/compare_gpu_cpu.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/compare_gpu_cpu-8be7adc44516c208)
+
+running 10 tests
+test compare_blurred_rounded_rect ... Wrote debug result (1200x1200) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_blurred_rounded_rect_gpu.png"
+Wrote debug result (1200x1200) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_blurred_rounded_rect_cpu.png"
+ok
+test compare_deep_blend ... Wrote debug result (150x150) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_deep_blend_gpu.png"
+Wrote debug result (150x150) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_deep_blend_cpu.png"
+ok
+test compare_fill_types ... Wrote debug result (1400x700) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_fill_types_gpu.png"
+Wrote debug result (1400x700) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_fill_types_cpu.png"
+ok
+test compare_funky_paths ... Wrote debug result (600x600) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_funky_paths_gpu.png"
+Wrote debug result (600x600) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_funky_paths_cpu.png"
+ok
+test compare_large_bin_count ... ignored, This test takes a long time.
+test compare_splash ... Parsed svg Ghostscript Tiger in 15.319957ms
+Encoded svg Ghostscript Tiger in 2.610747ms
+Wrote debug result (600x600) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_splash_gpu.png"
+Wrote debug result (600x600) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_splash_cpu.png"
+ok
+test compare_stroke_styles ... Wrote debug result (1200x850) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_stroke_styles_gpu.png"
+Wrote debug result (1200x850) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_stroke_styles_cpu.png"
+ok
+test compare_stroke_styles_non_uniform ... Wrote debug result (1200x850) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_stroke_styles_non_uniform_gpu.png"
+Wrote debug result (1200x850) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_stroke_styles_non_uniform_cpu.png"
+ok
+test compare_stroke_styles_skew ... Wrote debug result (1200x850) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_stroke_styles_skew_gpu.png"
+Wrote debug result (1200x850) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_stroke_styles_skew_cpu.png"
+ok
+test compare_tricky_strokes ... Wrote debug result (1200x850) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_tricky_strokes_gpu.png"
+Wrote debug result (1200x850) to "/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests/debug_outputs/compare_tricky_strokes_cpu.png"
+ok
+
+test result: ok. 9 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 200.92s
+
+     Running tests/dynamic_memory.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/dynamic_memory-59ea9908808bf0f7)
+
+running 1 test
+test a_scene_past_the_tile_table_recovers_after_readback ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.14s
+
+     Running tests/fine_command_guards.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/fine_command_guards-076f80f1fb0fa1d7)
+
+running 1 test
+test fine_area_rejects_malformed_commands_and_preserves_valid_forward_chains ... ignored, Deliberate malformed GPU command probe; run this exact test with --ignored after shader review
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/image_atlas.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/image_atlas-d4c952ad3047596a)
+
+running 1 test
+test resident_image_survives_repeated_patchless_solid_and_empty_frames ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.04s
+
+     Running tests/retained_preview_scene.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/retained_preview_scene-4558359c01f5e873)
+
+running 1 test
+test repeated_clipped_previews_preserve_pixels_across_frames_and_paint_changes ... ignored, Offscreen renderer diagnostic; run deliberately after shader review
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

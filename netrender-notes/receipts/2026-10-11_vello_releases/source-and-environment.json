@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-11",
+  "upstream_release": "f3000c8d9e7a9c7e6abb09b9587238bf8b4860ff",
+  "maintained_baseline": "10f01d6d88e94eac087daf033b24895cf97b8e82",
+  "provider_library_cpu_checks_at": "8eec8b182cbe326e0ed4fc64a13311eed4377601",
+  "provider_final": "5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a",
+  "cpu_source_note": "Final provider adds only restored Classic dynamic-memory regression; provider library source is unchanged from the CPU check commit.",
+  "versions": {
+    "netrender-vello": "0.11.0",
+    "vello_cpu": "0.3.0",
+    "vello_gpu": "0.3.0",
+    "vello_common": "0.3.0",
+    "glifo": "0.4.0",
+    "wgpu": "30.0.1",
+    "parley": "0.12.0",
+    "skrifa": "0.44.0"
+  },
+  "platform": "macOS-15.8.1-x86_64-i386-64bit",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "gpu_adapter": {
+    "name": "AMD Radeon Pro Vega 56",
+    "backend": "Metal",
+    "driver": "",
+    "driver_info": "",
+    "note": "wgpu returned blank driver fields; no driver version inferred."
+  },
+  "resources": {
+    "build_jobs": 2,
+    "test_threads": 1,
+    "incremental": false,
+    "debug": 0,
+    "gpu_lane": "Explicit Moot handoff; released to Tabard after finite batch."
+  },
+  "claims_excluded": [
+    "headed host presentation",
+    "native accessibility or input acceptance",
+    "browser/WebGPU execution",
+    "full WorkshopState external-producer bundle",
+    "driver reset recovery",
+    "CPU-vs-Classic-vs-GPU full application parity",
+    "crates.io publication"
+  ]
+}

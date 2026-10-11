@@ -1,0 +1,49 @@
+   Compiling naga-types v30.0.1
+   Compiling wgsl-parse v0.4.0
+   Compiling wgpu-types v30.0.1
+   Compiling naga v30.0.1
+   Compiling wgpu-naga-bridge v30.0.0
+   Compiling libloading v0.8.9
+   Compiling simd-adler32 v0.3.9
+   Compiling profiling v1.0.18
+   Compiling wgpu-hal v30.0.1
+   Compiling kurbo v0.13.1
+   Compiling wesl v0.4.0
+   Compiling euclid v0.22.14
+   Compiling color v0.3.3
+   Compiling font-types v0.12.1
+   Compiling wgpu-core v30.0.1
+   Compiling linebender_resource_handle v0.1.1
+   Compiling peniko v0.6.1
+   Compiling miniz_oxide v0.8.9
+   Compiling read-fonts v0.41.0
+   Compiling vello_gpu_shaders v0.3.0 (/Users/markik/Code/worktrees/vello-release-adoption/vello_gpu_shaders)
+   Compiling guillotiere v0.7.0
+   Compiling crc32fast v1.5.0
+   Compiling wgpu-core-deps-apple v30.0.1
+   Compiling wgpu v30.0.1
+   Compiling roxmltree v0.20.0
+   Compiling vello_common v0.3.0 (/Users/markik/Code/worktrees/vello-release-adoption/vello_common)
+   Compiling skrifa v0.44.0
+   Compiling flate2 v1.1.9
+   Compiling fdeflate v0.3.7
+   Compiling png v0.18.1
+   Compiling glifo v0.4.0 (/Users/markik/Code/worktrees/vello-release-adoption/glifo)
+   Compiling pollster v0.4.0
+   Compiling vello_gpu v0.3.0 (/Users/markik/Code/worktrees/vello-release-adoption/vello_gpu)
+    Finished `test` profile [unoptimized] target(s) in 1m 23s
+     Running unittests src/lib.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/vello_gpu-4ed6a43139cac25c)
+
+running 9 tests
+test append::tests::append_in_place_matches_direct_recording ... ok
+test append::tests::append_translated_matches_pretranslated_recording ... ok
+test append::tests::append_translation_preserves_global_paint_transform ... ok
+test append::tests::bbox_overflow_is_checked_before_snapping ... ok
+test append::tests::coordinate_overflow_leaves_the_target_untouched ... ok
+test append::tests::rejections_leave_the_target_untouched ... ok
+test append::tests::remapping_overflow_is_rejected_without_large_allocations ... ok
+test append::tests::repeated_appends_accumulate_in_painter_order ... ok
+test append::tests::threaded_clip_and_open_target_refusals_preserve_target ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 123 filtered out; finished in 0.01s
+

@@ -23,6 +23,17 @@ API. The first release containing that source-breaking change must publish
 `netrender` as 0.2.0 and align the `netrender_text` and `paint_list_render`
 dependency constraints in the same release pass.
 
+## Vello release source adoption, 2026-10-11
+
+Classic 0.11, CPU/GPU/Common 0.3 and Glifo 0.4 share immutable provider
+`5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a`. Maintained append, Radeon shader,
+allocation recovery and image-residency behavior remain covered by focused
+CPU and offscreen Metal GPU checks. See the [adoption lane](2026-10-08_vello_upstream_lane.md)
+and [receipt](receipts/2026-10-11_vello_releases/README.md). The `vello-gpu`
+feature selects upstream GPU; `vello-hybrid` remains a compatible feature alias.
+This source adoption does not close full producer-bundle, application input,
+accessibility, host presentation or driver-reset acceptance.
+
 ## Current canonical plans
 
 The original plan audit was 2026-08-10. Later activated work is indexed

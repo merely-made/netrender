@@ -1,0 +1,59 @@
+   Compiling vello_shaders v0.11.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+   Compiling netrender-vello v0.11.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+   Compiling netrender v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender)
+   Compiling netrender_text v0.1.1 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender_text)
+    Finished `test` profile [unoptimized] target(s) in 38.22s
+     Running tests/pa2_scene_capture_replay.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/pa2_scene_capture_replay-8223ce0fc9855cc2)
+
+running 8 tests
+test blob_ids_survive_json_roundtrip ... ok
+test blob_ids_survive_postcard_roundtrip ... ok
+test empty_scene_roundtrips_through_both_formats ... ok
+test image_sources_insertion_order_does_not_affect_snapshot_bytes ... ok
+test json_roundtrip_is_string_deterministic ... ok
+test malformed_bytes_yield_replay_error ... ok
+test postcard_roundtrip_is_byte_deterministic ... ok
+test replayed_scene_dumps_identically_to_original ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/vb2_sparse_images.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/vb2_sparse_images-1ab6c1f62cae04dc)
+
+running 3 tests
+test cpu::cpu_image_semantics_without_device ... ok
+test cpu::cpu_resource_budget_without_device ... ok
+test cpu::cpu_source_lifecycle_without_device ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/vb2_sparse_patterns.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/vb2_sparse_patterns-fdacb7e9d46dcd45)
+
+running 2 tests
+test cpu::cpu_pattern_lifecycle_and_refusals_without_device ... ok
+test cpu::cpu_pattern_semantics_without_device ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+     Running tests/vb3_sparse_text.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/vb3_sparse_text-7476f447aefa8f1f)
+
+running 5 tests
+test cpu::cpu_bounded_text_lifecycle_without_device ... ok
+test cpu::cpu_invalid_text_without_device ... ok
+test cpu::cpu_positions_composition_without_device ... ok
+test cpu::cpu_repeated_outline_budget_without_device ... ok
+test cpu::cpu_variations_fallback_without_device ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/vb5_sparse_fragments.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/vb5_sparse_fragments-7610a7c2c4099796)
+
+running 6 tests
+test cpu::external_cpu_source_replacement_and_resource_refusal_are_atomic ... ok
+test cpu::local_geometry_and_rounded_device_clip_rotate_under_placement ... ok
+test cpu::placement_moves_fragment_clip_but_preserves_parent_clip_opacity_and_order ... ok
+test cpu::retained_text_images_match_direct_scene_and_update_without_stale_pixels ... ok
+test keys_generations_removal_and_budgets ... ok
+test malformed_and_unsupported_content_is_refused ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

@@ -1,0 +1,38 @@
+    Checking smallvec v1.16.3
+    Checking foldhash v0.2.0
+    Checking hashbrown v0.17.1
+   Compiling serde_core v1.0.229
+    Checking parking_lot_core v0.9.12
+    Checking indexmap v2.14.0
+   Compiling serde v1.0.229
+    Checking parking_lot v0.12.5
+    Checking naga-types v30.0.1
+    Checking wgpu-types v30.0.1
+    Checking naga v30.0.1
+    Checking linebender_resource_handle v0.1.1
+    Checking euclid v0.22.14
+    Checking kurbo v0.13.1
+    Checking color v0.3.3
+    Checking guillotiere v0.7.0
+    Checking peniko v0.6.1
+    Checking vello_encoding v0.11.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+    Checking futures-intrusive v0.5.0
+    Checking vello_shaders v0.11.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+    Checking fontique v0.12.0
+    Checking icu_normalizer v2.3.0
+    Checking wgpu-naga-bridge v30.0.0
+    Checking wgpu-hal v30.0.1
+    Checking icu_segmenter v2.3.0
+    Checking harfrust v0.12.0
+    Checking wgpu-core-deps-apple v30.0.1
+    Checking wgpu-core v30.0.1
+    Checking parley_engine v0.12.0
+    Checking parley v0.12.0
+    Checking paint_list_api v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_api)
+    Checking wgpu v30.0.1
+    Checking netrender-vello v0.11.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+    Checking netrender_device v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender_device)
+    Checking netrender v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender)
+    Checking paint_list_render v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_render)
+    Checking netrender_text v0.1.1 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender_text)
+    Finished `dev` profile [unoptimized] target(s) in 48.65s

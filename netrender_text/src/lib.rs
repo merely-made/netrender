@@ -198,7 +198,7 @@ fn emit_glyph_run(
     let style = glyph_run.style();
     let color = style.brush;
     let font_size = run.font_size();
-    let metrics = run.metrics();
+    let metrics = run.font_metrics();
 
     // Run extents in scene-space. parley's `offset()` is the
     // x-position of the first glyph along the line baseline;

@@ -1,0 +1,187 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 6440,
+    "sha256": "c02464d4093a6e2b8112af828fd64f8ed57782c68cb3ea12a8aaefd08215f781"
+  },
+  {
+    "path": "classic-captures/coarse_bitmap_clip_closes_after_multiple_slices_cpu.png",
+    "bytes": 144,
+    "sha256": "67dc8baa86e18720900db3dbec18ff9b93a10cdc5c6c86c682bfcc200aa1e199"
+  },
+  {
+    "path": "classic-captures/coarse_bitmap_clip_closes_after_multiple_slices_gpu.png",
+    "bytes": 144,
+    "sha256": "67dc8baa86e18720900db3dbec18ff9b93a10cdc5c6c86c682bfcc200aa1e199"
+  },
+  {
+    "path": "classic-captures/coarse_bitmap_empty_slices_and_late_bits_cpu.png",
+    "bytes": 147,
+    "sha256": "c426c75c214d2fd54cb2cfaee2dec77c4ad984c2797569a758e891592b2d974e"
+  },
+  {
+    "path": "classic-captures/coarse_bitmap_empty_slices_and_late_bits_gpu.png",
+    "bytes": 147,
+    "sha256": "c426c75c214d2fd54cb2cfaee2dec77c4ad984c2797569a758e891592b2d974e"
+  },
+  {
+    "path": "classic-captures/compare_blurred_rounded_rect_cpu.png",
+    "bytes": 152938,
+    "sha256": "893d1bb4dea054b7f9cab81b0d94fad669101a9e483ac377edbbfe03f8a1d260"
+  },
+  {
+    "path": "classic-captures/compare_blurred_rounded_rect_gpu.png",
+    "bytes": 152938,
+    "sha256": "893d1bb4dea054b7f9cab81b0d94fad669101a9e483ac377edbbfe03f8a1d260"
+  },
+  {
+    "path": "classic-captures/compare_deep_blend_cpu.png",
+    "bytes": 829,
+    "sha256": "0da1d7a571b7f315395ad4451a5f7c7b8c429466a31e49e886b82977ad6c35ff"
+  },
+  {
+    "path": "classic-captures/compare_deep_blend_gpu.png",
+    "bytes": 829,
+    "sha256": "0da1d7a571b7f315395ad4451a5f7c7b8c429466a31e49e886b82977ad6c35ff"
+  },
+  {
+    "path": "classic-captures/compare_fill_types_cpu.png",
+    "bytes": 74421,
+    "sha256": "96475c3bfac1e50eea48c541528f4cf7a40bfba479110cce5424596f727ba7a6"
+  },
+  {
+    "path": "classic-captures/compare_fill_types_gpu.png",
+    "bytes": 74485,
+    "sha256": "5856007df5382d03acc79013d3d392c89c0d45022571eefc6820b9469987dddc"
+  },
+  {
+    "path": "classic-captures/compare_funky_paths_cpu.png",
+    "bytes": 5789,
+    "sha256": "50717cdd0ddc3741022e9b23c042180868515d4e6a2cb7bb3b5cc925b9c7e740"
+  },
+  {
+    "path": "classic-captures/compare_funky_paths_gpu.png",
+    "bytes": 5789,
+    "sha256": "50717cdd0ddc3741022e9b23c042180868515d4e6a2cb7bb3b5cc925b9c7e740"
+  },
+  {
+    "path": "classic-captures/compare_splash_cpu.png",
+    "bytes": 163827,
+    "sha256": "f05419430f9437c341f704d71a54ec980a1db0e274db987f7d846c70b827de66"
+  },
+  {
+    "path": "classic-captures/compare_splash_gpu.png",
+    "bytes": 163806,
+    "sha256": "47b7b9b08b24b769559ee6b37211ce47f42cc4c22f958b35f8cbfc868d06042b"
+  },
+  {
+    "path": "classic-captures/compare_stroke_styles_cpu.png",
+    "bytes": 127544,
+    "sha256": "ad48daa4c1e638e7c8f593ed015757a0faf6452a81ed38e1184235a7d60d6ae2"
+  },
+  {
+    "path": "classic-captures/compare_stroke_styles_gpu.png",
+    "bytes": 127540,
+    "sha256": "1453841ebbddadcc78bc8e8471e488e17013ec36f9742ff842210c77e8a8e3cb"
+  },
+  {
+    "path": "classic-captures/compare_stroke_styles_non_uniform_cpu.png",
+    "bytes": 120972,
+    "sha256": "93c5b34abf93382911af3fc03b2438323598feaa2ef033d236712a903c142476"
+  },
+  {
+    "path": "classic-captures/compare_stroke_styles_non_uniform_gpu.png",
+    "bytes": 120988,
+    "sha256": "4e0ef91780ba20c7b60e2c20fb1dc9f7a3992eee19e5941eee515f5241e480e7"
+  },
+  {
+    "path": "classic-captures/compare_stroke_styles_skew_cpu.png",
+    "bytes": 138922,
+    "sha256": "9d25b0b7396f1df5b452411489f2641c78d35861aab15c1164babab375eba135"
+  },
+  {
+    "path": "classic-captures/compare_stroke_styles_skew_gpu.png",
+    "bytes": 138926,
+    "sha256": "3a9a59d2cf82f3fd5576b6935905148c5108c84731230e4e169e929c62f8dfdf"
+  },
+  {
+    "path": "classic-captures/compare_tricky_strokes_cpu.png",
+    "bytes": 53861,
+    "sha256": "4a101cae094b067fed88968d1fd1f29492515891c0ea4bbced61121e96171585"
+  },
+  {
+    "path": "classic-captures/compare_tricky_strokes_gpu.png",
+    "bytes": 53856,
+    "sha256": "7ffd79d8ecba5dd77c9e50e59e77a9af5802923b1a6013e353dbba01a54a1b73"
+  },
+  {
+    "path": "dependency-identities.json",
+    "bytes": 3084,
+    "sha256": "4a9be9d54137d271d393420a578a6703108e1b3dd2b6d02ce122838acd9ff932"
+  },
+  {
+    "path": "netrender-all-targets-check.log",
+    "bytes": 5593,
+    "sha256": "611725eb9a01ec1dce6e763049d0698cdba1cd2fd95d0d81253286b6c9e1736d"
+  },
+  {
+    "path": "netrender-corpus-cpu-refusals.log",
+    "bytes": 486,
+    "sha256": "80816252b98d46fe1a5f58b9f09bcf629f74a80a39bc0b0d54ce2c80e2a5018a"
+  },
+  {
+    "path": "netrender-default-check.log",
+    "bytes": 1938,
+    "sha256": "4ec75d18133e2ad6d0f8675a74b825e503614d4bbfdb94a95baa26db469a8e9c"
+  },
+  {
+    "path": "netrender-dimension-boundary-accepted.log",
+    "bytes": 793,
+    "sha256": "40982094d0a7ceb0223f08d51323d44ea1068447f847330cea3ac32c3d4513fe"
+  },
+  {
+    "path": "netrender-final-cpu-capture-resources.log",
+    "bytes": 3282,
+    "sha256": "8f62c67ffc109baf1c12942a3b3437d7360af1ba47c6dc65394f860bbb3470e8"
+  },
+  {
+    "path": "netrender-gpu-resources.log",
+    "bytes": 3227,
+    "sha256": "979afa1d2ce222f9dc18e47cec642dfd8bc383da36be71c2ab0ae480ad65567f"
+  },
+  {
+    "path": "netrender-source-fingerprint.json",
+    "bytes": 1650,
+    "sha256": "c610c32484b371193d10576f9499f6c04fdc12a01741f3c906d703198cf18d32"
+  },
+  {
+    "path": "netrender-text-cpu-accepted.log",
+    "bytes": 2120,
+    "sha256": "055ee27bd30439b50984d99c9983bebf5488f83a3a8748df3c48d68d9c03ff9f"
+  },
+  {
+    "path": "provider-append-final.log",
+    "bytes": 2260,
+    "sha256": "60de41e725904e8729a32a82ce87b3d683dff72ae92f40410a0ed3807976f145"
+  },
+  {
+    "path": "provider-classic-gpu.log",
+    "bytes": 9369,
+    "sha256": "edaa32f1e80091bfd3271c7c965952b2e0a0a7fffe6f9d3b706cdf10f9c5fb08"
+  },
+  {
+    "path": "provider-cpu-common-glifo.log",
+    "bytes": 20261,
+    "sha256": "8f64a6bdb86ab7f3cb00201a4bb64397e583351d5ac9df42719f7181de6b2e35"
+  },
+  {
+    "path": "provider-deliberate-gpu.log",
+    "bytes": 1413,
+    "sha256": "d4da8987bc3fe510ec24339ad759a4ea18e0da1c62f90be7a31e6a681b8e68cc"
+  },
+  {
+    "path": "source-and-environment.json",
+    "bytes": 1480,
+    "sha256": "7cb72bd48c1e6338662676674d1414cfdff604b8db3aad4f9e201548fb4c229c"
+  }
+]

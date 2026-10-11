@@ -106,15 +106,15 @@ fn encode_hybrid(
     let scene = crate::vello_backends::scene_to_vello_hybrid(scene)
         .expect("RG2c decomposition must produce a Hybrid-admissible fragment");
     let size = vello_hybrid::RenderSize {
-        width: DIM,
-        height: DIM,
+        width: DIM as u16,
+        height: DIM as u16,
     };
     let mut renderer = vello_hybrid::Renderer::new(
         device,
         &vello_hybrid::RenderTargetConfig {
             format: wgpu::TextureFormat::Rgba8Unorm,
-            width: DIM,
-            height: DIM,
+            width: DIM as u16,
+            height: DIM as u16,
         },
     );
     let depth = vello_hybrid::Renderer::create_depth_texture_view(device, &size);
@@ -130,6 +130,7 @@ fn encode_hybrid(
             &target.create_view(&Default::default()),
             Some(&depth),
             &vello_hybrid::TextureBindings::new(),
+            vello_hybrid::TargetInit::Clear(vello_hybrid::ClearSettings::default()),
         )
         .expect("Hybrid fragment recording");
 }

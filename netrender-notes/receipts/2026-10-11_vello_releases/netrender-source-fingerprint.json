@@ -1,0 +1,49 @@
+{
+  "parent": "dfa2bd001",
+  "modified_files": [
+    {
+      "path": "Cargo.lock",
+      "sha256": "69d3d480c1ee94bb28e0856e4e55393bbe5e0a32fa7c21f5092cf998dc6a775c"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "055879b8e9757920a745763cf1ac27c7f2a3f4b6485895fb4553537a1b73c0bc"
+    },
+    {
+      "path": "netrender/Cargo.toml",
+      "sha256": "dfb560124cc3e4b56617ec9ecd17beaffddfd979ef6f691f35f587e6fda92587"
+    },
+    {
+      "path": "netrender/src/render_graph_tests/rg2b.rs",
+      "sha256": "158b7e310cb9136a7ef8daa45732c7f9f2c85e766b041c9bfe48bd35ae721ecb"
+    },
+    {
+      "path": "netrender/src/render_graph_tests/rg2c.rs",
+      "sha256": "f632511fd283d252f15cef39e652c83ea56559afa83d360be8ba6a2284da51de"
+    },
+    {
+      "path": "netrender/src/vello_backends.rs",
+      "sha256": "2ba911bc1e83e6243744da9db73af836a78bc7c769e45b4d5e250058d533ca13"
+    },
+    {
+      "path": "netrender/src/vello_backends/sessions.rs",
+      "sha256": "efb5ed6db34729f0658eb9186bea484b7fed7a738cd4427dd1b8ac082936ec5b"
+    },
+    {
+      "path": "netrender/src/vello_backends/sessions/text.rs",
+      "sha256": "b209e5281ae30b442ca56e65edb7b6e6d8519c7707bf75287af9db76867dd97d"
+    },
+    {
+      "path": "netrender/tests/rg2a_scene_corpus.rs",
+      "sha256": "e069fe282bed6fad62d7bb1eeab9970e9fbebd12888c39896870dd84fd883640"
+    },
+    {
+      "path": "netrender_text/src/lib.rs",
+      "sha256": "2b557a50934124e857226eff565e557dadee2608edeb0ba955b695ee84f0490e"
+    },
+    {
+      "path": "netrender_text/tests/pr6_inline_box_walker.rs",
+      "sha256": "a51927bf4f05ea4b1f65db7e0010324a2588f69c9b8f7fb2922ecb80678dc8e0"
+    }
+  ]
+}

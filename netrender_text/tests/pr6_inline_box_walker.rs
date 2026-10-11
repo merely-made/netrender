@@ -70,6 +70,8 @@ fn shape_with_boxes(text: &str, boxes: &[(usize, u64, f32, f32)]) -> Option<Layo
             index: *idx,
             width: *width,
             height: *height,
+            baseline: None,
+            vertical_align: parley::VerticalAlign::BASELINE,
         });
     }
 

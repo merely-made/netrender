@@ -1,0 +1,102 @@
+[
+  {
+    "name": "glifo",
+    "version": "0.4.0",
+    "source": "git+https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a"
+  },
+  {
+    "name": "harfrust",
+    "version": "0.12.0",
+    "source": "registry+https://github.com/rust-lang/crates.io-index"
+  },
+  {
+    "name": "linebender_resource_handle",
+    "version": "0.1.1",
+    "source": "registry+https://github.com/rust-lang/crates.io-index"
+  },
+  {
+    "name": "naga",
+    "version": "30.0.1",
+    "source": "registry+https://github.com/rust-lang/crates.io-index"
+  },
+  {
+    "name": "naga-types",
+    "version": "30.0.1",
+    "source": "registry+https://github.com/rust-lang/crates.io-index"
+  },
+  {
+    "name": "netrender-vello",
+    "version": "0.11.0",
+    "source": "git+https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a"
+  },
+  {
+    "name": "parley",
+    "version": "0.12.0",
+    "source": "registry+https://github.com/rust-lang/crates.io-index"
+  },
+  {
+    "name": "peniko",
+    "version": "0.6.1",
+    "source": "registry+https://github.com/rust-lang/crates.io-index"
+  },
+  {
+    "name": "read-fonts",
+    "version": "0.41.0",
+    "source": "registry+https://github.com/rust-lang/crates.io-index"
+  },
+  {
+    "name": "skrifa",
+    "version": "0.44.0",
+    "source": "registry+https://github.com/rust-lang/crates.io-index"
+  },
+  {
+    "name": "vello_common",
+    "version": "0.3.0",
+    "source": "git+https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a"
+  },
+  {
+    "name": "vello_cpu",
+    "version": "0.3.0",
+    "source": "git+https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a"
+  },
+  {
+    "name": "vello_encoding",
+    "version": "0.11.0",
+    "source": "git+https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a"
+  },
+  {
+    "name": "vello_gpu",
+    "version": "0.3.0",
+    "source": "git+https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a"
+  },
+  {
+    "name": "vello_shaders",
+    "version": "0.11.0",
+    "source": "git+https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a"
+  },
+  {
+    "name": "wgpu",
+    "version": "30.0.1",
+    "source": "registry+https://github.com/rust-lang/crates.io-index"
+  },
+  {
+    "name": "wgpu-core",
+    "version": "30.0.1",
+    "source": "registry+https://github.com/rust-lang/crates.io-index"
+  },
+  {
+    "name": "wgpu-core-deps-apple",
+    "version": "30.0.1",
+    "source": "registry+https://github.com/rust-lang/crates.io-index"
+  },
+  {
+    "name": "wgpu-hal",
+    "version": "30.0.1",
+    "source": "registry+https://github.com/rust-lang/crates.io-index"
+  },
+  {
+    "name": "wgpu-types",
+    "version": "30.0.1",
+    "source": "registry+https://github.com/rust-lang/crates.io-index"
+  }
+]

@@ -15,21 +15,19 @@ resolver = "2"
 # and matches the Mere workspace convention.
 [workspace.dependencies]
 # Linebender visual stack.
-vello = { package = "netrender-vello", version = "0.10.1", default-features = false }
-# Experimental sparse-strips backends. Both are pinned to the same
-# consumer branch so Hybrid's wgpu types stay unified with Netrender's
-# device and the retained-scene append prototype is reproducible.
-vello_cpu = { git = "https://github.com/mark-ik/vello", rev = "ca3f40ea182216883cd543c7b9deae991268917c", default-features = false }
-vello_hybrid = { git = "https://github.com/mark-ik/vello", rev = "ca3f40ea182216883cd543c7b9deae991268917c", default-features = false }
-vello_sparse_common = { package = "vello_common", git = "https://github.com/mark-ik/vello", rev = "ca3f40ea182216883cd543c7b9deae991268917c", default-features = false }
+vello = { package = "netrender-vello", version = "0.11.0", git = "https://github.com/mark-ik/vello", rev = "5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a", default-features = false }
+# Sparse Strips release family, with the maintained bounded append extension.
+# CPU/GPU/common/Glifo share one provider source. The vello_hybrid dependency
+# alias preserves existing adapter names while selecting the vello_gpu package.
+vello_cpu = { package = "vello_cpu", version = "0.3.0", git = "https://github.com/mark-ik/vello", rev = "5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a", default-features = false }
+vello_hybrid = { package = "vello_gpu", version = "0.3.0", git = "https://github.com/mark-ik/vello", rev = "5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a", default-features = false }
+vello_sparse_common = { package = "vello_common", version = "0.3.0", git = "https://github.com/mark-ik/vello", rev = "5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a", default-features = false }
 wgpu = { version = "30", default-features = false }
 peniko = "0.6"
-parley = "0.10"
-# Tracks vello's transitive skrifa (0.10 moved 0.42 -> 0.44), because
-# `vello_rasterizer::emit` hands skrifa-resolved variation coords straight
-# to vello. parley 0.10 still wants 0.42, so a second skrifa copy resolves
-# for netrender_text; that is bloat, not a break, since no skrifa type
-# crosses the parley -> netrender::Scene adapter boundary.
+parley = "0.12"
+# Tracks the glyph ABI of Vello 0.11 / Glifo 0.4 and Parley 0.12.
+# Their compatible release family uses Skrifa 0.44 / read-fonts 0.41;
+# do not independently select a newer glyph-provider minor.
 skrifa = "0.44"
 
 # Cross-cutting.

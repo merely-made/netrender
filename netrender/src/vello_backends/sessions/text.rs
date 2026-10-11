@@ -21,7 +21,8 @@ use vello_sparse_common::{
     peniko::FontData,
 };
 use vello_sparse_text::{
-    AtlasCacher, GlyphPrepCache, GlyphRenderer, GlyphRun, GlyphRunBackend, GlyphRunBuilder,
+    AtlasCacher, GlyphPrepCache, GlyphRenderError, GlyphRenderer, GlyphRun, GlyphRunBackend,
+    GlyphRunBuilder,
 };
 
 /// Limits for unhinted, solid-color outline text. Font bytes and outline
@@ -400,7 +401,7 @@ impl TextState {
         scene: &Scene,
         run: &SceneGlyphRun,
         prepared: &PreparedRun,
-    ) {
+    ) -> Result<(), GlyphRenderError> {
         let m = &scene.transforms[run.transform_id as usize].m;
         let world = Affine::new([
             m[0] as f64,
@@ -427,7 +428,7 @@ impl TextState {
             id: g.id,
             x: g.x,
             y: g.y,
-        }));
+        }))
     }
 }
 
@@ -508,17 +509,17 @@ impl<'a, R: GlyphRenderer> GlyphRunBackend<'a> for OutlineBackend<'a, R> {
         self,
         run: GlyphRun<'a>,
         glyphs: G,
-    ) {
+    ) -> Result<(), GlyphRenderError> {
         run.build(glyphs, self.cache.as_mut(), AtlasCacher::Disabled)
-            .fill_glyphs(self.renderer);
+            .fill_glyphs(self.renderer)
     }
     fn stroke_glyphs<G: Iterator<Item = vello_sparse_text::Glyph> + Clone>(
         self,
         run: GlyphRun<'a>,
         glyphs: G,
-    ) {
+    ) -> Result<(), GlyphRenderError> {
         run.build(glyphs, self.cache.as_mut(), AtlasCacher::Disabled)
-            .stroke_glyphs(self.renderer);
+            .stroke_glyphs(self.renderer)
     }
     fn render_decoration<G: Iterator<Item = vello_sparse_text::Glyph> + Clone>(
         self,

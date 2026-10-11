@@ -158,20 +158,23 @@ fn classic_pixels(renderer: &netrender::Renderer, scene: &Scene) -> Vec<u8> {
 fn hybrid_pixels(handles: &netrender_device::WgpuHandles, scene: &Scene) -> Vec<u8> {
     let width = scene.viewport_width;
     let height = scene.viewport_height;
-    let (texture, view) = target(&handles.device, width, height);
     let sparse_scene = scene_to_vello_hybrid(scene).expect("Hybrid fixture admission");
+    let sparse_width = u16::try_from(width).expect("admitted Hybrid fixture width fits u16");
+    let sparse_height = u16::try_from(height).expect("admitted Hybrid fixture height fits u16");
+    let render_size = vello_hybrid::RenderSize {
+        width: sparse_width,
+        height: sparse_height,
+    };
+    let (texture, view) = target(&handles.device, width, height);
     let (mut renderer, mut resources) = vello_hybrid::Renderer::new(
         &handles.device,
         &vello_hybrid::RenderTargetConfig {
             format: FORMAT,
-            width,
-            height,
+            width: sparse_width,
+            height: sparse_height,
         },
     );
-    let depth = vello_hybrid::Renderer::create_depth_texture_view(
-        &handles.device,
-        &vello_hybrid::RenderSize { width, height },
-    );
+    let depth = vello_hybrid::Renderer::create_depth_texture_view(&handles.device, &render_size);
     let mut encoder = handles
         .device
         .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -184,17 +187,14 @@ fn hybrid_pixels(handles: &netrender_device::WgpuHandles, scene: &Scene) -> Vec<
             &handles.device,
             &handles.queue,
             &mut encoder,
-            &vello_hybrid::RenderSize { width, height },
+            &render_size,
             &view,
             Some(&depth),
             &vello_hybrid::TextureBindings::new(),
+            vello_hybrid::TargetInit::Clear(vello_hybrid::ClearSettings::default()),
         )
         .expect("Hybrid fixture render");
     handles.queue.submit([encoder.finish()]);
-    handles
-        .device
-        .poll(wgpu::PollType::wait_indefinitely())
-        .expect("Hybrid fixture completion");
     let bytes_per_row = width * 4;
     // Reuse Netrender's readback path through a temporary renderer would
     // change the ownership under test, so issue a small explicit map here.
@@ -231,18 +231,23 @@ fn hybrid_pixels(handles: &netrender_device::WgpuHandles, scene: &Scene) -> Vec<
             depth_or_array_layers: 1,
         },
     );
-    handles.queue.submit([copy.finish()]);
+    let submission = handles.queue.submit([copy.finish()]);
     let slice = buffer.slice(..);
     let (sender, receiver) = std::sync::mpsc::channel();
     slice.map_async(wgpu::MapMode::Read, move |result| {
-        sender.send(result).expect("Hybrid readback callback");
+        let _ = sender.send(result);
     });
     handles
         .device
-        .poll(wgpu::PollType::wait_indefinitely())
+        // This copy follows the producer render on the same queue. Waiting
+        // for our copy submission covers both without an unbounded first wait.
+        .poll(wgpu::PollType::Wait {
+            submission_index: Some(submission),
+            timeout: Some(std::time::Duration::from_secs(5)),
+        })
         .expect("Hybrid readback completion");
     receiver
-        .recv()
+        .try_recv()
         .expect("Hybrid readback sender")
         .expect("Hybrid readback map");
     let mapped = slice.get_mapped_range().expect("Hybrid mapped range");
