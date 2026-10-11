@@ -1,0 +1,12 @@
+   Compiling netrender v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender)
+   Compiling netrender_text v0.1.1 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender_text)
+    Finished `test` profile [unoptimized] target(s) in 27.80s
+     Running unittests src/lib.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/netrender-bfbc4f9c9f2d7761)
+
+running 3 tests
+test vello_backends::tests::sparse_viewport_cpu_refusals_preserve_owned_resources ... ok
+test vello_backends::tests::sparse_viewport_largest_backend_dimensions_are_accepted ... ok
+test vello_backends::tests::sparse_viewport_preflight_and_free_lowerers_agree ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 79 filtered out; finished in 0.05s
+

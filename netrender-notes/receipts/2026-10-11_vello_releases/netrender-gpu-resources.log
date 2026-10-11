@@ -1,0 +1,49 @@
+    Updating git repository `https://github.com/mark-ik/vello`
+   Compiling naga-types v30.0.1
+   Compiling vello_common v0.3.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+   Compiling naga v30.0.1
+   Compiling vello_encoding v0.11.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+   Compiling glifo v0.4.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+   Compiling vello_shaders v0.11.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+   Compiling vello_gpu_shaders v0.3.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+   Compiling vello_gpu v0.3.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+   Compiling netrender-vello v0.11.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+   Compiling netrender v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender)
+   Compiling netrender_text v0.1.1 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender_text)
+    Finished `test` profile [unoptimized] target(s) in 43.11s
+     Running tests/vb2_sparse_images.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/vb2_sparse_images-6b640fe6414e7ca6)
+
+running 2 tests
+test hybrid::hybrid_image_budget_on_existing_device ... VB2 Hybrid adapter="AMD Radeon Pro Vega 56" backend=Metal driver=""
+ok
+test hybrid::hybrid_images_on_existing_device ... VB2 Hybrid adapter="AMD Radeon Pro Vega 56" backend=Metal driver=""
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.45s
+
+     Running tests/vb2_sparse_patterns.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/vb2_sparse_patterns-795130bb2c2bec18)
+
+running 2 tests
+test hybrid::hybrid_pattern_lifecycle_and_refusals_on_existing_device ... VB2 pattern adapter="AMD Radeon Pro Vega 56" backend=Metal driver=""
+ok
+test hybrid::hybrid_pattern_semantics_on_existing_device ... VB2 pattern adapter="AMD Radeon Pro Vega 56" backend=Metal driver=""
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s
+
+     Running tests/vb3_sparse_text.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/vb3_sparse_text-3bfa112191c7406f)
+
+running 5 tests
+test hybrid::hybrid_bounded_text_lifecycle_on_existing_device ... VB3 text adapter="AMD Radeon Pro Vega 56" backend=Metal driver=""
+ok
+test hybrid::hybrid_invalid_text_on_existing_device ... VB3 text adapter="AMD Radeon Pro Vega 56" backend=Metal driver=""
+ok
+test hybrid::hybrid_positions_composition_on_existing_device ... VB3 text adapter="AMD Radeon Pro Vega 56" backend=Metal driver=""
+ok
+test hybrid::hybrid_repeated_outline_budget_on_existing_device ... VB3 text adapter="AMD Radeon Pro Vega 56" backend=Metal driver=""
+ok
+test hybrid::hybrid_variations_fallback_on_existing_device ... VB3 text adapter="AMD Radeon Pro Vega 56" backend=Metal driver=""
+ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.10s
+

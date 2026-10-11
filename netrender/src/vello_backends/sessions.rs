@@ -100,6 +100,12 @@ pub enum SparseSessionError {
         reason: &'static str,
     },
     HybridRender(String),
+    /// Unexpected glyph execution failure after successful resource admission.
+    /// No CPU target is returned and no Hybrid draw commands are encoded.
+    GlyphRender {
+        op_index: usize,
+        reason: String,
+    },
 }
 
 impl std::fmt::Display for SparseSessionError {
@@ -632,9 +638,20 @@ impl CpuSession {
             scene.viewport_width as u16,
             scene.viewport_height as u16,
         );
+        let mut glyph_error = None;
         sparse::lower_admitted(&mut context, scene, &paints, |context, index, run| {
-            self.text.draw(context, scene, run, &text_plan.runs[&index]);
+            if glyph_error.is_none() {
+                if let Err(error) = self.text.draw(context, scene, run, &text_plan.runs[&index]) {
+                    glyph_error = Some(SparseSessionError::GlyphRender {
+                        op_index: index,
+                        reason: error.to_string(),
+                    });
+                }
+            }
         });
+        if let Some(error) = glyph_error {
+            return Err(error);
+        }
         context.flush();
         let mut target = Pixmap::new(scene.viewport_width as u16, scene.viewport_height as u16);
         context.render(&mut target, &mut self.resources);
@@ -821,9 +838,20 @@ impl HybridSession {
             .collect();
         let mut packet =
             vello_hybrid::Scene::new(scene.viewport_width as u16, scene.viewport_height as u16);
+        let mut glyph_error = None;
         sparse::lower_admitted(&mut packet, scene, &paints, |context, index, run| {
-            self.text.draw(context, scene, run, &text_plan.runs[&index]);
+            if glyph_error.is_none() {
+                if let Err(error) = self.text.draw(context, scene, run, &text_plan.runs[&index]) {
+                    glyph_error = Some(SparseSessionError::GlyphRender {
+                        op_index: index,
+                        reason: error.to_string(),
+                    });
+                }
+            }
         });
+        if let Some(error) = glyph_error {
+            return Err(error);
+        }
         let result = self
             .renderer
             .render(
@@ -833,12 +861,14 @@ impl HybridSession {
                 queue,
                 encoder,
                 &vello_hybrid::RenderSize {
-                    width: scene.viewport_width,
-                    height: scene.viewport_height,
+                    // Sparse admission has already bounded both dimensions to u16.
+                    width: scene.viewport_width as u16,
+                    height: scene.viewport_height as u16,
                 },
                 &target.create_view(&wgpu::TextureViewDescriptor::default()),
                 None,
                 &bindings,
+                vello_hybrid::TargetInit::Clear(vello_hybrid::ClearSettings::default()),
             )
             .map_err(|error| SparseSessionError::HybridRender(error.to_string()));
         self.text.maintain();

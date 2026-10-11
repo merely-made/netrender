@@ -1,0 +1,140 @@
+    Checking serde_core v1.0.229
+    Checking bytemuck v1.25.0
+    Checking bitflags v2.11.1
+    Checking once_cell v1.21.4
+    Checking libm v0.2.16
+    Checking num-traits v0.2.19
+    Checking serde v1.0.229
+    Checking cfg-if v1.0.4
+    Checking objc2-encode v4.1.0
+    Checking smallvec v1.16.3
+    Checking objc2 v0.6.5
+    Checking foldhash v0.2.0
+    Checking hashbrown v0.17.1
+    Checking arrayvec v0.7.6
+    Checking objc2-core-foundation v0.3.2
+    Checking thiserror v2.0.18
+    Checking stable_deref_trait v1.2.1
+    Checking libc v0.2.186
+    Checking scopeguard v1.2.0
+    Checking log v0.4.34
+    Checking lock_api v0.4.14
+    Checking objc2-foundation v0.3.2
+    Checking equivalent v1.0.2
+    Checking indexmap v2.14.0
+    Checking rustc-hash v1.1.0
+    Checking naga-types v30.0.1
+    Checking block2 v0.6.2
+    Checking serde_bytes v0.11.19
+    Checking font-types v0.12.3
+    Checking zerocopy v0.8.48
+    Checking bit-vec v0.9.1
+    Checking unicode-width v0.2.2
+    Checking codespan-reporting v0.13.1
+    Checking bit-set v0.10.0
+    Checking objc2-metal v0.3.2
+    Checking half v2.7.1
+    Checking read-fonts v0.41.0
+    Checking linebender_resource_handle v0.1.1
+    Checking objc2-core-graphics v0.3.2
+    Checking parking_lot_core v0.9.12
+    Checking unicode-ident v1.0.24
+    Checking static_assertions v1.1.0
+    Checking raw-window-handle v0.6.2
+    Checking wgpu-types v30.0.1
+    Checking naga v30.0.1
+    Checking parking_lot v0.12.5
+    Checking objc2-quartz-core v0.3.2
+    Checking euclid v0.22.14
+    Checking zerofrom v0.1.7
+    Checking yoke v0.8.3
+    Checking raw-window-metal v1.1.0
+    Checking polycool v0.4.0
+    Checking libloading v0.8.9
+    Checking profiling v1.0.17
+    Checking kurbo v0.13.1
+    Checking wgpu-naga-bridge v30.0.0
+    Checking wgpu-hal v30.0.1
+    Checking skrifa v0.44.0
+    Checking color v0.3.3
+    Checking svg_fmt v0.4.5
+    Checking peniko v0.6.1
+    Checking guillotiere v0.7.0
+    Checking wgpu-core-deps-apple v30.0.1
+    Checking zerovec v0.11.8
+    Checking wgpu-core v30.0.1
+    Checking simd-adler32 v0.3.9
+    Checking writeable v0.6.4
+    Checking adler2 v2.0.1
+    Checking miniz_oxide v0.8.9
+    Checking tinystr v0.8.4
+    Checking crc32fast v1.5.0
+    Checking litemap v0.8.2
+    Checking fearless_simd v0.7.0
+    Checking wgpu v30.0.1
+    Checking icu_locale_core v2.3.0
+    Checking vello_common v0.3.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+    Checking flate2 v1.1.9
+    Checking potential_utf v0.1.5
+    Checking fdeflate v0.3.7
+    Checking zerotrie v0.2.5
+    Checking byteorder v1.5.0
+    Checking pollster v1.0.1
+    Checking hash32 v0.2.1
+    Checking glifo v0.4.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+    Checking icu_provider v2.3.1
+    Checking vello_encoding v0.11.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+    Checking zmij v1.0.21
+    Checking spin v0.9.8
+    Checking utf8_iter v1.0.4
+    Checking itoa v1.0.18
+    Checking futures-core v0.3.32
+    Checking memchr v2.8.0
+    Checking futures-intrusive v0.5.0
+    Checking vello_shaders v0.11.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+    Checking serde_json v1.0.151
+    Checking icu_collections v2.3.0
+    Checking heapless v0.7.17
+    Checking netrender_device v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender_device)
+    Checking png v0.18.1
+    Checking vello_gpu_shaders v0.3.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+    Checking cobs v0.3.0
+    Checking tracing-core v0.1.36
+    Checking pin-project-lite v0.2.17
+    Checking tracing v0.1.44
+    Checking netrender-vello v0.11.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+    Checking postcard v1.1.3
+    Checking vello_gpu v0.3.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+    Checking vello_cpu v0.3.0 (https://github.com/mark-ik/vello?rev=5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a#5862bba2)
+    Checking icu_properties_data v2.3.0
+    Checking icu_locale_fallback_data v2.3.0
+    Checking netrender v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender)
+    Checking icu_locale_fallback v2.3.0
+    Checking icu_properties v2.3.0
+    Checking icu_segmenter_data v2.3.0
+    Checking icu_normalizer_data v2.3.0
+    Checking objc2-core-text v0.3.2
+    Checking memmap2 v0.9.11
+    Checking parlance v0.1.1
+    Checking icu_normalizer v2.3.0
+    Checking fontique v0.12.0
+    Checking icu_segmenter v2.3.0
+    Checking parley_data v0.12.0
+    Checking harfrust v0.12.0
+    Checking parley_emoji v0.12.0
+    Checking bitflags v1.3.2
+    Checking png v0.17.16
+    Checking parley_engine v0.12.0
+    Checking parley v0.12.0
+    Checking netrender_text v0.1.1 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender_text)
+    Checking typenum v1.20.1
+    Checking hybrid-array v0.4.15
+    Checking crypto-common v0.2.2
+    Checking block-buffer v0.12.1
+    Checking const-oid v0.10.2
+    Checking digest v0.11.3
+    Checking paint_list_api v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_api)
+    Checking cpufeatures v0.3.1
+    Checking sha2 v0.11.0
+    Checking paint_list_render v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_render)
+    Finished `dev` profile [unoptimized] target(s) in 3m 50s

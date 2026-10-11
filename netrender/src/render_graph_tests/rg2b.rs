@@ -284,6 +284,7 @@ fn rg2b_three_execution_shapes_share_downstream_readback() {
             &hybrid_view,
             Some(&depth),
             &vello_hybrid::TextureBindings::new(),
+            vello_hybrid::TargetInit::Clear(vello_hybrid::ClearSettings::default()),
         )
         .expect("Hybrid encoder participation");
     let hybrid_external = external_source(&device, &queue);

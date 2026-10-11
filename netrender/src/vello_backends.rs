@@ -121,7 +121,13 @@ impl VelloBackend {
 /// A scene cannot be lowered faithfully by the selected backend adapter.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BackendAdmissionError {
-    /// Sparse scenes use `u16` dimensions internally.
+    /// Sparse scenes must have a nonempty viewport.
+    EmptyViewport {
+        backend: VelloBackend,
+        width: u32,
+        height: u32,
+    },
+    /// Sparse dimensions exceed the selected provider's internal rounding limit.
     ViewportTooLarge {
         backend: VelloBackend,
         width: u32,
@@ -150,14 +156,22 @@ pub enum BackendAdmissionError {
 impl std::fmt::Display for BackendAdmissionError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::ViewportTooLarge {
+            Self::EmptyViewport {
                 backend,
                 width,
                 height,
             } => write!(
                 f,
-                "{backend:?} sparse Vello viewport {width}x{height} exceeds the u16 dimension limit"
+                "{backend:?} sparse Vello viewport {width}x{height} is empty"
             ),
+            Self::ViewportTooLarge {
+                backend,
+                width,
+                height,
+            } => {
+                let (max_width, max_height) = sparse_dimension_limits(*backend);
+                write!(f, "{backend:?} sparse Vello viewport {width}x{height} exceeds the width/height limits {max_width}x{max_height}")
+            }
             Self::UnsupportedOperation {
                 backend,
                 op_index,
@@ -188,6 +202,46 @@ impl std::fmt::Display for BackendAdmissionError {
 
 impl std::error::Error for BackendAdmissionError {}
 
+// Vello Common 0.3 rounds each nonempty viewport up to Tile::WIDTH/HEIGHT
+// (both four) in CommandRecorder::new. The rounded size must still fit u16:
+// 65533..=65535 fit u16 themselves but panic during the provider's tile snap.
+const SPARSE_MAX_VIEWPORT_DIMENSION: u32 = (u16::MAX as u32 / 4) * 4;
+// CPU 0.3's depth buffer constructs complete 128-pixel bucket spans before
+// clipping to the viewport. Its last bucket must also fit u16; otherwise
+// BucketRange::span overflows even for a one-row viewport.
+const SPARSE_MAX_CPU_WIDTH: u32 = (u16::MAX as u32 / 128) * 128;
+
+const fn sparse_dimension_limits(backend: VelloBackend) -> (u32, u32) {
+    let width = match backend {
+        VelloBackend::Cpu => SPARSE_MAX_CPU_WIDTH,
+        _ => SPARSE_MAX_VIEWPORT_DIMENSION,
+    };
+    (width, SPARSE_MAX_VIEWPORT_DIMENSION)
+}
+
+fn sparse_dimensions(
+    backend: VelloBackend,
+    scene: &crate::scene::Scene,
+) -> Result<(u16, u16), BackendAdmissionError> {
+    let (width, height) = (scene.viewport_width, scene.viewport_height);
+    if width == 0 || height == 0 {
+        return Err(BackendAdmissionError::EmptyViewport {
+            backend,
+            width,
+            height,
+        });
+    }
+    let (max_width, max_height) = sparse_dimension_limits(backend);
+    if width > max_width || height > max_height {
+        return Err(BackendAdmissionError::ViewportTooLarge {
+            backend,
+            width,
+            height,
+        });
+    }
+    Ok((width as u16, height as u16))
+}
+
 /// Validate the operation-level scene semantics supported by `backend`.
 ///
 /// This checks viewport shape, operation kinds, transform references, and
@@ -209,14 +263,8 @@ fn validate_scene_operations(
 ) -> Result<(), BackendAdmissionError> {
     use crate::scene::{SceneFilter, SceneOp};
 
-    if backend != VelloBackend::Classic
-        && (scene.viewport_width > u16::MAX as u32 || scene.viewport_height > u16::MAX as u32)
-    {
-        return Err(BackendAdmissionError::ViewportTooLarge {
-            backend,
-            width: scene.viewport_width,
-            height: scene.viewport_height,
-        });
+    if backend != VelloBackend::Classic {
+        sparse_dimensions(backend, scene)?;
     }
 
     let mut depth = 0usize;
@@ -448,21 +496,7 @@ mod sparse {
         scene: &Scene,
         backend: VelloBackend,
     ) -> Result<(u16, u16), BackendAdmissionError> {
-        let width = u16::try_from(scene.viewport_width).map_err(|_| {
-            BackendAdmissionError::ViewportTooLarge {
-                backend,
-                width: scene.viewport_width,
-                height: scene.viewport_height,
-            }
-        })?;
-        let height = u16::try_from(scene.viewport_height).map_err(|_| {
-            BackendAdmissionError::ViewportTooLarge {
-                backend,
-                width: scene.viewport_width,
-                height: scene.viewport_height,
-            }
-        })?;
-        Ok((width, height))
+        super::sparse_dimensions(backend, scene)
     }
 
     pub(super) fn lower<C: SparseContext>(
@@ -949,6 +983,168 @@ mod tests {
 
     #[cfg(feature = "vello-cpu")]
     #[test]
+    fn sparse_viewport_cpu_refusals_preserve_owned_resources() {
+        use crate::scene::ImageData;
+
+        let mut cpu = CpuSession::new(SparseResourceLimits::default());
+        let mut warm = Scene::new(4, 4);
+        warm.image_sources
+            .insert(7, ImageData::from_bytes(1, 1, vec![255, 0, 0, 255]));
+        warm.push_image_full(
+            0.0,
+            0.0,
+            4.0,
+            4.0,
+            [0.0, 0.0, 1.0, 1.0],
+            [1.0; 4],
+            7,
+            0,
+            crate::NO_CLIP,
+        );
+        let original = cpu.render(&warm).unwrap().data_as_u8_slice().to_vec();
+        assert_eq!(&original[..4], &[255, 0, 0, 255]);
+        let before = cpu.stats();
+        let text_before = cpu.text_stats();
+
+        for (width, height) in [(0, 1), (1, 0), (65_533, 1), (1, 65_535), (65_536, 1)]
+            .into_iter()
+            .chain((65_409..=65_532).map(|width| (width, 1)))
+        {
+            let mut bad = warm.clone();
+            bad.viewport_width = width;
+            bad.viewport_height = height;
+            // A replacement source would invalidate the warm image cache if
+            // dimension refusal happened after resource admission/commit.
+            bad.image_sources
+                .insert(7, ImageData::from_bytes(1, 1, vec![0, 255, 0, 255]));
+            let result = cpu.render(&bad);
+            assert!(matches!(
+                result,
+                Err(SparseSessionError::Admission(
+                    BackendAdmissionError::EmptyViewport { .. }
+                        | BackendAdmissionError::ViewportTooLarge { .. }
+                ))
+            ));
+            assert_eq!(cpu.stats(), before);
+            assert_eq!(cpu.text_stats(), text_before);
+        }
+        assert_eq!(cpu.render(&warm).unwrap().data_as_u8_slice(), original);
+    }
+
+    #[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+    #[test]
+    fn sparse_viewport_preflight_and_free_lowerers_agree() {
+        for (width, height) in [
+            (0, 1),
+            (1, 0),
+            (0, 0),
+            (65_533, 1),
+            (1, 65_533),
+            (65_534, 1),
+            (1, 65_534),
+            (65_535, 1),
+            (1, 65_535),
+            (65_536, 1),
+            (1, u32::MAX),
+        ] {
+            let scene = Scene::new(width, height);
+            for backend in [VelloBackend::Cpu, VelloBackend::Hybrid] {
+                let error = if width == 0 || height == 0 {
+                    BackendAdmissionError::EmptyViewport {
+                        backend,
+                        width,
+                        height,
+                    }
+                } else {
+                    BackendAdmissionError::ViewportTooLarge {
+                        backend,
+                        width,
+                        height,
+                    }
+                };
+                assert_eq!(
+                    validate_scene_for_backend(backend, &scene),
+                    Err(error.clone())
+                );
+                assert_eq!(sparse::dimensions(&scene, backend), Err(error.clone()));
+                #[cfg(feature = "vello-cpu")]
+                if backend == VelloBackend::Cpu {
+                    assert_eq!(scene_to_vello_cpu(&scene).map(|_| ()), Err(error.clone()));
+                }
+                #[cfg(feature = "vello-hybrid")]
+                if backend == VelloBackend::Hybrid {
+                    assert_eq!(scene_to_vello_hybrid(&scene).map(|_| ()), Err(error));
+                }
+            }
+        }
+        // The CPU depth-bucket limit is stricter than the GPU tile limit.
+        // Check the entire extra refusal band without constructing providers.
+        for width in 65_409..=65_532 {
+            let scene = Scene::new(width, 1);
+            let error = BackendAdmissionError::ViewportTooLarge {
+                backend: VelloBackend::Cpu,
+                width,
+                height: 1,
+            };
+            assert_eq!(
+                validate_scene_for_backend(VelloBackend::Cpu, &scene),
+                Err(error.clone())
+            );
+            assert_eq!(
+                sparse::dimensions(&scene, VelloBackend::Cpu),
+                Err(error.clone())
+            );
+            #[cfg(feature = "vello-cpu")]
+            assert_eq!(scene_to_vello_cpu(&scene).map(|_| ()), Err(error));
+            assert_eq!(
+                validate_scene_for_backend(VelloBackend::Hybrid, &scene),
+                Ok(())
+            );
+            assert_eq!(
+                sparse::dimensions(&scene, VelloBackend::Hybrid),
+                Ok((width as u16, 1))
+            );
+        }
+        // Classic does not use the sparse provider's four-pixel/u16 grid.
+        assert!(validate_scene_for_backend(VelloBackend::Classic, &Scene::new(65_535, 1)).is_ok());
+    }
+
+    #[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+    #[test]
+    fn sparse_viewport_largest_backend_dimensions_are_accepted() {
+        for (backend, largest_width) in
+            [(VelloBackend::Cpu, 65_408), (VelloBackend::Hybrid, 65_532)]
+        {
+            for (width, height) in [(largest_width, 1), (1, 65_532)] {
+                let scene = Scene::new(width, height);
+                assert_eq!(validate_scene_for_backend(backend, &scene), Ok(()));
+                assert_eq!(
+                    sparse::dimensions(&scene, backend),
+                    Ok((width as u16, height as u16))
+                );
+                #[cfg(feature = "vello-cpu")]
+                if backend == VelloBackend::Cpu {
+                    // A thin viewport exercises real CPU output at both
+                    // backend boundaries without a large raster allocation.
+                    assert!(scene_to_vello_cpu(&scene).is_ok());
+                    let pixels = CpuSession::new(SparseResourceLimits::default())
+                        .render(&scene)
+                        .unwrap();
+                    assert_eq!(
+                        pixels.data_as_u8_slice().len(),
+                        (width * height * 4) as usize
+                    );
+                }
+                #[cfg(feature = "vello-hybrid")]
+                if backend == VelloBackend::Hybrid {
+                    assert!(scene_to_vello_hybrid(&scene).is_ok());
+                }
+            }
+        }
+    }
+
+    #[cfg(feature = "vello-cpu")]
+    #[test]
     fn cpu_lowerer_rasterizes_a_netrender_scene() {
         let mut scene = Scene::new(8, 6);
         scene.push_rect(2.0, 1.0, 6.0, 5.0, [1.0, 0.0, 1.0, 1.0]);
@@ -1026,6 +1222,7 @@ mod tests {
                 &view,
                 Some(&depth),
                 &vello_hybrid::TextureBindings::new(),
+                vello_hybrid::TargetInit::Clear(vello_hybrid::ClearSettings::default()),
             )
             .unwrap();
 
@@ -1057,18 +1254,21 @@ mod tests {
                 depth_or_array_layers: 1,
             },
         );
-        handles.queue.submit([encoder.finish()]);
+        let submission = handles.queue.submit([encoder.finish()]);
 
         let slice = buffer.slice(..);
         let (sender, receiver) = std::sync::mpsc::channel();
         slice.map_async(wgpu::MapMode::Read, move |result| {
-            sender.send(result).unwrap();
+            let _ = sender.send(result);
         });
         handles
             .device
-            .poll(wgpu::PollType::wait_indefinitely())
+            .poll(wgpu::PollType::Wait {
+                submission_index: Some(submission),
+                timeout: Some(std::time::Duration::from_secs(5)),
+            })
             .unwrap();
-        receiver.recv().unwrap().unwrap();
+        receiver.try_recv().unwrap().unwrap();
         let mapped = slice.get_mapped_range().unwrap();
         let center = 4 * bytes_per_row as usize + 4 * 4;
         assert_eq!(&mapped[center..center + 4], &[255, 0, 255, 255]);

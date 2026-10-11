@@ -1,0 +1,26 @@
+warning: this lint expectation is unfulfilled
+  --> research/examples/scenes/src/simple_text.rs:35:5
+   |
+35 |     single_use_lifetimes,
+   |     ^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: False positive: https://github.com/rust-lang/rust/issues/129255
+   = note: `#[warn(unfulfilled_lint_expectations)]` on by default
+
+warning: `scenes` (lib) generated 1 warning
+    Finished `test` profile [unoptimized] target(s) in 0.77s
+     Running tests/fine_command_guards.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/fine_command_guards-076f80f1fb0fa1d7)
+
+running 1 test
+test fine_area_rejects_malformed_commands_and_preserves_valid_forward_chains ... fine_command_guards adapter: AdapterInfo { name: "AMD Radeon Pro Vega 56", vendor: 0, device: 0, device_type: DiscreteGpu, device_pci_bus_id: "", driver: "", driver_info: "", backend: Metal, subgroup_min_size: 4, subgroup_max_size: 64, transient_saves_memory: Some(false), limit_bucket: None }
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+
+     Running tests/retained_preview_scene.rs (/Users/markik/Code/targets/netrender-cambium-cpu-20261010/debug/deps/retained_preview_scene-4558359c01f5e873)
+
+running 1 test
+test repeated_clipped_previews_preserve_pixels_across_frames_and_paint_changes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.36s
+
