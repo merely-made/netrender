@@ -262,6 +262,9 @@ pub enum SceneCompose {
     /// "Destination-in" — destination only where source is opaque.
     /// Used to mask outer-layer content by an inner mask layer.
     DestIn = 1,
+    /// Add premultiplied color and alpha coverage, clamped to one. Used for
+    /// disjoint antialiased geometry partitions before outer composition.
+    Plus = 2,
 }
 
 /// Phase 12a' scene-level blend mode. Mirrors `peniko::Mix` with a

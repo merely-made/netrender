@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/Users/markik/Code/targets/vello-producer-gates-20261011/debug/examples/resource_bundle_parity",
+    "--fixture",
+    "/Users/markik/Code/output/vello-producer-gates-20261011/final-synthetic-all",
+    "all"
+  ],
+  "cwd": "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge",
+  "deadline_seconds": 120,
+  "elapsed_seconds": 1.234,
+  "exit_code": 1,
+  "timed_out": false,
+  "log": "/Users/markik/Code/output/vello-producer-gates-20261011/checks/final-synthetic-all.log"
+}

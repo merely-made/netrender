@@ -1,0 +1,578 @@
+[
+  {
+    "case": "workshop-1280-cold",
+    "composition": {
+      "accepted": true,
+      "changed_pixels": 32034,
+      "edge_max_alpha_delta": 0,
+      "edge_max_rgba_delta": 3,
+      "edge_pixels": 183093,
+      "exact_pixels": false,
+      "interior_max_alpha_delta": 0,
+      "interior_max_rgba_delta": 1,
+      "interior_pixels": 1224907,
+      "mean_channel_delta": 0.0089921875
+    },
+    "producers": [
+      {
+        "accepted": true,
+        "changed_pixels": 2838,
+        "edge_max_alpha_delta": 1,
+        "edge_max_rgba_delta": 1,
+        "edge_pixels": 25076,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 280292,
+        "mean_channel_delta": 0.0033099407927484215
+      },
+      {
+        "accepted": true,
+        "changed_pixels": 4518,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 18985,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 79055,
+        "mean_channel_delta": 0.01662841697266422
+      }
+    ],
+    "adapter": {
+      "backend": "Metal",
+      "device_type": "DiscreteGpu",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    }
+  },
+  {
+    "case": "workshop-1280-edited",
+    "composition": {
+      "accepted": true,
+      "changed_pixels": 31588,
+      "edge_max_alpha_delta": 0,
+      "edge_max_rgba_delta": 3,
+      "edge_pixels": 181766,
+      "exact_pixels": false,
+      "interior_max_alpha_delta": 0,
+      "interior_max_rgba_delta": 1,
+      "interior_pixels": 1226234,
+      "mean_channel_delta": 0.008835404829545455
+    },
+    "producers": [
+      {
+        "accepted": true,
+        "changed_pixels": 2817,
+        "edge_max_alpha_delta": 1,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 25080,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 280288,
+        "mean_channel_delta": 0.0032886549998690103
+      },
+      {
+        "accepted": true,
+        "changed_pixels": 4518,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 18985,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 79055,
+        "mean_channel_delta": 0.01662841697266422
+      }
+    ],
+    "adapter": {
+      "backend": "Metal",
+      "device_type": "DiscreteGpu",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    }
+  },
+  {
+    "case": "workshop-1280-mode",
+    "composition": {
+      "accepted": true,
+      "changed_pixels": 31831,
+      "edge_max_alpha_delta": 0,
+      "edge_max_rgba_delta": 3,
+      "edge_pixels": 182552,
+      "exact_pixels": false,
+      "interior_max_alpha_delta": 0,
+      "interior_max_rgba_delta": 2,
+      "interior_pixels": 1225448,
+      "mean_channel_delta": 0.009350142045454545
+    },
+    "producers": [
+      {
+        "accepted": true,
+        "changed_pixels": 4782,
+        "edge_max_alpha_delta": 1,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 25096,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 1,
+        "interior_pixels": 280272,
+        "mean_channel_delta": 0.004737726284351995
+      },
+      {
+        "accepted": true,
+        "changed_pixels": 4531,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 18985,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 79055,
+        "mean_channel_delta": 0.015427376580987352
+      }
+    ],
+    "adapter": {
+      "backend": "Metal",
+      "device_type": "DiscreteGpu",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    }
+  },
+  {
+    "case": "workshop-1280-rebound",
+    "composition": {
+      "accepted": true,
+      "changed_pixels": 26011,
+      "edge_max_alpha_delta": 0,
+      "edge_max_rgba_delta": 3,
+      "edge_pixels": 157268,
+      "exact_pixels": false,
+      "interior_max_alpha_delta": 0,
+      "interior_max_rgba_delta": 1,
+      "interior_pixels": 1167532,
+      "mean_channel_delta": 0.007760416666666666
+    },
+    "producers": [
+      {
+        "accepted": true,
+        "changed_pixels": 2771,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 1,
+        "edge_pixels": 26496,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 311672,
+        "mean_channel_delta": 0.0028972285964372737
+      },
+      {
+        "accepted": true,
+        "changed_pixels": 4698,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 20136,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 88654,
+        "mean_channel_delta": 0.015403529736188987
+      }
+    ],
+    "adapter": {
+      "backend": "Metal",
+      "device_type": "DiscreteGpu",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    }
+  },
+  {
+    "case": "workshop-1280-repeat",
+    "composition": {
+      "accepted": true,
+      "changed_pixels": 32034,
+      "edge_max_alpha_delta": 0,
+      "edge_max_rgba_delta": 3,
+      "edge_pixels": 183093,
+      "exact_pixels": false,
+      "interior_max_alpha_delta": 0,
+      "interior_max_rgba_delta": 1,
+      "interior_pixels": 1224907,
+      "mean_channel_delta": 0.0089921875
+    },
+    "producers": [
+      {
+        "accepted": true,
+        "changed_pixels": 2838,
+        "edge_max_alpha_delta": 1,
+        "edge_max_rgba_delta": 1,
+        "edge_pixels": 25076,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 280292,
+        "mean_channel_delta": 0.0033099407927484215
+      },
+      {
+        "accepted": true,
+        "changed_pixels": 4518,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 18985,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 79055,
+        "mean_channel_delta": 0.01662841697266422
+      }
+    ],
+    "adapter": {
+      "backend": "Metal",
+      "device_type": "DiscreteGpu",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    }
+  },
+  {
+    "case": "workshop-1280-resized",
+    "composition": {
+      "accepted": true,
+      "changed_pixels": 29864,
+      "edge_max_alpha_delta": 0,
+      "edge_max_rgba_delta": 3,
+      "edge_pixels": 158884,
+      "exact_pixels": false,
+      "interior_max_alpha_delta": 0,
+      "interior_max_rgba_delta": 2,
+      "interior_pixels": 1165916,
+      "mean_channel_delta": 0.009365753321256038
+    },
+    "producers": [
+      {
+        "accepted": true,
+        "changed_pixels": 4782,
+        "edge_max_alpha_delta": 1,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 26496,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 1,
+        "interior_pixels": 311672,
+        "mean_channel_delta": 0.004278199001679638
+      },
+      {
+        "accepted": true,
+        "changed_pixels": 4704,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 20136,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 88654,
+        "mean_channel_delta": 0.014217758985200845
+      }
+    ],
+    "adapter": {
+      "backend": "Metal",
+      "device_type": "DiscreteGpu",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    }
+  },
+  {
+    "case": "workshop-420-cold",
+    "composition": {
+      "accepted": true,
+      "changed_pixels": 13191,
+      "edge_max_alpha_delta": 0,
+      "edge_max_rgba_delta": 2,
+      "edge_pixels": 77793,
+      "exact_pixels": false,
+      "interior_max_alpha_delta": 0,
+      "interior_max_rgba_delta": 1,
+      "interior_pixels": 384207,
+      "mean_channel_delta": 0.010709415584415585
+    },
+    "producers": [
+      {
+        "accepted": true,
+        "changed_pixels": 2838,
+        "edge_max_alpha_delta": 1,
+        "edge_max_rgba_delta": 1,
+        "edge_pixels": 17334,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 106650,
+        "mean_channel_delta": 0.00815226158213963
+      },
+      {
+        "accepted": true,
+        "changed_pixels": 4182,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 17411,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 63859,
+        "mean_channel_delta": 0.018444690537713793
+      }
+    ],
+    "adapter": {
+      "backend": "Metal",
+      "device_type": "DiscreteGpu",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    }
+  },
+  {
+    "case": "workshop-420-edited",
+    "composition": {
+      "accepted": true,
+      "changed_pixels": 12735,
+      "edge_max_alpha_delta": 0,
+      "edge_max_rgba_delta": 2,
+      "edge_pixels": 76456,
+      "exact_pixels": false,
+      "interior_max_alpha_delta": 0,
+      "interior_max_rgba_delta": 1,
+      "interior_pixels": 385544,
+      "mean_channel_delta": 0.010268939393939394
+    },
+    "producers": [
+      {
+        "accepted": true,
+        "changed_pixels": 2817,
+        "edge_max_alpha_delta": 1,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 17338,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 106646,
+        "mean_channel_delta": 0.00809983546264034
+      },
+      {
+        "accepted": true,
+        "changed_pixels": 4182,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 17411,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 63859,
+        "mean_channel_delta": 0.018444690537713793
+      }
+    ],
+    "adapter": {
+      "backend": "Metal",
+      "device_type": "DiscreteGpu",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    }
+  },
+  {
+    "case": "workshop-420-mode",
+    "composition": {
+      "accepted": true,
+      "changed_pixels": 12698,
+      "edge_max_alpha_delta": 0,
+      "edge_max_rgba_delta": 2,
+      "edge_pixels": 76306,
+      "exact_pixels": false,
+      "interior_max_alpha_delta": 0,
+      "interior_max_rgba_delta": 1,
+      "interior_pixels": 385694,
+      "mean_channel_delta": 0.01025
+    },
+    "producers": [
+      {
+        "accepted": true,
+        "changed_pixels": 4782,
+        "edge_max_alpha_delta": 1,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 17354,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 1,
+        "interior_pixels": 106630,
+        "mean_channel_delta": 0.011668844367015098
+      },
+      {
+        "accepted": true,
+        "changed_pixels": 4150,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 17411,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 63859,
+        "mean_channel_delta": 0.01685123661867848
+      }
+    ],
+    "adapter": {
+      "backend": "Metal",
+      "device_type": "DiscreteGpu",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    }
+  },
+  {
+    "case": "workshop-420-rebound",
+    "composition": {
+      "accepted": true,
+      "changed_pixels": 10610,
+      "edge_max_alpha_delta": 0,
+      "edge_max_rgba_delta": 2,
+      "edge_pixels": 77170,
+      "exact_pixels": false,
+      "interior_max_alpha_delta": 0,
+      "interior_max_rgba_delta": 0,
+      "interior_pixels": 422030,
+      "mean_channel_delta": 0.007873096955128205
+    },
+    "producers": [
+      {
+        "accepted": true,
+        "changed_pixels": 2771,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 1,
+        "edge_pixels": 18754,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 138030,
+        "mean_channel_delta": 0.0062490432697214
+      },
+      {
+        "accepted": true,
+        "changed_pixels": 4485,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 19002,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 83768,
+        "mean_channel_delta": 0.015617398073367714
+      }
+    ],
+    "adapter": {
+      "backend": "Metal",
+      "device_type": "DiscreteGpu",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    }
+  },
+  {
+    "case": "workshop-420-repeat",
+    "composition": {
+      "accepted": true,
+      "changed_pixels": 13191,
+      "edge_max_alpha_delta": 0,
+      "edge_max_rgba_delta": 2,
+      "edge_pixels": 77793,
+      "exact_pixels": false,
+      "interior_max_alpha_delta": 0,
+      "interior_max_rgba_delta": 1,
+      "interior_pixels": 384207,
+      "mean_channel_delta": 0.010709415584415585
+    },
+    "producers": [
+      {
+        "accepted": true,
+        "changed_pixels": 2838,
+        "edge_max_alpha_delta": 1,
+        "edge_max_rgba_delta": 1,
+        "edge_pixels": 17334,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 106650,
+        "mean_channel_delta": 0.00815226158213963
+      },
+      {
+        "accepted": true,
+        "changed_pixels": 4182,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 17411,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 63859,
+        "mean_channel_delta": 0.018444690537713793
+      }
+    ],
+    "adapter": {
+      "backend": "Metal",
+      "device_type": "DiscreteGpu",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    }
+  },
+  {
+    "case": "workshop-420-resized",
+    "composition": {
+      "accepted": true,
+      "changed_pixels": 11352,
+      "edge_max_alpha_delta": 0,
+      "edge_max_rgba_delta": 2,
+      "edge_pixels": 78097,
+      "exact_pixels": false,
+      "interior_max_alpha_delta": 0,
+      "interior_max_rgba_delta": 1,
+      "interior_pixels": 421103,
+      "mean_channel_delta": 0.00846905048076923
+    },
+    "producers": [
+      {
+        "accepted": true,
+        "changed_pixels": 4782,
+        "edge_max_alpha_delta": 1,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 18754,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 1,
+        "interior_pixels": 138030,
+        "mean_channel_delta": 0.009227663537095622
+      },
+      {
+        "accepted": true,
+        "changed_pixels": 4513,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 2,
+        "edge_pixels": 19002,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 83768,
+        "mean_channel_delta": 0.014556777269631215
+      }
+    ],
+    "adapter": {
+      "backend": "Metal",
+      "device_type": "DiscreteGpu",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    }
+  }
+]

@@ -1,0 +1,432 @@
+{
+  "bundle_sha256": "3a499e667f07707112f82b9bfd49b2f0447a7646b5056ba7b12d9ebdc27adff0",
+  "capture_digest": [
+    39,
+    209,
+    202,
+    87,
+    206,
+    109,
+    61,
+    16,
+    97,
+    245,
+    90,
+    131,
+    71,
+    195,
+    255,
+    247,
+    139,
+    168,
+    7,
+    31,
+    21,
+    245,
+    228,
+    59,
+    184,
+    164,
+    180,
+    155,
+    122,
+    48,
+    254,
+    197
+  ],
+  "comparison_space": "premultiplied encoded-sRGB RGBA8 including alpha; no background matte",
+  "exact_identity_admitted": true,
+  "fixture": false,
+  "identity_scope": "intact envelope, callback scene provenance, full translated scene and external/shadow side channels",
+  "passed": true,
+  "pixel_thresholds": {
+    "edge_max_alpha": 16,
+    "edge_max_rgba": 32,
+    "edge_reference_neighbor_variation": 8,
+    "interior_max_alpha": 2,
+    "interior_max_rgba": 3,
+    "mean_channel_delta": 1.0
+  },
+  "producer_source_parity": [
+    {
+      "binding": {
+        "Producer": {
+          "content_generation": 9,
+          "layout_scale": 1.0,
+          "logical_size": [
+            1031.0,
+            328.0
+          ],
+          "physical_size": [
+            1031,
+            328
+          ],
+          "source_identity": 4,
+          "source_revision": 2,
+          "source_scene_digest": [
+            37,
+            185,
+            149,
+            142,
+            62,
+            227,
+            195,
+            151,
+            244,
+            171,
+            116,
+            133,
+            216,
+            81,
+            3,
+            101,
+            120,
+            144,
+            183,
+            131,
+            222,
+            87,
+            255,
+            150,
+            71,
+            44,
+            4,
+            29,
+            98,
+            245,
+            155,
+            113
+          ]
+        }
+      },
+      "renders": {
+        "cpu": {
+          "gpu_completion_wait_ms": null,
+          "gpu_initialized": false,
+          "initialize_ms": 0.009485,
+          "readback_ms": null,
+          "render_encode_submit_ms": 58.290164,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 3, font_bytes: 5892584, cached_glyphs: 59, cached_outline_segments: 1320, prepared_glyphs: 59, cache_resets: 0, cache_frames: 1 }"
+          }
+        },
+        "gpu": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 2.8713279999999997,
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 2771,
+            "edge_max_alpha_delta": 0,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 26496,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 311672,
+            "mean_channel_delta": 0.0028972285964372737
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 128.184313,
+          "raw_pixels_sha256": "2c8c49f2ff9915243185347474ba4069ea26f3a427625ef94e12785ae51a6629",
+          "render_encode_submit_ms": 25.702084,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 3, font_bytes: 5892584, cached_glyphs: 59, cached_outline_segments: 1320, prepared_glyphs: 59, cache_resets: 0, cache_frames: 1 }"
+          }
+        }
+      },
+      "texture_key": 1952539235
+    },
+    {
+      "binding": {
+        "Producer": {
+          "content_generation": 10,
+          "layout_scale": 1.0,
+          "logical_size": [
+            506.0,
+            215.0
+          ],
+          "physical_size": [
+            506,
+            215
+          ],
+          "source_identity": 3,
+          "source_revision": 2,
+          "source_scene_digest": [
+            211,
+            54,
+            226,
+            63,
+            82,
+            11,
+            6,
+            186,
+            234,
+            198,
+            63,
+            237,
+            149,
+            108,
+            216,
+            45,
+            0,
+            196,
+            147,
+            87,
+            55,
+            46,
+            74,
+            68,
+            150,
+            94,
+            125,
+            130,
+            144,
+            200,
+            154,
+            188
+          ]
+        }
+      },
+      "renders": {
+        "cpu": {
+          "gpu_completion_wait_ms": null,
+          "gpu_initialized": false,
+          "initialize_ms": 0.009145,
+          "readback_ms": null,
+          "render_encode_submit_ms": 55.983016,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 2, font_bytes: 1838208, cached_glyphs: 47, cached_outline_segments: 1459, prepared_glyphs: 47, cache_resets: 0, cache_frames: 1 }"
+          }
+        },
+        "gpu": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 1.248259,
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 4698,
+            "edge_max_alpha_delta": 0,
+            "edge_max_rgba_delta": 2,
+            "edge_pixels": 20136,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 88654,
+            "mean_channel_delta": 0.015403529736188987
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 105.076452,
+          "raw_pixels_sha256": "03686766edb49e43799f4711ad16e9d1d1160ceba0f64ada5ef71e47c97e8270",
+          "render_encode_submit_ms": 43.282664999999994,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 2, font_bytes: 1838208, cached_glyphs: 47, cached_outline_segments: 1459, prepared_glyphs: 47, cache_resets: 0, cache_frames: 1 }"
+          }
+        }
+      },
+      "texture_key": 1952539250
+    }
+  ],
+  "renders": {
+    "cpu": {
+      "comparison": {
+        "accepted": true,
+        "changed_pixels": 0,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 0,
+        "edge_pixels": 157268,
+        "exact_pixels": true,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1167532,
+        "mean_channel_delta": 0.0
+      },
+      "gpu_completion_wait_ms": null,
+      "gpu_initialized": false,
+      "initialize_ms": 0.009654,
+      "pixels_sha256": "8c1d579814a74af1d3ec8610f2193d6246f89321b47f6931860b2ba35ca2c66d",
+      "readback_ms": null,
+      "render_encode_submit_ms": 845.157088,
+      "session_stats": {
+        "resources": "SparseResourceStats { source_count: 2, source_bytes: 1787832, cached_images: 2, cached_bytes: 1787832, gpu_texture_bytes: 0, hydrated_images: 2, uploaded_images: 0 }",
+        "text": "SparseTextStats { font_count: 3, font_bytes: 5892584, cached_glyphs: 137, cached_outline_segments: 3274, prepared_glyphs: 137, cache_resets: 0, cache_frames: 1 }"
+      }
+    },
+    "gpu": {
+      "adapter": {
+        "backend": "Metal",
+        "device_type": "DiscreteGpu",
+        "driver": "",
+        "driver_info": "",
+        "name": "AMD Radeon Pro Vega 56"
+      },
+      "bounded_submit_readback_ms": 8.344046,
+      "comparison": {
+        "accepted": true,
+        "changed_pixels": 26011,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 3,
+        "edge_pixels": 157268,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 1,
+        "interior_pixels": 1167532,
+        "mean_channel_delta": 0.007760416666666666
+      },
+      "deadline_seconds": 5,
+      "gpu_initialized": true,
+      "initialize_ms": 103.274307,
+      "premultiplied_pixels_sha256": "3341f25ad2e6258904a064298c23f5641780b81beee1a1f339a8af87484815ba",
+      "raw_pixels_sha256": "3341f25ad2e6258904a064298c23f5641780b81beee1a1f339a8af87484815ba",
+      "render_encode_submit_ms": 291.794785,
+      "session_stats": {
+        "resources": "SparseResourceStats { source_count: 2, source_bytes: 1787832, cached_images: 2, cached_bytes: 1787832, gpu_texture_bytes: 1787832, hydrated_images: 2, uploaded_images: 2 }",
+        "text": "SparseTextStats { font_count: 3, font_bytes: 5892584, cached_glyphs: 137, cached_outline_segments: 3274, prepared_glyphs: 137, cache_resets: 0, cache_frames: 1 }"
+      }
+    }
+  },
+  "resource_count": 2,
+  "resources": [
+    {
+      "alpha": "Straight",
+      "binding": {
+        "Producer": {
+          "content_generation": 9,
+          "layout_scale": 1.0,
+          "logical_size": [
+            1031.0,
+            328.0
+          ],
+          "physical_size": [
+            1031,
+            328
+          ],
+          "source_identity": 4,
+          "source_revision": 2,
+          "source_scene_digest": [
+            37,
+            185,
+            149,
+            142,
+            62,
+            227,
+            195,
+            151,
+            244,
+            171,
+            116,
+            133,
+            216,
+            81,
+            3,
+            101,
+            120,
+            144,
+            183,
+            131,
+            222,
+            87,
+            255,
+            150,
+            71,
+            44,
+            4,
+            29,
+            98,
+            245,
+            155,
+            113
+          ]
+        }
+      },
+      "encoding": "Srgb",
+      "height": 328,
+      "provider": "bound-source-scene-cpu-raster",
+      "resource": {
+        "ExternalTexture": 1952539235
+      },
+      "rgba_sha256": "e971e06d3739ea1627bcfd1307ec4c4e37230e14afc2f27346f067d88f26615e",
+      "width": 1031
+    },
+    {
+      "alpha": "Straight",
+      "binding": {
+        "Producer": {
+          "content_generation": 10,
+          "layout_scale": 1.0,
+          "logical_size": [
+            506.0,
+            215.0
+          ],
+          "physical_size": [
+            506,
+            215
+          ],
+          "source_identity": 3,
+          "source_revision": 2,
+          "source_scene_digest": [
+            211,
+            54,
+            226,
+            63,
+            82,
+            11,
+            6,
+            186,
+            234,
+            198,
+            63,
+            237,
+            149,
+            108,
+            216,
+            45,
+            0,
+            196,
+            147,
+            87,
+            55,
+            46,
+            74,
+            68,
+            150,
+            94,
+            125,
+            130,
+            144,
+            200,
+            154,
+            188
+          ]
+        }
+      },
+      "encoding": "Srgb",
+      "height": 215,
+      "provider": "bound-source-scene-cpu-raster",
+      "resource": {
+        "ExternalTexture": 1952539250
+      },
+      "rgba_sha256": "6fa6007330e2424128c39b4e44ecbf2de8989a3be620952c980af1a3c2ea78c3",
+      "width": 506
+    }
+  ],
+  "schema_version": 1,
+  "scope": "finite offscreen renderer/resource replay; host presentation, input, accessibility, and reset recovery are separate gates",
+  "selector": "gpu"
+}

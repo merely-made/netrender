@@ -398,6 +398,279 @@ pub(crate) fn emit_nine_patch(
     }
 }
 
+/// CSS radius normalization uses one common factor for all corner axes.
+fn normalized_radii(mut radii: [[f32; 2]; 4], width: f32, height: f32) -> [[f32; 2]; 4] {
+    let mut factor = 1.0f64;
+    for (extent, sum) in [
+        (width, f64::from(radii[0][0]) + f64::from(radii[1][0])),
+        (width, f64::from(radii[3][0]) + f64::from(radii[2][0])),
+        (height, f64::from(radii[0][1]) + f64::from(radii[3][1])),
+        (height, f64::from(radii[1][1]) + f64::from(radii[2][1])),
+    ] {
+        if sum > 0.0 {
+            factor = factor.min(f64::from(extent.max(0.0)) / sum);
+        }
+    }
+    for corner in &mut radii {
+        for axis in corner {
+            *axis = (f64::from(axis.max(0.0)) * factor) as f32;
+        }
+    }
+    radii
+}
+/// One cubic per quarter ellipse, the same geometric approximation used by
+/// normal renderer rounded paths. Opposite winding makes the inner hole.
+fn rounded_contour(
+    path: &mut netrender::ScenePath,
+    b: [f32; 4],
+    r: [[f32; 2]; 4],
+    clockwise: bool,
+) {
+    let [x0, y0, x1, y1] = b;
+    let [[tlx, tly], [trx, try_], [brx, bry], [blx, bly]] = r;
+    let k = 0.552_284_8;
+    path.move_to(x0 + tlx, y0);
+    if clockwise {
+        path.line_to(x1 - trx, y0)
+            .cubic_to(
+                x1 - trx + k * trx,
+                y0,
+                x1,
+                y0 + try_ - k * try_,
+                x1,
+                y0 + try_,
+            )
+            .line_to(x1, y1 - bry)
+            .cubic_to(x1, y1 - bry + k * bry, x1 - brx + k * brx, y1, x1 - brx, y1)
+            .line_to(x0 + blx, y1)
+            .cubic_to(x0 + blx - k * blx, y1, x0, y1 - bly + k * bly, x0, y1 - bly)
+            .line_to(x0, y0 + tly)
+            .cubic_to(x0, y0 + tly - k * tly, x0 + tlx - k * tlx, y0, x0 + tlx, y0);
+    } else {
+        path.cubic_to(x0 + tlx - k * tlx, y0, x0, y0 + tly - k * tly, x0, y0 + tly)
+            .line_to(x0, y1 - bly)
+            .cubic_to(x0, y1 - bly + k * bly, x0 + blx - k * blx, y1, x0 + blx, y1)
+            .line_to(x1 - brx, y1)
+            .cubic_to(x1 - brx + k * brx, y1, x1, y1 - bry + k * bry, x1, y1 - bry)
+            .line_to(x1, y0 + try_)
+            .cubic_to(
+                x1,
+                y0 + try_ - k * try_,
+                x1 - trx + k * trx,
+                y0,
+                x1 - trx,
+                y0,
+            )
+            .line_to(x0 + tlx, y0);
+    }
+    path.close();
+}
+/// Extend a corner seam through the rectangular inner corner to its first
+/// intersection with the rounded inner hole. Stopping at the inner bounding
+/// box would leave the corner crescent unpainted. The four returned points
+/// belong to the convex hole; their connecting quadrilateral is also inside
+/// it, so the side polygons cover the complete ring without overlap.
+fn inner_seam(outer: [f32; 2], inner: [f32; 2], center: [f32; 2], radius: [f32; 2]) -> [f32; 2] {
+    if radius[0] <= 0.0 || radius[1] <= 0.0 {
+        return inner;
+    }
+    let direction = [
+        f64::from(inner[0] - outer[0]),
+        f64::from(inner[1] - outer[1]),
+    ];
+    let offset = [
+        f64::from(outer[0] - center[0]),
+        f64::from(outer[1] - center[1]),
+    ];
+    let radii = radius.map(f64::from);
+    let a = (direction[0] / radii[0]).powi(2) + (direction[1] / radii[1]).powi(2);
+    if a == 0.0 {
+        return inner;
+    }
+    let b = 2.0
+        * (offset[0] * direction[0] / radii[0].powi(2)
+            + offset[1] * direction[1] / radii[1].powi(2));
+    let c = (offset[0] / radii[0]).powi(2) + (offset[1] / radii[1]).powi(2) - 1.0;
+    let t = ((-b - (b * b - 4.0 * a * c).max(0.0).sqrt()) / (2.0 * a)).max(1.0);
+    [
+        (f64::from(outer[0]) + direction[0] * t) as f32,
+        (f64::from(outer[1]) + direction[1] * t) as f32,
+    ]
+}
+
+/// Joined solid side polygons share diagonal seams. The rounded ring clips
+/// their union, so side colors never paint overlapping square rectangles or
+/// leak into the transparent inner hole. Corner ellipses retain both axes.
+fn emit_joined_solid_border(
+    scene: &mut Scene,
+    border: &ple::BorderItem,
+    sides: &ple::NormalBorder,
+    tid: u32,
+) {
+    let [x0, y0, x1, y1] = {
+        let (a, b, c, d) = rect_corners(&border.placement.bounds);
+        [a, b, c, d]
+    };
+    let width = x1 - x0;
+    let height = y1 - y0;
+    if width <= 0.0 || height <= 0.0 {
+        return;
+    }
+    let effective = |width: f32, side: ple::BorderSide| {
+        if side.style == ple::BorderStyle::Solid {
+            width.max(0.0)
+        } else {
+            0.0
+        }
+    };
+    let top = effective(border.widths.top, sides.top);
+    let right = effective(border.widths.right, sides.right);
+    let bottom = effective(border.widths.bottom, sides.bottom);
+    let left = effective(border.widths.left, sides.left);
+    if [top, right, bottom, left].iter().all(|w| *w == 0.0) {
+        return;
+    }
+    let [mut ix0, mut iy0, mut ix1, mut iy1] = [x0 + left, y0 + top, x1 - right, y1 - bottom];
+    if ix0 > ix1 {
+        ix0 = (f64::from(x0)
+            + f64::from(width) * f64::from(left) / (f64::from(left) + f64::from(right)))
+            as f32;
+        ix1 = ix0;
+    }
+    if iy0 > iy1 {
+        iy0 = (f64::from(y0)
+            + f64::from(height) * f64::from(top) / (f64::from(top) + f64::from(bottom)))
+            as f32;
+        iy1 = iy0;
+    }
+    let radius = sides.radius;
+    let outer = normalized_radii(
+        [
+            radius.top_left,
+            radius.top_right,
+            radius.bottom_right,
+            radius.bottom_left,
+        ]
+        .map(|r| [r.width, r.height]),
+        width,
+        height,
+    );
+    let inner = normalized_radii(
+        [
+            [(outer[0][0] - left).max(0.0), (outer[0][1] - top).max(0.0)],
+            [(outer[1][0] - right).max(0.0), (outer[1][1] - top).max(0.0)],
+            [
+                (outer[2][0] - right).max(0.0),
+                (outer[2][1] - bottom).max(0.0),
+            ],
+            [
+                (outer[3][0] - left).max(0.0),
+                (outer[3][1] - bottom).max(0.0),
+            ],
+        ],
+        ix1 - ix0,
+        iy1 - iy0,
+    );
+    let mut seam = [[ix0, iy0], [ix1, iy0], [ix1, iy1], [ix0, iy1]];
+    if ix1 > ix0 && iy1 > iy0 {
+        for (i, (outer_corner, center)) in [
+            ([x0, y0], [ix0 + inner[0][0], iy0 + inner[0][1]]),
+            ([x1, y0], [ix1 - inner[1][0], iy0 + inner[1][1]]),
+            ([x1, y1], [ix1 - inner[2][0], iy1 - inner[2][1]]),
+            ([x0, y1], [ix0 + inner[3][0], iy1 - inner[3][1]]),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            seam[i] = inner_seam(outer_corner, seam[i], center, inner[i]);
+        }
+    }
+    let mut ring = netrender::ScenePath::new();
+    rounded_contour(&mut ring, [x0, y0, x1, y1], outer, true);
+    if ix1 > ix0 && iy1 > iy0 {
+        rounded_contour(&mut ring, [ix0, iy0, ix1, iy1], inner, false);
+    }
+    let active_colors: Vec<_> = [
+        (top, sides.top.color),
+        (right, sides.right.color),
+        (bottom, sides.bottom.color),
+        (left, sides.left.color),
+    ]
+    .into_iter()
+    .filter_map(|(w, c)| if w > 0.0 { Some(c) } else { None })
+    .collect();
+    if active_colors.iter().all(|c| *c == active_colors[0]) {
+        scene.push_shape(netrender::SceneShape {
+            path: ring,
+            fill_color: Some(color_to_array(&active_colors[0])),
+            stroke: None,
+            transform_id: tid,
+            clip_rect: NO_CLIP,
+            clip_corner_radii: SHARP_CLIP,
+        });
+        return;
+    }
+    scene.push_layer(SceneLayer {
+        clip: SceneClip::Path(ring),
+        alpha: 1.0,
+        blend_mode: SceneBlendMode::Normal,
+        compose: netrender::SceneCompose::SrcOver,
+        transform_id: tid,
+        backdrop_filter: None,
+        filters: Vec::new(),
+    });
+    for (w, color, points) in [
+        (top, sides.top.color, [[x0, y0], [x1, y0], seam[1], seam[0]]),
+        (
+            right,
+            sides.right.color,
+            [[x1, y0], [x1, y1], seam[2], seam[1]],
+        ),
+        (
+            bottom,
+            sides.bottom.color,
+            [[x1, y1], [x0, y1], seam[3], seam[2]],
+        ),
+        (
+            left,
+            sides.left.color,
+            [[x0, y1], [x0, y0], seam[0], seam[3]],
+        ),
+    ] {
+        if w == 0.0 {
+            continue;
+        }
+        let mut path = netrender::ScenePath::new();
+        path.move_to(points[0][0], points[0][1]);
+        for p in &points[1..] {
+            path.line_to(p[0], p[1]);
+        }
+        path.close();
+        // Adjacent antialiased coverage is a partition, so add its premultiplied
+        // RGBA instead of attenuating earlier coverage with SrcOver. The outer
+        // ring layer subsequently composes this isolated result over its parent.
+        scene.push_layer(SceneLayer {
+            clip: SceneClip::None,
+            alpha: 1.0,
+            blend_mode: SceneBlendMode::Normal,
+            compose: netrender::SceneCompose::Plus,
+            transform_id: 0,
+            backdrop_filter: None,
+            filters: Vec::new(),
+        });
+        scene.push_shape(netrender::SceneShape {
+            path,
+            fill_color: Some(color_to_array(&color)),
+            stroke: None,
+            transform_id: tid,
+            clip_rect: NO_CLIP,
+            clip_corner_radii: SHARP_CLIP,
+        });
+        scene.pop_layer();
+    }
+    scene.pop_layer();
+}
+
 pub(crate) fn emit_border_first_cut(scene: &mut Scene, border: &ple::BorderItem, tid: u32) {
     use ple::BorderStyle as BS;
     let rect = &border.placement.bounds;
@@ -409,6 +682,19 @@ pub(crate) fn emit_border_first_cut(scene: &mut Scene, border: &ple::BorderItem,
             return;
         }
     };
+
+    if [
+        (widths.top, sides.top),
+        (widths.right, sides.right),
+        (widths.bottom, sides.bottom),
+        (widths.left, sides.left),
+    ]
+    .iter()
+    .all(|(width, side)| *width <= 0.0 || matches!(side.style, BS::Solid | BS::None | BS::Hidden))
+    {
+        emit_joined_solid_border(scene, border, sides, tid);
+        return;
+    }
 
     // Uniform border (all four sides identical width / style / color) is the
     // common case and the only one a single stroked path can render — strokes

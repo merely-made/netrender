@@ -10,11 +10,17 @@ edition = "2021"
 [features]
 replay-cpu = ["netrender/vello-cpu"]
 replay-hybrid = ["netrender/vello-hybrid"]
+resource-bundle = ["netrender/serde", "dep:serde", "dep:serde_json", "dep:postcard", "dep:sha2", "dep:skrifa"]
 
 [dependencies]
 log.workspace = true
 netrender = { version = "0.1.2", path = "../netrender" }
 paint_list_api = { version = "0.1.2", path = "../paint_list_api" }
+serde = { workspace = true, optional = true }
+serde_json = { version = "1", optional = true }
+postcard = { version = "1", features = ["alloc"], optional = true }
+sha2 = { version = "0.11", optional = true }
+skrifa = { workspace = true, optional = true }
 
 [dev-dependencies]
 serde.workspace = true
@@ -27,3 +33,7 @@ png = "0.17"
 serde_json = "1"
 sha2 = "0.11"
 skrifa.workspace = true
+
+[[example]]
+name = "resource_bundle_parity"
+required-features = ["resource-bundle"]

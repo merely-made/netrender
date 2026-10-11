@@ -1,0 +1,20 @@
+{
+  "command": [
+    "cargo",
+    "build",
+    "-p",
+    "paint_list_render",
+    "--example",
+    "resource_bundle_parity",
+    "--features",
+    "resource-bundle,replay-cpu,replay-hybrid",
+    "-j",
+    "2"
+  ],
+  "cwd": "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge",
+  "deadline_seconds": 600,
+  "elapsed_seconds": 3.25,
+  "exit_code": 0,
+  "timed_out": false,
+  "log": "/Users/markik/Code/output/vello-producer-gates-20261011/checks/build-parity-formatted.log"
+}

@@ -1,0 +1,49 @@
+   Compiling paint_list_render v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_render)
+    Finished `test` profile [unoptimized] target(s) in 2.78s
+     Running unittests src/lib.rs (/Users/markik/Code/targets/vello-producer-gates-20261011/debug/deps/paint_list_render-82ecef74d8a33252)
+
+running 14 tests
+test tests::commands_only_layers_concatenate_into_one_scene ... ok
+test tests::draw_rect_emits_scene_rect ... ok
+test tests::draw_stroke_carries_cap_join_dash ... ok
+test tests::draw_stroke_emits_stroked_scene_shape ... ok
+test tests::empty_list_translates_to_empty_scene ... ok
+test tests::external_texture_keeps_the_active_transform_and_layer_scope ... ok
+test tests::external_texture_stages_an_in_order_scene_image ... ok
+test tests::merge_namespaces_colliding_font_keys ... ok
+test tests::nested_transforms_compose ... ok
+test tests::push_clip_rect_emits_clipped_layer ... ok
+test tests::push_layer_carries_filter_chain ... ok
+test tests::push_pop_layer_emits_layer_pair ... ok
+test tests::push_transform_adds_palette_entry_and_positions_child_ops ... ok
+test tests::translucent_colors_premultiply_at_lowering ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/resource_bundle.rs (/Users/markik/Code/targets/vello-producer-gates-20261011/debug/deps/resource_bundle-d1447b25ee66afe9)
+
+running 21 tests
+test a_borrowed_source_plan_checks_aggregate_budget_before_digests ... ok
+test a_standard_label_cannot_hide_a_three_dimensional_matrix ... ok
+test additive_side_coverage_keeps_uniform_ring_and_mixed_alpha_seams ... ok
+test aggregate_source_structure_and_nonempty_sentinel_refuse_before_hashing ... ok
+test alpha_conversion_preserves_transparency_without_matting ... ok
+test border_antialiasing_request_cannot_be_silently_changed ... ok
+test capture_refuses_missing_stale_duplicate_foreign_and_wrong_geometry ... ok
+test explicit_generation_and_zero_revision_survive_translation ... ok
+test finite_budget_and_missing_shadow_are_refusals ... ok
+test identity_and_side_channels_are_separate_from_pixel_acceptance ... ok
+test invisible_borders_and_gradient_tile_fallback_refuse ... ok
+test joined_rounded_border_preserves_transparent_hole_corners_and_side_alpha ... ok
+test large_finite_radius_normalization_does_not_overflow_to_square_corners ... ok
+test ledger_refuses_every_incomplete_or_mismatched_payload_before_materialization ... ok
+test nonuniform_rounded_solid_border_keeps_joined_shapes_and_ellipse_axes ... ok
+test physical_extent_matches_production_f64_multiplication ... ok
+test rounded_element_with_zero_border_widths_is_an_exact_noop ... ok
+test shadow_geometry_cannot_silently_drop_radius_or_transformed_blur ... ok
+test straight_and_premultiplied_payloads_match_with_transparent_overlap ... ok
+test supported_none_values_do_not_mask_nonfinite_floats ... ok
+test untranslated_masks_flags_blends_clip_out_and_key_range_refuse ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

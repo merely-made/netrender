@@ -50,6 +50,7 @@ fn map_layer_blend(b: SceneBlendMode, c: crate::scene::SceneCompose) -> peniko::
     let compose = match c {
         crate::scene::SceneCompose::SrcOver => peniko::Compose::SrcOver,
         crate::scene::SceneCompose::DestIn => peniko::Compose::DestIn,
+        crate::scene::SceneCompose::Plus => peniko::Compose::Plus,
     };
     peniko::BlendMode::new(mix, compose)
 }

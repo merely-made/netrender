@@ -1,0 +1,689 @@
+{
+  "schema_version": 1,
+  "scope": "Offline localization only; original raw-byte parity receipts remain authoritative. No renderer execution or threshold changes by this audit.",
+  "method": {
+    "png": "Decode existing RGBA8 PNGs; PNG samples are straight encoded sRGB. Reconstructed premultiplied RGB uses (channel*alpha+127)//255 and can differ by one from original raw bytes. Alpha is exact.",
+    "analytic": "10,000 midpoint x samples per pixel; solve monotone canonical ellipse cubic x(t)=x with 50 binary-search iterations; integrate clamp(1-y(t),0,1). Shared kappa .5522848; source f32 coordinate rounding is below 1e-6.",
+    "curve_control_points": [
+      [
+        19.0,
+        0.0
+      ],
+      [
+        21.761423999999998,
+        0.0
+      ],
+      [
+        24.0,
+        1.3431456
+      ],
+      [
+        24.0,
+        3.0
+      ]
+    ],
+    "pixel_21_0_ideal_outer_cubic_alpha": 150.6783486056263,
+    "pixel_20_0_ideal_outer_cubic_alpha": 218.49477521559868,
+    "inference": "Curve edge coverage differs across providers. Different flattening/area-AA implementations are a supported explanation; unique internal cause is not proven without provider instrumentation. Actual producer glyph-edge differences are independently present."
+  },
+  "unchanged_pixel_thresholds": {
+    "edge_max_rgba": 32,
+    "edge_max_alpha": 16,
+    "interior_max_rgba": 3,
+    "interior_max_alpha": 2,
+    "mean_channel_delta": 1.0
+  },
+  "authoritative_receipts": [
+    {
+      "path": "/Users/markik/Code/output/vello-producer-gates-20261011/synthetic-parity-final/receipt.json",
+      "sha256": "70f41cc83fa040bdc2b4a9121e88d438830a33a0bdd361685680c829abc0e252"
+    },
+    {
+      "path": "/Users/markik/Code/output/vello-producer-gates-20261011/production-wide-cold-parity/receipt.json",
+      "sha256": "1659f6a37051454657254b3cdfad970a0c721c3782452c0ba0e5039539ccda43"
+    }
+  ],
+  "pixel_localization": [
+    {
+      "directory": "synthetic-parity-final",
+      "stem": "",
+      "width": 24,
+      "height": 24,
+      "pngs": {
+        "cpu": {
+          "path": "/Users/markik/Code/output/vello-producer-gates-20261011/synthetic-parity-final/cpu.png",
+          "sha256": "e7fa1821c648973e0346f4620fe1f830783b87301343028e225ad185d780563a"
+        },
+        "classic": {
+          "path": "/Users/markik/Code/output/vello-producer-gates-20261011/synthetic-parity-final/classic.png",
+          "sha256": "ac177d8f4c2c668f483113f19baf7cbaf0686307c22591eb117e797b763aaa64"
+        },
+        "gpu": {
+          "path": "/Users/markik/Code/output/vello-producer-gates-20261011/synthetic-parity-final/gpu.png",
+          "sha256": "e3e6e778d42e0fab361b7e780cf48f246e1c0bb7ddfba0df6740c7d22a2aecd8"
+        }
+      },
+      "largest_differences": [
+        {
+          "x": 21,
+          "y": 23,
+          "premultiplied_rgba_delta_from_png": 42,
+          "cpu_png_straight_rgba": [
+            108,
+            141,
+            171,
+            139
+          ],
+          "classic_png_straight_rgba": [
+            107,
+            141,
+            170,
+            97
+          ],
+          "gpu_png_straight_rgba": [
+            106,
+            141,
+            171,
+            139
+          ]
+        },
+        {
+          "x": 21,
+          "y": 0,
+          "premultiplied_rgba_delta_from_png": 42,
+          "cpu_png_straight_rgba": [
+            108,
+            141,
+            171,
+            139
+          ],
+          "classic_png_straight_rgba": [
+            107,
+            141,
+            170,
+            97
+          ],
+          "gpu_png_straight_rgba": [
+            106,
+            141,
+            171,
+            139
+          ]
+        },
+        {
+          "x": 22,
+          "y": 21,
+          "premultiplied_rgba_delta_from_png": 32,
+          "cpu_png_straight_rgba": [
+            107,
+            141,
+            171,
+            76
+          ],
+          "classic_png_straight_rgba": [
+            106,
+            141,
+            170,
+            44
+          ],
+          "gpu_png_straight_rgba": [
+            107,
+            141,
+            171,
+            76
+          ]
+        },
+        {
+          "x": 22,
+          "y": 2,
+          "premultiplied_rgba_delta_from_png": 32,
+          "cpu_png_straight_rgba": [
+            107,
+            141,
+            171,
+            76
+          ],
+          "classic_png_straight_rgba": [
+            106,
+            141,
+            170,
+            44
+          ],
+          "gpu_png_straight_rgba": [
+            107,
+            141,
+            171,
+            76
+          ]
+        }
+      ]
+    },
+    {
+      "directory": "production-wide-cold-parity",
+      "stem": "producer-1952539235-",
+      "width": 931,
+      "height": 328,
+      "pngs": {
+        "cpu": {
+          "path": "/Users/markik/Code/output/vello-producer-gates-20261011/production-wide-cold-parity/producer-1952539235-cpu.png",
+          "sha256": "b50b36184b62efe0b44f9d9cf1befd86ad931e01978e4b0193c079a2aa97e87c"
+        },
+        "classic": {
+          "path": "/Users/markik/Code/output/vello-producer-gates-20261011/production-wide-cold-parity/producer-1952539235-classic.png",
+          "sha256": "dfd84d05941fb9e1cdb70b55de413e1f04193bc7a8023fa82fd5e79ab98326e1"
+        },
+        "gpu": {
+          "path": "/Users/markik/Code/output/vello-producer-gates-20261011/production-wide-cold-parity/producer-1952539235-gpu.png",
+          "sha256": "98adc22507b44e773871a34cbd8bdd0f10d8b29cf0262614e1691b3bf9b81720"
+        }
+      },
+      "largest_differences": [
+        {
+          "x": 250,
+          "y": 192,
+          "premultiplied_rgba_delta_from_png": 44,
+          "cpu_png_straight_rgba": [
+            114,
+            120,
+            132,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            158,
+            164,
+            176,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            114,
+            120,
+            132,
+            255
+          ]
+        },
+        {
+          "x": 304,
+          "y": 192,
+          "premultiplied_rgba_delta_from_png": 42,
+          "cpu_png_straight_rgba": [
+            177,
+            184,
+            195,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            219,
+            226,
+            237,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            177,
+            184,
+            195,
+            255
+          ]
+        },
+        {
+          "x": 118,
+          "y": 43,
+          "premultiplied_rgba_delta_from_png": 39,
+          "cpu_png_straight_rgba": [
+            86,
+            91,
+            107,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            122,
+            128,
+            146,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            85,
+            91,
+            107,
+            255
+          ]
+        },
+        {
+          "x": 126,
+          "y": 43,
+          "premultiplied_rgba_delta_from_png": 38,
+          "cpu_png_straight_rgba": [
+            123,
+            129,
+            147,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            160,
+            166,
+            185,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            123,
+            129,
+            147,
+            255
+          ]
+        },
+        {
+          "x": 91,
+          "y": 43,
+          "premultiplied_rgba_delta_from_png": 38,
+          "cpu_png_straight_rgba": [
+            130,
+            135,
+            153,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            166,
+            172,
+            191,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            130,
+            135,
+            153,
+            255
+          ]
+        },
+        {
+          "x": 149,
+          "y": 254,
+          "premultiplied_rgba_delta_from_png": 35,
+          "cpu_png_straight_rgba": [
+            165,
+            169,
+            128,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            185,
+            190,
+            163,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            165,
+            169,
+            128,
+            255
+          ]
+        },
+        {
+          "x": 45,
+          "y": 223,
+          "premultiplied_rgba_delta_from_png": 34,
+          "cpu_png_straight_rgba": [
+            201,
+            223,
+            237,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            235,
+            243,
+            253,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            202,
+            223,
+            237,
+            255
+          ]
+        },
+        {
+          "x": 44,
+          "y": 224,
+          "premultiplied_rgba_delta_from_png": 31,
+          "cpu_png_straight_rgba": [
+            53,
+            133,
+            164,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            84,
+            152,
+            180,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            52,
+            133,
+            164,
+            255
+          ]
+        },
+        {
+          "x": 72,
+          "y": 187,
+          "premultiplied_rgba_delta_from_png": 30,
+          "cpu_png_straight_rgba": [
+            156,
+            163,
+            174,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            186,
+            192,
+            203,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            157,
+            163,
+            174,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "directory": "production-wide-cold-parity",
+      "stem": "producer-1952539250-",
+      "width": 456,
+      "height": 215,
+      "pngs": {
+        "cpu": {
+          "path": "/Users/markik/Code/output/vello-producer-gates-20261011/production-wide-cold-parity/producer-1952539250-cpu.png",
+          "sha256": "5921eca7b4da34320aad7919fd6ff13bf34c085c94625daa47835befae45b7f8"
+        },
+        "classic": {
+          "path": "/Users/markik/Code/output/vello-producer-gates-20261011/production-wide-cold-parity/producer-1952539250-classic.png",
+          "sha256": "d31e07973a3acd0a6e75349c1c9cea21e275dc192e34165fcc98b314e60909ce"
+        },
+        "gpu": {
+          "path": "/Users/markik/Code/output/vello-producer-gates-20261011/production-wide-cold-parity/producer-1952539250-gpu.png",
+          "sha256": "e4debaeccdc2e356be423e105e1c0690d09164ae9037fbf313a1f38d8cb2fe45"
+        }
+      },
+      "largest_differences": [
+        {
+          "x": 319,
+          "y": 212,
+          "premultiplied_rgba_delta_from_png": 46,
+          "cpu_png_straight_rgba": [
+            175,
+            182,
+            193,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            130,
+            136,
+            148,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            176,
+            182,
+            193,
+            255
+          ]
+        },
+        {
+          "x": 153,
+          "y": 208,
+          "premultiplied_rgba_delta_from_png": 44,
+          "cpu_png_straight_rgba": [
+            89,
+            94,
+            107,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            132,
+            138,
+            150,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            88,
+            94,
+            107,
+            255
+          ]
+        },
+        {
+          "x": 113,
+          "y": 208,
+          "premultiplied_rgba_delta_from_png": 44,
+          "cpu_png_straight_rgba": [
+            84,
+            89,
+            102,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            127,
+            133,
+            145,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            83,
+            89,
+            102,
+            255
+          ]
+        },
+        {
+          "x": 80,
+          "y": 208,
+          "premultiplied_rgba_delta_from_png": 44,
+          "cpu_png_straight_rgba": [
+            57,
+            62,
+            76,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            100,
+            106,
+            118,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            57,
+            62,
+            76,
+            255
+          ]
+        },
+        {
+          "x": 173,
+          "y": 184,
+          "premultiplied_rgba_delta_from_png": 44,
+          "cpu_png_straight_rgba": [
+            77,
+            82,
+            95,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            120,
+            126,
+            138,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            77,
+            82,
+            95,
+            255
+          ]
+        },
+        {
+          "x": 65,
+          "y": 148,
+          "premultiplied_rgba_delta_from_png": 44,
+          "cpu_png_straight_rgba": [
+            79,
+            84,
+            97,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            122,
+            128,
+            140,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            78,
+            84,
+            97,
+            255
+          ]
+        },
+        {
+          "x": 304,
+          "y": 124,
+          "premultiplied_rgba_delta_from_png": 44,
+          "cpu_png_straight_rgba": [
+            118,
+            124,
+            136,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            161,
+            168,
+            179,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            118,
+            124,
+            136,
+            255
+          ]
+        },
+        {
+          "x": 216,
+          "y": 124,
+          "premultiplied_rgba_delta_from_png": 44,
+          "cpu_png_straight_rgba": [
+            113,
+            119,
+            131,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            156,
+            163,
+            174,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            113,
+            119,
+            132,
+            255
+          ]
+        },
+        {
+          "x": 156,
+          "y": 124,
+          "premultiplied_rgba_delta_from_png": 44,
+          "cpu_png_straight_rgba": [
+            107,
+            112,
+            125,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            150,
+            156,
+            168,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            107,
+            113,
+            125,
+            255
+          ]
+        },
+        {
+          "x": 96,
+          "y": 124,
+          "premultiplied_rgba_delta_from_png": 44,
+          "cpu_png_straight_rgba": [
+            148,
+            154,
+            166,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            191,
+            198,
+            209,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            148,
+            154,
+            166,
+            255
+          ]
+        },
+        {
+          "x": 295,
+          "y": 100,
+          "premultiplied_rgba_delta_from_png": 44,
+          "cpu_png_straight_rgba": [
+            45,
+            51,
+            64,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            89,
+            94,
+            107,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            45,
+            50,
+            64,
+            255
+          ]
+        },
+        {
+          "x": 351,
+          "y": 213,
+          "premultiplied_rgba_delta_from_png": 43,
+          "cpu_png_straight_rgba": [
+            131,
+            137,
+            149,
+            255
+          ],
+          "classic_png_straight_rgba": [
+            89,
+            94,
+            107,
+            255
+          ],
+          "gpu_png_straight_rgba": [
+            131,
+            137,
+            149,
+            255
+          ]
+        }
+      ]
+    }
+  ]
+}
