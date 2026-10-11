@@ -1,0 +1,23 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "-p",
+    "paint_list_render",
+    "--features",
+    "resource-bundle,replay-cpu,replay-hybrid",
+    "--lib",
+    "--test",
+    "resource_bundle",
+    "-j",
+    "2",
+    "--",
+    "--test-threads=1"
+  ],
+  "cwd": "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge",
+  "deadline_seconds": 600,
+  "elapsed_seconds": 3.675,
+  "exit_code": 0,
+  "timed_out": false,
+  "log": "/Users/markik/Code/output/vello-producer-gates-20261011/checks/final-bundle-controls.log"
+}

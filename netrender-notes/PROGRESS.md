@@ -34,6 +34,21 @@ feature selects upstream GPU; `vello-hybrid` remains a compatible feature alias.
 This source adoption does not close full producer-bundle, application input,
 accessibility, host presentation or driver-reset acceptance.
 
+## Complete producer resource gates, 2026-10-11
+
+The [complete-resource adapter](2026-10-11_complete_producer_resources.md) now
+captures actual bound producer scenes with intact envelopes, explicit provenance
+and typed resource admission before cache mutation. Twelve production Tabard
+workshop cases pass CPU/Sparse GPU comparison for full composition and both
+independently rendered producer scenes. Production native-hook input and
+accessibility controls, actual native presentation and orderly two-device
+rehydration have separate receipts in the
+[gate record](receipts/2026-10-11_producer_gates/README.md).
+Classic curved-edge and glyph-edge parity remains open at the unchanged
+thresholds. Browser qualification, OS assistive-technology interaction and
+forced driver loss remain separate acceptance gates. Classic remains the
+shipping host renderer; this work does not enable automatic renderer fallback.
+
 ## Current canonical plans
 
 The original plan audit was 2026-08-10. Later activated work is indexed

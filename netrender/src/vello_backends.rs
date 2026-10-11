@@ -904,6 +904,7 @@ mod sparse {
         let compose = match compose {
             SceneCompose::SrcOver => Compose::SrcOver,
             SceneCompose::DestIn => Compose::DestIn,
+            SceneCompose::Plus => Compose::Plus,
         };
         BlendMode::new(mix, compose)
     }

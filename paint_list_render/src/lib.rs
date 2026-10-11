@@ -42,6 +42,8 @@ use netrender::{
 };
 use paint_list_api::{self as ple, FontResource, ImageKey, ImageResource, PaintCmd, PaintList};
 
+#[cfg(feature = "resource-bundle")]
+pub mod bundle;
 mod composite;
 mod convert;
 mod emit;
@@ -63,6 +65,8 @@ pub use composite::{composite_paint_layers, CompositeLayer};
 pub struct ExternalTextureDraw {
     /// Producer-owned stable key, retained for source lookup and lifecycle.
     pub texture_key: u64,
+    /// Producer's content stamp, preserved intact for resource admission.
+    pub content_generation: Option<u64>,
     /// Renderer image namespace key used by the in-scene `SceneImage`.
     pub image_key: NrImageKey,
     pub placement: ExternalTexturePlacement,
@@ -443,6 +447,7 @@ pub fn translate_paint_cmd_stream(
                 let image_key = external_image_key(et.texture_key);
                 external_textures.push(ExternalTextureDraw {
                     texture_key: et.texture_key,
+                    content_generation: et.content_generation,
                     image_key,
                     placement: ExternalTexturePlacement::new([x0, y0, x1, y1])
                         .with_opacity(et.opacity),
