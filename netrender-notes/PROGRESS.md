@@ -415,3 +415,7 @@ code no longer in this repo):**
   kept for historical traceability.
 - `logs/` — local-only, gitignored except for its `.gitignore`. Only
   retain artifacts supporting an active note or unresolved diagnostic.
+
+## 2026-10-12 checked renderer refusal
+
+Classic shared/per-surface checked entry points now propagate original provider errors through filter preprocessing and restore shared retained tile scenes on failure. Compilation and the backdrop/element/lifecycle GPU controls passed; see [receipt](receipts/2026-10-12_checked_renderer/README.md). Genet owns device-loss classification and native GPU error scopes.
