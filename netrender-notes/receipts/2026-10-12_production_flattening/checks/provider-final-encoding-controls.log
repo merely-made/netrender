@@ -1,0 +1,15 @@
+   Compiling bytemuck v1.25.0
+   Compiling font-types v0.12.1
+   Compiling read-fonts v0.41.0
+   Compiling skrifa v0.44.0
+   Compiling vello_encoding v0.11.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/vello_encoding)
+    Finished `test` profile [unoptimized] target(s) in 12.53s
+     Running unittests src/lib.rs (/Users/markik/Code/targets/mere-s2s3/debug/deps/vello_encoding-35bcb8bbe4496213)
+
+running 3 tests
+test estimate::quality_tests::downscaled_round_subpaths_keep_minimum_generated_work ... ok
+test estimate::quality_tests::finite_huge_estimates_saturate_without_wrapping_or_allocating ... ok
+test estimate::quality_tests::round_arc_estimate_covers_semicircle_at_device_pixel_quality ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 33 filtered out; finished in 0.00s
+

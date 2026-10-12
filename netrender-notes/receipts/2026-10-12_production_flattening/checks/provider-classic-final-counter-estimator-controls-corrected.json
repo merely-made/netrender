@@ -1,0 +1,25 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "-p",
+    "netrender-vello",
+    "-p",
+    "vello_encoding",
+    "--features",
+    "netrender-vello/bump_estimate,netrender-vello/debug_layers,vello_encoding/bump_estimate",
+    "quality_",
+    "--lib",
+    "-j2",
+    "--",
+    "--test-threads=1"
+  ],
+  "cwd": "/Users/markik/Code/worktrees/vello-release-adoption",
+  "deadline_seconds": 240,
+  "elapsed_seconds": 8.948,
+  "exit_code": 0,
+  "timed_out": false,
+  "disk_refused": false,
+  "log": "/Users/markik/Code/output/vello-production-fixes-20261011/checks/provider-classic-final-counter-estimator-controls-corrected.log"
+}

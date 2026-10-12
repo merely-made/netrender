@@ -1,0 +1,2101 @@
+{
+  "all_selected_cross_renderer_pixel_acceptance": true,
+  "cases": [
+    {
+      "cpu_premultiplied_probe_21_0": [
+        63,
+        83,
+        100,
+        150
+      ],
+      "details": {
+        "clip_count": 0,
+        "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+        "fill_is_same_curve": true,
+        "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "curve-fill",
+      "renders": {
+        "classic": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 18.154429,
+          "classic_quality_after_readback": {
+            "pending_bytes": 0,
+            "pending_frames": 0
+          },
+          "classic_quality_before_readback": [
+            1,
+            32
+          ],
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 16,
+            "edge_max_alpha_delta": 1,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 134,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1466,
+            "mean_channel_delta": 0.00375
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 1007.766172,
+          "premultiplied_pixels_sha256": "22fc82db425e56aa94240256436e59059123e25d3cd0df791a6382402ed1b778",
+          "premultiplied_probe_21_0": [
+            63,
+            83,
+            100,
+            150
+          ],
+          "raw_pixels_sha256": "98a1433481822f0311f42a3af42e6ccb52338695e76f4cbc8d6331a5b43a6936",
+          "render_encode_submit_ms": 10.669662
+        },
+        "cpu": {
+          "gpu_completion_wait_ms": null,
+          "gpu_initialized": false,
+          "initialize_ms": 0.046047000000000005,
+          "raw_pixels_sha256": "9891496795c59c61589397ea22544675c88f03b80a5a142fd4d14810ab65d6fc",
+          "readback_ms": null,
+          "render_encode_submit_ms": 1.168382,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        },
+        "gpu": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 0.997117,
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 12,
+            "edge_max_alpha_delta": 0,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 134,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1466,
+            "mean_channel_delta": 0.001875
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 108.92441699999999,
+          "premultiplied_pixels_sha256": "646cdb3530959fecd46d93815aba765ddcd63d63f8cc9145d667680416cac9fb",
+          "premultiplied_probe_21_0": [
+            63,
+            83,
+            100,
+            150
+          ],
+          "raw_pixels_sha256": "646cdb3530959fecd46d93815aba765ddcd63d63f8cc9145d667680416cac9fb",
+          "render_encode_submit_ms": 2.197284,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        }
+      },
+      "scene_digest": [
+        109,
+        172,
+        201,
+        70,
+        198,
+        94,
+        18,
+        13,
+        44,
+        139,
+        99,
+        234,
+        23,
+        155,
+        5,
+        156,
+        244,
+        35,
+        209,
+        164,
+        29,
+        195,
+        77,
+        104,
+        178,
+        212,
+        144,
+        140,
+        178,
+        241,
+        252,
+        74
+      ],
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "cpu_premultiplied_probe_21_0": [
+        63,
+        83,
+        100,
+        150
+      ],
+      "details": {
+        "clip_count": 1,
+        "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+        "fill_is_same_curve": false,
+        "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "curve-clip-only",
+      "renders": {
+        "classic": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 12.967645999999998,
+          "classic_quality_after_readback": {
+            "pending_bytes": 0,
+            "pending_frames": 0
+          },
+          "classic_quality_before_readback": [
+            1,
+            32
+          ],
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 16,
+            "edge_max_alpha_delta": 1,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 134,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1466,
+            "mean_channel_delta": 0.00375
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 75.616168,
+          "premultiplied_pixels_sha256": "22fc82db425e56aa94240256436e59059123e25d3cd0df791a6382402ed1b778",
+          "premultiplied_probe_21_0": [
+            63,
+            83,
+            100,
+            150
+          ],
+          "raw_pixels_sha256": "028d6e18ecdc737e22c5b9d6a595ebc0d42d7d38dee9d6ab5551fd2e1d64a443",
+          "render_encode_submit_ms": 9.545124
+        },
+        "cpu": {
+          "gpu_completion_wait_ms": null,
+          "gpu_initialized": false,
+          "initialize_ms": 0.006605000000000001,
+          "raw_pixels_sha256": "9891496795c59c61589397ea22544675c88f03b80a5a142fd4d14810ab65d6fc",
+          "readback_ms": null,
+          "render_encode_submit_ms": 0.938082,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        },
+        "gpu": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 1.179625,
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 12,
+            "edge_max_alpha_delta": 0,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 134,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1466,
+            "mean_channel_delta": 0.001875
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 102.982035,
+          "premultiplied_pixels_sha256": "646cdb3530959fecd46d93815aba765ddcd63d63f8cc9145d667680416cac9fb",
+          "premultiplied_probe_21_0": [
+            63,
+            83,
+            100,
+            150
+          ],
+          "raw_pixels_sha256": "646cdb3530959fecd46d93815aba765ddcd63d63f8cc9145d667680416cac9fb",
+          "render_encode_submit_ms": 3.0488690000000003,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        }
+      },
+      "scene_digest": [
+        132,
+        167,
+        60,
+        52,
+        183,
+        194,
+        174,
+        109,
+        159,
+        155,
+        33,
+        92,
+        253,
+        239,
+        9,
+        9,
+        162,
+        15,
+        208,
+        58,
+        123,
+        172,
+        3,
+        230,
+        179,
+        19,
+        34,
+        232,
+        145,
+        156,
+        210,
+        25
+      ],
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "cpu_premultiplied_probe_21_0": [
+        37,
+        49,
+        59,
+        88
+      ],
+      "details": {
+        "clip_count": 1,
+        "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+        "fill_is_same_curve": true,
+        "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "curve-fill-and-coincident-clip",
+      "renders": {
+        "classic": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 12.389568,
+          "classic_quality_after_readback": {
+            "pending_bytes": 0,
+            "pending_frames": 0
+          },
+          "classic_quality_before_readback": [
+            1,
+            32
+          ],
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 28,
+            "edge_max_alpha_delta": 1,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 142,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1458,
+            "mean_channel_delta": 0.008125
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 78.135355,
+          "premultiplied_pixels_sha256": "17f152ec2fb2302b39212bf14ccec19bf4011205257ec2fe8a3929922fd4cc45",
+          "premultiplied_probe_21_0": [
+            37,
+            49,
+            59,
+            89
+          ],
+          "raw_pixels_sha256": "95014666df35e1ab6ddf9fd4771c0208dd74d9baf561319773b552be589506a1",
+          "render_encode_submit_ms": 8.848589
+        },
+        "cpu": {
+          "gpu_completion_wait_ms": null,
+          "gpu_initialized": false,
+          "initialize_ms": 0.007011,
+          "raw_pixels_sha256": "77b58eb3f3ca3620b75cf69a0530ad3ef31ca186818e96945453510d4f75e2e5",
+          "readback_ms": null,
+          "render_encode_submit_ms": 1.368979,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        },
+        "gpu": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 1.1075659999999998,
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 16,
+            "edge_max_alpha_delta": 0,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 142,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1458,
+            "mean_channel_delta": 0.004375
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 102.885075,
+          "premultiplied_pixels_sha256": "bf5887d3e985b5ce6a8449e9f82a0349547e4216c330d326c47a00e35c6c4ef1",
+          "premultiplied_probe_21_0": [
+            37,
+            49,
+            59,
+            88
+          ],
+          "raw_pixels_sha256": "bf5887d3e985b5ce6a8449e9f82a0349547e4216c330d326c47a00e35c6c4ef1",
+          "render_encode_submit_ms": 3.458905,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        }
+      },
+      "scene_digest": [
+        74,
+        150,
+        10,
+        85,
+        8,
+        92,
+        56,
+        129,
+        197,
+        15,
+        54,
+        14,
+        251,
+        184,
+        194,
+        217,
+        195,
+        1,
+        179,
+        109,
+        243,
+        215,
+        129,
+        135,
+        14,
+        251,
+        131,
+        184,
+        80,
+        194,
+        15,
+        79
+      ],
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "cpu_premultiplied_probe_21_0": [
+        37,
+        49,
+        59,
+        88
+      ],
+      "details": {
+        "clip_count": 2,
+        "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+        "fill_is_same_curve": false,
+        "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "curve-double-coincident-clip",
+      "renders": {
+        "classic": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 12.428274,
+          "classic_quality_after_readback": {
+            "pending_bytes": 0,
+            "pending_frames": 0
+          },
+          "classic_quality_before_readback": [
+            1,
+            32
+          ],
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 28,
+            "edge_max_alpha_delta": 1,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 142,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1458,
+            "mean_channel_delta": 0.008125
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 75.470399,
+          "premultiplied_pixels_sha256": "17f152ec2fb2302b39212bf14ccec19bf4011205257ec2fe8a3929922fd4cc45",
+          "premultiplied_probe_21_0": [
+            37,
+            49,
+            59,
+            89
+          ],
+          "raw_pixels_sha256": "95014666df35e1ab6ddf9fd4771c0208dd74d9baf561319773b552be589506a1",
+          "render_encode_submit_ms": 7.768234
+        },
+        "cpu": {
+          "gpu_completion_wait_ms": null,
+          "gpu_initialized": false,
+          "initialize_ms": 0.006558,
+          "raw_pixels_sha256": "77b58eb3f3ca3620b75cf69a0530ad3ef31ca186818e96945453510d4f75e2e5",
+          "readback_ms": null,
+          "render_encode_submit_ms": 1.409651,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        },
+        "gpu": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 1.1308049999999998,
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 16,
+            "edge_max_alpha_delta": 0,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 142,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1458,
+            "mean_channel_delta": 0.004375
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 104.644129,
+          "premultiplied_pixels_sha256": "bf5887d3e985b5ce6a8449e9f82a0349547e4216c330d326c47a00e35c6c4ef1",
+          "premultiplied_probe_21_0": [
+            37,
+            49,
+            59,
+            88
+          ],
+          "raw_pixels_sha256": "bf5887d3e985b5ce6a8449e9f82a0349547e4216c330d326c47a00e35c6c4ef1",
+          "render_encode_submit_ms": 5.580901,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        }
+      },
+      "scene_digest": [
+        253,
+        42,
+        161,
+        169,
+        75,
+        49,
+        4,
+        125,
+        162,
+        126,
+        189,
+        139,
+        213,
+        40,
+        207,
+        163,
+        150,
+        163,
+        88,
+        204,
+        95,
+        240,
+        117,
+        99,
+        7,
+        30,
+        103,
+        92,
+        115,
+        241,
+        70,
+        114
+      ],
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "cpu_premultiplied_probe_21_0": [
+        32,
+        42,
+        50,
+        75
+      ],
+      "details": {
+        "clip_count": 0,
+        "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+        "fill_is_same_curve": true,
+        "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.25,
+          0.375,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "curve-fill-fractional-translation",
+      "renders": {
+        "classic": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 12.236955,
+          "classic_quality_after_readback": {
+            "pending_bytes": 0,
+            "pending_frames": 0
+          },
+          "classic_quality_before_readback": [
+            1,
+            32
+          ],
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 68,
+            "edge_max_alpha_delta": 1,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 236,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1364,
+            "mean_channel_delta": 0.0159375
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 77.001866,
+          "premultiplied_pixels_sha256": "235f9b763abbada26def1f2b10de1a783dd6c48d21eb3471ab72001bd845ee5c",
+          "premultiplied_probe_21_0": [
+            32,
+            42,
+            51,
+            76
+          ],
+          "raw_pixels_sha256": "3add802d910f6332f03bf7f0ee61f38da62c34eac08e75e1ba0dca05785c8f16",
+          "render_encode_submit_ms": 8.772647999999998
+        },
+        "cpu": {
+          "gpu_completion_wait_ms": null,
+          "gpu_initialized": false,
+          "initialize_ms": 0.005712,
+          "raw_pixels_sha256": "aad04d602c24c6b126a79d0b50b825cb1c9323a8b76f61e52b4be604303c19f4",
+          "readback_ms": null,
+          "render_encode_submit_ms": 0.719362,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        },
+        "gpu": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 0.97097,
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 51,
+            "edge_max_alpha_delta": 0,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 236,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1364,
+            "mean_channel_delta": 0.00953125
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 104.34576600000001,
+          "premultiplied_pixels_sha256": "7373293af53060d2413949144eeba72f1bf33e5c5894c7b4be7981bb56b3c7db",
+          "premultiplied_probe_21_0": [
+            31,
+            41,
+            50,
+            75
+          ],
+          "raw_pixels_sha256": "7373293af53060d2413949144eeba72f1bf33e5c5894c7b4be7981bb56b3c7db",
+          "render_encode_submit_ms": 2.141147,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        }
+      },
+      "scene_digest": [
+        19,
+        61,
+        151,
+        114,
+        229,
+        206,
+        179,
+        46,
+        153,
+        191,
+        200,
+        76,
+        200,
+        123,
+        40,
+        243,
+        155,
+        82,
+        127,
+        137,
+        39,
+        32,
+        54,
+        8,
+        238,
+        49,
+        105,
+        66,
+        224,
+        126,
+        144,
+        101
+      ],
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "cpu_premultiplied_probe_21_0": [
+        107,
+        141,
+        170,
+        255
+      ],
+      "details": {
+        "clip_count": 0,
+        "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+        "fill_is_same_curve": true,
+        "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+        "transform": [
+          1.25,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.25,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "curve-fill-uniform-scale",
+      "renders": {
+        "classic": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 12.16918,
+          "classic_quality_after_readback": {
+            "pending_bytes": 0,
+            "pending_frames": 0
+          },
+          "classic_quality_before_readback": [
+            1,
+            32
+          ],
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 16,
+            "edge_max_alpha_delta": 1,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 166,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1434,
+            "mean_channel_delta": 0.005
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 76.321792,
+          "premultiplied_pixels_sha256": "bfc0f2ea88d3ec8bd06a700d8ce6af9d90935db63e7ba2c7a7d527a7f7898e8c",
+          "premultiplied_probe_21_0": [
+            107,
+            141,
+            170,
+            255
+          ],
+          "raw_pixels_sha256": "b04a2b4cd21f367f2b65b95c603023e8293983b6301c5bf11409a866326188e1",
+          "render_encode_submit_ms": 7.567863999999999
+        },
+        "cpu": {
+          "gpu_completion_wait_ms": null,
+          "gpu_initialized": false,
+          "initialize_ms": 0.0058379999999999994,
+          "raw_pixels_sha256": "c99899b65ec02a3bd7b007b2874021760360612a9304a6c1c9e1a2ddcddb95dc",
+          "readback_ms": null,
+          "render_encode_submit_ms": 0.792566,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        },
+        "gpu": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 0.961795,
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 20,
+            "edge_max_alpha_delta": 0,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 166,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1434,
+            "mean_channel_delta": 0.00375
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 103.09993300000001,
+          "premultiplied_pixels_sha256": "a82389cb2ee318da2691dcbd59330ac415ddfca2e998b068bc75f7af5f4f5187",
+          "premultiplied_probe_21_0": [
+            107,
+            141,
+            170,
+            255
+          ],
+          "raw_pixels_sha256": "a82389cb2ee318da2691dcbd59330ac415ddfca2e998b068bc75f7af5f4f5187",
+          "render_encode_submit_ms": 2.179922,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        }
+      },
+      "scene_digest": [
+        34,
+        239,
+        63,
+        218,
+        150,
+        246,
+        21,
+        34,
+        255,
+        34,
+        48,
+        172,
+        30,
+        142,
+        123,
+        76,
+        20,
+        150,
+        80,
+        234,
+        85,
+        136,
+        155,
+        139,
+        119,
+        215,
+        5,
+        222,
+        159,
+        232,
+        175,
+        15
+      ],
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "cpu_premultiplied_probe_21_0": [
+        63,
+        83,
+        100,
+        150
+      ],
+      "details": {
+        "multicolor": false,
+        "radii": [
+          5.0,
+          3.0
+        ],
+        "source": "actual accent border geometry isolated without external previews",
+        "widths": [
+          1,
+          1,
+          1,
+          7
+        ]
+      },
+      "name": "border-ellipse-uniform",
+      "renders": {
+        "classic": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 12.597709,
+          "classic_quality_after_readback": {
+            "pending_bytes": 0,
+            "pending_frames": 0
+          },
+          "classic_quality_before_readback": [
+            1,
+            32
+          ],
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 22,
+            "edge_max_alpha_delta": 1,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 237,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1363,
+            "mean_channel_delta": 0.0046875
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 78.166397,
+          "premultiplied_pixels_sha256": "f5017d6fe09439ff84da5e757f3048e4b8c2ae4cb17046e8d79ecfb190f095b9",
+          "premultiplied_probe_21_0": [
+            63,
+            83,
+            100,
+            150
+          ],
+          "raw_pixels_sha256": "70e20e5e8a70434d8effb1ff745a5e5d911444acd6cc29f2099c562a35b805b9",
+          "render_encode_submit_ms": 7.311242
+        },
+        "cpu": {
+          "gpu_completion_wait_ms": null,
+          "gpu_initialized": false,
+          "initialize_ms": 0.0061990000000000005,
+          "raw_pixels_sha256": "a817f314e4ae0b744319070b9a8e79f12be9e8d84a7d41d77e5375fc7b734c5c",
+          "readback_ms": null,
+          "render_encode_submit_ms": 0.937685,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        },
+        "gpu": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 0.941041,
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 18,
+            "edge_max_alpha_delta": 0,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 237,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1363,
+            "mean_channel_delta": 0.0028125
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 105.71937,
+          "premultiplied_pixels_sha256": "a798445325830f9d45c6ac4daa9372159bcc519243c05f06a5f98ed043d61829",
+          "premultiplied_probe_21_0": [
+            63,
+            83,
+            100,
+            150
+          ],
+          "raw_pixels_sha256": "a798445325830f9d45c6ac4daa9372159bcc519243c05f06a5f98ed043d61829",
+          "render_encode_submit_ms": 2.14769,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        }
+      },
+      "scene_digest": [
+        130,
+        248,
+        114,
+        182,
+        28,
+        247,
+        109,
+        236,
+        92,
+        149,
+        30,
+        130,
+        202,
+        19,
+        213,
+        26,
+        28,
+        183,
+        166,
+        21,
+        179,
+        192,
+        248,
+        237,
+        106,
+        8,
+        0,
+        223,
+        157,
+        46,
+        228,
+        102
+      ],
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "cpu_premultiplied_probe_21_0": [
+        63,
+        83,
+        100,
+        150
+      ],
+      "details": {
+        "multicolor": true,
+        "radii": [
+          5.0,
+          3.0
+        ],
+        "source": "actual accent border geometry isolated without external previews",
+        "widths": [
+          1,
+          1,
+          1,
+          7
+        ]
+      },
+      "name": "border-ellipse-accent-plus",
+      "renders": {
+        "classic": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 12.837174999999998,
+          "classic_quality_after_readback": {
+            "pending_bytes": 0,
+            "pending_frames": 0
+          },
+          "classic_quality_before_readback": [
+            1,
+            32
+          ],
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 34,
+            "edge_max_alpha_delta": 1,
+            "edge_max_rgba_delta": 2,
+            "edge_pixels": 236,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1364,
+            "mean_channel_delta": 0.0115625
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 77.866822,
+          "premultiplied_pixels_sha256": "362279e0abab4ea8974808dc12f1a67a0760a1de2354ddbc131faee769f21ac8",
+          "premultiplied_probe_21_0": [
+            63,
+            83,
+            100,
+            150
+          ],
+          "raw_pixels_sha256": "952a3cc7210b6eeeb76cd3327d95aaa0abe795a66d039ae8f6aa75464a18406e",
+          "render_encode_submit_ms": 7.315238
+        },
+        "cpu": {
+          "gpu_completion_wait_ms": null,
+          "gpu_initialized": false,
+          "initialize_ms": 0.005557,
+          "raw_pixels_sha256": "fe2f4bc59bd9e353773ac7299838de6f9f6eedb3d1d60f9b1c7f305fa4a66448",
+          "readback_ms": null,
+          "render_encode_submit_ms": 2.099865,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        },
+        "gpu": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 3.170587,
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 32,
+            "edge_max_alpha_delta": 1,
+            "edge_max_rgba_delta": 2,
+            "edge_pixels": 236,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1364,
+            "mean_channel_delta": 0.01125
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 103.47229700000001,
+          "premultiplied_pixels_sha256": "2586770659ba61eb3f1370e722e4b68ba290eab8bb321ed68883868ed0816ce3",
+          "premultiplied_probe_21_0": [
+            63,
+            83,
+            100,
+            150
+          ],
+          "raw_pixels_sha256": "2586770659ba61eb3f1370e722e4b68ba290eab8bb321ed68883868ed0816ce3",
+          "render_encode_submit_ms": 8.266902,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        }
+      },
+      "scene_digest": [
+        248,
+        144,
+        40,
+        37,
+        252,
+        219,
+        25,
+        5,
+        105,
+        92,
+        149,
+        29,
+        253,
+        59,
+        59,
+        26,
+        105,
+        165,
+        172,
+        99,
+        217,
+        150,
+        31,
+        207,
+        132,
+        81,
+        139,
+        29,
+        187,
+        233,
+        184,
+        219
+      ],
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "cpu_premultiplied_probe_21_0": [
+        107,
+        141,
+        170,
+        255
+      ],
+      "details": {
+        "multicolor": true,
+        "radii": [
+          0.0,
+          0.0
+        ],
+        "source": "actual accent border geometry isolated without external previews",
+        "widths": [
+          1,
+          1,
+          1,
+          7
+        ]
+      },
+      "name": "border-square-accent-plus",
+      "renders": {
+        "classic": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 12.472929,
+          "classic_quality_after_readback": {
+            "pending_bytes": 0,
+            "pending_frames": 0
+          },
+          "classic_quality_before_readback": [
+            1,
+            32
+          ],
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 14,
+            "edge_max_alpha_delta": 1,
+            "edge_max_rgba_delta": 2,
+            "edge_pixels": 225,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1375,
+            "mean_channel_delta": 0.0059375
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 77.10586699999999,
+          "premultiplied_pixels_sha256": "f88c3e3e750058f539a73f3dfc267df206caaa39be3181514ed9295489450460",
+          "premultiplied_probe_21_0": [
+            107,
+            141,
+            170,
+            255
+          ],
+          "raw_pixels_sha256": "ac9a48aec93b704e5a3bbb5d6059dede818bce41d3f777e1fe763025408e2849",
+          "render_encode_submit_ms": 9.116704
+        },
+        "cpu": {
+          "gpu_completion_wait_ms": null,
+          "gpu_initialized": false,
+          "initialize_ms": 0.026304,
+          "raw_pixels_sha256": "2aa4c696d399b6ff58213b0bd94bee0991a1b199b2c164c6af998d653d6dee10",
+          "readback_ms": null,
+          "render_encode_submit_ms": 1.493125,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        },
+        "gpu": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 3.22812,
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 11,
+            "edge_max_alpha_delta": 1,
+            "edge_max_rgba_delta": 2,
+            "edge_pixels": 225,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1375,
+            "mean_channel_delta": 0.0053125
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 103.280624,
+          "premultiplied_pixels_sha256": "b338d474c2acf79deed437d1ccfaf4c64933694c9bd86ce095ccad9206357d29",
+          "premultiplied_probe_21_0": [
+            107,
+            141,
+            170,
+            255
+          ],
+          "raw_pixels_sha256": "b338d474c2acf79deed437d1ccfaf4c64933694c9bd86ce095ccad9206357d29",
+          "render_encode_submit_ms": 9.561274,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        }
+      },
+      "scene_digest": [
+        6,
+        104,
+        35,
+        161,
+        112,
+        218,
+        44,
+        123,
+        1,
+        107,
+        165,
+        145,
+        1,
+        28,
+        25,
+        183,
+        181,
+        153,
+        138,
+        122,
+        92,
+        168,
+        142,
+        3,
+        171,
+        108,
+        224,
+        113,
+        30,
+        215,
+        175,
+        162
+      ],
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "cpu_premultiplied_probe_21_0": [
+        64,
+        84,
+        101,
+        151
+      ],
+      "details": {
+        "approximation_purpose": "diagnostic only: isolate fine area coverage from provider curve flattening; canonical curve controls unchanged",
+        "clip_count": 0,
+        "endpoint_rounding_bound_pixels": 1.3486991523486091e-6,
+        "endpoint_sharing": "same precomputed f32 line endpoint vector and same admitted Scene for every backend; no backend-specific preparation",
+        "f64_chord_error_bound_pixels": 0.0016556396484375,
+        "second_derivative_bound": 13.563,
+        "segments_per_quarter": 32,
+        "total_error_bound_pixels": 0.00390625,
+        "total_line_segments": 132,
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "polyline-fill",
+      "renders": {
+        "classic": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 12.412668,
+          "classic_quality_after_readback": {
+            "pending_bytes": 0,
+            "pending_frames": 0
+          },
+          "classic_quality_before_readback": [
+            1,
+            32
+          ],
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 16,
+            "edge_max_alpha_delta": 0,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 134,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1466,
+            "mean_channel_delta": 0.00375
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 76.266376,
+          "premultiplied_pixels_sha256": "81eb830523b92f235c98b819e0efd835eaccb9e7f06a54353899418a90b7d192",
+          "premultiplied_probe_21_0": [
+            63,
+            83,
+            101,
+            151
+          ],
+          "raw_pixels_sha256": "aa88dfc66a073f85a89d14ea8d7aeb32d93fbdc2cd08606e973f0ce01e64a718",
+          "render_encode_submit_ms": 8.548439
+        },
+        "cpu": {
+          "gpu_completion_wait_ms": null,
+          "gpu_initialized": false,
+          "initialize_ms": 0.008408,
+          "raw_pixels_sha256": "ebfd4ef0aa6a564b04b5df760fe133aefe6aab64f0bd992ce5ed8d66abc84810",
+          "readback_ms": null,
+          "render_encode_submit_ms": 0.830881,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        },
+        "gpu": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 0.9694769999999999,
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 16,
+            "edge_max_alpha_delta": 0,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 134,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1466,
+            "mean_channel_delta": 0.00375
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 101.643684,
+          "premultiplied_pixels_sha256": "81eb830523b92f235c98b819e0efd835eaccb9e7f06a54353899418a90b7d192",
+          "premultiplied_probe_21_0": [
+            63,
+            83,
+            101,
+            151
+          ],
+          "raw_pixels_sha256": "81eb830523b92f235c98b819e0efd835eaccb9e7f06a54353899418a90b7d192",
+          "render_encode_submit_ms": 2.0637469999999998,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        }
+      },
+      "scene_digest": [
+        252,
+        139,
+        11,
+        157,
+        134,
+        77,
+        3,
+        145,
+        56,
+        83,
+        25,
+        35,
+        239,
+        52,
+        124,
+        143,
+        180,
+        9,
+        39,
+        142,
+        144,
+        178,
+        243,
+        76,
+        179,
+        47,
+        242,
+        64,
+        2,
+        234,
+        146,
+        32
+      ],
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "cpu_premultiplied_probe_21_0": [
+        64,
+        84,
+        101,
+        151
+      ],
+      "details": {
+        "approximation_purpose": "diagnostic only: isolate fine area coverage from provider curve flattening; canonical curve controls unchanged",
+        "clip_count": 1,
+        "endpoint_rounding_bound_pixels": 1.3486991523486091e-6,
+        "endpoint_sharing": "same precomputed f32 line endpoint vector and same admitted Scene for every backend; no backend-specific preparation",
+        "f64_chord_error_bound_pixels": 0.0016556396484375,
+        "second_derivative_bound": 13.563,
+        "segments_per_quarter": 32,
+        "total_error_bound_pixels": 0.00390625,
+        "total_line_segments": 132,
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "polyline-clip-only",
+      "renders": {
+        "classic": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 12.291597,
+          "classic_quality_after_readback": {
+            "pending_bytes": 0,
+            "pending_frames": 0
+          },
+          "classic_quality_before_readback": [
+            1,
+            32
+          ],
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 16,
+            "edge_max_alpha_delta": 0,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 134,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1466,
+            "mean_channel_delta": 0.00375
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 76.160898,
+          "premultiplied_pixels_sha256": "81eb830523b92f235c98b819e0efd835eaccb9e7f06a54353899418a90b7d192",
+          "premultiplied_probe_21_0": [
+            63,
+            83,
+            101,
+            151
+          ],
+          "raw_pixels_sha256": "91c51b3c4f0bd709922930b1777606dc13921cc6143cb092637c798b7a22a07d",
+          "render_encode_submit_ms": 8.398237
+        },
+        "cpu": {
+          "gpu_completion_wait_ms": null,
+          "gpu_initialized": false,
+          "initialize_ms": 0.006373,
+          "raw_pixels_sha256": "ebfd4ef0aa6a564b04b5df760fe133aefe6aab64f0bd992ce5ed8d66abc84810",
+          "readback_ms": null,
+          "render_encode_submit_ms": 0.99515,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        },
+        "gpu": {
+          "adapter": {
+            "backend": "Metal",
+            "device_type": "DiscreteGpu",
+            "driver": "",
+            "driver_info": "",
+            "name": "AMD Radeon Pro Vega 56"
+          },
+          "bounded_submit_readback_ms": 1.459558,
+          "comparison": {
+            "accepted": true,
+            "changed_pixels": 16,
+            "edge_max_alpha_delta": 0,
+            "edge_max_rgba_delta": 1,
+            "edge_pixels": 134,
+            "exact_pixels": false,
+            "interior_max_alpha_delta": 0,
+            "interior_max_rgba_delta": 0,
+            "interior_pixels": 1466,
+            "mean_channel_delta": 0.00375
+          },
+          "deadline_seconds": 5,
+          "gpu_initialized": true,
+          "initialize_ms": 105.14957199999999,
+          "premultiplied_pixels_sha256": "81eb830523b92f235c98b819e0efd835eaccb9e7f06a54353899418a90b7d192",
+          "premultiplied_probe_21_0": [
+            63,
+            83,
+            101,
+            151
+          ],
+          "raw_pixels_sha256": "81eb830523b92f235c98b819e0efd835eaccb9e7f06a54353899418a90b7d192",
+          "render_encode_submit_ms": 3.1173830000000002,
+          "session_stats": {
+            "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+            "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+          }
+        }
+      },
+      "scene_digest": [
+        118,
+        121,
+        228,
+        111,
+        93,
+        21,
+        62,
+        2,
+        215,
+        22,
+        215,
+        188,
+        111,
+        128,
+        136,
+        40,
+        200,
+        79,
+        154,
+        199,
+        181,
+        169,
+        197,
+        6,
+        15,
+        167,
+        60,
+        96,
+        190,
+        1,
+        104,
+        17
+      ],
+      "viewport": [
+        40,
+        40
+      ]
+    }
+  ],
+  "comparison_space": "premultiplied encoded-sRGB RGBA8 including alpha; no matte",
+  "completion": "exit zero means diagnostic completed; pixel acceptance remains a separate field",
+  "input": null,
+  "pixel_thresholds": {
+    "edge_max_alpha": 16,
+    "edge_max_rgba": 32,
+    "edge_reference_neighbor_variation": 8,
+    "interior_max_alpha": 2,
+    "interior_max_rgba": 3,
+    "mean_channel_delta": 1.0
+  },
+  "schema_version": 1,
+  "scope": "finite curve/clip/rounded-border/unhinted-glyph isolation; no production or provider changes",
+  "selector": "all",
+  "within_backend_isolations": [
+    {
+      "actual": "curve-clip-only",
+      "backend": "cpu",
+      "comparison": {
+        "accepted": true,
+        "changed_pixels": 0,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 0,
+        "edge_pixels": 134,
+        "exact_pixels": true,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.0
+      },
+      "meaning": "fill versus one curve clip over covering paint",
+      "reference": "curve-fill",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "polyline-clip-only",
+      "backend": "cpu",
+      "comparison": {
+        "accepted": true,
+        "changed_pixels": 0,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 0,
+        "edge_pixels": 134,
+        "exact_pixels": true,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.0
+      },
+      "meaning": "identical diagnostic line endpoints as fill versus single clip",
+      "reference": "polyline-fill",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "polyline-fill",
+      "backend": "cpu",
+      "comparison": {
+        "accepted": true,
+        "changed_pixels": 12,
+        "edge_max_alpha_delta": 1,
+        "edge_max_rgba_delta": 1,
+        "edge_pixels": 134,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.00625
+      },
+      "meaning": "canonical curve versus diagnostic fine polyline approximation",
+      "reference": "curve-fill",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "curve-fill-and-coincident-clip",
+      "backend": "cpu",
+      "comparison": {
+        "accepted": false,
+        "changed_pixels": 28,
+        "edge_max_alpha_delta": 62,
+        "edge_max_rgba_delta": 62,
+        "edge_pixels": 134,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.355625
+      },
+      "meaning": "additional coincident fill coverage",
+      "reference": "curve-clip-only",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "curve-double-coincident-clip",
+      "backend": "cpu",
+      "comparison": {
+        "accepted": false,
+        "changed_pixels": 28,
+        "edge_max_alpha_delta": 62,
+        "edge_max_rgba_delta": 62,
+        "edge_pixels": 134,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.355625
+      },
+      "meaning": "additional coincident clip coverage",
+      "reference": "curve-clip-only",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "curve-clip-only",
+      "backend": "classic",
+      "comparison": {
+        "accepted": true,
+        "changed_pixels": 0,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 0,
+        "edge_pixels": 134,
+        "exact_pixels": true,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.0
+      },
+      "meaning": "fill versus one curve clip over covering paint",
+      "reference": "curve-fill",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "polyline-clip-only",
+      "backend": "classic",
+      "comparison": {
+        "accepted": true,
+        "changed_pixels": 0,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 0,
+        "edge_pixels": 134,
+        "exact_pixels": true,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.0
+      },
+      "meaning": "identical diagnostic line endpoints as fill versus single clip",
+      "reference": "polyline-fill",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "polyline-fill",
+      "backend": "classic",
+      "comparison": {
+        "accepted": true,
+        "changed_pixels": 16,
+        "edge_max_alpha_delta": 1,
+        "edge_max_rgba_delta": 1,
+        "edge_pixels": 134,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.00625
+      },
+      "meaning": "canonical curve versus diagnostic fine polyline approximation",
+      "reference": "curve-fill",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "curve-fill-and-coincident-clip",
+      "backend": "classic",
+      "comparison": {
+        "accepted": false,
+        "changed_pixels": 28,
+        "edge_max_alpha_delta": 61,
+        "edge_max_rgba_delta": 61,
+        "edge_pixels": 134,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.355
+      },
+      "meaning": "additional coincident fill coverage",
+      "reference": "curve-clip-only",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "curve-double-coincident-clip",
+      "backend": "classic",
+      "comparison": {
+        "accepted": false,
+        "changed_pixels": 28,
+        "edge_max_alpha_delta": 61,
+        "edge_max_rgba_delta": 61,
+        "edge_pixels": 134,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.355
+      },
+      "meaning": "additional coincident clip coverage",
+      "reference": "curve-clip-only",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "curve-clip-only",
+      "backend": "gpu",
+      "comparison": {
+        "accepted": true,
+        "changed_pixels": 0,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 0,
+        "edge_pixels": 134,
+        "exact_pixels": true,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.0
+      },
+      "meaning": "fill versus one curve clip over covering paint",
+      "reference": "curve-fill",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "polyline-clip-only",
+      "backend": "gpu",
+      "comparison": {
+        "accepted": true,
+        "changed_pixels": 0,
+        "edge_max_alpha_delta": 0,
+        "edge_max_rgba_delta": 0,
+        "edge_pixels": 134,
+        "exact_pixels": true,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.0
+      },
+      "meaning": "identical diagnostic line endpoints as fill versus single clip",
+      "reference": "polyline-fill",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "polyline-fill",
+      "backend": "gpu",
+      "comparison": {
+        "accepted": true,
+        "changed_pixels": 12,
+        "edge_max_alpha_delta": 1,
+        "edge_max_rgba_delta": 1,
+        "edge_pixels": 134,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.004375
+      },
+      "meaning": "canonical curve versus diagnostic fine polyline approximation",
+      "reference": "curve-fill",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "curve-fill-and-coincident-clip",
+      "backend": "gpu",
+      "comparison": {
+        "accepted": false,
+        "changed_pixels": 28,
+        "edge_max_alpha_delta": 62,
+        "edge_max_rgba_delta": 62,
+        "edge_pixels": 134,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.358125
+      },
+      "meaning": "additional coincident fill coverage",
+      "reference": "curve-clip-only",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    },
+    {
+      "actual": "curve-double-coincident-clip",
+      "backend": "gpu",
+      "comparison": {
+        "accepted": false,
+        "changed_pixels": 28,
+        "edge_max_alpha_delta": 62,
+        "edge_max_rgba_delta": 62,
+        "edge_pixels": 134,
+        "exact_pixels": false,
+        "interior_max_alpha_delta": 0,
+        "interior_max_rgba_delta": 0,
+        "interior_pixels": 1466,
+        "mean_channel_delta": 0.358125
+      },
+      "meaning": "additional coincident clip coverage",
+      "reference": "curve-clip-only",
+      "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+    }
+  ]
+}

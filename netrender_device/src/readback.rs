@@ -7,11 +7,13 @@
 //! Pixel readback for tests.
 
 use crate::{core, frame};
+use std::time::{Duration, Instant};
 
 /// Read an RGBA8 texture back to CPU memory as tightly-packed rows.
 /// wgpu requires COPY_BYTES_PER_ROW_ALIGNMENT padding on the GPU copy;
 /// this helper hides that staging detail and returns width * height * 4
-/// bytes to callers.
+/// bytes to callers. Completion is bounded to this copy submission with one
+/// five-second deadline shared by device polling and callback receipt.
 pub(crate) fn read_rgba8_texture(
     dev: &core::WgpuHandles,
     target: &wgpu::Texture,
@@ -49,23 +51,41 @@ pub(crate) fn read_rgba8_texture(
             depth_or_array_layers: 1,
         },
     );
-    frame::submit(&dev.queue, encoder);
+    let submission = frame::submit_index(&dev.queue, encoder);
+    let deadline = Instant::now() + Duration::from_secs(5);
 
     let slice = buffer.slice(..);
     let (tx, rx) = std::sync::mpsc::channel();
     slice.map_async(wgpu::MapMode::Read, move |result| {
         let _ = tx.send(result);
     });
-    dev.device
-        .poll(wgpu::PollType::wait_indefinitely())
-        .expect("poll");
-    rx.recv().expect("map sender").expect("map");
-    let mapped = slice.get_mapped_range().expect("map range");
+    // Cancel mapping and unmap on every result path. A timed-out late callback
+    // safely sees a dropped receiver; no sender panic can outlive the test.
+    let result = (|| -> Result<Vec<u8>, String> {
+        dev.device
+            .poll(wgpu::PollType::Wait {
+                submission_index: Some(submission),
+                timeout: Some(deadline.saturating_duration_since(Instant::now())),
+            })
+            .map_err(|error| format!("bounded readback poll failed: {error}"))?;
+        rx.recv_timeout(deadline.saturating_duration_since(Instant::now()))
+            .map_err(|error| format!("bounded readback callback failed: {error}"))?
+            .map_err(|error| format!("readback mapping failed: {error}"))?;
+        let mapped = slice
+            .get_mapped_range()
+            .map_err(|error| format!("readback map range failed: {error}"))?;
 
-    let mut out = Vec::with_capacity((row_bytes * height) as usize);
-    for row in 0..height as usize {
-        let src = row * padded as usize;
-        out.extend_from_slice(&mapped[src..src + row_bytes as usize]);
-    }
-    out
+        let mut out = Vec::with_capacity((row_bytes * height) as usize);
+        for row in 0..height as usize {
+            let src = row * padded as usize;
+            let bytes = mapped
+                .get(src..src + row_bytes as usize)
+                .ok_or_else(|| "readback mapped range is shorter than its row layout".to_owned())?;
+            out.extend_from_slice(bytes);
+        }
+        drop(mapped);
+        Ok(out)
+    })();
+    buffer.unmap();
+    result.expect("bounded RGBA8 readback failed")
 }

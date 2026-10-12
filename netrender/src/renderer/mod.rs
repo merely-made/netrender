@@ -381,6 +381,26 @@ impl Renderer {
         rast.unregister_texture(key);
     }
 
+    /// Poll deferred Classic curve-quality results without blocking. Returns pending
+    /// counter count/bytes, or `None` when Classic was not enabled. Normal Classic
+    /// rendering submits before these results arrive; after a bounded host readback
+    /// or event-loop wait, qualify the final frame only when this returns `(0, 0)`.
+    /// A provider quality limit or failed counter download remains a typed Vello error.
+    pub fn poll_vello_curve_quality(&self) -> Result<Option<(usize, u64)>, vello::Error> {
+        let Some(rast_mutex) = &self.vello_rasterizer else {
+            return Ok(None);
+        };
+        let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
+        rast.poll_curve_quality().map(Some)
+    }
+
+    /// Pending Classic quality counter count and exact bytes, without polling.
+    pub fn vello_curve_quality_status(&self) -> Option<(usize, u64)> {
+        let rast_mutex = self.vello_rasterizer.as_ref()?;
+        let rast = rast_mutex.lock().expect("vello_rasterizer lock");
+        Some(rast.curve_quality_status())
+    }
+
     /// Number of tiles whose `vello::Scene`s were rebuilt during
     /// the most recent `render_vello` call. `0` after a no-op
     /// frame (unchanged scene). Returns `None` if `enable_vello`
@@ -891,8 +911,8 @@ impl Renderer {
             producer_path: metadata.producer_path.clone(),
             fallback_count: metadata.fallback_count,
             scene_op_boundary: boundary,
-            caller_reported_physical_submission_count:
-                metadata.caller_reported_physical_submission_count,
+            caller_reported_physical_submission_count: metadata
+                .caller_reported_physical_submission_count,
             logical_opaque_producer_boundaries: 1,
             graph_encoder_batches: 1,
             graph_submission_boundaries: 1,
@@ -1294,12 +1314,18 @@ mod tests {
                     .zip(expected)
                     .all(|(a, e)| a.abs_diff(e) <= 2)
             };
-            assert!(near(inside, [191, 64, 0, 255]), "scale {scale}: expected group alpha applied after premultiplied source conversion, got {inside:?}");
+            assert!(
+                near(inside, [191, 64, 0, 255]),
+                "scale {scale}: expected group alpha applied after premultiplied source conversion, got {inside:?}"
+            );
             assert!(
                 near(outside, [255, 0, 0, 255]),
                 "scale {scale}: clip leaked image outside layer, got {outside:?}"
             );
-            assert!(near(edge_before, [255, 0, 0, 255]) && near(edge_inside, [191, 64, 0, 255]), "scale {scale}: physical clip edge was not sharp: {edge_before:?} -> {edge_inside:?}");
+            assert!(
+                near(edge_before, [255, 0, 0, 255]) && near(edge_inside, [191, 64, 0, 255]),
+                "scale {scale}: physical clip edge was not sharp: {edge_before:?} -> {edge_inside:?}"
+            );
         }
 
         handles.queue.write_texture(
@@ -1334,11 +1360,14 @@ mod tests {
             .read_rgba8_texture(&refresh_output, 16, 16);
         let refreshed_center =
             &refreshed[((8 * 16 + 8) * 4) as usize..((8 * 16 + 8) * 4 + 4) as usize];
-        assert!(refreshed_center
-            .iter()
-            .copied()
-            .zip([128, 0, 128, 255])
-            .all(|(a, e)| a.abs_diff(e) <= 2), "same-size generation refresh must not retain the prior atlas pixels: {refreshed_center:?}");
+        assert!(
+            refreshed_center
+                .iter()
+                .copied()
+                .zip([128, 0, 128, 255])
+                .all(|(a, e)| a.abs_diff(e) <= 2),
+            "same-size generation refresh must not retain the prior atlas pixels: {refreshed_center:?}"
+        );
 
         let resized = producer(&handles.device, &handles.queue, 8, 4, [0, 0, 255, 255]);
         let resized_view = resized.create_view(&Default::default());
@@ -1355,11 +1384,14 @@ mod tests {
             .read_rgba8_texture(&resize_output, 16, 16);
         let resized_center =
             &resized_pixels[((8 * 16 + 8) * 4) as usize..((8 * 16 + 8) * 4 + 4) as usize];
-        assert!(resized_center
-            .iter()
-            .copied()
-            .zip([128, 0, 128, 255])
-            .all(|(a, e)| a.abs_diff(e) <= 2), "resize must replace the ImageData and invalidate lowered scene caches: {resized_center:?}");
+        assert!(
+            resized_center
+                .iter()
+                .copied()
+                .zip([128, 0, 128, 255])
+                .all(|(a, e)| a.abs_diff(e) <= 2),
+            "resize must replace the ImageData and invalidate lowered scene caches: {resized_center:?}"
+        );
         renderer.unregister_external_image(key);
         let (removed_output, removed_view) = target(&handles.device, 16, 16);
         renderer.render_vello_scaled(

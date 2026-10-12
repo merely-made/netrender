@@ -1,0 +1,11 @@
+   Compiling vello_shaders v0.11.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/vello_shaders)
+    Finished `test` profile [unoptimized] target(s) in 1.70s
+     Running unittests src/lib.rs (/Users/markik/Code/targets/mere-s2s3/debug/deps/vello_shaders-8f99edf0f94c686e)
+
+running 3 tests
+test cpu::flatten::quality_tests::quality_canonical_curve_is_resolved_in_device_pixels ... ok
+test cpu::flatten::quality_tests::quality_limit_refuses_without_a_coarse_fallback ... ok
+test cpu::flatten::quality_tests::quality_round_cap_accounts_for_anisotropic_scale ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+

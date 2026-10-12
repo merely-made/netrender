@@ -66,6 +66,12 @@ pub struct SparseResourceStats {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SparseSessionError {
+    /// Geometry exceeded bounded curve-quality work after source admission.
+    /// Prepared source/text caches may exist; no target pixels or GPU draw
+    /// submission have been produced for the refused recording.
+    CurveFlattening {
+        reason: String,
+    },
     Admission(BackendAdmissionError),
     MissingFragment {
         id: crate::scene::FragmentId,
@@ -653,8 +659,17 @@ impl CpuSession {
             return Err(error);
         }
         context.flush();
+        if let Some(error) = context.flattening_error() {
+            return Err(SparseSessionError::CurveFlattening {
+                reason: error.to_string(),
+            });
+        }
         let mut target = Pixmap::new(scene.viewport_width as u16, scene.viewport_height as u16);
-        context.render(&mut target, &mut self.resources);
+        context
+            .render_checked(&mut target, &mut self.resources)
+            .map_err(|error| SparseSessionError::CurveFlattening {
+                reason: error.to_string(),
+            })?;
         self.text.maintain();
         Ok(target)
     }
@@ -851,6 +866,11 @@ impl HybridSession {
         });
         if let Some(error) = glyph_error {
             return Err(error);
+        }
+        if let Some(error) = packet.flattening_error() {
+            return Err(SparseSessionError::CurveFlattening {
+                reason: error.to_string(),
+            });
         }
         let result = self
             .renderer

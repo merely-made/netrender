@@ -579,6 +579,22 @@ impl VelloTileRasterizer {
         result
     }
 
+    /// Observe completed Classic curve-quality results without waiting. Normal render
+    /// calls submit before the provider's counters arrive. Hosts must poll after their
+    /// bounded device/event-loop completion before qualifying the final frame. The
+    /// provider's typed quality/readback errors are preserved; allocation-only counter
+    /// failures continue to inform its existing high-water recovery.
+    pub fn poll_curve_quality(&mut self) -> Result<(usize, u64), vello::Error> {
+        self.vello_renderer
+            .poll_curve_quality(&self.handles.device)?;
+        Ok(self.vello_renderer.pending_curve_quality())
+    }
+
+    /// Outstanding Classic counter buffers and exact bytes (bounded to 256 frames).
+    pub fn curve_quality_status(&self) -> (usize, u64) {
+        self.vello_renderer.pending_curve_quality()
+    }
+
     /// Render an already-ordered overlay fragment without mutating the
     /// tile cache or per-tile scene cache that tracks the full frame.
     ///

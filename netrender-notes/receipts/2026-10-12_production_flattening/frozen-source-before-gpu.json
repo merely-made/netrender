@@ -1,0 +1,77 @@
+{
+  "/Users/markik/Code/worktrees/vello-release-adoption": {
+    "vello_common/src/flatten_error.rs": "bba31a726f95ea23e1d61becc6dc73a7b3e404eb5d7b2064d92accbb725f2351",
+    "Cargo.lock": "3c3cc5e169cbb0e5d3324ba674212bdf41602a0b47900d385c7e9658e77142e7",
+    "research/vello_encoding/src/config.rs": "d52ba34ad4e7c4db41202ccc7b507378e205efe26ae5ee5766e46a627f2bc15e",
+    "research/vello_encoding/src/estimate.rs": "3e985e4bfb8db2c928c7ccd31b0f4dd44d0f142519e2bde6c2f184e522926882",
+    "research/vello_encoding/src/lib.rs": "409c34b47360fd7de21db65726005892002996262c509dfcde5426d901749341",
+    "research/vello_research/src/lib.rs": "def5934e0db7a77063b4c1ae7ccd4251f6ebb61cafe7ba16e311303e8c961a97",
+    "research/vello_research/src/render.rs": "97cf3b83702d1bf3d6ab97d4b61831c39310c142faf5cfab3ed078eed4ff3d2b",
+    "research/vello_research/src/scene.rs": "51e645a996e5e4a9e4725842d9192f17fc9a01352aa32ec96b94b3d6561b1da8",
+    "research/vello_research/src/wgpu_engine.rs": "02cc30606c079121b00589502f75086412525906125eea59198bfc26e49ef2d0",
+    "research/vello_shaders/shader/flatten.wgsl": "9ea3d0292d9d9759131c95c5877b9ad576b34211a9354d0622f68d24b1363489",
+    "research/vello_shaders/shader/shared/bump.wgsl": "253bd7f5ce413c61e42de4e8b8991edc9eab42542e47f453cf22b944e9f38d33",
+    "research/vello_shaders/src/cpu/flatten.rs": "ae54cbcfe24ec451bec1204bb2f48596fa6bb0da2ca5143aa717658c5e7bfdff",
+    "vello_common/src/flatten.rs": "93631b060361fe2acf044c9d14aff3db07694f870eca221a35be059297e0aa25",
+    "vello_common/src/flatten_simd.rs": "f4f6515ee90f6ed1115ebcada5bee3e01faf59bbb65f1c4c42021fe3504672e6",
+    "vello_common/src/strip_generator.rs": "9bd656716cf16d1eba093b72e07f7163d7ff8410fe3268551621a046806052a4",
+    "vello_common/src/viewport.rs": "a67b734b925c0317271bfc1f4e43a834cc606f19ffda252ac5adeb4e624338a0",
+    "vello_cpu/Cargo.toml": "8e555d4c0c2827db79a06ff9fc32d166246b4f4c6ed3ae4420ff5f86451ee02b",
+    "vello_cpu/src/dispatch/mod.rs": "de28d8038930eb29bed171fe7e958c4572245c89a013692d9020937af0febf1b",
+    "vello_cpu/src/dispatch/multi_threaded.rs": "9d218a73b3ce3a039a27077ccc3bd9631edc286dec9a5dff943c0c1e2c2569d9",
+    "vello_cpu/src/dispatch/multi_threaded/worker.rs": "8e449dce185079585cdaf81d793b8b8c660127cfd59a0eb1323ac0bb25afca7d",
+    "vello_cpu/src/dispatch/single_threaded.rs": "61407af35d4d120f73484e7d64a6d5f615477adff9d029f143612cd97e677d31",
+    "vello_cpu/src/render.rs": "829d73612cd483b67cd8b5b87bbc9bc63f4365b7283356e72b7ea8c0b3e06ffa",
+    "vello_gpu/src/append.rs": "efc1f2cb08d06453b1f0a7c6be6346c443b48a014292676de7dc19d9f4176d7e",
+    "vello_gpu/src/lib.rs": "c5d2793ac5c5941f48abfad5a6f4b5655c41eee91478d8079743a40fd703aad3",
+    "vello_gpu/src/render/webgl/mod.rs": "380a8c58e2bd4558fd5fc9e47fdf24b477b9e56acdb373591ce203dd3e812a72",
+    "vello_gpu/src/render/wgpu/mod.rs": "1c2e8fbce7f96aecb593e09a72f22045f8e3739d307be3a64141c0a64dd9447a",
+    "vello_gpu/src/scene.rs": "df7674b7449fed0af84360b37fc402d825e79da80c6623f320deba5203af5ef2"
+  },
+  "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge": {
+    "Cargo.lock": "92502b2c7faf183c73b8ff7c1d38e3805eadb0bd2781db0f66b2aa6603fb12cd",
+    "netrender/Cargo.toml": "8e33992c6bdc8f1fede59a100ecf3dcb9bfd66ec844d4b01fea3a8dc8268c9af",
+    "netrender/src/renderer/mod.rs": "7c69362cd32afb3bf8d997b6353408e364cc728a9ba3ef2d16810075264ca82b",
+    "netrender/src/vello_backends/sessions.rs": "a17136c074e150d91ab544e745d508ae714d52fc5be494612e7e4091e49b223c",
+    "netrender/src/vello_tile_rasterizer/mod.rs": "02b521e5a5e03569daa0e1a2ac2bdfa472b35d91058e617a4953ca9b3f63b54f",
+    "paint_list_render/examples/classic_edge_probe.rs": "b404b814650e4e2b01042efd69ebb1a6d89fd3e3f241430255a29349a58f7aa1",
+    "paint_list_render/examples/resource_bundle_parity.rs": "47339a4f9fabe9e089e6153cb764a29d1c06273b15b059c6b082d2341ce55888"
+  },
+  "/Users/markik/Code/worktrees/genet-vello-release-adoption": {
+    "components/genet-render-host/src/readback.rs": "d51c661554df004848d24fb1ac344c9204c352bef036549fc699dc74f1123383",
+    "components/genet-render-host/src/recovery.rs": "5f069b5f73d5cc31aecdaffa49a586dd2dcaf7bf7d3004f13aafccb454610c18",
+    "components/genet-render-host/src/lib.rs": "5263b3b33f7128ca4d6786931d13e1aa17f7bfc874a8466db78269e60a0080f7"
+  },
+  "/Users/markik/Code/worktrees/mere-vello-release-adoption": {
+    "crates/cambium/cambium-rootstock/DEVICE_RECOVERY.md": "bebc971edca39b80acd2477d43a45d1a9fc0a7c6d21be2137c43ad75e6b424b8",
+    "crates/cambium/cambium-rootstock/src/recovery.rs": "ab48ccbcc680f9ad5ea9c5fd620a0eb3750b351a438f6287a55753f3b0c7cf6d",
+    "crates/cambium/tabard-workshop/tests/shared_device_loss.rs": "a14684138bf8f5032644e251cd5bc148a98a1e8755a75d0fefcf6b1688640fb8",
+    "design_docs/cambium_docs/technical_architecture/2026-10-11_shared_device_recovery_owner.md": "391676852bfbef7b2f21f0531401b7271fb031ad116334c0d114728be24cb302",
+    "Cargo.lock": "3f27bbbb6c9ff6f85ebfa975aa127373b933ab84d9f3762053eafa74221a58fd",
+    "crates/cambium/cambium-genet-web-host/src/capture.rs": "560c87f84cf6c7d2a58562515513f1f1d2d01c37911311d64a157d90cb636060",
+    "crates/cambium/cambium-genet-web-host/src/lane.rs": "0ea0ab5edf3ddf3649c76f5d3dc774d3d10e4723e627c544d28a71b25ff88d19",
+    "crates/cambium/cambium-genet-winit-host/examples/t4_receipt.rs": "527fa8d24dba631dd0f15d702a5253f5d6092f7be1b8a62e3a4799b81703733d",
+    "crates/cambium/cambium-genet-winit-host/src/lib.rs": "0bcc324a7c834449420bd2841f9df99b527d1e975bcb0bcca2937aa6facec87d",
+    "crates/cambium/cambium-genet-winit-host/src/scene_producer.rs": "57966fc52174d5796ceb997600067f992caed77b5e0b6e45b5ce91875ad95dad",
+    "crates/cambium/cambium-genet-winit-host/src/windows.rs": "f631fb9d08072bd47a15c8053a21f24429e2cb23f90928c00f58e9262a3093d5",
+    "crates/cambium/cambium-rootstock/src/capture.rs": "96558b1c7ed2dd481afa4e375e5b44d8a020a5782ca6a4e41ad55e296c617ee9",
+    "crates/cambium/cambium-rootstock/src/frame.rs": "740dfafd3e369fd3f297a5cfcc0ba2227846cf772f8c42bf8343dcc04b686d1c",
+    "crates/cambium/cambium-rootstock/src/host.rs": "6057d701ea155f619afa338edd6ee603eac631ea453f840d635251d416138772",
+    "crates/cambium/cambium-rootstock/src/lib.rs": "dc808e4773b1d3035d12fcf30cb41da2c26d4b000404180f0c6f96d4ab7b3d21",
+    "crates/cambium/cambium-rootstock/src/producer.rs": "3f393d7ea0e746b93a1f314f6252c04700ca73dd4954a1aad7a9d0ec340804a5",
+    "crates/cambium/cambium-rootstock/src/producer/registry.rs": "1024b0f8bcb6a0a29f538abbd0de8a16bad4e2031acdce429ba90c08a0b6ac56",
+    "crates/cambium/mesquite/src/capture.rs": "2c1fa65548309b05697e09b988000d76c5c1112b07c103440f7ceafca841b738",
+    "crates/cambium/mesquite/src/lane.rs": "8ecefe7903cf41dbba93aa4345e1cfb415f3b5366b5e82c0a6bf17b9122280f5",
+    "crates/cambium/tabard-workshop/Cargo.toml": "ca4a624858c22c430bc52f95589b0a718c1e7991d52d892f75fda003d2922dc9",
+    "design_docs/DOC_README.md": "16471eb96b46e5d34ba078eb62baa4009b026a9d0ac4771ef0482d3450391f4d",
+    "ports/dramatis/src/main.rs": "45a996d59f89370976eb41370affac8a5f4e98d6254ca1efec0435647e0e9cc3"
+  },
+  "resource_bundle_parity": {
+    "sha256": "c15b9f8ca717700ef25fb8e0d2fd733bdc222c6625999284aadb4b9de6bf828c",
+    "bytes": 50245536
+  },
+  "classic_edge_probe": {
+    "sha256": "c57df792e619d5a1160d50bf46161df69600bb524d82e199d102cced3ffdc62c",
+    "bytes": 50664728
+  }
+}

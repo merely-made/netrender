@@ -1,0 +1,188 @@
+warning: patch `browsing-context-api v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/shared/browsing-context)` was not used in the crate graph
+warning: patch `buckram v0.0.3 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/buckram)` was not used in the crate graph
+warning: patch `cadency v0.0.1 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/cadency)` was not used in the crate graph
+warning: patch `document-session-api v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/shared/document-session-api)` was not used in the crate graph
+warning: patch `engine-observables-api v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/shared/engine-observables-api)` was not used in the crate graph
+warning: patch `fleece v0.5.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/fleece)` was not used in the crate graph
+warning: patch `genet-clipboard v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-clipboard)` was not used in the crate graph
+warning: patch `genet-compositor v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-compositor)` was not used in the crate graph
+warning: patch `genet-document-resources v0.2.1 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-document-resources)` was not used in the crate graph
+warning: patch `genet-documents v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-documents)` was not used in the crate graph
+warning: patch `genet-fontique v0.10.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/support/patches/fontique)` was not used in the crate graph
+warning: patch `genet-host-api v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-host-api)` was not used in the crate graph
+warning: patch `genet-idl-interface-table v0.0.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/support/idl-interface-table)` was not used in the crate graph
+warning: patch `genet-livery v0.0.4 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-livery)` was not used in the crate graph
+warning: patch `genet-paint-types v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/shared/paint-types)` was not used in the crate graph
+warning: patch `genet-parley v0.10.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/support/patches/parley)` was not used in the crate graph
+warning: patch `genet-render v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-render)` was not used in the crate graph
+warning: patch `genet-render-host v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-render-host)` was not used in the crate graph
+warning: patch `genet-scripted v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-scripted)` was not used in the crate graph
+warning: patch `genet-scripted-dom v0.1.2 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-scripted-dom)` was not used in the crate graph
+warning: patch `genet-scripted-worker v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-scripted-worker)` was not used in the crate graph
+warning: patch `genet-static-dom v0.1.1 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-static-dom)` was not used in the crate graph
+warning: patch `genet-text v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-text)` was not used in the crate graph
+warning: patch `genet-winit-host v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-winit-host)` was not used in the crate graph
+warning: patch `genet-wpt v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/ports/genet-wpt)` was not used in the crate graph
+warning: patch `layout-dom-api v0.1.1 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/shared/layout-dom)` was not used in the crate graph
+warning: patch `livery v0.0.5 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/livery)` was not used in the crate graph
+warning: patch `netfetcher v0.1.1 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/netfetcher)` was not used in the crate graph
+warning: patch `ortet v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/ports/ortet)` was not used in the crate graph
+warning: patch `script-engine-api v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/script-engine-api)` was not used in the crate graph
+warning: patch `script-engine-boa v0.0.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/script-engine-boa)` was not used in the crate graph
+warning: patch `script-engine-nova v0.0.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/script-engine-nova)` was not used in the crate graph
+warning: patch `script-engine-piccolo v0.0.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/script-engine-piccolo)` was not used in the crate graph
+warning: patch `script-runtime-api v0.0.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/script-runtime-api)` was not used in the crate graph
+warning: patch `servo-media v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/servo-media)` was not used in the crate graph
+warning: patch `servo-media-audio v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/audio)` was not used in the crate graph
+warning: patch `servo-media-auto v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/backends/auto)` was not used in the crate graph
+warning: patch `servo-media-derive v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/servo-media-derive)` was not used in the crate graph
+warning: patch `servo-media-dummy v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/backends/dummy)` was not used in the crate graph
+warning: patch `servo-media-examples v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/examples)` was not used in the crate graph
+warning: patch `servo-media-gstreamer v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/backends/gstreamer)` was not used in the crate graph
+warning: patch `servo-media-gstreamer-render v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/backends/gstreamer/render)` was not used in the crate graph
+warning: patch `servo-media-gstreamer-render-android v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/backends/gstreamer/render-android)` was not used in the crate graph
+warning: patch `servo-media-gstreamer-render-unix v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/backends/gstreamer/render-unix)` was not used in the crate graph
+warning: patch `servo-media-player v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/player)` was not used in the crate graph
+warning: patch `servo-media-streams v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/streams)` was not used in the crate graph
+warning: patch `servo-media-traits v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/traits)` was not used in the crate graph
+warning: patch `servo-media-webrtc v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/webrtc)` was not used in the crate graph
+warning: patch `servo-webgl-essl v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/webgl-essl)` was not used in the crate graph
+warning: patch `servo-webgl-wgpu v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/webgl-wgpu)` was not used in the crate graph
+warning: patch `servo-xpath v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/xpath)` was not used in the crate graph
+warning: patch `taproot v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/taproot)` was not used in the crate graph
+warning: patch `browsing-context-api v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/shared/browsing-context)` was not used in the crate graph
+warning: patch `buckram v0.0.3 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/buckram)` was not used in the crate graph
+warning: patch `cadency v0.0.1 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/cadency)` was not used in the crate graph
+warning: patch `document-session-api v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/shared/document-session-api)` was not used in the crate graph
+warning: patch `engine-observables-api v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/shared/engine-observables-api)` was not used in the crate graph
+warning: patch `fleece v0.5.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/fleece)` was not used in the crate graph
+warning: patch `genet-clipboard v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-clipboard)` was not used in the crate graph
+warning: patch `genet-compositor v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-compositor)` was not used in the crate graph
+warning: patch `genet-document-resources v0.2.1 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-document-resources)` was not used in the crate graph
+warning: patch `genet-documents v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-documents)` was not used in the crate graph
+warning: patch `genet-fontique v0.10.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/support/patches/fontique)` was not used in the crate graph
+warning: patch `genet-host-api v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-host-api)` was not used in the crate graph
+warning: patch `genet-idl-interface-table v0.0.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/support/idl-interface-table)` was not used in the crate graph
+warning: patch `genet-livery v0.0.4 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-livery)` was not used in the crate graph
+warning: patch `genet-paint-types v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/shared/paint-types)` was not used in the crate graph
+warning: patch `genet-parley v0.10.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/support/patches/parley)` was not used in the crate graph
+warning: patch `genet-render v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-render)` was not used in the crate graph
+warning: patch `genet-render-host v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-render-host)` was not used in the crate graph
+warning: patch `genet-scripted v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-scripted)` was not used in the crate graph
+warning: patch `genet-scripted-dom v0.1.2 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-scripted-dom)` was not used in the crate graph
+warning: patch `genet-scripted-worker v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-scripted-worker)` was not used in the crate graph
+warning: patch `genet-static-dom v0.1.1 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-static-dom)` was not used in the crate graph
+warning: patch `genet-text v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-text)` was not used in the crate graph
+warning: patch `genet-winit-host v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/genet-winit-host)` was not used in the crate graph
+warning: patch `genet-wpt v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/ports/genet-wpt)` was not used in the crate graph
+warning: patch `layout-dom-api v0.1.1 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/shared/layout-dom)` was not used in the crate graph
+warning: patch `livery v0.0.5 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/livery)` was not used in the crate graph
+warning: patch `netfetcher v0.1.1 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/netfetcher)` was not used in the crate graph
+warning: patch `ortet v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/ports/ortet)` was not used in the crate graph
+warning: patch `script-engine-api v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/script-engine-api)` was not used in the crate graph
+warning: patch `script-engine-boa v0.0.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/script-engine-boa)` was not used in the crate graph
+warning: patch `script-engine-nova v0.0.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/script-engine-nova)` was not used in the crate graph
+warning: patch `script-engine-piccolo v0.0.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/script-engine-piccolo)` was not used in the crate graph
+warning: patch `script-runtime-api v0.0.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/script-runtime-api)` was not used in the crate graph
+warning: patch `servo-media v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/servo-media)` was not used in the crate graph
+warning: patch `servo-media-audio v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/audio)` was not used in the crate graph
+warning: patch `servo-media-auto v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/backends/auto)` was not used in the crate graph
+warning: patch `servo-media-derive v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/servo-media-derive)` was not used in the crate graph
+warning: patch `servo-media-dummy v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/backends/dummy)` was not used in the crate graph
+warning: patch `servo-media-examples v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/examples)` was not used in the crate graph
+warning: patch `servo-media-gstreamer v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/backends/gstreamer)` was not used in the crate graph
+warning: patch `servo-media-gstreamer-render v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/backends/gstreamer/render)` was not used in the crate graph
+warning: patch `servo-media-gstreamer-render-android v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/backends/gstreamer/render-android)` was not used in the crate graph
+warning: patch `servo-media-gstreamer-render-unix v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/backends/gstreamer/render-unix)` was not used in the crate graph
+warning: patch `servo-media-player v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/player)` was not used in the crate graph
+warning: patch `servo-media-streams v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/streams)` was not used in the crate graph
+warning: patch `servo-media-traits v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/traits)` was not used in the crate graph
+warning: patch `servo-media-webrtc v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/media/webrtc)` was not used in the crate graph
+warning: patch `servo-webgl-essl v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/webgl-essl)` was not used in the crate graph
+warning: patch `servo-webgl-wgpu v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/webgl-wgpu)` was not used in the crate graph
+warning: patch `servo-xpath v0.2.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/xpath)` was not used in the crate graph
+warning: patch `taproot v0.1.0 (/Users/markik/Code/worktrees/genet-vello-release-adoption/components/taproot)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+   Compiling vello_shaders v0.11.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/vello_shaders)
+   Compiling vello_common v0.3.0 (/Users/markik/Code/worktrees/vello-release-adoption/vello_common)
+   Compiling vello_encoding v0.11.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/vello_encoding)
+   Compiling glifo v0.4.0 (/Users/markik/Code/worktrees/vello-release-adoption/glifo)
+   Compiling netrender_device v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender_device)
+warning: function `submit` is never used
+  --> netrender_device/src/frame.rs:19:15
+   |
+19 | pub(crate) fn submit(queue: &wgpu::Queue, encoder: wgpu::CommandEncoder) {
+   |               ^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling vello_cpu v0.3.0 (/Users/markik/Code/worktrees/vello-release-adoption/vello_cpu)
+warning: `netrender_device` (lib) generated 1 warning
+   Compiling netrender-vello v0.11.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research)
+   Compiling netrender v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender)
+   Compiling paint_list_render v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_render)
+warning: field `details` is never read
+  --> paint_list_render/tests/../examples/classic_edge_probe/fixtures.rs:20:9
+   |
+17 | pub struct Case {
+   |            ---- field in this struct
+...
+20 |     pub details: Value,
+   |         ^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `Pen` is never constructed
+   --> paint_list_render/tests/../examples/classic_edge_probe/fixtures.rs:233:8
+    |
+233 | struct Pen(ScenePath);
+    |        ^^^
+
+warning: function `glyph_cases` is never used
+   --> paint_list_render/tests/../examples/classic_edge_probe/fixtures.rs:254:8
+    |
+254 | pub fn glyph_cases(
+    |        ^^^^^^^^^^^
+
+warning: `paint_list_render` (test "classic_edge_probe") generated 3 warnings
+    Finished `test` profile [unoptimized] target(s) in 17.13s
+     Running tests/classic_edge_probe.rs (/Users/markik/Code/targets/mere-s2s3/debug/deps/classic_edge_probe-a6a8650ebfc2dc5b)
+
+running 4 tests
+test controls_separate_curve_fill_single_clip_and_coincident_coverage ... ok
+test cpu_controls_preserve_transparent_exterior_hole_and_accent_alpha ... ok
+test diagnostic_polyline_shares_exact_backend_input_and_bounded_geometry ... ok
+test isolated_curve_is_the_exact_outer_contour_of_the_actual_border ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/resource_bundle.rs (/Users/markik/Code/targets/mere-s2s3/debug/deps/resource_bundle-8d39a1e799e05442)
+
+running 21 tests
+test a_borrowed_source_plan_checks_aggregate_budget_before_digests ... ok
+test a_standard_label_cannot_hide_a_three_dimensional_matrix ... ok
+test additive_side_coverage_keeps_uniform_ring_and_mixed_alpha_seams ... ok
+test aggregate_source_structure_and_nonempty_sentinel_refuse_before_hashing ... ok
+test alpha_conversion_preserves_transparency_without_matting ... ok
+test border_antialiasing_request_cannot_be_silently_changed ... ok
+test capture_refuses_missing_stale_duplicate_foreign_and_wrong_geometry ... ok
+test explicit_generation_and_zero_revision_survive_translation ... ok
+test finite_budget_and_missing_shadow_are_refusals ... ok
+test identity_and_side_channels_are_separate_from_pixel_acceptance ... ok
+test invisible_borders_and_gradient_tile_fallback_refuse ... ok
+test joined_rounded_border_preserves_transparent_hole_corners_and_side_alpha ... ok
+test large_finite_radius_normalization_does_not_overflow_to_square_corners ... ok
+test ledger_refuses_every_incomplete_or_mismatched_payload_before_materialization ... ok
+test nonuniform_rounded_solid_border_keeps_joined_shapes_and_ellipse_axes ... ok
+test physical_extent_matches_production_f64_multiplication ... ok
+test rounded_element_with_zero_border_widths_is_an_exact_noop ... ok
+test shadow_geometry_cannot_silently_drop_radius_or_transformed_blur ... ok
+test straight_and_premultiplied_payloads_match_with_transparent_overlap ... ok
+test supported_none_values_do_not_mask_nonfinite_floats ... ok
+test untranslated_masks_flags_blends_clip_out_and_key_range_refuse ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

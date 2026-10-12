@@ -1,0 +1,75 @@
+   Compiling indexmap v2.14.0
+   Compiling find-msvc-tools v0.1.9
+   Compiling shlex v1.3.0
+   Compiling cc v1.2.62
+   Compiling naga-types v30.0.1
+   Compiling half v2.7.1
+   Compiling wgpu-types v30.0.1
+   Compiling naga v30.0.1
+   Compiling getrandom v0.3.4
+   Compiling euclid v0.22.14
+   Compiling utf8parse v0.2.2
+   Compiling guillotiere v0.7.0
+   Compiling anstyle-parse v1.0.0
+   Compiling libdeflate-sys v1.25.2
+   Compiling anstyle v1.0.14
+   Compiling anstyle-query v1.1.5
+   Compiling colorchoice v1.0.5
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling radium v0.7.0
+   Compiling wgpu-naga-bridge v30.0.0
+   Compiling wgpu-hal v30.0.1
+   Compiling wgpu-core-deps-apple v30.0.1
+   Compiling wgpu-core v30.0.1
+   Compiling anstream v1.0.0
+   Compiling rand_core v0.9.5
+   Compiling vello_encoding v0.11.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/vello_encoding)
+   Compiling nv-flip-sys v0.1.1
+   Compiling ppv-lite86 v0.2.21
+   Compiling anyhow v1.0.102
+   Compiling heck v0.5.0
+   Compiling tap v1.0.1
+   Compiling pxfm v0.1.29
+   Compiling zune-core v0.5.1
+   Compiling clap_lex v1.1.0
+   Compiling strsim v0.11.1
+   Compiling zune-jpeg v0.5.15
+   Compiling clap_builder v4.6.0
+   Compiling moxcms v0.8.1
+   Compiling wyz v0.5.1
+   Compiling clap_derive v4.6.1
+   Compiling wgpu v30.0.1
+   Compiling rand_chacha v0.9.0
+   Compiling vello_shaders v0.11.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/vello_shaders)
+   Compiling funty v2.0.0
+   Compiling byteorder-lite v0.1.0
+   Compiling image v0.25.10
+   Compiling bitvec v1.0.1
+   Compiling libdeflater v1.25.2
+   Compiling netrender-vello v0.11.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research)
+   Compiling rand v0.9.4
+   Compiling clap v4.6.1
+   Compiling rgb v0.8.53
+   Compiling rustc-hash v2.1.2
+   Compiling vello_research_tests v0.0.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/vello_research_tests)
+   Compiling scenes v0.0.0 (/Users/markik/Code/worktrees/vello-release-adoption/research/examples/scenes)
+   Compiling oxipng v10.1.1
+warning: this lint expectation is unfulfilled
+  --> research/examples/scenes/src/simple_text.rs:35:5
+   |
+35 |     single_use_lifetimes,
+   |     ^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: False positive: https://github.com/rust-lang/rust/issues/129255
+   = note: `#[warn(unfulfilled_lint_expectations)]` on by default
+
+warning: `scenes` (lib) generated 1 warning
+   Compiling nv-flip v0.1.2
+    Finished `test` profile [unoptimized] target(s) in 48.51s
+     Running tests/dynamic_memory.rs (/Users/markik/Code/targets/mere-s2s3/debug/deps/dynamic_memory-59ea9908808bf0f7)
+
+running 1 test
+test a_scene_past_the_tile_table_recovers_after_readback ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.75s
+

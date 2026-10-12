@@ -1,0 +1,22 @@
+{
+  "reviewer": "root actual image inspection",
+  "recovery": {
+    "images": [
+      "first-before.png",
+      "first-after.png",
+      "second-before.png",
+      "second-after.png"
+    ],
+    "finding": "Light/dark paper and actual shaped heading visible, byte equality corroborated; fixed small viewport intentionally crops the reader article"
+  },
+  "native": {
+    "images": [
+      "initial.png",
+      "dark.png",
+      "resized.png"
+    ],
+    "finding": "Actual workshop controls, reader, code and graph rendered; dark mode, retained theme name, caret and reflow visible; panel clipping at viewport boundaries matches fixed preview sizing",
+    "scenario_result": "RESULT ok (63 frames,6 captures)"
+  },
+  "scope": "native initial/edit/dark/resize presentation separate from headless controlled device destruction"
+}

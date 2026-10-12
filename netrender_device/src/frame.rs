@@ -17,5 +17,14 @@ pub(crate) fn create_encoder(device: &wgpu::Device, label: &str) -> wgpu::Comman
 /// layer on top of this once the renderer owns a wgpu surface target;
 /// offscreen tests already use the same command lifecycle.
 pub(crate) fn submit(queue: &wgpu::Queue, encoder: wgpu::CommandEncoder) {
-    queue.submit([encoder.finish()]);
+    let _ = submit_index(queue, encoder);
+}
+
+/// Submit through the canonical frame lifecycle and retain the index for a
+/// bounded wait on this submission, independent of unrelated later work.
+pub(crate) fn submit_index(
+    queue: &wgpu::Queue,
+    encoder: wgpu::CommandEncoder,
+) -> wgpu::SubmissionIndex {
+    queue.submit([encoder.finish()])
 }

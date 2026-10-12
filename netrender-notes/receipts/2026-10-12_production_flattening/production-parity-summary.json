@@ -1,0 +1,194 @@
+[
+  {
+    "case": "workshop-1280-cold",
+    "command": [
+      "/Users/markik/Code/targets/mere-s2s3/debug/examples/resource_bundle_parity",
+      "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-1280-cold/complete-bundle.postcard",
+      "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-cold",
+      "all",
+      "--bundle"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 16.57,
+    "bundle_sha256": "b87bf91c1609b4ef956b9b9c6c726ac0c83edfb4e2ba8c7422651954eafd6acd",
+    "passed": true,
+    "exact_identity_admitted": true,
+    "receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-cold/receipt.json"
+  },
+  {
+    "case": "workshop-1280-repeat",
+    "command": [
+      "/Users/markik/Code/targets/mere-s2s3/debug/examples/resource_bundle_parity",
+      "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-1280-repeat/complete-bundle.postcard",
+      "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-repeat",
+      "all",
+      "--bundle"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 16.141,
+    "bundle_sha256": "09a8250cb0c4948c67e342713c4b7daf0a352370fa5691db840c208efcd1dce2",
+    "passed": true,
+    "exact_identity_admitted": true,
+    "receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-repeat/receipt.json"
+  },
+  {
+    "case": "workshop-1280-edited",
+    "command": [
+      "/Users/markik/Code/targets/mere-s2s3/debug/examples/resource_bundle_parity",
+      "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-1280-edited/complete-bundle.postcard",
+      "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-edited",
+      "all",
+      "--bundle"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 20.69,
+    "bundle_sha256": "c954ba555a0639bb10749a88488bd4446b2617ca23fce099b35a13b69f185833",
+    "passed": true,
+    "exact_identity_admitted": true,
+    "receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-edited/receipt.json"
+  },
+  {
+    "case": "workshop-1280-mode",
+    "command": [
+      "/Users/markik/Code/targets/mere-s2s3/debug/examples/resource_bundle_parity",
+      "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-1280-mode/complete-bundle.postcard",
+      "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-mode",
+      "all",
+      "--bundle"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 15.754,
+    "bundle_sha256": "5ffbfd4ecf64d51edf1b369787c34d419348f7ec432839884b9044a199065a9e",
+    "passed": true,
+    "exact_identity_admitted": true,
+    "receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-mode/receipt.json"
+  },
+  {
+    "case": "workshop-1280-resized",
+    "command": [
+      "/Users/markik/Code/targets/mere-s2s3/debug/examples/resource_bundle_parity",
+      "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-1280-resized/complete-bundle.postcard",
+      "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-resized",
+      "all",
+      "--bundle"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 14.928,
+    "bundle_sha256": "8cd15d06affc6112c68e958355b80e35765ec756794b26a0688e9f40cb944b53",
+    "passed": true,
+    "exact_identity_admitted": true,
+    "receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-resized/receipt.json"
+  },
+  {
+    "case": "workshop-1280-rebound",
+    "command": [
+      "/Users/markik/Code/targets/mere-s2s3/debug/examples/resource_bundle_parity",
+      "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-1280-rebound/complete-bundle.postcard",
+      "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-rebound",
+      "all",
+      "--bundle"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 14.924,
+    "bundle_sha256": "3a499e667f07707112f82b9bfd49b2f0447a7646b5056ba7b12d9ebdc27adff0",
+    "passed": true,
+    "exact_identity_admitted": true,
+    "receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-rebound/receipt.json"
+  },
+  {
+    "case": "workshop-420-cold",
+    "command": [
+      "/Users/markik/Code/targets/mere-s2s3/debug/examples/resource_bundle_parity",
+      "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-420-cold/complete-bundle.postcard",
+      "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-cold",
+      "all",
+      "--bundle"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 9.217,
+    "bundle_sha256": "b390c80e5b08144b5d8518fca69989bff1b009feb69c713756aa125cd1fcbb6f",
+    "passed": true,
+    "exact_identity_admitted": true,
+    "receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-cold/receipt.json"
+  },
+  {
+    "case": "workshop-420-repeat",
+    "command": [
+      "/Users/markik/Code/targets/mere-s2s3/debug/examples/resource_bundle_parity",
+      "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-420-repeat/complete-bundle.postcard",
+      "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-repeat",
+      "all",
+      "--bundle"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 9.3,
+    "bundle_sha256": "9af48efe51ce435a939fc24d2ac7e3cd95a62100d119cd1283bde71f1ab56888",
+    "passed": true,
+    "exact_identity_admitted": true,
+    "receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-repeat/receipt.json"
+  },
+  {
+    "case": "workshop-420-edited",
+    "command": [
+      "/Users/markik/Code/targets/mere-s2s3/debug/examples/resource_bundle_parity",
+      "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-420-edited/complete-bundle.postcard",
+      "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-edited",
+      "all",
+      "--bundle"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 9.193,
+    "bundle_sha256": "679e24ecff39b991d85c62be29b9c7eb9d72fe3497be0c7de94b253b599f8c34",
+    "passed": true,
+    "exact_identity_admitted": true,
+    "receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-edited/receipt.json"
+  },
+  {
+    "case": "workshop-420-mode",
+    "command": [
+      "/Users/markik/Code/targets/mere-s2s3/debug/examples/resource_bundle_parity",
+      "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-420-mode/complete-bundle.postcard",
+      "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-mode",
+      "all",
+      "--bundle"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 9.234,
+    "bundle_sha256": "04e554119b95272ddf3dac26b856a0feec73a3b29efb0d6cbb3508deeae0c5f6",
+    "passed": true,
+    "exact_identity_admitted": true,
+    "receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-mode/receipt.json"
+  },
+  {
+    "case": "workshop-420-resized",
+    "command": [
+      "/Users/markik/Code/targets/mere-s2s3/debug/examples/resource_bundle_parity",
+      "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-420-resized/complete-bundle.postcard",
+      "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-resized",
+      "all",
+      "--bundle"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 9.633,
+    "bundle_sha256": "f85d37aab01fd19ab1115ea03b0fce23f2482cbf76a696e457475c658e02da03",
+    "passed": true,
+    "exact_identity_admitted": true,
+    "receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-resized/receipt.json"
+  },
+  {
+    "case": "workshop-420-rebound",
+    "command": [
+      "/Users/markik/Code/targets/mere-s2s3/debug/examples/resource_bundle_parity",
+      "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-420-rebound/complete-bundle.postcard",
+      "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-rebound",
+      "all",
+      "--bundle"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 9.562,
+    "bundle_sha256": "45068d88d7384ff3fe4d1ee358784ef5a8b7e7ece9ffae0c05aafe902d30e836",
+    "passed": true,
+    "exact_identity_admitted": true,
+    "receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-rebound/receipt.json"
+  }
+]
