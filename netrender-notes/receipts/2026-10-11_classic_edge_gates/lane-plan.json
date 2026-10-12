@@ -1,0 +1,16 @@
+{
+  "started_utc": "2026-10-12T01:22:06.401557+00:00",
+  "netrender_base": "ef5412d760a978584c8c1801e8a765c51aecd403",
+  "mere_base": "ec1e65caed335010308566c8db51ad0e1e002799",
+  "vello_provider": "5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a",
+  "runtime_lane": "Both Tabard and Moot explicitly released their reservations to root for this finite serialized Classic/browser batch",
+  "builds": "root only, maximum2jobs, no incremental/debug symbols",
+  "lanes": [
+    "Classic curve/glyph reproduction",
+    "production browser qualification preparation",
+    "OS accessibility and device-loss scoping"
+  ],
+  "forced_driver_reset": false,
+  "shared_target": "/Users/markik/Code/targets/mere-s2s3",
+  "target_lease": "Moot exclusive handoff; preserve borrowed caches on release"
+}

@@ -1,0 +1,21 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "-p",
+    "paint_list_render",
+    "--features",
+    "resource-bundle,replay-cpu",
+    "--test",
+    "classic_edge_probe",
+    "-j",
+    "2"
+  ],
+  "cwd": "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge",
+  "deadline_seconds": 180,
+  "elapsed_seconds": 3.922,
+  "exit_code": 0,
+  "timed_out": false,
+  "log": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/checks/classic-polyline-controls.log"
+}

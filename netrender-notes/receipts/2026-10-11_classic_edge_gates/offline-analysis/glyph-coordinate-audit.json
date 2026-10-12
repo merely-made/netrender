@@ -1,0 +1,1276 @@
+{
+  "schema_version": 1,
+  "scope": "Offline primary-source arithmetic model, no Skrifa or renderer execution. Simple glyf only; exact validated font/face/run; no variation coordinates.",
+  "font_path": "/System/Library/Fonts/Helvetica.ttc",
+  "font_sha256": "25eceb458d4baf628ee0b6a135a9f8ac5ec7b2826646720834bd2bf00dfc825a",
+  "receipt_sha256": "ea450482a8eee301c011704e8a254ab972f978a42f027978676751b7a2b28753",
+  "font_size": 14,
+  "font_upem": 2048,
+  "ratio": 0.0068359375,
+  "draw_size_fixed_scale_bits": 28672,
+  "upem_fixed_scale_bits": 4194304,
+  "max_outline_coordinate_delta_pixels": 0.013671875,
+  "emitted_controlpoint_count_unique_glyphs": 653,
+  "glyphs": [
+    {
+      "glyph_id": 3,
+      "contours": 0,
+      "ops": 0,
+      "max_coordinate_delta": 0
+    },
+    {
+      "glyph_id": 17,
+      "contours": 1,
+      "ops": 6,
+      "max_coordinate_delta": 0.0068359375
+    },
+    {
+      "glyph_id": 40,
+      "contours": 2,
+      "ops": 17,
+      "max_coordinate_delta": 0.0068359375
+    },
+    {
+      "glyph_id": 68,
+      "contours": 3,
+      "ops": 45,
+      "max_coordinate_delta": 0.01318359375
+    },
+    {
+      "glyph_id": 69,
+      "contours": 2,
+      "ops": 25,
+      "max_coordinate_delta": 0.0126953125
+    },
+    {
+      "glyph_id": 70,
+      "contours": 2,
+      "ops": 23,
+      "max_coordinate_delta": 0.009765625
+    },
+    {
+      "glyph_id": 72,
+      "contours": 3,
+      "ops": 30,
+      "max_coordinate_delta": 0.01025390625
+    },
+    {
+      "glyph_id": 73,
+      "contours": 1,
+      "ops": 21,
+      "max_coordinate_delta": 0.0078125
+    },
+    {
+      "glyph_id": 74,
+      "contours": 3,
+      "ops": 35,
+      "max_coordinate_delta": 0.0126953125
+    },
+    {
+      "glyph_id": 75,
+      "contours": 1,
+      "ops": 18,
+      "max_coordinate_delta": 0.0078125
+    },
+    {
+      "glyph_id": 76,
+      "contours": 2,
+      "ops": 12,
+      "max_coordinate_delta": 0.0068359375
+    },
+    {
+      "glyph_id": 79,
+      "contours": 1,
+      "ops": 6,
+      "max_coordinate_delta": 0.0048828125
+    },
+    {
+      "glyph_id": 80,
+      "contours": 1,
+      "ops": 29,
+      "max_coordinate_delta": 0.0126953125
+    },
+    {
+      "glyph_id": 81,
+      "contours": 2,
+      "ops": 23,
+      "max_coordinate_delta": 0.0078125
+    },
+    {
+      "glyph_id": 82,
+      "contours": 3,
+      "ops": 23,
+      "max_coordinate_delta": 0.013671875
+    },
+    {
+      "glyph_id": 83,
+      "contours": 2,
+      "ops": 25,
+      "max_coordinate_delta": 0.009765625
+    },
+    {
+      "glyph_id": 85,
+      "contours": 1,
+      "ops": 16,
+      "max_coordinate_delta": 0.01025390625
+    },
+    {
+      "glyph_id": 86,
+      "contours": 2,
+      "ops": 33,
+      "max_coordinate_delta": 0.0087890625
+    },
+    {
+      "glyph_id": 87,
+      "contours": 1,
+      "ops": 22,
+      "max_coordinate_delta": 0.01123046875
+    },
+    {
+      "glyph_id": 89,
+      "contours": 1,
+      "ops": 9,
+      "max_coordinate_delta": 0.0068359375
+    },
+    {
+      "glyph_id": 90,
+      "contours": 1,
+      "ops": 15,
+      "max_coordinate_delta": 0.0078125
+    },
+    {
+      "glyph_id": 92,
+      "contours": 2,
+      "ops": 23,
+      "max_coordinate_delta": 0.01171875
+    }
+  ],
+  "sparse_subdivision_decision_crossings": [
+    {
+      "glyph_id": 82,
+      "segment": 10,
+      "draw_size_points": [
+        [
+          7.21875,
+          3.8125
+        ],
+        [
+          7.21875,
+          2.046875
+        ],
+        [
+          6.359375,
+          0.890625
+        ]
+      ],
+      "upem_scaled_points": [
+        [
+          7.2255859375,
+          3.814453125
+        ],
+        [
+          7.2255859375,
+          2.0439453125
+        ],
+        [
+          6.3642578125,
+          0.888671875
+        ]
+      ],
+      "draw_size_flatten_decision": {
+        "line_simplified": true,
+        "n": 1,
+        "control_to_chord": 0.4981999157975807
+      },
+      "upem_scaled_flatten_decision": {
+        "line_simplified": false,
+        "n": 2,
+        "control_to_chord": 0.5000073549374915,
+        "estimated_subdivision_value": 1.0109269029962946
+      },
+      "run_occurrences": [
+        {
+          "x": 243.5439453125,
+          "y": 195.0
+        },
+        {
+          "x": 297.2470703125,
+          "y": 195.0
+        }
+      ],
+      "world_segment_samples": [
+        {
+          "origin": {
+            "x": 243.5439453125,
+            "y": 195.0
+          },
+          "draw_size_points": [
+            [
+              250.7626953125,
+              191.1875
+            ],
+            [
+              250.7626953125,
+              192.953125
+            ],
+            [
+              249.9033203125,
+              194.109375
+            ]
+          ],
+          "upem_points": [
+            [
+              250.76953125,
+              191.185546875
+            ],
+            [
+              250.76953125,
+              192.9560546875
+            ],
+            [
+              249.908203125,
+              194.111328125
+            ]
+          ]
+        },
+        {
+          "origin": {
+            "x": 297.2470703125,
+            "y": 195.0
+          },
+          "draw_size_points": [
+            [
+              304.4658203125,
+              191.1875
+            ],
+            [
+              304.4658203125,
+              192.953125
+            ],
+            [
+              303.6064453125,
+              194.109375
+            ]
+          ],
+          "upem_points": [
+            [
+              304.47265625,
+              191.185546875
+            ],
+            [
+              304.47265625,
+              192.9560546875
+            ],
+            [
+              303.611328125,
+              194.111328125
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "source_contract": {
+    "fixed_multiply": "(a*b + 32768 - (a*b<0)) >> 16",
+    "point_midpoint": "signed integer division (a+b)/2 truncates toward zero",
+    "sparse_quad_simplification": "control-to-line-segment distance <=0.5 => line, equivalent curve deviation bound <=0.25",
+    "sparse_quad_subdivision": "ceil(approx integral variation at SQRT_TOL=0.5), minimum1"
+  },
+  "png_inputs": {
+    "glyph-original-run/cpu": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/glyph-all/glyph-original-run/cpu.png",
+      "sha256": "820b15655dcdb86397d9ffbd056db0bda2aab3a40e004a997ee1645c98b956f4"
+    },
+    "glyph-original-run/classic": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/glyph-all/glyph-original-run/classic.png",
+      "sha256": "c87250c859fbe57362224bd4e5319add01b44eb7ad5151a865e94d53a79f36a0"
+    },
+    "glyph-original-run/gpu": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/glyph-all/glyph-original-run/gpu.png",
+      "sha256": "60685445341401a306b8c51d6225d9bfbcf97d0ebc6fd2e7c22af0413335bd26"
+    },
+    "glyph-skrifa-draw-size/cpu": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/glyph-all/glyph-skrifa-draw-size/cpu.png",
+      "sha256": "8cea550ebcd890b01d1a2663c543e8e9a3c314b32ed9938e1ce60a51f85f90b5"
+    },
+    "glyph-skrifa-draw-size/classic": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/glyph-all/glyph-skrifa-draw-size/classic.png",
+      "sha256": "c7172f0c17ce03a27df7bf51fd9a6d275b0edd37336f24016c4be58d3404f3f6"
+    },
+    "glyph-skrifa-draw-size/gpu": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/glyph-all/glyph-skrifa-draw-size/gpu.png",
+      "sha256": "b79b3bbac775f8f7c6745e95e744e931c554599bca81768a95adf9ba5359f2ef"
+    },
+    "glyph-skrifa-upem-scaled/cpu": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/glyph-all/glyph-skrifa-upem-scaled/cpu.png",
+      "sha256": "820b15655dcdb86397d9ffbd056db0bda2aab3a40e004a997ee1645c98b956f4"
+    },
+    "glyph-skrifa-upem-scaled/classic": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/glyph-all/glyph-skrifa-upem-scaled/classic.png",
+      "sha256": "822ea8c9017a2fc0748e1fb3f37c8f98f74ebf550b25de09be30d407bea20814"
+    },
+    "glyph-skrifa-upem-scaled/gpu": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/glyph-all/glyph-skrifa-upem-scaled/gpu.png",
+      "sha256": "60685445341401a306b8c51d6225d9bfbcf97d0ebc6fd2e7c22af0413335bd26"
+    }
+  },
+  "draw_size_vs_upem_cpu_largest_alpha_differences": [
+    {
+      "x": 250,
+      "y": 192,
+      "exact_alpha_delta": 53,
+      "png_straight_rgba": {
+        "glyph-original-run/cpu": [
+          27,
+          33,
+          46,
+          149
+        ],
+        "glyph-original-run/classic": [
+          26,
+          31,
+          45,
+          96
+        ],
+        "glyph-original-run/gpu": [
+          26,
+          31,
+          44,
+          149
+        ],
+        "glyph-skrifa-draw-size/cpu": [
+          27,
+          32,
+          45,
+          96
+        ],
+        "glyph-skrifa-draw-size/classic": [
+          26,
+          31,
+          45,
+          96
+        ],
+        "glyph-skrifa-draw-size/gpu": [
+          27,
+          32,
+          45,
+          96
+        ],
+        "glyph-skrifa-upem-scaled/cpu": [
+          27,
+          33,
+          46,
+          149
+        ],
+        "glyph-skrifa-upem-scaled/classic": [
+          26,
+          31,
+          45,
+          98
+        ],
+        "glyph-skrifa-upem-scaled/gpu": [
+          26,
+          31,
+          44,
+          149
+        ]
+      }
+    },
+    {
+      "x": 304,
+      "y": 192,
+      "exact_alpha_delta": 51,
+      "png_straight_rgba": {
+        "glyph-original-run/cpu": [
+          28,
+          31,
+          45,
+          73
+        ],
+        "glyph-original-run/classic": [
+          26,
+          31,
+          45,
+          22
+        ],
+        "glyph-original-run/gpu": [
+          24,
+          31,
+          45,
+          73
+        ],
+        "glyph-skrifa-draw-size/cpu": [
+          35,
+          35,
+          46,
+          22
+        ],
+        "glyph-skrifa-draw-size/classic": [
+          26,
+          31,
+          45,
+          22
+        ],
+        "glyph-skrifa-draw-size/gpu": [
+          23,
+          35,
+          46,
+          22
+        ],
+        "glyph-skrifa-upem-scaled/cpu": [
+          28,
+          31,
+          45,
+          73
+        ],
+        "glyph-skrifa-upem-scaled/classic": [
+          26,
+          31,
+          45,
+          23
+        ],
+        "glyph-skrifa-upem-scaled/gpu": [
+          24,
+          31,
+          45,
+          73
+        ]
+      }
+    },
+    {
+      "x": 250,
+      "y": 193,
+      "exact_alpha_delta": 32,
+      "png_straight_rgba": {
+        "glyph-original-run/cpu": [
+          28,
+          32,
+          46,
+          55
+        ],
+        "glyph-original-run/classic": [
+          26,
+          31,
+          45,
+          23
+        ],
+        "glyph-original-run/gpu": [
+          28,
+          32,
+          46,
+          55
+        ],
+        "glyph-skrifa-draw-size/cpu": [
+          33,
+          33,
+          55,
+          23
+        ],
+        "glyph-skrifa-draw-size/classic": [
+          26,
+          31,
+          45,
+          23
+        ],
+        "glyph-skrifa-draw-size/gpu": [
+          22,
+          33,
+          44,
+          23
+        ],
+        "glyph-skrifa-upem-scaled/cpu": [
+          28,
+          32,
+          46,
+          55
+        ],
+        "glyph-skrifa-upem-scaled/classic": [
+          26,
+          31,
+          45,
+          24
+        ],
+        "glyph-skrifa-upem-scaled/gpu": [
+          28,
+          32,
+          46,
+          55
+        ]
+      }
+    }
+  ],
+  "local_outer_edge_area_model": [
+    {
+      "pixel": [
+        250,
+        192
+      ],
+      "ideal_quad_upem_alpha": 158.999256351487,
+      "ideal_quad_draw_size_alpha": 157.27655067624124,
+      "draw_size_straight_chord_alpha": 96.04980468749953,
+      "scope": "Isolated outer-right o edge is authoritative for this pixel: the inner hole control-point hull lies wholly left of the pixel (recorded max x); previous/following outer edges lie outside its y interval.",
+      "inner_hole_max_world_x": 249.484375
+    },
+    {
+      "pixel": [
+        304,
+        192
+      ],
+      "ideal_quad_upem_alpha": 83.29613135148684,
+      "ideal_quad_draw_size_alpha": 81.57342567624137,
+      "draw_size_straight_chord_alpha": 22.30825566796937,
+      "scope": "Isolated outer-right o edge is authoritative for this pixel: the inner hole control-point hull lies wholly left of the pixel (recorded max x); previous/following outer edges lie outside its y interval.",
+      "inner_hole_max_world_x": 303.1875
+    }
+  ],
+  "next_diagnostic_proposal": {
+    "canonical_curve": "four original quarter-ellipse cubics, 24x24 radii5x3",
+    "world_space_second_derivative_bound": 13.56270201261696,
+    "chord_error_bound_formula": "M/(8*N^2) per curve, Euclidean norm, uniform parameter partition",
+    "internal_geometry_tolerance_pixels": 0.001953125,
+    "requested_total_tolerance_pixels": 0.00390625,
+    "dyadic_segments_per_quarter": 32,
+    "all_curve_segments": 128,
+    "straight_segments": 4,
+    "f64_chord_error_bound_pixels": 0.0016556032730245312,
+    "endpoint_rounding": "emit identical world-space f32 points once, reserve remaining tolerance for f32 rounding; transforms identity for all backends",
+    "suggested_hard_caps": {
+      "segments_per_curve": 4096,
+      "total_segments_per_case": 16384
+    },
+    "interpretation": "If identical explicit line endpoints match across backends, current canonical-curve divergence is flattening-dominated for this fixture. If lines still differ, coverage/rasterization or composition is implicated. This cannot by itself qualify all producer glyphs. Diagnostic only; no production geometry rewrite.",
+    "status": "Executed by root: two canonical polyline fill/singleclip cases accepted across Classic and sparse GPU versus CPU, alpha delta0/RGBA delta<=1. Four CPU/source controls passed. Production fix remains pending; no glyph-polyline case executed.",
+    "endpoint_rounding_norm_bound_pixels": 1.3486991523486091e-06
+  },
+  "runtime_receipts": {
+    "geometry-all": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-all/receipt.json",
+      "sha256": "4bc2f66969f898175f02f277b6b30ce7685bdcc8a6e23bdded6bd5a4c2a478ea"
+    },
+    "glyph-all": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/glyph-all/receipt.json",
+      "sha256": "ea450482a8eee301c011704e8a254ab972f978a42f027978676751b7a2b28753"
+    },
+    "geometry-with-polyline": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/receipt.json",
+      "sha256": "39b551cc8ee296194bfd621bd0618395066e34aaee7320e90a12c2be784512c4"
+    }
+  },
+  "executed_polyline_control": {
+    "receipt": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/receipt.json",
+      "sha256": "39b551cc8ee296194bfd621bd0618395066e34aaee7320e90a12c2be784512c4"
+    },
+    "root_runtime_duration_seconds_reported": 3.3,
+    "diagnostic_completion": true,
+    "overall_selected_cross_renderer_acceptance": false,
+    "pixel_thresholds_unchanged": {
+      "edge_max_alpha": 16,
+      "edge_max_rgba": 32,
+      "edge_reference_neighbor_variation": 8,
+      "interior_max_alpha": 2,
+      "interior_max_rgba": 3,
+      "mean_channel_delta": 1.0
+    },
+    "selected_cases": [
+      {
+        "name": "curve-fill",
+        "scene_digest": [
+          109,
+          172,
+          201,
+          70,
+          198,
+          94,
+          18,
+          13,
+          44,
+          139,
+          99,
+          234,
+          23,
+          155,
+          5,
+          156,
+          244,
+          35,
+          209,
+          164,
+          29,
+          195,
+          77,
+          104,
+          178,
+          212,
+          144,
+          140,
+          178,
+          241,
+          252,
+          74
+        ],
+        "details": {
+          "clip_count": 0,
+          "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+          "fill_is_same_curve": true,
+          "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "renders": {
+          "classic": {
+            "adapter": {
+              "backend": "Metal",
+              "device_type": "DiscreteGpu",
+              "driver": "",
+              "driver_info": "",
+              "name": "AMD Radeon Pro Vega 56"
+            },
+            "bounded_submit_readback_ms": 26.477945,
+            "comparison": {
+              "accepted": false,
+              "changed_pixels": 28,
+              "edge_max_alpha_delta": 42,
+              "edge_max_rgba_delta": 42,
+              "edge_pixels": 144,
+              "exact_pixels": false,
+              "interior_max_alpha_delta": 0,
+              "interior_max_rgba_delta": 0,
+              "interior_pixels": 1456,
+              "mean_channel_delta": 0.17875
+            },
+            "deadline_seconds": 5,
+            "gpu_initialized": true,
+            "initialize_ms": 119.01577200000001,
+            "premultiplied_pixels_sha256": "3ec1635613b5e1da08fd203993867eabd7eb34acb63b25e667a202e0242dced2",
+            "premultiplied_probe_21_0": [
+              41,
+              54,
+              65,
+              97
+            ],
+            "raw_pixels_sha256": "1a908315138d746add9700aba1fb3d63ac105649ba81763dcc688728a239947c",
+            "render_encode_submit_ms": 10.132564
+          },
+          "gpu": {
+            "adapter": {
+              "backend": "Metal",
+              "device_type": "DiscreteGpu",
+              "driver": "",
+              "driver_info": "",
+              "name": "AMD Radeon Pro Vega 56"
+            },
+            "bounded_submit_readback_ms": 0.9347789999999999,
+            "comparison": {
+              "accepted": true,
+              "changed_pixels": 16,
+              "edge_max_alpha_delta": 0,
+              "edge_max_rgba_delta": 1,
+              "edge_pixels": 144,
+              "exact_pixels": false,
+              "interior_max_alpha_delta": 0,
+              "interior_max_rgba_delta": 0,
+              "interior_pixels": 1456,
+              "mean_channel_delta": 0.0025
+            },
+            "deadline_seconds": 5,
+            "gpu_initialized": true,
+            "initialize_ms": 109.873691,
+            "premultiplied_pixels_sha256": "665faa47808b9dc2073cb6cf51be6ce8c81f2474b53ba08b8487f51bdf19f619",
+            "premultiplied_probe_21_0": [
+              58,
+              77,
+              93,
+              139
+            ],
+            "raw_pixels_sha256": "665faa47808b9dc2073cb6cf51be6ce8c81f2474b53ba08b8487f51bdf19f619",
+            "render_encode_submit_ms": 2.028778,
+            "session_stats": {
+              "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+              "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+            }
+          }
+        },
+        "pngs": {
+          "cpu": {
+            "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/curve-fill/cpu.png",
+            "sha256": "c2cf6150173456a3c3aa657ceaba890c80d1b4c4ed52a37266646422a6c7061b"
+          },
+          "classic": {
+            "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/curve-fill/classic.png",
+            "sha256": "8e614ef0dc9dedfd4f809928c7064a7f4a8aab0b536b022b34b26071a910ec49"
+          },
+          "gpu": {
+            "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/curve-fill/gpu.png",
+            "sha256": "fbdfb74d1f98813f6b265782e7990b6bfd47afd4b5727d8ad8a1d4f0c498aa7d"
+          }
+        }
+      },
+      {
+        "name": "curve-clip-only",
+        "scene_digest": [
+          132,
+          167,
+          60,
+          52,
+          183,
+          194,
+          174,
+          109,
+          159,
+          155,
+          33,
+          92,
+          253,
+          239,
+          9,
+          9,
+          162,
+          15,
+          208,
+          58,
+          123,
+          172,
+          3,
+          230,
+          179,
+          19,
+          34,
+          232,
+          145,
+          156,
+          210,
+          25
+        ],
+        "details": {
+          "clip_count": 1,
+          "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+          "fill_is_same_curve": false,
+          "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "renders": {
+          "classic": {
+            "adapter": {
+              "backend": "Metal",
+              "device_type": "DiscreteGpu",
+              "driver": "",
+              "driver_info": "",
+              "name": "AMD Radeon Pro Vega 56"
+            },
+            "bounded_submit_readback_ms": 11.895396000000002,
+            "comparison": {
+              "accepted": false,
+              "changed_pixels": 28,
+              "edge_max_alpha_delta": 42,
+              "edge_max_rgba_delta": 42,
+              "edge_pixels": 144,
+              "exact_pixels": false,
+              "interior_max_alpha_delta": 0,
+              "interior_max_rgba_delta": 0,
+              "interior_pixels": 1456,
+              "mean_channel_delta": 0.17875
+            },
+            "deadline_seconds": 5,
+            "gpu_initialized": true,
+            "initialize_ms": 75.733694,
+            "premultiplied_pixels_sha256": "3ec1635613b5e1da08fd203993867eabd7eb34acb63b25e667a202e0242dced2",
+            "premultiplied_probe_21_0": [
+              41,
+              54,
+              65,
+              97
+            ],
+            "raw_pixels_sha256": "c4b1ea0a5143274a25070de554f98c67ecca7432128b37b3556209544d0290d9",
+            "render_encode_submit_ms": 9.842923
+          },
+          "gpu": {
+            "adapter": {
+              "backend": "Metal",
+              "device_type": "DiscreteGpu",
+              "driver": "",
+              "driver_info": "",
+              "name": "AMD Radeon Pro Vega 56"
+            },
+            "bounded_submit_readback_ms": 1.062248,
+            "comparison": {
+              "accepted": true,
+              "changed_pixels": 16,
+              "edge_max_alpha_delta": 0,
+              "edge_max_rgba_delta": 1,
+              "edge_pixels": 144,
+              "exact_pixels": false,
+              "interior_max_alpha_delta": 0,
+              "interior_max_rgba_delta": 0,
+              "interior_pixels": 1456,
+              "mean_channel_delta": 0.0025
+            },
+            "deadline_seconds": 5,
+            "gpu_initialized": true,
+            "initialize_ms": 100.390691,
+            "premultiplied_pixels_sha256": "665faa47808b9dc2073cb6cf51be6ce8c81f2474b53ba08b8487f51bdf19f619",
+            "premultiplied_probe_21_0": [
+              58,
+              77,
+              93,
+              139
+            ],
+            "raw_pixels_sha256": "665faa47808b9dc2073cb6cf51be6ce8c81f2474b53ba08b8487f51bdf19f619",
+            "render_encode_submit_ms": 2.9921040000000003,
+            "session_stats": {
+              "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+              "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+            }
+          }
+        },
+        "pngs": {
+          "cpu": {
+            "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/curve-clip-only/cpu.png",
+            "sha256": "c2cf6150173456a3c3aa657ceaba890c80d1b4c4ed52a37266646422a6c7061b"
+          },
+          "classic": {
+            "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/curve-clip-only/classic.png",
+            "sha256": "b2fc8f5add2898250db8b6793d23a4c3e94a470ca48489cfac441be2a42d26cb"
+          },
+          "gpu": {
+            "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/curve-clip-only/gpu.png",
+            "sha256": "fbdfb74d1f98813f6b265782e7990b6bfd47afd4b5727d8ad8a1d4f0c498aa7d"
+          }
+        }
+      },
+      {
+        "name": "polyline-fill",
+        "scene_digest": [
+          252,
+          139,
+          11,
+          157,
+          134,
+          77,
+          3,
+          145,
+          56,
+          83,
+          25,
+          35,
+          239,
+          52,
+          124,
+          143,
+          180,
+          9,
+          39,
+          142,
+          144,
+          178,
+          243,
+          76,
+          179,
+          47,
+          242,
+          64,
+          2,
+          234,
+          146,
+          32
+        ],
+        "details": {
+          "approximation_purpose": "diagnostic only: isolate fine area coverage from provider curve flattening; canonical curve controls unchanged",
+          "clip_count": 0,
+          "endpoint_rounding_bound_pixels": 1.3486991523486091e-06,
+          "endpoint_sharing": "same precomputed f32 line endpoint vector and same admitted Scene for every backend; no backend-specific preparation",
+          "f64_chord_error_bound_pixels": 0.0016556396484375,
+          "second_derivative_bound": 13.563,
+          "segments_per_quarter": 32,
+          "total_error_bound_pixels": 0.00390625,
+          "total_line_segments": 132,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "renders": {
+          "classic": {
+            "adapter": {
+              "backend": "Metal",
+              "device_type": "DiscreteGpu",
+              "driver": "",
+              "driver_info": "",
+              "name": "AMD Radeon Pro Vega 56"
+            },
+            "bounded_submit_readback_ms": 11.401296,
+            "comparison": {
+              "accepted": true,
+              "changed_pixels": 16,
+              "edge_max_alpha_delta": 0,
+              "edge_max_rgba_delta": 1,
+              "edge_pixels": 134,
+              "exact_pixels": false,
+              "interior_max_alpha_delta": 0,
+              "interior_max_rgba_delta": 0,
+              "interior_pixels": 1466,
+              "mean_channel_delta": 0.00375
+            },
+            "deadline_seconds": 5,
+            "gpu_initialized": true,
+            "initialize_ms": 75.666025,
+            "premultiplied_pixels_sha256": "81eb830523b92f235c98b819e0efd835eaccb9e7f06a54353899418a90b7d192",
+            "premultiplied_probe_21_0": [
+              63,
+              83,
+              101,
+              151
+            ],
+            "raw_pixels_sha256": "337518f969c4670b744703c7d0b98626d3c703d9ef5bf02080f868d8e6c870a6",
+            "render_encode_submit_ms": 7.641771
+          },
+          "gpu": {
+            "adapter": {
+              "backend": "Metal",
+              "device_type": "DiscreteGpu",
+              "driver": "",
+              "driver_info": "",
+              "name": "AMD Radeon Pro Vega 56"
+            },
+            "bounded_submit_readback_ms": 0.960353,
+            "comparison": {
+              "accepted": true,
+              "changed_pixels": 16,
+              "edge_max_alpha_delta": 0,
+              "edge_max_rgba_delta": 1,
+              "edge_pixels": 134,
+              "exact_pixels": false,
+              "interior_max_alpha_delta": 0,
+              "interior_max_rgba_delta": 0,
+              "interior_pixels": 1466,
+              "mean_channel_delta": 0.00375
+            },
+            "deadline_seconds": 5,
+            "gpu_initialized": true,
+            "initialize_ms": 100.815652,
+            "premultiplied_pixels_sha256": "81eb830523b92f235c98b819e0efd835eaccb9e7f06a54353899418a90b7d192",
+            "premultiplied_probe_21_0": [
+              63,
+              83,
+              101,
+              151
+            ],
+            "raw_pixels_sha256": "81eb830523b92f235c98b819e0efd835eaccb9e7f06a54353899418a90b7d192",
+            "render_encode_submit_ms": 2.095155,
+            "session_stats": {
+              "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+              "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+            }
+          }
+        },
+        "pngs": {
+          "cpu": {
+            "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/polyline-fill/cpu.png",
+            "sha256": "2eb52196404fd194b0f12e470224ca1597be9498e48f50c03c5ed398a5252b5d"
+          },
+          "classic": {
+            "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/polyline-fill/classic.png",
+            "sha256": "b6c64ceac9478eca07a2770705aa56a3ccf3286c211aff02d7c7d24da4bd1a1c"
+          },
+          "gpu": {
+            "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/polyline-fill/gpu.png",
+            "sha256": "bbedd4056267bcf6971911a656eb4b353cfe9a55dc064eb9c4beec22014b7651"
+          }
+        }
+      },
+      {
+        "name": "polyline-clip-only",
+        "scene_digest": [
+          118,
+          121,
+          228,
+          111,
+          93,
+          21,
+          62,
+          2,
+          215,
+          22,
+          215,
+          188,
+          111,
+          128,
+          136,
+          40,
+          200,
+          79,
+          154,
+          199,
+          181,
+          169,
+          197,
+          6,
+          15,
+          167,
+          60,
+          96,
+          190,
+          1,
+          104,
+          17
+        ],
+        "details": {
+          "approximation_purpose": "diagnostic only: isolate fine area coverage from provider curve flattening; canonical curve controls unchanged",
+          "clip_count": 1,
+          "endpoint_rounding_bound_pixels": 1.3486991523486091e-06,
+          "endpoint_sharing": "same precomputed f32 line endpoint vector and same admitted Scene for every backend; no backend-specific preparation",
+          "f64_chord_error_bound_pixels": 0.0016556396484375,
+          "second_derivative_bound": 13.563,
+          "segments_per_quarter": 32,
+          "total_error_bound_pixels": 0.00390625,
+          "total_line_segments": 132,
+          "transform": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        "renders": {
+          "classic": {
+            "adapter": {
+              "backend": "Metal",
+              "device_type": "DiscreteGpu",
+              "driver": "",
+              "driver_info": "",
+              "name": "AMD Radeon Pro Vega 56"
+            },
+            "bounded_submit_readback_ms": 11.506912,
+            "comparison": {
+              "accepted": true,
+              "changed_pixels": 16,
+              "edge_max_alpha_delta": 0,
+              "edge_max_rgba_delta": 1,
+              "edge_pixels": 134,
+              "exact_pixels": false,
+              "interior_max_alpha_delta": 0,
+              "interior_max_rgba_delta": 0,
+              "interior_pixels": 1466,
+              "mean_channel_delta": 0.00375
+            },
+            "deadline_seconds": 5,
+            "gpu_initialized": true,
+            "initialize_ms": 77.12511599999999,
+            "premultiplied_pixels_sha256": "81eb830523b92f235c98b819e0efd835eaccb9e7f06a54353899418a90b7d192",
+            "premultiplied_probe_21_0": [
+              63,
+              83,
+              101,
+              151
+            ],
+            "raw_pixels_sha256": "9af5e1350c31189dcfa8c904def7edf70a771fc08b3e21f069079347abd3b0c0",
+            "render_encode_submit_ms": 7.844106
+          },
+          "gpu": {
+            "adapter": {
+              "backend": "Metal",
+              "device_type": "DiscreteGpu",
+              "driver": "",
+              "driver_info": "",
+              "name": "AMD Radeon Pro Vega 56"
+            },
+            "bounded_submit_readback_ms": 1.082855,
+            "comparison": {
+              "accepted": true,
+              "changed_pixels": 16,
+              "edge_max_alpha_delta": 0,
+              "edge_max_rgba_delta": 1,
+              "edge_pixels": 134,
+              "exact_pixels": false,
+              "interior_max_alpha_delta": 0,
+              "interior_max_rgba_delta": 0,
+              "interior_pixels": 1466,
+              "mean_channel_delta": 0.00375
+            },
+            "deadline_seconds": 5,
+            "gpu_initialized": true,
+            "initialize_ms": 101.44506,
+            "premultiplied_pixels_sha256": "81eb830523b92f235c98b819e0efd835eaccb9e7f06a54353899418a90b7d192",
+            "premultiplied_probe_21_0": [
+              63,
+              83,
+              101,
+              151
+            ],
+            "raw_pixels_sha256": "81eb830523b92f235c98b819e0efd835eaccb9e7f06a54353899418a90b7d192",
+            "render_encode_submit_ms": 3.1100239999999997,
+            "session_stats": {
+              "resources": "SparseResourceStats { source_count: 0, source_bytes: 0, cached_images: 0, cached_bytes: 0, gpu_texture_bytes: 0, hydrated_images: 0, uploaded_images: 0 }",
+              "text": "SparseTextStats { font_count: 0, font_bytes: 0, cached_glyphs: 0, cached_outline_segments: 0, prepared_glyphs: 0, cache_resets: 0, cache_frames: 1 }"
+            }
+          }
+        },
+        "pngs": {
+          "cpu": {
+            "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/polyline-clip-only/cpu.png",
+            "sha256": "2eb52196404fd194b0f12e470224ca1597be9498e48f50c03c5ed398a5252b5d"
+          },
+          "classic": {
+            "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/polyline-clip-only/classic.png",
+            "sha256": "33dc677343bc9a81c21003648b8e1b2117eb2beec933b9a671e5c3fa75d6c6c8"
+          },
+          "gpu": {
+            "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline/polyline-clip-only/gpu.png",
+            "sha256": "bbedd4056267bcf6971911a656eb4b353cfe9a55dc064eb9c4beec22014b7651"
+          }
+        }
+      }
+    ],
+    "within_backend_fill_vs_clip": [
+      {
+        "actual": "polyline-clip-only",
+        "backend": "cpu",
+        "comparison": {
+          "accepted": true,
+          "changed_pixels": 0,
+          "edge_max_alpha_delta": 0,
+          "edge_max_rgba_delta": 0,
+          "edge_pixels": 134,
+          "exact_pixels": true,
+          "interior_max_alpha_delta": 0,
+          "interior_max_rgba_delta": 0,
+          "interior_pixels": 1466,
+          "mean_channel_delta": 0.0
+        },
+        "meaning": "identical diagnostic line endpoints as fill versus single clip",
+        "reference": "polyline-fill",
+        "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+      },
+      {
+        "actual": "polyline-clip-only",
+        "backend": "classic",
+        "comparison": {
+          "accepted": true,
+          "changed_pixels": 0,
+          "edge_max_alpha_delta": 0,
+          "edge_max_rgba_delta": 0,
+          "edge_pixels": 134,
+          "exact_pixels": true,
+          "interior_max_alpha_delta": 0,
+          "interior_max_rgba_delta": 0,
+          "interior_pixels": 1466,
+          "mean_channel_delta": 0.0
+        },
+        "meaning": "identical diagnostic line endpoints as fill versus single clip",
+        "reference": "polyline-fill",
+        "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+      },
+      {
+        "actual": "polyline-clip-only",
+        "backend": "gpu",
+        "comparison": {
+          "accepted": true,
+          "changed_pixels": 0,
+          "edge_max_alpha_delta": 0,
+          "edge_max_rgba_delta": 0,
+          "edge_pixels": 134,
+          "exact_pixels": true,
+          "interior_max_alpha_delta": 0,
+          "interior_max_rgba_delta": 0,
+          "interior_pixels": 1466,
+          "mean_channel_delta": 0.0
+        },
+        "meaning": "identical diagnostic line endpoints as fill versus single clip",
+        "reference": "polyline-fill",
+        "scope": "diagnostic comparison; repeated antialiased clip coverage is not an identity gate"
+      }
+    ],
+    "source_controls": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/checks/classic-polyline-controls.log",
+      "sha256": "5a514f6ec6944e4497354c473772ba7c00f8537a41ad72fae568a07aaea45f4e",
+      "passed": 4,
+      "failed": 0,
+      "runtime_seconds": 0.01
+    },
+    "runtime_log": {
+      "path": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/checks/classic-polyline-final-runtime.log",
+      "sha256": "1ed6489475fadce597519475e60890ca3a28c33a34b2300a1a8887c07c130b3f"
+    },
+    "source_base_commit": "ef5412d760a978584c8c1801e8a765c51aecd403",
+    "provider_readonly_revision": "5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a",
+    "source_files": [
+      {
+        "path": "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_render/examples/classic_edge_probe.rs",
+        "sha256": "a8eba11f6e56b4c9b588e8f0ec59b38fb0e6d00ee44cacc3e73ce3628d106374"
+      },
+      {
+        "path": "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_render/examples/classic_edge_probe/fixtures.rs",
+        "sha256": "0804fcefd54ea0105ebcbdd5a7729307c660151e47897169af54c89377be770b"
+      },
+      {
+        "path": "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_render/tests/classic_edge_probe.rs",
+        "sha256": "be183b965b936f6173ffde26c1d7012260246ee47850234a79e4be1ce210850a"
+      },
+      {
+        "path": "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_render/examples/classic_edge_probe/README.md",
+        "sha256": "9db8f357f7f0df28e2aee8649967d7c79d6a00d34533519b798320beb0fd5e3e"
+      }
+    ],
+    "conclusion": "Canonical fixture gap is flattening-dominated: identical explicit line endpoints have exact cross-provider alpha and premultiplied RGBA delta <=1; original curves retain Classic alpha delta42. This does not qualify all glyphs.",
+    "production_fix_status": "Explicitly pending. No production/backend/provider edits; canonical geometry and thresholds unchanged."
+  }
+}

@@ -1,0 +1,36 @@
+   Compiling paint_list_render v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_render)
+warning: field `details` is never read
+  --> paint_list_render/tests/../examples/classic_edge_probe/fixtures.rs:20:9
+   |
+17 | pub struct Case {
+   |            ---- field in this struct
+...
+20 |     pub details: Value,
+   |         ^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `Pen` is never constructed
+   --> paint_list_render/tests/../examples/classic_edge_probe/fixtures.rs:233:8
+    |
+233 | struct Pen(ScenePath);
+    |        ^^^
+
+warning: function `glyph_cases` is never used
+   --> paint_list_render/tests/../examples/classic_edge_probe/fixtures.rs:254:8
+    |
+254 | pub fn glyph_cases(
+    |        ^^^^^^^^^^^
+
+warning: `paint_list_render` (test "classic_edge_probe") generated 3 warnings
+    Finished `test` profile [unoptimized] target(s) in 2.84s
+     Running tests/classic_edge_probe.rs (/Users/markik/Code/targets/mere-s2s3/debug/deps/classic_edge_probe-68fe7f575a217e36)
+
+running 4 tests
+test controls_separate_curve_fill_single_clip_and_coincident_coverage ... ok
+test isolated_curve_is_the_exact_outer_contour_of_the_actual_border ... ok
+test diagnostic_polyline_shares_exact_backend_input_and_bounded_geometry ... ok
+test cpu_controls_preserve_transparent_exterior_hole_and_accent_alpha ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
