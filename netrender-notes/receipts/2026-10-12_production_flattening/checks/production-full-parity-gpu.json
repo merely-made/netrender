@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "/Users/markik/Code/output/vello-production-fixes-20261011/run_production_parity.py"
+  ],
+  "cwd": "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge",
+  "deadline_seconds": 900,
+  "elapsed_seconds": 155.941,
+  "exit_code": 0,
+  "timed_out": false,
+  "disk_refused": false,
+  "log": "/Users/markik/Code/output/vello-production-fixes-20261011/checks/production-full-parity-gpu.log"
+}

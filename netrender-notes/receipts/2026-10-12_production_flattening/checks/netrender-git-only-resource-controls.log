@@ -1,0 +1,79 @@
+   Compiling vello_shaders v0.11.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling vello_common v0.3.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling vello_encoding v0.11.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling glifo v0.4.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+warning: function `submit` is never used
+  --> netrender_device/src/frame.rs:19:15
+   |
+19 | pub(crate) fn submit(queue: &wgpu::Queue, encoder: wgpu::CommandEncoder) {
+   |               ^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `netrender_device` (lib) generated 1 warning
+   Compiling netrender-vello v0.11.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling vello_cpu v0.3.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling netrender v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/netrender)
+   Compiling paint_list_render v0.1.2 (/Users/markik/Code/worktrees/netrender-cambium-resource-bridge/paint_list_render)
+warning: field `details` is never read
+  --> paint_list_render/tests/../examples/classic_edge_probe/fixtures.rs:20:9
+   |
+17 | pub struct Case {
+   |            ---- field in this struct
+...
+20 |     pub details: Value,
+   |         ^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `Pen` is never constructed
+   --> paint_list_render/tests/../examples/classic_edge_probe/fixtures.rs:233:8
+    |
+233 | struct Pen(ScenePath);
+    |        ^^^
+
+warning: function `glyph_cases` is never used
+   --> paint_list_render/tests/../examples/classic_edge_probe/fixtures.rs:254:8
+    |
+254 | pub fn glyph_cases(
+    |        ^^^^^^^^^^^
+
+warning: `paint_list_render` (test "classic_edge_probe") generated 3 warnings
+    Finished `test` profile [unoptimized] target(s) in 15.00s
+     Running tests/classic_edge_probe.rs (/Users/markik/Code/targets/mere-s2s3/debug/deps/classic_edge_probe-34c3a2fd0ce70e7f)
+
+running 4 tests
+test controls_separate_curve_fill_single_clip_and_coincident_coverage ... ok
+test cpu_controls_preserve_transparent_exterior_hole_and_accent_alpha ... ok
+test diagnostic_polyline_shares_exact_backend_input_and_bounded_geometry ... ok
+test isolated_curve_is_the_exact_outer_contour_of_the_actual_border ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/resource_bundle.rs (/Users/markik/Code/targets/mere-s2s3/debug/deps/resource_bundle-2855712fa4d8a510)
+
+running 21 tests
+test a_borrowed_source_plan_checks_aggregate_budget_before_digests ... ok
+test a_standard_label_cannot_hide_a_three_dimensional_matrix ... ok
+test additive_side_coverage_keeps_uniform_ring_and_mixed_alpha_seams ... ok
+test aggregate_source_structure_and_nonempty_sentinel_refuse_before_hashing ... ok
+test alpha_conversion_preserves_transparency_without_matting ... ok
+test border_antialiasing_request_cannot_be_silently_changed ... ok
+test capture_refuses_missing_stale_duplicate_foreign_and_wrong_geometry ... ok
+test explicit_generation_and_zero_revision_survive_translation ... ok
+test finite_budget_and_missing_shadow_are_refusals ... ok
+test identity_and_side_channels_are_separate_from_pixel_acceptance ... ok
+test invisible_borders_and_gradient_tile_fallback_refuse ... ok
+test joined_rounded_border_preserves_transparent_hole_corners_and_side_alpha ... ok
+test large_finite_radius_normalization_does_not_overflow_to_square_corners ... ok
+test ledger_refuses_every_incomplete_or_mismatched_payload_before_materialization ... ok
+test nonuniform_rounded_solid_border_keeps_joined_shapes_and_ellipse_axes ... ok
+test physical_extent_matches_production_f64_multiplication ... ok
+test rounded_element_with_zero_border_widths_is_an_exact_noop ... ok
+test shadow_geometry_cannot_silently_drop_radius_or_transformed_blur ... ok
+test straight_and_premultiplied_payloads_match_with_transparent_overlap ... ok
+test supported_none_values_do_not_mask_nonfinite_floats ... ok
+test untranslated_masks_flags_blends_clip_out_and_key_range_refuse ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

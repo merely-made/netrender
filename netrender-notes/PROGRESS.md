@@ -59,6 +59,24 @@ and amplifies a 0.013671875-pixel change into alpha 53/51. Four source/CPU
 controls pass. Production/provider geometry and thresholds remain unchanged;
 Classic parity and production remediation remain open.
 
+## Production flattening qualification, 2026-10-12
+
+The [production receipt](receipts/2026-10-12_production_flattening/README.md)
+closes the prior canonical curve/glyph gate at unchanged pixel thresholds:
+eleven geometry cases, five recorded glyph variants, twelve intact panels and
+twenty-four producer source scenes pass across CPU, Classic and Sparse GPU.
+Canonical source inputs remain intact. Provider approximation is 1/256 device
+pixel with typed bounded-work refusal and final-frame quality-counter polling.
+The maintained release versions remain Classic 0.11, CPU/GPU/Common 0.3 and
+Glifo 0.4; the qualified provider is 2eae6243881d5b24c984d5ee35dde509ca5db782.
+
+Costs are explicit in the receipt: unoptimized paired CPU median 1.52x and Sparse
+host encode/submit 2.01x. RG1 still identifies material allocation pressure, with
+its original predicate and projected logical peak-live scope. Actual shared
+Genet/Cambium callback recovery is qualified separately from native presentation;
+physical driver reset, browser automatic replacement and OS assistive actions
+remain separately scoped.
+
 ## Current canonical plans
 
 The original plan audit was 2026-08-10. Later activated work is indexed

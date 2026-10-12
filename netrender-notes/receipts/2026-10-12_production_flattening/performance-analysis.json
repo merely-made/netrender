@@ -1,0 +1,3857 @@
+{
+  "schema_version": 1,
+  "scope": "identity-matched retained full-production replay timing analysis; no new runtime launched",
+  "notes": [
+    "One timing observation per backend/subject/case; each render creates a fresh session/device. Labels cold/repeat describe capture history, not warm renderer-session measurements.",
+    "CPU render_encode_submit_ms measures synchronous CPU raster. Classic/SparseGPU values measure host render/encode/submit calls, not device execution. GPU initialization includes adapter/device boot.",
+    "bounded_submit_readback_ms includes copy submission, bounded queue completion, mapping/copying and Classic quality polling; it is not a GPU timestamp or isolated shader time.",
+    "Every paired comparison matches bundle SHA, capture digest, panel PNG dimensions, producer bindings, resource metadata/payload digests and thresholds. Sparse adapter metadata matches. Receipt provider label changes from bound-source-scene-cpu-raster to caller-authoritative-complete-bundle because new run uses --bundle; fixed bundle bytes are identical.",
+    "No matching production Classic baseline exists. Earlier wide-cold Classic receipt differs in bundle SHA, capture digest and bindings, so no Classic regression ratio is reported.",
+    "These observations expose candidate-batch cost without isolating flatness from other source changes, timing variance or thermal state."
+  ],
+  "all_12_passed": true,
+  "classic_baseline_exclusion": {
+    "receipt": "/Users/markik/Code/output/vello-producer-gates-20261011/production-wide-cold-parity/receipt.json",
+    "old_bundle_sha256": "47a6aa062921bf87fe03ea3c71b1a8d52059e04b337e3b8946ac2f4cb46498b3",
+    "new_cold_bundle_sha256": "b87bf91c1609b4ef956b9b9c6c726ac0c83edfb4e2ba8c7422651954eafd6acd",
+    "reason": "bundle/capture/resource/source identities differ"
+  },
+  "summary": [
+    {
+      "authored_width": 1280,
+      "subject": "panel",
+      "backend": "cpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 0.0480675,
+        "min": 0.046276000000000005,
+        "max": 0.054138000000000006
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 0.010166,
+        "min": 0.009654,
+        "max": 0.010348
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 4.831807904998083,
+        "min": 4.655610236220474,
+        "max": 5.2317356010823355
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "panel",
+      "backend": "cpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 1307.637975,
+        "min": 1155.453156,
+        "max": 1700.9074050000002
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 938.4891849999999,
+        "min": 842.300111,
+        "max": 1032.01289
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 1.405757447474931,
+        "min": 1.2336879532580256,
+        "max": 1.8002927575093353
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "panel",
+      "backend": "classic",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 78.5462655,
+        "min": 76.651527,
+        "max": 125.52544099999999
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 1280,
+      "subject": "panel",
+      "backend": "classic",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 37.209356,
+        "min": 35.940146999999996,
+        "max": 55.291517
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 1280,
+      "subject": "panel",
+      "backend": "classic",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 85.5781255,
+        "min": 81.98460200000001,
+        "max": 90.93594300000001
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 1280,
+      "subject": "panel",
+      "backend": "gpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 110.056698,
+        "min": 107.557065,
+        "max": 233.311889
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 106.300307,
+        "min": 103.274307,
+        "max": 174.270795
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 1.041683069248334,
+        "min": 0.6510887897194708,
+        "max": 1.998501611328667
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "panel",
+      "backend": "gpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 653.8125675,
+        "min": 584.8121090000001,
+        "max": 962.601534
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 306.31492849999995,
+        "min": 291.794785,
+        "max": 372.87310099999996
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 2.106587990971231,
+        "min": 1.6079599638376703,
+        "max": 3.1222318746944024
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "panel",
+      "backend": "gpu",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 11.270657,
+        "min": 6.5289399999999995,
+        "max": 14.42241
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 12.853457,
+        "min": 6.799717,
+        "max": 17.401355
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 0.7634266085805954,
+        "min": 0.42589304800346034,
+        "max": 2.121030919375027
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539235",
+      "backend": "cpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 0.0072515,
+        "min": 0.007116,
+        "max": 0.0073019999999999995
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 0.008568,
+        "min": 0.008419,
+        "max": 0.010360000000000001
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 0.8395106272405586,
+        "min": 0.6931467181467181,
+        "max": 0.861741299441739
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539235",
+      "backend": "cpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 92.580578,
+        "min": 91.662616,
+        "max": 95.27122200000001
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 57.2099165,
+        "min": 55.635414000000004,
+        "max": 58.400583
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 1.6174600512741901,
+        "min": 1.5856608486254324,
+        "max": 1.6772547317095845
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539235",
+      "backend": "classic",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 117.69772749999998,
+        "min": 110.535549,
+        "max": 213.036968
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539235",
+      "backend": "classic",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 11.770151499999999,
+        "min": 10.932984999999999,
+        "max": 12.900145
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539235",
+      "backend": "classic",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 25.860383499999998,
+        "min": 24.966472,
+        "max": 26.963039000000002
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539235",
+      "backend": "gpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 108.3687245,
+        "min": 106.24867,
+        "max": 113.303435
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 125.27912500000001,
+        "min": 122.390035,
+        "max": 128.184313
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 0.8662058283709098,
+        "min": 0.848789102610395,
+        "max": 0.9210279540661435
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539235",
+      "backend": "gpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 59.5043705,
+        "min": 58.461916,
+        "max": 78.100131
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 25.765809,
+        "min": 25.168438000000002,
+        "max": 26.789291
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 2.3019840680964267,
+        "min": 2.2340066409372312,
+        "max": 3.017426011659917
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539235",
+      "backend": "gpu",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 2.3263295,
+        "min": 1.869055,
+        "max": 2.838045
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 2.5664685,
+        "min": 2.118956,
+        "max": 2.8713279999999997
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 0.8953460088266926,
+        "min": 0.7010839583635169,
+        "max": 1.176940436705623
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539250",
+      "backend": "cpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 0.007355,
+        "min": 0.006044,
+        "max": 0.0076760000000000005
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 0.008903999999999999,
+        "min": 0.008325,
+        "max": 0.009403
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 0.8151112911569758,
+        "min": 0.6711826762909495,
+        "max": 0.9033254156769596
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539250",
+      "backend": "cpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 128.53123150000002,
+        "min": 122.470359,
+        "max": 219.285707
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 53.9000985,
+        "min": 52.430901,
+        "max": 56.283522000000005
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 2.349659434306604,
+        "min": 2.2985537827526326,
+        "max": 4.077099708411662
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539250",
+      "backend": "classic",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 80.492757,
+        "min": 78.65776,
+        "max": 126.25160799999999
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539250",
+      "backend": "classic",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 10.990421999999999,
+        "min": 10.374217,
+        "max": 14.226638
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539250",
+      "backend": "classic",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 32.5776045,
+        "min": 30.744388,
+        "max": 35.836881
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539250",
+      "backend": "gpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 106.972683,
+        "min": 103.999759,
+        "max": 187.224432
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 105.600665,
+        "min": 103.239684,
+        "max": 112.32684499999999
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 1.011834805768769,
+        "min": 0.9833687841670259,
+        "max": 1.6667826110490331
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539250",
+      "backend": "gpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 116.447569,
+        "min": 111.765167,
+        "max": 207.38163500000002
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 43.23203049999999,
+        "min": 40.692268,
+        "max": 43.919138000000004
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 2.7015079601235206,
+        "min": 2.584865018680973,
+        "max": 4.94000424296759
+      }
+    },
+    {
+      "authored_width": 1280,
+      "subject": "producer-1952539250",
+      "backend": "gpu",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 1.2707755,
+        "min": 1.2345380000000001,
+        "max": 2.337351
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 1.2377129999999998,
+        "min": 1.176261,
+        "max": 1.339696
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 1.0442138143581376,
+        "min": 0.9335073031493711,
+        "max": 1.9003718868501331
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "panel",
+      "backend": "cpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 0.0467525,
+        "min": 0.045512000000000004,
+        "max": 0.053149
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 0.009878499999999998,
+        "min": 0.009169,
+        "max": 0.010775
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 4.781648326330899,
+        "min": 4.375591647331786,
+        "max": 5.349134460547505
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "panel",
+      "backend": "cpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 505.8187825,
+        "min": 503.018863,
+        "max": 609.7919
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 326.1427105,
+        "min": 319.435679,
+        "max": 355.996933
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 1.560089798809229,
+        "min": 1.438036388925856,
+        "max": 1.8582999208468909
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "panel",
+      "backend": "classic",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 80.5638595,
+        "min": 77.998101,
+        "max": 81.706885
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 420,
+      "subject": "panel",
+      "backend": "classic",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 21.343033999999996,
+        "min": 20.372317000000002,
+        "max": 23.190704999999998
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 420,
+      "subject": "panel",
+      "backend": "classic",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 56.453685,
+        "min": 52.129214,
+        "max": 58.360967
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 420,
+      "subject": "panel",
+      "backend": "gpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 106.96495250000001,
+        "min": 106.471012,
+        "max": 111.07244800000001
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 104.117415,
+        "min": 101.628159,
+        "max": 105.526941
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 1.0347958494024398,
+        "min": 1.0144834388784187,
+        "max": 1.0708215878080236
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "panel",
+      "backend": "gpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 344.2082525,
+        "min": 331.010895,
+        "max": 356.963734
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 175.0827745,
+        "min": 170.023596,
+        "max": 178.012595
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 1.966810787637129,
+        "min": 1.9368361660027482,
+        "max": 2.029602906568376
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "panel",
+      "backend": "gpu",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 7.891759499999999,
+        "min": 3.716447,
+        "max": 10.035433
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 5.5769,
+        "min": 3.665463,
+        "max": 10.548084
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 1.045230796861582,
+        "min": 0.8346290091602782,
+        "max": 1.9210866349779014
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539235",
+      "backend": "cpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 0.0070695,
+        "min": 0.006922,
+        "max": 0.007737000000000001
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 0.0087215,
+        "min": 0.008502,
+        "max": 0.009037
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 0.807340018670649,
+        "min": 0.7953456536618754,
+        "max": 0.8969394852770695
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539235",
+      "backend": "cpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 74.9196595,
+        "min": 73.51288100000001,
+        "max": 78.039017
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 40.462114,
+        "min": 39.631897,
+        "max": 42.375351
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 1.8497723399044013,
+        "min": 1.8067957949117663,
+        "max": 1.8868815186918757
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539235",
+      "backend": "classic",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 114.038815,
+        "min": 110.975555,
+        "max": 116.874007
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539235",
+      "backend": "classic",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 11.697607,
+        "min": 11.174615000000001,
+        "max": 12.351256
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539235",
+      "backend": "classic",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 24.670735,
+        "min": 24.140802,
+        "max": 25.390607
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539235",
+      "backend": "gpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 111.0562465,
+        "min": 107.082033,
+        "max": 117.182183
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 123.549664,
+        "min": 120.384448,
+        "max": 124.532008
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 0.9040880400317237,
+        "min": 0.8628896685154781,
+        "max": 0.9409804345241104
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539235",
+      "backend": "gpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 59.079704,
+        "min": 57.043079,
+        "max": 59.893536999999995
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 25.577063000000003,
+        "min": 24.636505,
+        "max": 26.550067
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 2.306494673567948,
+        "min": 2.22885038293877,
+        "max": 2.39414157974112
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539235",
+      "backend": "gpu",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 1.661206,
+        "min": 1.355885,
+        "max": 1.739829
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 1.5670245,
+        "min": 1.394742,
+        "max": 2.4006600000000002
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 0.9775122181047902,
+        "min": 0.6839639932351935,
+        "max": 1.1774930417238458
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539250",
+      "backend": "cpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 0.0069464999999999996,
+        "min": 0.006607,
+        "max": 0.007902
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 0.0087825,
+        "min": 0.008228,
+        "max": 0.009098
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 0.8073686482052786,
+        "min": 0.7514786169244768,
+        "max": 0.8966009032564773
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539250",
+      "backend": "cpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 114.6809465,
+        "min": 110.84342099999999,
+        "max": 128.642432
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 49.628867,
+        "min": 47.974745,
+        "max": 54.08052
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 2.350874064575023,
+        "min": 2.2502803577234416,
+        "max": 2.405620038525845
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539250",
+      "backend": "classic",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 79.0296395,
+        "min": 78.542103,
+        "max": 84.362003
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539250",
+      "backend": "classic",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 10.9713,
+        "min": 10.220325,
+        "max": 11.713233
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539250",
+      "backend": "classic",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 31.905534499999998,
+        "min": 31.154484999999998,
+        "max": 32.595264
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539250",
+      "backend": "gpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 108.0542495,
+        "min": 106.68588,
+        "max": 110.151428
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 104.45239000000001,
+        "min": 103.3237,
+        "max": 106.06339200000001
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 1.03024913630331,
+        "min": 1.0153334597005497,
+        "max": 1.0603707905413724
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539250",
+      "backend": "gpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 103.34338550000001,
+        "min": 101.008117,
+        "max": 112.149803
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 37.890461,
+        "min": 37.049842999999996,
+        "max": 42.137453
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 2.7274049454425127,
+        "min": 2.661523063579567,
+        "max": 2.783623967330371
+      }
+    },
+    {
+      "authored_width": 420,
+      "subject": "producer-1952539250",
+      "backend": "gpu",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 6,
+        "median": 1.241287,
+        "min": 1.1959710000000001,
+        "max": 1.455069
+      },
+      "old_ms": {
+        "n": 6,
+        "median": 1.1987915,
+        "min": 1.124757,
+        "max": 1.3117969999999999
+      },
+      "paired_new_over_old": {
+        "n": 6,
+        "median": 1.0561360734165703,
+        "min": 0.9117043262029111,
+        "max": 1.2284910286414799
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "panel",
+      "backend": "cpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 0.047182,
+        "min": 0.045512000000000004,
+        "max": 0.054138000000000006
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 0.010047999999999998,
+        "min": 0.009169,
+        "max": 0.010775
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 4.805351931927179,
+        "min": 4.375591647331786,
+        "max": 5.349134460547505
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "panel",
+      "backend": "cpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 882.6225280000001,
+        "min": 503.018863,
+        "max": 1700.9074050000002
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 599.148522,
+        "min": 319.435679,
+        "max": 1032.01289
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 1.5156694140256217,
+        "min": 1.2336879532580256,
+        "max": 1.8582999208468909
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "panel",
+      "backend": "classic",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 79.7377955,
+        "min": 76.651527,
+        "max": 125.52544099999999
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": "all",
+      "subject": "panel",
+      "backend": "classic",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 29.565425999999995,
+        "min": 20.372317000000002,
+        "max": 55.291517
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": "all",
+      "subject": "panel",
+      "backend": "classic",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 70.1727845,
+        "min": 52.129214,
+        "max": 90.93594300000001
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": "all",
+      "subject": "panel",
+      "backend": "gpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 109.3732105,
+        "min": 106.471012,
+        "max": 233.311889
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 104.96935049999999,
+        "min": 101.628159,
+        "max": 174.270795
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 1.038316631622255,
+        "min": 0.6510887897194708,
+        "max": 1.998501611328667
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "panel",
+      "backend": "gpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 470.88792150000006,
+        "min": 331.010895,
+        "max": 962.601534
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 234.90368999999998,
+        "min": 170.023596,
+        "max": 372.87310099999996
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 2.007600987123327,
+        "min": 1.6079599638376703,
+        "max": 3.1222318746944024
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "panel",
+      "backend": "gpu",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 8.761989,
+        "min": 3.716447,
+        "max": 14.42241
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 8.2451795,
+        "min": 3.665463,
+        "max": 17.401355
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 0.9826539774550855,
+        "min": 0.42589304800346034,
+        "max": 2.121030919375027
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539235",
+      "backend": "cpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 0.0072145,
+        "min": 0.006922,
+        "max": 0.007737000000000001
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 0.0086515,
+        "min": 0.008419,
+        "max": 0.010360000000000001
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 0.8126834033657916,
+        "min": 0.6931467181467181,
+        "max": 0.8969394852770695
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539235",
+      "backend": "cpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 84.85081650000001,
+        "min": 73.51288100000001,
+        "max": 95.27122200000001
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 49.0053825,
+        "min": 39.631897,
+        "max": 58.400583
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 1.7420252633106754,
+        "min": 1.5856608486254324,
+        "max": 1.8868815186918757
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539235",
+      "backend": "classic",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 114.6632315,
+        "min": 110.535549,
+        "max": 213.036968
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539235",
+      "backend": "classic",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 11.697607,
+        "min": 10.932984999999999,
+        "max": 12.900145
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539235",
+      "backend": "classic",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 25.1785395,
+        "min": 24.140802,
+        "max": 26.963039000000002
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539235",
+      "backend": "gpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 110.869969,
+        "min": 106.24867,
+        "max": 117.182183
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 124.106666,
+        "min": 120.384448,
+        "max": 128.184313
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 0.8841449977597504,
+        "min": 0.848789102610395,
+        "max": 0.9409804345241104
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539235",
+      "backend": "gpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 59.168707,
+        "min": 57.043079,
+        "max": 78.100131
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 25.628567500000003,
+        "min": 24.636505,
+        "max": 26.789291
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 2.3019840680964267,
+        "min": 2.22885038293877,
+        "max": 3.017426011659917
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539235",
+      "backend": "gpu",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 1.8044419999999999,
+        "min": 1.355885,
+        "max": 2.838045
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 2.280155,
+        "min": 1.394742,
+        "max": 2.8713279999999997
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 0.9281398865317074,
+        "min": 0.6839639932351935,
+        "max": 1.1774930417238458
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539250",
+      "backend": "cpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 0.007114499999999999,
+        "min": 0.006044,
+        "max": 0.007902
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 0.0087975,
+        "min": 0.008228,
+        "max": 0.009403
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 0.8151112911569758,
+        "min": 0.6711826762909495,
+        "max": 0.9033254156769596
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539250",
+      "backend": "cpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 124.91168049999999,
+        "min": 110.84342099999999,
+        "max": 219.285707
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 53.518257500000004,
+        "min": 47.974745,
+        "max": 56.283522000000005
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 2.349659434306604,
+        "min": 2.2502803577234416,
+        "max": 4.077099708411662
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539250",
+      "backend": "classic",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 79.4503665,
+        "min": 78.542103,
+        "max": 126.25160799999999
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539250",
+      "backend": "classic",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 10.974991,
+        "min": 10.220325,
+        "max": 14.226638
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539250",
+      "backend": "classic",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 31.905534499999998,
+        "min": 30.744388,
+        "max": 35.836881
+      },
+      "old_ms": null,
+      "paired_new_over_old": null
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539250",
+      "backend": "gpu",
+      "phase": "initialize_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 108.0542495,
+        "min": 103.999759,
+        "max": 187.224432
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 104.835054,
+        "min": 103.239684,
+        "max": 112.32684499999999
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 1.0218193645535887,
+        "min": 0.9833687841670259,
+        "max": 1.6667826110490331
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539250",
+      "backend": "gpu",
+      "phase": "render_encode_submit_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 111.957485,
+        "min": 101.008117,
+        "max": 207.38163500000002
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 41.33615999999999,
+        "min": 37.049842999999996,
+        "max": 43.919138000000004
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 2.7223308650659783,
+        "min": 2.584865018680973,
+        "max": 4.94000424296759
+      }
+    },
+    {
+      "authored_width": "all",
+      "subject": "producer-1952539250",
+      "backend": "gpu",
+      "phase": "bounded_submit_readback_ms",
+      "new_ms": {
+        "n": 12,
+        "median": 1.2630215,
+        "min": 1.1959710000000001,
+        "max": 2.337351
+      },
+      "old_ms": {
+        "n": 12,
+        "median": 1.2245645,
+        "min": 1.124757,
+        "max": 1.339696
+      },
+      "paired_new_over_old": {
+        "n": 12,
+        "median": 1.0442138143581376,
+        "min": 0.9117043262029111,
+        "max": 1.9003718868501331
+      }
+    }
+  ],
+  "cases": [
+    {
+      "case": "workshop-1280-cold",
+      "authored_width": 1280,
+      "old_receipt": "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-1280-cold/receipt.json",
+      "new_receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-cold/receipt.json",
+      "bundle_sha256": "b87bf91c1609b4ef956b9b9c6c726ac0c83edfb4e2ba8c7422651954eafd6acd",
+      "capture_digest": "8ed6e80c77057b08bc307daf32ea3ed5f34deadbbc8c519bfb19ab0a24a3615f",
+      "panel_dimensions": [
+        1280,
+        1100
+      ],
+      "identity_dimensions_resources_thresholds_match": true,
+      "provider_label_old": [
+        "bound-source-scene-cpu-raster",
+        "bound-source-scene-cpu-raster"
+      ],
+      "provider_label_new": [
+        "caller-authoritative-complete-bundle",
+        "caller-authoritative-complete-bundle"
+      ],
+      "passed": true,
+      "subjects": [
+        {
+          "subject": "panel",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.048834,
+              "old_ms": 0.010338,
+              "new_over_old": 4.723737666860128
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 1273.18187,
+              "old_ms": 1032.01289,
+              "new_over_old": 1.2336879532580256
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 77.800068,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 36.840451,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 90.93594300000001,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 113.465761,
+              "old_ms": 174.270795,
+              "new_over_old": 0.6510887897194708
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 658.1735199999999,
+              "old_ms": 318.19113500000003,
+              "new_over_old": 2.0684847803820805
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 14.42241,
+              "old_ms": 6.799717,
+              "new_over_old": 2.121030919375027
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.007181000000000001,
+              "old_ms": 0.010360000000000001,
+              "new_over_old": 0.6931467181467181
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 95.27122200000001,
+              "old_ms": 56.80188,
+              "new_over_old": 1.6772547317095845
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 117.56817799999999,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 12.205186999999999,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 26.963039000000002,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 107.73147399999999,
+              "old_ms": 125.67514900000002,
+              "new_over_old": 0.8572217726195015
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 59.847454,
+              "old_ms": 26.789291,
+              "new_over_old": 2.2340066409372312
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.869055,
+              "old_ms": 2.5906420000000003,
+              "new_over_old": 0.7214640232035147
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.006044,
+              "old_ms": 0.009004999999999999,
+              "new_over_old": 0.6711826762909495
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 124.157456,
+              "old_ms": 54.015467,
+              "new_over_old": 2.2985537827526326
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 79.96547,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 10.374217,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 30.744388,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 108.34601400000001,
+              "old_ms": 110.178415,
+              "new_over_old": 0.9833687841670259
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 112.729117,
+              "old_ms": 43.611219999999996,
+              "new_over_old": 2.584865018680973
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.531082,
+              "old_ms": 1.245482,
+              "new_over_old": 1.2293088137765138
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "workshop-1280-edited",
+      "authored_width": 1280,
+      "old_receipt": "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-1280-edited/receipt.json",
+      "new_receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-edited/receipt.json",
+      "bundle_sha256": "c954ba555a0639bb10749a88488bd4446b2617ca23fce099b35a13b69f185833",
+      "capture_digest": "9a5298ae75a32a0375844bb8953433ad019a8236a6e3da5dc34c83c5fc374eb3",
+      "panel_dimensions": [
+        1280,
+        1100
+      ],
+      "identity_dimensions_resources_thresholds_match": true,
+      "provider_label_old": [
+        "bound-source-scene-cpu-raster",
+        "bound-source-scene-cpu-raster"
+      ],
+      "provider_label_new": [
+        "caller-authoritative-complete-bundle",
+        "caller-authoritative-complete-bundle"
+      ],
+      "passed": true,
+      "subjects": [
+        {
+          "subject": "panel",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.054138000000000006,
+              "old_ms": 0.010348,
+              "new_over_old": 5.2317356010823355
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 1493.767545,
+              "old_ms": 946.485791,
+              "new_over_old": 1.5782250079230191
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 125.52544099999999,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 55.291517,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 86.36201799999999,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 233.311889,
+              "old_ms": 116.743408,
+              "new_over_old": 1.998501611328667
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 962.601534,
+              "old_ms": 308.305588,
+              "new_over_old": 3.1222318746944024
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 10.51184,
+              "old_ms": 17.401355,
+              "new_over_old": 0.6040816936382253
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.007116,
+              "old_ms": 0.008559,
+              "new_over_old": 0.8314055380301436
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 92.557638,
+              "old_ms": 57.460111,
+              "new_over_old": 1.6108155099108667
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 213.036968,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 10.932984999999999,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 25.745544,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 111.272579,
+              "old_ms": 127.75497999999999,
+              "new_over_old": 0.87098427787316
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 78.100131,
+              "old_ms": 25.883031000000003,
+              "new_over_old": 3.017426011659917
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 2.838045,
+              "old_ms": 2.483444,
+              "new_over_old": 1.142785985913111
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.0076760000000000005,
+              "old_ms": 0.009403,
+              "new_over_old": 0.81633521216633
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 219.285707,
+              "old_ms": 53.78473,
+              "new_over_old": 4.077099708411662
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 126.25160799999999,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 14.226638,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 33.483793,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 187.224432,
+              "old_ms": 112.32684499999999,
+              "new_over_old": 1.6667826110490331
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 207.38163500000002,
+              "old_ms": 41.98005199999999,
+              "new_over_old": 4.94000424296759
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 2.337351,
+              "old_ms": 1.229944,
+              "new_over_old": 1.9003718868501331
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "workshop-1280-mode",
+      "authored_width": 1280,
+      "old_receipt": "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-1280-mode/receipt.json",
+      "new_receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-mode/receipt.json",
+      "bundle_sha256": "5ffbfd4ecf64d51edf1b369787c34d419348f7ec432839884b9044a199065a9e",
+      "capture_digest": "055522f15fad8a5559ce76b6e2c5836ab09e579e4e9fda3b1e309b7f88c666c3",
+      "panel_dimensions": [
+        1280,
+        1100
+      ],
+      "identity_dimensions_resources_thresholds_match": true,
+      "provider_label_old": [
+        "bound-source-scene-cpu-raster",
+        "bound-source-scene-cpu-raster"
+      ],
+      "provider_label_new": [
+        "caller-authoritative-complete-bundle",
+        "caller-authoritative-complete-bundle"
+      ],
+      "passed": true,
+      "subjects": [
+        {
+          "subject": "panel",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.051771000000000005,
+              "old_ms": 0.010172,
+              "new_over_old": 5.089559575304758
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 1342.09408,
+              "old_ms": 932.1834759999999,
+              "new_over_old": 1.439731677886983
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 76.651527,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 35.940146999999996,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 85.53480300000001,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 107.557065,
+              "old_ms": 106.462315,
+              "new_over_old": 1.0102829813535428
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 649.4516150000001,
+              "old_ms": 302.81824,
+              "new_over_old": 2.1446912015603816
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 7.789549,
+              "old_ms": 12.010296,
+              "new_over_old": 0.6485726080356388
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.007248,
+              "old_ms": 0.008501,
+              "new_over_old": 0.85260557581461
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 91.662616,
+              "old_ms": 55.635414000000004,
+              "new_over_old": 1.647558801305945
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 125.465028,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 12.900145,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 25.826168,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 106.24867,
+              "old_ms": 122.390035,
+              "new_over_old": 0.868115365764868
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 59.161287,
+              "old_ms": 25.664536000000002,
+              "new_over_old": 2.3051765673846587
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 2.493885,
+              "old_ms": 2.118956,
+              "new_over_old": 1.176940436705623
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.007606,
+              "old_ms": 0.00842,
+              "new_over_old": 0.9033254156769596
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 122.470359,
+              "old_ms": 52.430901,
+              "new_over_old": 2.3358431128238673
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 78.65776,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 10.830991,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 30.750381,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 103.999759,
+              "old_ms": 103.239684,
+              "new_over_old": 1.0073622367925883
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 111.765167,
+              "old_ms": 40.692268,
+              "new_over_old": 2.7465946847691067
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.2345380000000001,
+              "old_ms": 1.176261,
+              "new_over_old": 1.0495442763128253
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "workshop-1280-rebound",
+      "authored_width": 1280,
+      "old_receipt": "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-1280-rebound/receipt.json",
+      "new_receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-rebound/receipt.json",
+      "bundle_sha256": "3a499e667f07707112f82b9bfd49b2f0447a7646b5056ba7b12d9ebdc27adff0",
+      "capture_digest": "27d1ca57ce6d3d1061f55a8347c3fff78ba8071f15f5e43bb8a4b49b7a30fec5",
+      "panel_dimensions": [
+        1380,
+        960
+      ],
+      "identity_dimensions_resources_thresholds_match": true,
+      "provider_label_old": [
+        "bound-source-scene-cpu-raster",
+        "bound-source-scene-cpu-raster"
+      ],
+      "provider_label_new": [
+        "caller-authoritative-complete-bundle",
+        "caller-authoritative-complete-bundle"
+      ],
+      "passed": true,
+      "subjects": [
+        {
+          "subject": "panel",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.047217,
+              "old_ms": 0.009654,
+              "new_over_old": 4.890926041019267
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 1157.436679,
+              "old_ms": 845.157088,
+              "new_over_old": 1.3694929563200917
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 79.082701,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 36.070141,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 81.98460200000001,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 109.53217099999999,
+              "old_ms": 103.274307,
+              "new_over_old": 1.0605945871900162
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 584.8121090000001,
+              "old_ms": 291.794785,
+              "new_over_old": 2.0041897218965037
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 14.096188000000001,
+              "old_ms": 8.344046,
+              "new_over_old": 1.689370839997766
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.0073019999999999995,
+              "old_ms": 0.009485,
+              "new_over_old": 0.7698471270426989
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 94.47721800000001,
+              "old_ms": 58.290164,
+              "new_over_old": 1.6208089241265475
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 112.522072,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 12.487648,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 26.188962,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 108.801448,
+              "old_ms": 128.184313,
+              "new_over_old": 0.848789102610395
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 59.083734,
+              "old_ms": 25.702084,
+              "new_over_old": 2.298791568808195
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 2.013042,
+              "old_ms": 2.8713279999999997,
+              "new_over_old": 0.7010839583635169
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.007443,
+              "old_ms": 0.009145,
+              "new_over_old": 0.8138873701476216
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 132.354689,
+              "old_ms": 55.983016,
+              "new_over_old": 2.3641936154350813
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 81.020044,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 10.779929000000001,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 35.836881,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 105.599352,
+              "old_ms": 105.076452,
+              "new_over_old": 1.0049763766290851
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 118.037978,
+              "old_ms": 43.282664999999994,
+              "new_over_old": 2.7271421018091195
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.2749599999999999,
+              "old_ms": 1.248259,
+              "new_over_old": 1.0213905928176763
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "workshop-1280-repeat",
+      "authored_width": 1280,
+      "old_receipt": "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-1280-repeat/receipt.json",
+      "new_receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-repeat/receipt.json",
+      "bundle_sha256": "09a8250cb0c4948c67e342713c4b7daf0a352370fa5691db840c208efcd1dce2",
+      "capture_digest": "8ed6e80c77057b08bc307daf32ea3ed5f34deadbbc8c519bfb19ab0a24a3615f",
+      "panel_dimensions": [
+        1280,
+        1100
+      ],
+      "identity_dimensions_resources_thresholds_match": true,
+      "provider_label_old": [
+        "bound-source-scene-cpu-raster",
+        "bound-source-scene-cpu-raster"
+      ],
+      "provider_label_new": [
+        "caller-authoritative-complete-bundle",
+        "caller-authoritative-complete-bundle"
+      ],
+      "passed": true,
+      "subjects": [
+        {
+          "subject": "panel",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.047301,
+              "old_ms": 0.010159999999999999,
+              "new_over_old": 4.655610236220474
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 1700.9074050000002,
+              "old_ms": 944.794894,
+              "new_over_old": 1.8002927575093353
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 79.541271,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 39.473279,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 85.621448,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 110.581225,
+              "old_ms": 104.87741,
+              "new_over_old": 1.0543855440366043
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 660.903537,
+              "old_ms": 304.32426899999996,
+              "new_over_old": 2.1717082872546065
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 12.029474,
+              "old_ms": 13.696618,
+              "new_over_old": 0.878280609125552
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.007255,
+              "old_ms": 0.008419,
+              "new_over_old": 0.861741299441739
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 91.939324,
+              "old_ms": 56.959722,
+              "new_over_old": 1.614111178421833
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 117.827277,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 11.335116,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 25.894599,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 113.303435,
+              "old_ms": 123.018454,
+              "new_over_old": 0.9210279540661435
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 60.502072,
+              "old_ms": 25.168438000000002,
+              "new_over_old": 2.4038866456472188
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 2.421874,
+              "old_ms": 2.542295,
+              "new_over_old": 0.9526329556562081
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.007267,
+              "old_ms": 0.008325,
+              "new_over_old": 0.8729129129129128
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 126.58947500000001,
+              "old_ms": 53.560725,
+              "new_over_old": 2.36347575578934
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 81.450918,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 11.149853,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 31.671416,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 111.56813,
+              "old_ms": 106.12487800000001,
+              "new_over_old": 1.0512910083156937
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 115.547967,
+              "old_ms": 43.181396,
+              "new_over_old": 2.6758738184379216
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.266591,
+              "old_ms": 1.219185,
+              "new_over_old": 1.03888335240345
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "workshop-1280-resized",
+      "authored_width": 1280,
+      "old_receipt": "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-1280-resized/receipt.json",
+      "new_receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-1280-resized/receipt.json",
+      "bundle_sha256": "8cd15d06affc6112c68e958355b80e35765ec756794b26a0688e9f40cb944b53",
+      "capture_digest": "8146e25e06e018080d06987721f4610847bf336eaaa5d981381d43d30f2cdd51",
+      "panel_dimensions": [
+        1380,
+        960
+      ],
+      "identity_dimensions_resources_thresholds_match": true,
+      "provider_label_old": [
+        "bound-source-scene-cpu-raster",
+        "bound-source-scene-cpu-raster"
+      ],
+      "provider_label_new": [
+        "caller-authoritative-complete-bundle",
+        "caller-authoritative-complete-bundle"
+      ],
+      "passed": true,
+      "subjects": [
+        {
+          "subject": "panel",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.046276000000000005,
+              "old_ms": 0.009696,
+              "new_over_old": 4.772689768976898
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 1155.453156,
+              "old_ms": 842.300111,
+              "new_over_old": 1.371783217062879
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 78.00983000000001,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 37.578261000000005,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 82.18637700000001,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 109.21424999999999,
+              "old_ms": 106.138299,
+              "new_over_old": 1.0289805944600638
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 599.5650179999999,
+              "old_ms": 372.87310099999996,
+              "new_over_old": 1.6079599638376703
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 6.5289399999999995,
+              "old_ms": 15.329999,
+              "new_over_old": 0.42589304800346034
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.0072699999999999996,
+              "old_ms": 0.008577,
+              "new_over_old": 0.8476157164509736
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 92.603518,
+              "old_ms": 58.400583,
+              "new_over_old": 1.5856608486254324
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 110.535549,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 11.139937000000002,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 24.966472,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 107.936001,
+              "old_ms": 124.883101,
+              "new_over_old": 0.8642962909769514
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 58.461916,
+              "old_ms": 25.829534000000002,
+              "new_over_old": 2.2633747863976175
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 2.230785,
+              "old_ms": 2.6618470000000003,
+              "new_over_old": 0.8380590619971771
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.006859,
+              "old_ms": 0.008803,
+              "new_over_old": 0.7791661933431784
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 130.47298800000002,
+              "old_ms": 56.283522000000005,
+              "new_over_old": 2.3181382998739846
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 78.989715,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 13.015286,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 34.548634,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 105.11182500000001,
+              "old_ms": 103.42523100000001,
+              "new_over_old": 1.0163073747449498
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 117.347171,
+              "old_ms": 43.919138000000004,
+              "new_over_old": 2.67189148839852
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.250616,
+              "old_ms": 1.339696,
+              "new_over_old": 0.9335073031493711
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "workshop-420-cold",
+      "authored_width": 420,
+      "old_receipt": "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-420-cold/receipt.json",
+      "new_receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-cold/receipt.json",
+      "bundle_sha256": "b390c80e5b08144b5d8518fca69989bff1b009feb69c713756aa125cd1fcbb6f",
+      "capture_digest": "d1f93b6da4dabb3d4fbe79c7ddb8fbafe9e9db0b152c33775c47f7d853442d95",
+      "panel_dimensions": [
+        420,
+        1100
+      ],
+      "identity_dimensions_resources_thresholds_match": true,
+      "provider_label_old": [
+        "bound-source-scene-cpu-raster",
+        "bound-source-scene-cpu-raster"
+      ],
+      "provider_label_new": [
+        "caller-authoritative-complete-bundle",
+        "caller-authoritative-complete-bundle"
+      ],
+      "passed": true,
+      "subjects": [
+        {
+          "subject": "panel",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.047147,
+              "old_ms": 0.010775,
+              "new_over_old": 4.375591647331786
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 504.847061,
+              "old_ms": 324.140382,
+              "new_over_old": 1.5574951133364185
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 79.93432,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 23.190704999999998,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 58.360967,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 106.471012,
+              "old_ms": 101.628159,
+              "new_over_old": 1.0476526687844459
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 356.963734,
+              "old_ms": 175.87860799999999,
+              "new_over_old": 2.029602906568376
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 10.035433,
+              "old_ms": 10.548084,
+              "new_over_old": 0.9513986615957931
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.007737000000000001,
+              "old_ms": 0.008626,
+              "new_over_old": 0.8969394852770695
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 73.528386,
+              "old_ms": 40.695460000000004,
+              "new_over_old": 1.8067957949117663
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 110.975555,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 11.193601,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 24.661863,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 117.182183,
+              "old_ms": 124.532008,
+              "new_over_old": 0.9409804345241104
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 59.515871,
+              "old_ms": 25.575818,
+              "new_over_old": 2.327036851763646
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.355885,
+              "old_ms": 1.500459,
+              "new_over_old": 0.9036468174072068
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.007544,
+              "old_ms": 0.008414,
+              "new_over_old": 0.8966009032564773
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 110.84342099999999,
+              "old_ms": 49.257605000000005,
+              "new_over_old": 2.2502803577234416
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 79.18151800000001,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 10.349908999999998,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 32.115444,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 107.122884,
+              "old_ms": 104.595387,
+              "new_over_old": 1.024164516930369
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 103.926193,
+              "old_ms": 37.966815000000004,
+              "new_over_old": 2.7372902625621873
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.306888,
+              "old_ms": 1.213147,
+              "new_over_old": 1.0772709325415635
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "workshop-420-edited",
+      "authored_width": 420,
+      "old_receipt": "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-420-edited/receipt.json",
+      "new_receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-edited/receipt.json",
+      "bundle_sha256": "679e24ecff39b991d85c62be29b9c7eb9d72fe3497be0c7de94b253b599f8c34",
+      "capture_digest": "2b44328284907b17c4617b61260a6ac19d271e24bdffd2ce88b2d8970b900a1e",
+      "panel_dimensions": [
+        420,
+        1100
+      ],
+      "identity_dimensions_resources_thresholds_match": true,
+      "provider_label_old": [
+        "bound-source-scene-cpu-raster",
+        "bound-source-scene-cpu-raster"
+      ],
+      "provider_label_new": [
+        "caller-authoritative-complete-bundle",
+        "caller-authoritative-complete-bundle"
+      ],
+      "passed": true,
+      "subjects": [
+        {
+          "subject": "panel",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.045512000000000004,
+              "old_ms": 0.009169,
+              "new_over_old": 4.963681971861709
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 503.174334,
+              "old_ms": 321.993556,
+              "new_over_old": 1.5626844842820393
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 77.998101,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 21.288466999999997,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 54.260771,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 106.874571,
+              "old_ms": 105.061291,
+              "new_over_old": 1.0172592586930995
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 344.781232,
+              "old_ms": 178.012595,
+              "new_over_old": 1.9368361660027482
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 8.754045999999999,
+              "old_ms": 4.556819999999999,
+              "new_over_old": 1.9210866349779014
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.006972000000000001,
+              "old_ms": 0.008766000000000001,
+              "new_over_old": 0.7953456536618754
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 73.51288100000001,
+              "old_ms": 40.088826000000005,
+              "new_over_old": 1.8337499082662085
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 114.02784000000001,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 11.174615000000001,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 25.390607,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 107.082033,
+              "old_ms": 124.09701600000001,
+              "new_over_old": 0.8628896685154781
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 57.043079,
+              "old_ms": 25.337397000000003,
+              "new_over_old": 2.2513393542359537
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.641965,
+              "old_ms": 2.4006600000000002,
+              "new_over_old": 0.6839639932351935
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.006607,
+              "old_ms": 0.008792,
+              "new_over_old": 0.7514786169244768
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 112.796451,
+              "old_ms": 50.000128999999994,
+              "new_over_old": 2.2559231997181453
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 79.71921499999999,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 11.118991,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 32.595264,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 110.151428,
+              "old_ms": 103.880104,
+              "new_over_old": 1.0603707905413724
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 101.008117,
+              "old_ms": 37.426192,
+              "new_over_old": 2.6988617222933073
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.259452,
+              "old_ms": 1.124757,
+              "new_over_old": 1.1197547559161667
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "workshop-420-mode",
+      "authored_width": 420,
+      "old_receipt": "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-420-mode/receipt.json",
+      "new_receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-mode/receipt.json",
+      "bundle_sha256": "04e554119b95272ddf3dac26b856a0feec73a3b29efb0d6cbb3508deeae0c5f6",
+      "capture_digest": "456fd99def2855c5da84fbbde159908cbdd8848ab5b09e21905e4bf49e530921",
+      "panel_dimensions": [
+        420,
+        1100
+      ],
+      "identity_dimensions_resources_thresholds_match": true,
+      "provider_label_old": [
+        "bound-source-scene-cpu-raster",
+        "bound-source-scene-cpu-raster"
+      ],
+      "provider_label_new": [
+        "caller-authoritative-complete-bundle",
+        "caller-authoritative-complete-bundle"
+      ],
+      "passed": true,
+      "subjects": [
+        {
+          "subject": "panel",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.053149,
+              "old_ms": 0.009935999999999999,
+              "new_over_old": 5.349134460547505
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 503.018863,
+              "old_ms": 319.435679,
+              "new_over_old": 1.574710954564346
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 80.693047,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 21.125110999999997,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 57.234387,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 106.80126299999999,
+              "old_ms": 104.508449,
+              "new_over_old": 1.021939030020434
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 343.63527300000004,
+              "old_ms": 174.286941,
+              "new_over_old": 1.9716639182966669
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 3.932842,
+              "old_ms": 4.712084,
+              "new_over_old": 0.8346290091602782
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.007260999999999999,
+              "old_ms": 0.009037,
+              "new_over_old": 0.8034746044041163
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 75.058625,
+              "old_ms": 40.228767999999995,
+              "new_over_old": 1.865794771542594
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 114.04979,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 11.943195,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 24.679607,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 111.37028000000001,
+              "old_ms": 124.116316,
+              "new_over_old": 0.8973057176463408
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 59.893536999999995,
+              "old_ms": 25.592599,
+              "new_over_old": 2.3402678641586965
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.642299,
+              "old_ms": 1.394742,
+              "new_over_old": 1.1774930417238458
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.007902,
+              "old_ms": 0.009098,
+              "new_over_old": 0.8685425368212794
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 114.80360300000001,
+              "old_ms": 48.276025,
+              "new_over_old": 2.378066607596628
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 78.877761,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 10.220325,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 31.709949,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 106.68588,
+              "old_ms": 105.074721,
+              "new_over_old": 1.0153334597005497
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 102.76057800000001,
+              "old_ms": 37.814107,
+              "new_over_old": 2.7175196283228376
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.1959710000000001,
+              "old_ms": 1.3117969999999999,
+              "new_over_old": 0.9117043262029111
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "workshop-420-rebound",
+      "authored_width": 420,
+      "old_receipt": "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-420-rebound/receipt.json",
+      "new_receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-rebound/receipt.json",
+      "bundle_sha256": "45068d88d7384ff3fe4d1ee358784ef5a8b7e7ece9ffae0c05aafe902d30e836",
+      "capture_digest": "6f587bf70a30050f94d8233843089942499dc2d8f7e5c8f33e1f20d81a0ec622",
+      "panel_dimensions": [
+        520,
+        960
+      ],
+      "identity_dimensions_resources_thresholds_match": true,
+      "provider_label_old": [
+        "bound-source-scene-cpu-raster",
+        "bound-source-scene-cpu-raster"
+      ],
+      "provider_label_new": [
+        "caller-authoritative-complete-bundle",
+        "caller-authoritative-complete-bundle"
+      ],
+      "passed": true,
+      "subjects": [
+        {
+          "subject": "panel",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.045995,
+              "old_ms": 0.009507,
+              "new_over_old": 4.838014094877459
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 506.79050400000006,
+              "old_ms": 343.856339,
+              "new_over_old": 1.4738437147148247
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 80.786547,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 20.372317000000002,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 52.129214,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 109.917377,
+              "old_ms": 103.411532,
+              "new_over_old": 1.0629121808194468
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 331.010895,
+              "old_ms": 170.023596,
+              "new_over_old": 1.9468526886115267
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 7.029472999999999,
+              "old_ms": 6.441716,
+              "new_over_old": 1.091242302516907
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.007167,
+              "old_ms": 0.008834999999999999,
+              "new_over_old": 0.8112054329371817
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 78.039017,
+              "old_ms": 41.36422700000001,
+              "new_over_old": 1.886630614419556
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 115.276673,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 11.452019,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 24.945463,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 110.874944,
+              "old_ms": 122.263602,
+              "new_over_old": 0.9068516073982508
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 59.176127,
+              "old_ms": 26.550067,
+              "new_over_old": 2.22885038293877
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.686177,
+              "old_ms": 1.536038,
+              "new_over_old": 1.0977443266377525
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.0069310000000000005,
+              "old_ms": 0.008228,
+              "new_over_old": 0.8423675255226059
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 128.642432,
+              "old_ms": 53.47579,
+              "new_over_old": 2.405620038525845
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 84.362003,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 11.320350999999999,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 31.164374000000002,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 108.009154,
+              "old_ms": 103.3237,
+              "new_over_old": 1.0453473307672876
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 111.700678,
+              "old_ms": 40.127790000000005,
+              "new_over_old": 2.783623967330371
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.455069,
+              "old_ms": 1.184436,
+              "new_over_old": 1.2284910286414799
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "workshop-420-repeat",
+      "authored_width": 420,
+      "old_receipt": "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-420-repeat/receipt.json",
+      "new_receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-repeat/receipt.json",
+      "bundle_sha256": "9af48efe51ce435a939fc24d2ac7e3cd95a62100d119cd1283bde71f1ab56888",
+      "capture_digest": "d1f93b6da4dabb3d4fbe79c7ddb8fbafe9e9db0b152c33775c47f7d853442d95",
+      "panel_dimensions": [
+        420,
+        1100
+      ],
+      "identity_dimensions_resources_thresholds_match": true,
+      "provider_label_old": [
+        "bound-source-scene-cpu-raster",
+        "bound-source-scene-cpu-raster"
+      ],
+      "provider_label_new": [
+        "caller-authoritative-complete-bundle",
+        "caller-authoritative-complete-bundle"
+      ],
+      "passed": true,
+      "subjects": [
+        {
+          "subject": "panel",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.047098,
+              "old_ms": 0.010579,
+              "new_over_old": 4.452027601852727
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 609.7919,
+              "old_ms": 328.14503900000005,
+              "new_over_old": 1.8582999208468909
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 80.43467199999999,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 21.397600999999998,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 58.05572299999999,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 107.055334,
+              "old_ms": 105.526941,
+              "new_over_old": 1.0144834388784187
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 356.9622,
+              "old_ms": 177.503742,
+              "new_over_old": 2.0110122523501506
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 8.769931999999999,
+              "old_ms": 8.146313000000001,
+              "new_over_old": 1.0765523004087858
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.006936,
+              "old_ms": 0.008677,
+              "new_over_old": 0.7993546156505704
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 74.780694,
+              "old_ms": 39.631897,
+              "new_over_old": 1.8868815186918757
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 113.918652,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 12.351256,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 24.140802,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 111.237549,
+              "old_ms": 120.384448,
+              "new_over_old": 0.9240192636842924
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 58.983281,
+              "old_ms": 24.636505,
+              "new_over_old": 2.39414157974112
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.680113,
+              "old_ms": 1.598011,
+              "new_over_old": 1.0513776188023736
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.006776,
+              "old_ms": 0.008773000000000001,
+              "new_over_old": 0.7723697708879516
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 114.55829,
+              "old_ms": 47.974745,
+              "new_over_old": 2.3878874186824754
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 78.542103,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 10.823609,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 31.154484999999998,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 108.099345,
+              "old_ms": 104.309393,
+              "new_over_old": 1.0363337556762506
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 102.04854300000001,
+              "old_ms": 37.049842999999996,
+              "new_over_old": 2.754358311315922
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.223122,
+              "old_ms": 1.181759,
+              "new_over_old": 1.0350012142915772
+            }
+          }
+        }
+      ]
+    },
+    {
+      "case": "workshop-420-resized",
+      "authored_width": 420,
+      "old_receipt": "/Users/markik/Code/output/vello-producer-gates-20261011/production-sparse-parity/workshop-420-resized/receipt.json",
+      "new_receipt": "/Users/markik/Code/output/vello-production-fixes-20261011/production-parity/workshop-420-resized/receipt.json",
+      "bundle_sha256": "f85d37aab01fd19ab1115ea03b0fce23f2482cbf76a696e457475c658e02da03",
+      "capture_digest": "b70f3c4e19ee1e2743b98055684bee25f3d8a7cc6495f0d1920ae2755e45dc15",
+      "panel_dimensions": [
+        520,
+        960
+      ],
+      "identity_dimensions_resources_thresholds_match": true,
+      "provider_label_old": [
+        "bound-source-scene-cpu-raster",
+        "bound-source-scene-cpu-raster"
+      ],
+      "provider_label_new": [
+        "caller-authoritative-complete-bundle",
+        "caller-authoritative-complete-bundle"
+      ],
+      "passed": true,
+      "subjects": [
+        {
+          "subject": "panel",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.046407,
+              "old_ms": 0.009821,
+              "new_over_old": 4.72528255778434
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 511.93654399999997,
+              "old_ms": 355.996933,
+              "new_over_old": 1.438036388925856
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 81.706885,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 22.300822,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 55.672983,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "panel",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 111.07244800000001,
+              "old_ms": 103.726381,
+              "new_over_old": 1.0708215878080236
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 340.91293299999995,
+              "old_ms": 173.761616,
+              "new_over_old": 1.9619576569775914
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 3.716447,
+              "old_ms": 3.665463,
+              "new_over_old": 1.013909293314378
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.006922,
+              "old_ms": 0.008502,
+              "new_over_old": 0.8141613737944015
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 77.651992,
+              "old_ms": 42.375351,
+              "new_over_old": 1.8324802076565692
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 116.874007,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 12.151432999999999,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 24.441745,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539235",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 110.864994,
+              "old_ms": 123.002312,
+              "new_over_old": 0.9013244726651967
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 58.470797,
+              "old_ms": 25.578308,
+              "new_over_old": 2.2859524953722503
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.739829,
+              "old_ms": 2.15965,
+              "new_over_old": 0.8056069270483643
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "cpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 0.0069619999999999994,
+              "old_ms": 0.009051,
+              "new_over_old": 0.769196773837145
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 125.665905,
+              "old_ms": 54.08052,
+              "new_over_old": 2.323681521553417
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "classic",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 78.74474099999999,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 11.713233,
+              "old_ms": null,
+              "new_over_old": null
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 32.101119999999995,
+              "old_ms": null,
+              "new_over_old": null
+            }
+          }
+        },
+        {
+          "subject": "producer-1952539250",
+          "backend": "gpu",
+          "metrics": {
+            "initialize_ms": {
+              "new_ms": 108.128893,
+              "old_ms": 106.06339200000001,
+              "new_over_old": 1.0194742121768083
+            },
+            "render_encode_submit_ms": {
+              "new_ms": 112.149803,
+              "old_ms": 42.137453,
+              "new_over_old": 2.661523063579567
+            },
+            "bounded_submit_readback_ms": {
+              "new_ms": 1.2022739999999998,
+              "old_ms": 1.271526,
+              "new_over_old": 0.9455363083413157
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

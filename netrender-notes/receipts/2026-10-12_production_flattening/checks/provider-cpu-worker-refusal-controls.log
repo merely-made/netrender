@@ -1,0 +1,29 @@
+   Compiling crossbeam-utils v0.8.21
+   Compiling bytemuck v1.25.0
+   Compiling color v0.3.3
+   Compiling font-types v0.12.1
+   Compiling crossbeam-epoch v0.9.18
+   Compiling rayon-core v1.13.0
+   Compiling peniko v0.6.1
+   Compiling read-fonts v0.41.0
+   Compiling crossbeam-deque v0.8.6
+   Compiling fearless_simd v0.7.0
+   Compiling vello_common v0.3.0 (/Users/markik/Code/worktrees/vello-release-adoption/vello_common)
+   Compiling skrifa v0.44.0
+   Compiling hashbrown v0.17.1
+   Compiling crossbeam-channel v0.5.15
+   Compiling either v1.15.0
+   Compiling ordered-channel v1.2.0
+   Compiling rayon v1.12.0
+   Compiling glifo v0.4.0 (/Users/markik/Code/worktrees/vello-release-adoption/glifo)
+   Compiling thread_local v1.1.9
+   Compiling vello_cpu v0.3.0 (/Users/markik/Code/worktrees/vello-release-adoption/vello_cpu)
+    Finished `test` profile [unoptimized] target(s) in 29.34s
+     Running unittests src/lib.rs (/Users/markik/Code/targets/mere-s2s3/debug/deps/vello_cpu-32abdd14a7641dbd)
+
+running 2 tests
+test render::tests::curve_refusal_preserves_target_until_explicit_reset ... ok
+test render::tests::multithreaded_curve_refusal_survives_flush_and_resets_explicitly ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 99 filtered out; finished in 0.00s
+

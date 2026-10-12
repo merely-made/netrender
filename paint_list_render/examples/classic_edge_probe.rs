@@ -78,6 +78,7 @@ fn render(scene: &Scene, backend: &str, receipt: &mut Value) -> Result<Vec<u8>> 
             | wgpu::TextureUsages::COPY_SRC,
         view_formats: &[],
     });
+    let mut classic_renderer = None;
     if backend == "classic" {
         let renderer = netrender::create_netrender_instance(
             handles.clone(),
@@ -96,6 +97,8 @@ fn render(scene: &Scene, backend: &str, receipt: &mut Value) -> Result<Vec<u8>> 
             netrender::ColorLoad::Clear(wgpu::Color::TRANSPARENT),
         );
         receipt["render_encode_submit_ms"] = json!(start.elapsed().as_secs_f64() * 1000.0);
+        receipt["classic_quality_before_readback"] = json!(renderer.vello_curve_quality_status());
+        classic_renderer = Some(renderer);
     } else {
         #[cfg(feature = "replay-hybrid")]
         {
@@ -173,6 +176,18 @@ fn render(scene: &Scene, backend: &str, receipt: &mut Value) -> Result<Vec<u8>> 
         timeout: Some(deadline.saturating_duration_since(Instant::now())),
     })?;
     receiver.recv_timeout(deadline.saturating_duration_since(Instant::now()))??;
+    if let Some(renderer) = classic_renderer {
+        let status = renderer
+            .poll_vello_curve_quality()?
+            .ok_or("Classic quality counters unavailable")?;
+        receipt["classic_quality_after_readback"] =
+            json!({"pending_frames":status.0,"pending_bytes":status.1});
+        if status != (0, 0) {
+            return Err(
+                "bounded Classic readback completed with unobserved quality counters".into(),
+            );
+        }
+    }
     let mapped = slice.get_mapped_range()?;
     let mut pixels = Vec::with_capacity(row_bytes as usize * scene.viewport_height as usize);
     for row in mapped.chunks_exact(padded as usize) {
@@ -331,12 +346,14 @@ fn run() -> Result<()> {
             let mut glyphs = fixtures::glyph_cases(&producer.scene, index.parse()?)?;
             for case in &mut glyphs {
                 // Record only source font hashes, never font-bearing Scene data.
-                case.details["font_sha256"] = json!(producer
-                    .scene
-                    .fonts
-                    .iter()
-                    .map(|f| hash(f.data.data()))
-                    .collect::<Vec<_>>());
+                case.details["font_sha256"] = json!(
+                    producer
+                        .scene
+                        .fonts
+                        .iter()
+                        .map(|f| hash(f.data.data()))
+                        .collect::<Vec<_>>()
+                );
                 case.details["presentation_scope"] = json!(
                     "logical callback viewport; producer layout scale is not silently applied"
                 );

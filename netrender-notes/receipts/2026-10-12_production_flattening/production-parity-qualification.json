@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "intact_panels": 12,
+  "producer_sources": 24,
+  "maxima_over_all_cpu_reference_comparisons": {
+    "edge_max_rgba_delta": 13,
+    "edge_max_alpha_delta": 1,
+    "interior_max_rgba_delta": 2,
+    "interior_max_alpha_delta": 0,
+    "mean_channel_delta": 0.09465977605512489
+  },
+  "classic_counters_drained": true
+}

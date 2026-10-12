@@ -1,0 +1,25 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "-p",
+    "vello_research_tests",
+    "--test",
+    "fine_command_guards",
+    "fine_area_rejects_malformed_commands_and_preserves_valid_forward_chains",
+    "-j2",
+    "--",
+    "--exact",
+    "--ignored",
+    "--test-threads=1",
+    "--nocapture"
+  ],
+  "cwd": "/Users/markik/Code/worktrees/vello-release-adoption",
+  "deadline_seconds": 240,
+  "elapsed_seconds": 6.161,
+  "exit_code": 0,
+  "timed_out": false,
+  "disk_refused": false,
+  "log": "/Users/markik/Code/output/vello-production-fixes-20261011/checks/classic-command-forward-progress-gpu.log"
+}

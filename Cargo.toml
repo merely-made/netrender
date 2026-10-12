@@ -15,13 +15,13 @@ resolver = "2"
 # and matches the Mere workspace convention.
 [workspace.dependencies]
 # Linebender visual stack.
-vello = { package = "netrender-vello", version = "0.11.0", git = "https://github.com/mark-ik/vello", rev = "5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a", default-features = false }
+vello = { package = "netrender-vello", version = "0.11.0", git = "https://github.com/mark-ik/vello", rev = "2eae6243881d5b24c984d5ee35dde509ca5db782", default-features = false }
 # Sparse Strips release family, with the maintained bounded append extension.
 # CPU/GPU/common/Glifo share one provider source. The vello_hybrid dependency
 # alias preserves existing adapter names while selecting the vello_gpu package.
-vello_cpu = { package = "vello_cpu", version = "0.3.0", git = "https://github.com/mark-ik/vello", rev = "5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a", default-features = false }
-vello_hybrid = { package = "vello_gpu", version = "0.3.0", git = "https://github.com/mark-ik/vello", rev = "5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a", default-features = false }
-vello_sparse_common = { package = "vello_common", version = "0.3.0", git = "https://github.com/mark-ik/vello", rev = "5862bba26c8a9f56f6a5fdc8ea6966b360a5d63a", default-features = false }
+vello_cpu = { package = "vello_cpu", version = "0.3.0", git = "https://github.com/mark-ik/vello", rev = "2eae6243881d5b24c984d5ee35dde509ca5db782", default-features = false }
+vello_hybrid = { package = "vello_gpu", version = "0.3.0", git = "https://github.com/mark-ik/vello", rev = "2eae6243881d5b24c984d5ee35dde509ca5db782", default-features = false }
+vello_sparse_common = { package = "vello_common", version = "0.3.0", git = "https://github.com/mark-ik/vello", rev = "2eae6243881d5b24c984d5ee35dde509ca5db782", default-features = false }
 wgpu = { version = "30", default-features = false }
 peniko = "0.6"
 parley = "0.12"
