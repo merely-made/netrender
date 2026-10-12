@@ -37,3 +37,7 @@ skrifa.workspace = true
 [[example]]
 name = "resource_bundle_parity"
 required-features = ["resource-bundle"]
+
+[[example]]
+name = "classic_edge_probe"
+required-features = ["resource-bundle"]

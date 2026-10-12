@@ -1,0 +1,474 @@
+{
+  "cases": [
+    {
+      "details": {
+        "clip_count": 0,
+        "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+        "fill_is_same_curve": true,
+        "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "curve-fill",
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "details": {
+        "clip_count": 1,
+        "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+        "fill_is_same_curve": false,
+        "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "curve-clip-only",
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "details": {
+        "clip_count": 1,
+        "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+        "fill_is_same_curve": true,
+        "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "curve-fill-and-coincident-clip",
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "details": {
+        "clip_count": 2,
+        "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+        "fill_is_same_curve": false,
+        "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "curve-double-coincident-clip",
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "details": {
+        "clip_count": 0,
+        "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+        "fill_is_same_curve": true,
+        "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.25,
+          0.375,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "curve-fill-fractional-translation",
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "details": {
+        "clip_count": 0,
+        "curve": "canonical four ellipse cubics, 24x24, radii5x3",
+        "fill_is_same_curve": true,
+        "semantic_control": "one clip over covering paint should equal direct curve coverage; coincident fill and clip diagnose coverage multiplication rather than change its geometry",
+        "transform": [
+          1.25,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.25,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "name": "curve-fill-uniform-scale",
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "details": {
+        "multicolor": false,
+        "radii": [
+          5.0,
+          3.0
+        ],
+        "source": "actual accent border geometry isolated without external previews",
+        "widths": [
+          1,
+          1,
+          1,
+          7
+        ]
+      },
+      "name": "border-ellipse-uniform",
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "details": {
+        "multicolor": true,
+        "radii": [
+          5.0,
+          3.0
+        ],
+        "source": "actual accent border geometry isolated without external previews",
+        "widths": [
+          1,
+          1,
+          1,
+          7
+        ]
+      },
+      "name": "border-ellipse-accent-plus",
+      "viewport": [
+        40,
+        40
+      ]
+    },
+    {
+      "details": {
+        "multicolor": true,
+        "radii": [
+          0.0,
+          0.0
+        ],
+        "source": "actual accent border geometry isolated without external previews",
+        "widths": [
+          1,
+          1,
+          1,
+          7
+        ]
+      },
+      "name": "border-square-accent-plus",
+      "viewport": [
+        40,
+        40
+      ]
+    }
+  ],
+  "gpu_initialized": false,
+  "input": {
+    "binding": {
+      "Producer": {
+        "content_generation": 1,
+        "layout_scale": 1.0,
+        "logical_size": [
+          931.0,
+          328.0
+        ],
+        "physical_size": [
+          931,
+          328
+        ],
+        "source_identity": 2,
+        "source_revision": 2,
+        "source_scene_digest": [
+          16,
+          221,
+          138,
+          91,
+          234,
+          163,
+          98,
+          155,
+          5,
+          19,
+          107,
+          21,
+          71,
+          45,
+          6,
+          242,
+          184,
+          133,
+          202,
+          89,
+          249,
+          96,
+          165,
+          47,
+          54,
+          138,
+          55,
+          123,
+          186,
+          19,
+          146,
+          6
+        ]
+      }
+    },
+    "bundle_path": "/Users/markik/Code/output/vello-producer-gates-20261011/production-wide-cold-parity/complete-bundle.postcard",
+    "bundle_sha256": "47a6aa062921bf87fe03ea3c71b1a8d52059e04b337e3b8946ac2f4cb46498b3",
+    "font_bytes_written": false,
+    "glyph_candidates": [
+      {
+        "first_glyph": {
+          "id": 42,
+          "x": 26.0,
+          "y": 46.0
+        },
+        "font_id": 2,
+        "font_size": 14.0,
+        "glyph_count": 15,
+        "op_index": 2,
+        "transform_id": 0
+      },
+      {
+        "first_glyph": {
+          "id": 40,
+          "x": 845.0,
+          "y": 46.0
+        },
+        "font_id": 2,
+        "font_size": 14.0,
+        "glyph_count": 7,
+        "op_index": 12,
+        "transform_id": 0
+      },
+      {
+        "first_glyph": {
+          "id": 74,
+          "x": 27.0,
+          "y": 102.0
+        },
+        "font_id": 2,
+        "font_size": 14.0,
+        "glyph_count": 24,
+        "op_index": 22,
+        "transform_id": 0
+      },
+      {
+        "first_glyph": {
+          "id": 36,
+          "x": 28.0,
+          "y": 160.0
+        },
+        "font_id": 3,
+        "font_size": 22.0,
+        "glyph_count": 16,
+        "op_index": 24,
+        "transform_id": 0
+      },
+      {
+        "first_glyph": {
+          "id": 40,
+          "x": 28.0,
+          "y": 195.0
+        },
+        "font_id": 2,
+        "font_size": 14.0,
+        "glyph_count": 48,
+        "op_index": 25,
+        "transform_id": 0
+      },
+      {
+        "first_glyph": {
+          "id": 38,
+          "x": 28.0,
+          "y": 226.0
+        },
+        "font_id": 2,
+        "font_size": 14.0,
+        "glyph_count": 16,
+        "op_index": 26,
+        "transform_id": 0
+      },
+      {
+        "first_glyph": {
+          "id": 3,
+          "x": 134.6337890625,
+          "y": 226.0
+        },
+        "font_id": 2,
+        "font_size": 14.0,
+        "glyph_count": 1,
+        "op_index": 27,
+        "transform_id": 0
+      },
+      {
+        "first_glyph": {
+          "id": 74,
+          "x": 28.0,
+          "y": 259.0
+        },
+        "font_id": 1,
+        "font_size": 13.0,
+        "glyph_count": 4,
+        "op_index": 28,
+        "transform_id": 0
+      },
+      {
+        "first_glyph": {
+          "id": 11,
+          "x": 59.205078125,
+          "y": 259.0
+        },
+        "font_id": 1,
+        "font_size": 13.0,
+        "glyph_count": 1,
+        "op_index": 29,
+        "transform_id": 0
+      },
+      {
+        "first_glyph": {
+          "id": 5,
+          "x": 67.00634765625,
+          "y": 259.0
+        },
+        "font_id": 1,
+        "font_size": 13.0,
+        "glyph_count": 8,
+        "op_index": 30,
+        "transform_id": 0
+      },
+      {
+        "first_glyph": {
+          "id": 15,
+          "x": 129.41650390625,
+          "y": 259.0
+        },
+        "font_id": 1,
+        "font_size": 13.0,
+        "glyph_count": 2,
+        "op_index": 31,
+        "transform_id": 0
+      },
+      {
+        "first_glyph": {
+          "id": 21,
+          "x": 145.01904296875,
+          "y": 259.0
+        },
+        "font_id": 1,
+        "font_size": 13.0,
+        "glyph_count": 2,
+        "op_index": 32,
+        "transform_id": 0
+      },
+      {
+        "first_glyph": {
+          "id": 12,
+          "x": 160.62158203125,
+          "y": 259.0
+        },
+        "font_id": 1,
+        "font_size": 13.0,
+        "glyph_count": 2,
+        "op_index": 33,
+        "transform_id": 0
+      }
+    ],
+    "logical_viewport": [
+      931,
+      328
+    ],
+    "producer_key": 1952539235
+  },
+  "schema_version": 1,
+  "scope": "source-only fixture/glyph inventory; no rasterization"
+}

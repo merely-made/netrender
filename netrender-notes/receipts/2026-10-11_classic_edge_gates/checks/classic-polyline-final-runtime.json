@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Users/markik/Code/targets/mere-s2s3/debug/examples/classic_edge_probe",
+    "/Users/markik/Code/output/vello-classic-browser-gates-20261011/geometry-with-polyline",
+    "all"
+  ],
+  "cwd": "/Users/markik/Code",
+  "deadline_seconds": 90,
+  "elapsed_seconds": 3.316,
+  "exit_code": 0,
+  "timed_out": false,
+  "log": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/checks/classic-polyline-final-runtime.log"
+}

@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/Users/markik/Code/targets/mere-s2s3/debug/examples/classic_edge_probe",
+    "/Users/markik/Code/output/vello-classic-browser-gates-20261011/glyph-all",
+    "all",
+    "--bundle",
+    "/Users/markik/Code/output/vello-producer-gates-20261011/production-wide-cold-parity/complete-bundle.postcard",
+    "--producer",
+    "1952539235",
+    "--glyph-op",
+    "25"
+  ],
+  "cwd": "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge",
+  "deadline_seconds": 180,
+  "elapsed_seconds": 18.223,
+  "exit_code": 0,
+  "timed_out": false,
+  "log": "/Users/markik/Code/output/vello-classic-browser-gates-20261011/checks/classic-glyph-runtime.log"
+}

@@ -49,6 +49,16 @@ thresholds. Browser qualification, OS assistive-technology interaction and
 forced driver loss remain separate acceptance gates. Classic remains the
 shipping host renderer; this work does not enable automatic renderer fallback.
 
+## Classic edge isolation, 2026-10-11
+
+The [bounded curve/glyph receipt](receipts/2026-10-11_classic_edge_gates/README.md)
+localizes the canonical curved fixture gap to provider flattening: identical
+fine line endpoints agree within RGBA one/alpha zero, while canonical cubic
+alpha differs by 42. Actual glyph outline rounding crosses sparse subdivision
+and amplifies a 0.013671875-pixel change into alpha 53/51. Four source/CPU
+controls pass. Production/provider geometry and thresholds remain unchanged;
+Classic parity and production remediation remain open.
+
 ## Current canonical plans
 
 The original plan audit was 2026-08-10. Later activated work is indexed

@@ -1,0 +1,25 @@
+{
+  "released_utc": "2026-10-12T02:13:38.790348+00:00",
+  "stopped_owned": [
+    {
+      "pid": 65491,
+      "command": "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python /Users/markik/Code/worktrees/mere-vello-release-adoption/ports/graphshell/web/scenario_qualification_server.py --package /Users/markik/Code/output/vello-classic-browser-gates-20261011/browser/pkg --output /Users/markik/Code/output/vello-classic-browser-gates-20261011/browser/server-receipts --port 8897",
+      "signal_sent": true
+    },
+    {
+      "pid": 65639,
+      "command": "/usr/bin/caffeinate -dims -t 1800",
+      "signal_sent": true
+    }
+  ],
+  "browser": "Owned Playwright browser/context closed in finally; four finite browser attempts exited",
+  "cpu_builds": "All root Cargo/Swift processes exited; borrowed mere-s2s3 target preserved",
+  "diagnostics": {
+    "before_count": 10,
+    "after_count": 10,
+    "new_or_changed": [],
+    "removed": [],
+    "scope": "Filename/metadata observation only; no driver reset or systemwide health qualification"
+  },
+  "forced_driver_reset": false
+}
