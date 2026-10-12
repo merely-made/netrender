@@ -1,0 +1,27 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--config",
+    "/Users/markik/Code/output/vello-production-fixes-20261011/candidate-patches.toml",
+    "-p",
+    "netrender",
+    "--test",
+    "pd1_backdrop_filter",
+    "--test",
+    "pd2_element_filter",
+    "--test",
+    "filter_texture_lifecycle",
+    "-j2",
+    "--",
+    "--test-threads=1"
+  ],
+  "cwd": "/Users/markik/Code/worktrees/netrender-cambium-resource-bridge",
+  "deadline_seconds": 240,
+  "elapsed_seconds": 17.429,
+  "exit_code": 0,
+  "timed_out": false,
+  "disk_refused": false,
+  "log": "/Users/markik/Code/output/vello-production-fixes-20261011/checks/checked-renderer-filter-lifecycle-gpu.log"
+}

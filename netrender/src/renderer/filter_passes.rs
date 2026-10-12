@@ -274,23 +274,23 @@ impl Renderer {
         scene: &Scene,
         rast: &mut crate::vello_tile_rasterizer::VelloTileRasterizer,
         tc: &mut TileCache,
-    ) -> Option<Scene> {
+    ) -> Result<Option<Scene>, crate::VelloError> {
         if !has_backdrop_filter(scene) && !has_element_filter(scene) {
             // A page that stopped filtering must not keep the textures alive.
             self.retire_unused_filter_slots(rast, &[]);
-            return None;
+            return Ok(None);
         }
         let mut used: Vec<ImageKey> = Vec::new();
         let mut pre = if has_backdrop_filter(scene) {
-            self.preprocess_backdrop_filters(scene, rast, tc, &mut used)
+            self.preprocess_backdrop_filters(scene, rast, tc, &mut used)?
         } else {
             scene.clone()
         };
         if has_element_filter(&pre) {
-            pre = self.preprocess_element_filters(&pre, rast, tc, &mut used);
+            pre = self.preprocess_element_filters(&pre, rast, tc, &mut used)?;
         }
         self.retire_unused_filter_slots(rast, &used);
-        Some(pre)
+        Ok(Some(pre))
     }
 
     /// Hand `texture` to the rasterizer as filter slot `key`, reusing the
@@ -377,7 +377,7 @@ impl Renderer {
         rast: &mut crate::vello_tile_rasterizer::VelloTileRasterizer,
         tc: &mut TileCache,
         used: &mut Vec<ImageKey>,
-    ) -> Scene {
+    ) -> Result<Scene, crate::VelloError> {
         use crate::scene::{SceneClip, SceneFilter, SceneImage, SceneOp, NO_CLIP, SHARP_CLIP};
 
         let mut processed = scene.clone();
@@ -428,7 +428,7 @@ impl Renderer {
 
             // Render prefix to an intermediate texture at viewport
             // dimensions.
-            let prefix_tex = self.render_scene_to_texture(rast, tc, &prefix);
+            let prefix_tex = self.render_scene_to_texture(rast, tc, &prefix)?;
 
             // Blur it. `backdrop-filter` only supports blur today; the color
             // ops exist for element `filter` (`SceneLayer::filters`), so skip a
@@ -487,7 +487,7 @@ impl Renderer {
             next_key = next_key.wrapping_sub(1);
         }
 
-        processed
+        Ok(processed)
     }
     /// Render the given Scene into a fresh `Rgba8Unorm` texture at
     /// the scene's viewport dimensions. Used by D1's backdrop
@@ -497,7 +497,7 @@ impl Renderer {
         rast: &mut crate::vello_tile_rasterizer::VelloTileRasterizer,
         tc: &TileCache,
         scene: &Scene,
-    ) -> wgpu::Texture {
+    ) -> Result<wgpu::Texture, crate::VelloError> {
         let device = &self.wgpu_device.core.device;
         let texture = device.create_texture(&wgpu::TextureDescriptor {
             label: Some("netrender D1 backdrop prefix"),
@@ -529,8 +529,7 @@ impl Renderer {
             &view,
             transparent,
             1.0,
-        )
-        .unwrap_or_else(|e| panic!("D1 prefix render failed: {:?}", e));
-        texture
+        )?;
+        Ok(texture)
     }
 }

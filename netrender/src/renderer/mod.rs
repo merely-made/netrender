@@ -489,7 +489,19 @@ impl Renderer {
     /// - If a vello render error occurs (mirrors the existing
     ///   `render()` shape, which doesn't return a Result).
     pub fn render_vello(&self, scene: &Scene, target_view: &wgpu::TextureView, clear: ColorLoad) {
-        self.render_vello_scaled(scene, target_view, clear, 1.0);
+        self.render_vello_checked(scene, target_view, clear)
+            .unwrap_or_else(|error| panic!("vello render_to_texture failed: {error:?}"));
+    }
+
+    /// Checked Classic rendering. Provider errors reach the host recovery owner;
+    /// configuration preconditions are the same as [`Self::render_vello`].
+    pub fn render_vello_checked(
+        &self,
+        scene: &Scene,
+        target_view: &wgpu::TextureView,
+        clear: ColorLoad,
+    ) -> Result<(), crate::VelloError> {
+        self.render_vello_scaled_checked(scene, target_view, clear, 1.0)
     }
 
     /// Like [`render_vello`](Self::render_vello) but rasterizes a logical-coord scene
@@ -505,6 +517,19 @@ impl Renderer {
         clear: ColorLoad,
         scale: f32,
     ) {
+        self.render_vello_scaled_checked(scene, target_view, clear, scale)
+            .unwrap_or_else(|error| panic!("vello render_to_texture failed: {error:?}"));
+    }
+
+    /// Checked scaled Classic rendering. A failed submission is returned with
+    /// its provider error; later host checks must not count the target as success.
+    pub fn render_vello_scaled_checked(
+        &self,
+        scene: &Scene,
+        target_view: &wgpu::TextureView,
+        clear: ColorLoad,
+        scale: f32,
+    ) -> Result<(), crate::VelloError> {
         let rast_mutex = self
             .vello_rasterizer
             .as_ref()
@@ -520,7 +545,7 @@ impl Renderer {
         // the shared tile cache (one-surface hosts; multi-surface hosts should
         // use `render_vello_scaled_for` so surfaces stop cross-invalidating).
         let mut tile_scenes = std::mem::take(rast.tile_scenes_mut());
-        self.render_vello_inner(
+        let result = self.render_vello_inner(
             &mut rast,
             &mut tc,
             &mut tile_scenes,
@@ -530,6 +555,7 @@ impl Renderer {
             scale,
         );
         *rast.tile_scenes_mut() = tile_scenes;
+        result
     }
 
     /// Like [`render_vello_scaled`](Self::render_vello_scaled) but with
@@ -547,6 +573,20 @@ impl Renderer {
         clear: ColorLoad,
         scale: f32,
     ) {
+        self.render_vello_scaled_for_checked(surface, scene, target_view, clear, scale)
+            .unwrap_or_else(|error| panic!("vello render_to_texture failed: {error:?}"));
+    }
+
+    /// Checked rendering with per-surface retained state. Provider failures
+    /// return normally, releasing renderer/surface locks for host recovery.
+    pub fn render_vello_scaled_for_checked(
+        &self,
+        surface: u64,
+        scene: &Scene,
+        target_view: &wgpu::TextureView,
+        clear: ColorLoad,
+        scale: f32,
+    ) -> Result<(), crate::VelloError> {
         let rast_mutex = self
             .vello_rasterizer
             .as_ref()
@@ -586,7 +626,7 @@ impl Renderer {
             target_view,
             clear,
             scale,
-        );
+        )
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -599,7 +639,7 @@ impl Renderer {
         target_view: &wgpu::TextureView,
         clear: ColorLoad,
         scale: f32,
-    ) {
+    ) -> Result<(), crate::VelloError> {
         let base = match clear {
             ColorLoad::Clear(c) => {
                 vello::peniko::Color::new([c.r as f32, c.g as f32, c.b as f32, c.a as f32])
@@ -612,7 +652,7 @@ impl Renderer {
         // inject a SceneImage covering the layer's bounds so the
         // layer paints over the blurred backdrop. Falls through to
         // the no-backdrop fast path when no filters are present.
-        let processed = self.preprocess_filters(scene, rast, tc);
+        let processed = self.preprocess_filters(scene, rast, tc)?;
         let scene_to_render = processed.as_ref().unwrap_or(scene);
 
         // Per-frame paint instrumentation. DEBUG (quiet by default; the app
@@ -649,9 +689,10 @@ impl Renderer {
                     error = ?e,
                     "frame render failed"
                 );
-                panic!("vello render_to_texture failed: {:?}", e);
+                return Err(e);
             }
         }
+        Ok(())
     }
 
     /// Compose a same-device external texture directly into an
@@ -797,7 +838,9 @@ impl Renderer {
 
         let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
         let mut tc = tc_mutex.lock().expect("tile_cache lock");
-        let processed = self.preprocess_filters(scene, &mut rast, &mut tc);
+        let processed = self
+            .preprocess_filters(scene, &mut rast, &mut tc)
+            .unwrap_or_else(|error| panic!("vello filter prefix render failed: {error:?}"));
         let render_scene = processed.as_ref().unwrap_or(scene);
 
         rast.render_to_internal_master(render_scene, &mut tc, master_format, base_color)
@@ -1050,7 +1093,9 @@ impl Renderer {
         // `render_vello` path). External-texture boundaries below still index the
         // original `scene` (filters + interleaved external textures is a
         // follow-up); the common no-external-texture path is unaffected.
-        let processed = self.preprocess_filters(scene, &mut rast, &mut tc);
+        let processed = self
+            .preprocess_filters(scene, &mut rast, &mut tc)
+            .unwrap_or_else(|error| panic!("vello filter prefix render failed: {error:?}"));
         let render_scene = processed.as_ref().unwrap_or(scene);
 
         // 1. Render the scene into the rasterizer's pool-allocated master.

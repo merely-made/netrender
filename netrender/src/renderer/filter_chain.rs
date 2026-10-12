@@ -243,7 +243,7 @@ impl Renderer {
         rast: &mut crate::vello_tile_rasterizer::VelloTileRasterizer,
         tc: &mut TileCache,
         used: &mut Vec<ImageKey>,
-    ) -> Scene {
+    ) -> Result<Scene, crate::VelloError> {
         use crate::scene::{SceneClip, SceneFilter, SceneImage, SceneOp, NO_CLIP, SHARP_CLIP};
 
         let mut processed = scene.clone();
@@ -293,7 +293,7 @@ impl Renderer {
             // Render the layer's own content (flat) to a viewport texture, then
             // run the filter chain over it.
             let content = build_layer_content_scene(scene, push_idx, pop_idx);
-            let content_tex = self.render_scene_to_texture(rast, tc, &content);
+            let content_tex = self.render_scene_to_texture(rast, tc, &content)?;
             let filtered = self.apply_filter_chain(content_tex, scene.viewport_width, &filters);
             self.publish_filter_texture(rast, tc, next_key, filtered, used);
 
@@ -349,6 +349,6 @@ impl Renderer {
             next_key = next_key.wrapping_sub(1);
         }
 
-        processed
+        Ok(processed)
     }
 }

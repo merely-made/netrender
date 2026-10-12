@@ -60,6 +60,8 @@ pub use crate::renderer::{
 // surface so they don't have to add a separate vello dep just to
 // build a font handle.
 pub use vello::peniko;
+/// Typed Classic provider errors, including deferred quality/readback failures.
+pub use vello::Error as VelloError;
 pub use crate::scene::{
     CompositorSurface, FontBlob, FontId, Glyph, GradientKind, GradientStop, ImageData, ImageKey,
     NO_CLIP, PathOp, SHARP_CLIP, Scene, SceneBlendMode, SceneClip, SceneCompose, SceneFilter,
