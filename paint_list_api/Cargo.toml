@@ -1,4 +1,5 @@
 [package]
+rust-version = "1.97.1"
 name = "paint_list_api"
 version = "0.1.2"
 license = "MPL-2.0"
