@@ -44,3 +44,6 @@ panic = "abort"
 
 [profile.dev]
 panic = "abort"
+
+[workspace.package]
+rust-version = "1.97.1"
