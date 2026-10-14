@@ -1,0 +1,447 @@
+{
+  "runs": [
+    {
+      "label": "supplier-webgl-recording-red-1",
+      "command": [
+        "cargo",
+        "+1.99.0",
+        "check",
+        "--offline",
+        "--locked",
+        "-p",
+        "netrender",
+        "--example",
+        "webgl_scene",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--no-default-features",
+        "--features",
+        "vello-webgl",
+        "-j1"
+      ],
+      "exit": 101,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 326291456,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-0135133cad0740d897da174d8aca86ce.service",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "6286322112be8fb1570dd9d7730cac7b8db5bd077654f961bb598ad9bea06c61",
+      "summaries": [],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    },
+    {
+      "label": "supplier-webgl-recording-green-1",
+      "command": [
+        "cargo",
+        "+1.99.0",
+        "check",
+        "--offline",
+        "--locked",
+        "-p",
+        "netrender",
+        "--example",
+        "webgl_scene",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--no-default-features",
+        "--features",
+        "vello-webgl",
+        "-j1"
+      ],
+      "exit": 0,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 150269952,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-531a9a64cc884cdf8489da5e7fcf6912.service",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "f447141c341a779e74df79def1eaf538ae63c6b92119f11e4607c80a7fa856d5",
+      "summaries": [],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    },
+    {
+      "label": "supplier-webgl-fixture-build-5",
+      "command": [
+        "cargo",
+        "+1.99.0",
+        "build",
+        "--offline",
+        "--locked",
+        "-p",
+        "netrender",
+        "--example",
+        "webgl_scene",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--no-default-features",
+        "--features",
+        "vello-webgl",
+        "--release",
+        "-j1"
+      ],
+      "exit": 0,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 921391104,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-8b3e9742dae34664a920612696b51369.service",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "41d390e6d2069a3261195d90baee429c4094cf49c25020359b5ff6da6c5ee2e0",
+      "summaries": [],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    },
+    {
+      "label": "supplier-webgl-recording-chrome-1",
+      "command": [
+        "/usr/bin/python3",
+        "/home/markik/Code/worktrees/mere-webgl-presentation/.superpowers/sdd/2026-10-13_browser_presentation_tenants_plan/run-webgl-fixture-live.py",
+        "/home/markik/Code/testing/genet/webgl-viewer-20261013/recording-chrome-1",
+        "--browser",
+        "chrome"
+      ],
+      "exit": 0,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 711348224,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-7ae34099856a4739a368179d4306fbdf.service",
+      "stdout_sha256": "d8eab2cc9dc6388492404f4713018550e79de45607decf51fee799bcc9a5b522",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    },
+    {
+      "label": "supplier-webgl-recording-firefox-1",
+      "command": [
+        "/usr/bin/python3",
+        "/home/markik/Code/worktrees/mere-webgl-presentation/.superpowers/sdd/2026-10-13_browser_presentation_tenants_plan/run-webgl-fixture-live.py",
+        "/home/markik/Code/testing/genet/webgl-viewer-20261013/recording-firefox-1",
+        "--browser",
+        "firefox",
+        "--headed"
+      ],
+      "exit": 0,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 874508288,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-4e2c664e1c264aeb8f6aacd7bdc8fbf4.service",
+      "stdout_sha256": "fcf88ef9cc8910ad0517690ad89ba4632fb2cd8bfa1cd5b7eea30171a87c237b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    }
+  ],
+  "browser_results": {
+    "chrome": {
+      "result": "pass",
+      "scope": "Netrender direct Vello WebGL2 semantic fixtures",
+      "renderer": "ANGLE (AMD, AMD Radeon Graphics (radeonsi renoir ACO), OpenGL ES 3.2)",
+      "steps": [
+        {
+          "name": "image-diagnostic",
+          "samples": [
+            {
+              "x": 8,
+              "y": 40,
+              "pixel": [
+                128,
+                0,
+                127,
+                255
+              ]
+            },
+            {
+              "x": 16,
+              "y": 40,
+              "pixel": [
+                124,
+                8,
+                123,
+                255
+              ]
+            },
+            {
+              "x": 24,
+              "y": 40,
+              "pixel": [
+                60,
+                135,
+                60,
+                255
+              ]
+            },
+            {
+              "x": 32,
+              "y": 40,
+              "pixel": [
+                0,
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 40,
+              "pixel": [
+                0,
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 48,
+              "pixel": [
+                0,
+                247,
+                8,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 56,
+              "pixel": [
+                0,
+                120,
+                135,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 64,
+              "pixel": [
+                0,
+                0,
+                255,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 71,
+              "pixel": [
+                0,
+                0,
+                255,
+                255
+              ]
+            }
+          ]
+        },
+        {
+          "name": "ordered-images-clip-opacity-glyph",
+          "glyphPixels": 266,
+          "stats": "SparseResourceStats { source_count: 1, source_bytes: 16, cached_images: 1, cached_bytes: 16, gpu_texture_bytes: 36, hydrated_images: 1, uploaded_images: 1 }"
+        },
+        {
+          "name": "late-refusal-preserves-frame-and-resources"
+        },
+        {
+          "name": "recording-refusal-preserves-canvas-dimensions-and-pixels",
+          "maximum": 16384
+        },
+        {
+          "name": "image-replacement-removal-preserves-unrelated-cache",
+          "stats": "SparseResourceStats { source_count: 1, source_bytes: 4, cached_images: 1, cached_bytes: 4, gpu_texture_bytes: 16, hydrated_images: 4, uploaded_images: 4 }"
+        },
+        {
+          "name": "resize-transparent",
+          "width": 31,
+          "height": 23
+        },
+        {
+          "name": "loss-restoration-stale-refusal",
+          "generation": 2
+        }
+      ]
+    },
+    "firefox": {
+      "result": "pass",
+      "scope": "Netrender direct Vello WebGL2 semantic fixtures",
+      "renderer": "Radeon HD 3200 Graphics, or similar",
+      "steps": [
+        {
+          "name": "image-diagnostic",
+          "samples": [
+            {
+              "x": 8,
+              "y": 40,
+              "pixel": [
+                128,
+                0,
+                127,
+                255
+              ]
+            },
+            {
+              "x": 16,
+              "y": 40,
+              "pixel": [
+                124,
+                8,
+                123,
+                255
+              ]
+            },
+            {
+              "x": 24,
+              "y": 40,
+              "pixel": [
+                60,
+                135,
+                60,
+                255
+              ]
+            },
+            {
+              "x": 32,
+              "y": 40,
+              "pixel": [
+                0,
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 40,
+              "pixel": [
+                0,
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 48,
+              "pixel": [
+                0,
+                247,
+                8,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 56,
+              "pixel": [
+                0,
+                120,
+                135,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 64,
+              "pixel": [
+                0,
+                0,
+                255,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 71,
+              "pixel": [
+                0,
+                0,
+                255,
+                255
+              ]
+            }
+          ]
+        },
+        {
+          "name": "ordered-images-clip-opacity-glyph",
+          "glyphPixels": 266,
+          "stats": "SparseResourceStats { source_count: 1, source_bytes: 16, cached_images: 1, cached_bytes: 16, gpu_texture_bytes: 36, hydrated_images: 1, uploaded_images: 1 }"
+        },
+        {
+          "name": "late-refusal-preserves-frame-and-resources"
+        },
+        {
+          "name": "recording-refusal-preserves-canvas-dimensions-and-pixels",
+          "maximum": 16384
+        },
+        {
+          "name": "image-replacement-removal-preserves-unrelated-cache",
+          "stats": "SparseResourceStats { source_count: 1, source_bytes: 4, cached_images: 1, cached_bytes: 4, gpu_texture_bytes: 16, hydrated_images: 4, uploaded_images: 4 }"
+        },
+        {
+          "name": "resize-transparent",
+          "width": 31,
+          "height": 23
+        },
+        {
+          "name": "loss-restoration-stale-refusal",
+          "generation": 2
+        }
+      ]
+    }
+  }
+}

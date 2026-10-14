@@ -1,0 +1,7 @@
+{
+  "result": "fail",
+  "controls": [],
+  "errors": [
+    "Error: silent GL upload error refuses frame\n    at assert (http://127.0.0.1:8975/:2:143)\n    at http://127.0.0.1:8975/:2:818"
+  ]
+}
