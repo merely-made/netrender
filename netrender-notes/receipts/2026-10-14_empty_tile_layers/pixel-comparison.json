@@ -1,0 +1,281 @@
+{
+  "frames": {
+    "cold": {
+      "baseline_nodes": {
+        "path": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\unpruned\\nodes\\cold.png",
+        "sha256": "28b1fca908a49bc10700b47fcbe858c83a560770256af762cbe248ac8f91fe65"
+      },
+      "fixed_nodes": {
+        "path": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\fixed\\nodes\\cold.png",
+        "sha256": "3cd6160bc381d5ed1b82685d64bf23615a4406112f9ee2aa109034073eeceafe"
+      },
+      "baseline_links": {
+        "path": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\unpruned\\links\\cold.png",
+        "sha256": "77e112b32e3a4d07259b83bbe3d8de1d2c23973fcf023977a4bdf7e03c725e8c"
+      },
+      "fixed_links": {
+        "path": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\fixed\\links\\cold.png",
+        "sha256": "77e112b32e3a4d07259b83bbe3d8de1d2c23973fcf023977a4bdf7e03c725e8c"
+      },
+      "nodes_baseline_regions": [
+        {
+          "bounds": [
+            0,
+            0,
+            1175,
+            62
+          ],
+          "alpha_extrema": [
+            0,
+            255
+          ],
+          "transparent_pixels": 3968,
+          "not_opaque_pixels": 3968
+        },
+        {
+          "bounds": [
+            1185,
+            62,
+            2360,
+            1600
+          ],
+          "alpha_extrema": [
+            0,
+            255
+          ],
+          "transparent_pixels": 54720,
+          "not_opaque_pixels": 54720
+        }
+      ],
+      "nodes_fixed_regions": [
+        {
+          "bounds": [
+            0,
+            0,
+            1175,
+            62
+          ],
+          "alpha_extrema": [
+            255,
+            255
+          ],
+          "transparent_pixels": 0,
+          "not_opaque_pixels": 0
+        },
+        {
+          "bounds": [
+            1185,
+            62,
+            2360,
+            1600
+          ],
+          "alpha_extrema": [
+            255,
+            255
+          ],
+          "transparent_pixels": 0,
+          "not_opaque_pixels": 0
+        }
+      ],
+      "links_rgba_identical": true,
+      "nodes_opaque_overlap": {
+        "pixels": 3700736,
+        "rgba_extrema": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "bounds": [
+          1196,
+          73,
+          1530,
+          425
+        ],
+        "changed_pixels": 802
+      }
+    },
+    "warm": {
+      "baseline_nodes": {
+        "path": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\unpruned\\nodes\\warm.png",
+        "sha256": "06fd2b4f464568879d18351c016ce57a477866cea5cfdf7d47618c8090eca667"
+      },
+      "fixed_nodes": {
+        "path": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\fixed\\nodes\\warm.png",
+        "sha256": "dd7c30d65a16f5e8d2e9aa45dbcb5bee935b5908de45c55b86b49f80c2646da3"
+      },
+      "baseline_links": {
+        "path": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\unpruned\\links\\warm.png",
+        "sha256": "77e112b32e3a4d07259b83bbe3d8de1d2c23973fcf023977a4bdf7e03c725e8c"
+      },
+      "fixed_links": {
+        "path": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\fixed\\links\\warm.png",
+        "sha256": "77e112b32e3a4d07259b83bbe3d8de1d2c23973fcf023977a4bdf7e03c725e8c"
+      },
+      "nodes_baseline_regions": [
+        {
+          "bounds": [
+            0,
+            0,
+            1175,
+            62
+          ],
+          "alpha_extrema": [
+            0,
+            255
+          ],
+          "transparent_pixels": 3968,
+          "not_opaque_pixels": 3968
+        },
+        {
+          "bounds": [
+            1185,
+            62,
+            2360,
+            1600
+          ],
+          "alpha_extrema": [
+            0,
+            255
+          ],
+          "transparent_pixels": 54720,
+          "not_opaque_pixels": 54720
+        }
+      ],
+      "nodes_fixed_regions": [
+        {
+          "bounds": [
+            0,
+            0,
+            1175,
+            62
+          ],
+          "alpha_extrema": [
+            255,
+            255
+          ],
+          "transparent_pixels": 0,
+          "not_opaque_pixels": 0
+        },
+        {
+          "bounds": [
+            1185,
+            62,
+            2360,
+            1600
+          ],
+          "alpha_extrema": [
+            255,
+            255
+          ],
+          "transparent_pixels": 0,
+          "not_opaque_pixels": 0
+        }
+      ],
+      "links_rgba_identical": true,
+      "nodes_opaque_overlap": {
+        "pixels": 3700736,
+        "rgba_extrema": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "bounds": [
+          1196,
+          73,
+          1530,
+          425
+        ],
+        "changed_pixels": 802
+      }
+    }
+  },
+  "scope": "captured native scene rasterization; headed final composition qualified separately",
+  "nodes_cold_warm_residual": {
+    "unpruned": {
+      "rgba_extrema": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "bounds": [
+        1469,
+        288,
+        1470,
+        289
+      ],
+      "changed_pixels": 1
+    },
+    "fixed": {
+      "rgba_extrema": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "bounds": [
+        1449,
+        289,
+        1450,
+        290
+      ],
+      "changed_pixels": 1
+    }
+  },
+  "existing_interior_rgba_gate": {
+    "rgb": 3,
+    "alpha": 2,
+    "source": "netrender-notes/receipts/2026-10-12_production_flattening/README.md:16-17"
+  },
+  "passed": true
+}

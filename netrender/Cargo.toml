@@ -82,3 +82,7 @@ web-time = "1"
 [dev-dependencies]
 png = "0.17"
 netrender_text = { path = "../netrender_text" }
+
+[[example]]
+name = "retained_scene_replay"
+required-features = ["serde"]

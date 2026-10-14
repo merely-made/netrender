@@ -1,0 +1,181 @@
+    Blocking waiting for file lock on package cache
+    Updating crates.io index
+    Blocking waiting for file lock on package cache
+ Downloading crates ...
+  Downloaded fontique v0.12.0
+  Downloaded parley_engine v0.12.0
+  Downloaded parley_emoji v0.12.0
+  Downloaded parley v0.12.0
+  Downloaded parley_data v0.12.0
+   Compiling proc-macro2 v1.0.106
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling syn v2.0.117
+   Compiling syn v3.0.6
+   Compiling serde_core v1.0.229
+   Compiling serde v1.0.229
+   Compiling serde_derive v1.0.229
+   Compiling foldhash v0.2.0
+   Compiling windows-link v0.2.1
+   Compiling cfg_aliases v0.2.2
+   Compiling autocfg v1.5.0
+   Compiling thiserror v2.0.18
+   Compiling libm v0.2.16
+   Compiling cfg-if v1.0.4
+   Compiling num-traits v0.2.19
+   Compiling smallvec v1.16.3
+   Compiling thiserror-impl v2.0.18
+   Compiling equivalent v1.0.2
+   Compiling bytemuck_derive v1.10.2
+   Compiling once_cell v1.21.4
+   Compiling bitflags v2.11.1
+   Compiling bytemuck v1.25.0
+   Compiling synstructure v0.13.2
+   Compiling stable_deref_trait v1.2.1
+   Compiling arrayvec v0.7.6
+   Compiling zerofrom-derive v0.1.7
+   Compiling windows-strings v0.5.1
+   Compiling windows-result v0.4.1
+   Compiling windows-interface v0.59.3
+   Compiling windows-implement v0.60.2
+   Compiling rustc-hash v1.1.0
+   Compiling zerocopy v0.8.48
+   Compiling windows-core v0.62.2
+   Compiling zerofrom v0.1.7
+   Compiling yoke-derive v0.8.2
+   Compiling hashbrown v0.17.1
+   Compiling zerocopy-derive v0.8.48
+   Compiling log v0.4.34
+   Compiling yoke v0.8.3
+   Compiling unicode-width v0.2.2
+   Compiling bit-vec v0.9.1
+   Compiling bit-set v0.10.0
+   Compiling codespan-reporting v0.13.1
+   Compiling half v2.7.1
+   Compiling windows-threading v0.2.1
+   Compiling zerovec-derive v0.11.6
+   Compiling scopeguard v1.2.0
+   Compiling lock_api v0.4.14
+   Compiling zerovec v0.11.8
+   Compiling windows-future v0.3.2
+   Compiling windows-collections v0.3.2
+   Compiling windows-numerics v0.3.1
+   Compiling displaydoc v0.2.5
+   Compiling windows v0.62.2
+   Compiling indexmap v2.14.0
+   Compiling parking_lot_core v0.9.12
+   Compiling writeable v0.6.4
+   Compiling naga-types v30.0.1
+   Compiling font-types v0.12.3
+   Compiling naga v30.0.1
+   Compiling ash v0.38.0+1.3.281
+   Compiling read-fonts v0.41.0
+   Compiling tinystr v0.8.4
+   Compiling spirv v0.4.0+sdk-1.4.341.0
+   Compiling libloading v0.8.9
+   Compiling serde_bytes v0.11.19
+   Compiling litemap v0.8.2
+   Compiling static_assertions v1.1.0
+   Compiling allocator-api2 v0.2.21
+   Compiling raw-window-handle v0.6.2
+   Compiling wgpu-types v30.0.1
+   Compiling hashbrown v0.16.1
+   Compiling icu_locale_core v2.3.0
+   Compiling linebender_resource_handle v0.1.1
+   Compiling parking_lot v0.12.5
+   Compiling potential_utf v0.1.5
+   Compiling zerotrie v0.2.5
+   Compiling wgpu-hal v30.0.1
+   Compiling presser v0.3.1
+   Compiling gpu-allocator v0.28.0
+   Compiling icu_provider v2.3.1
+   Compiling wgpu-naga-bridge v30.0.0
+   Compiling ordered-float v5.3.0
+   Compiling utf8_iter v1.0.4
+   Compiling renderdoc-sys v1.1.0
+   Compiling simd-adler32 v0.3.9
+   Compiling range-alloc v0.1.5
+   Compiling crc32fast v1.5.0
+   Compiling profiling v1.0.17
+   Compiling icu_collections v2.3.0
+   Compiling skrifa v0.44.0
+   Compiling polycool v0.4.0
+   Compiling wgpu-core v30.0.1
+   Compiling litrs v1.0.0
+   Compiling semver v1.0.28
+   Compiling icu_properties_data v2.3.0
+   Compiling icu_locale_fallback_data v2.3.0
+   Compiling adler2 v2.0.1
+   Compiling miniz_oxide v0.8.9
+   Compiling rustc_version v0.4.1
+   Compiling document-features v0.2.12
+   Compiling kurbo v0.13.1
+   Compiling wgpu-core-deps-windows-linux-android v30.0.1
+   Compiling euclid v0.22.14
+   Compiling wgpu v30.0.1
+   Compiling color v0.3.3
+   Compiling icu_normalizer_data v2.3.0
+   Compiling icu_segmenter_data v2.3.0
+   Compiling svg_fmt v0.4.5
+   Compiling guillotiere v0.7.0
+   Compiling peniko v0.6.1
+   Compiling flate2 v1.1.9
+   Compiling heapless v0.7.17
+   Compiling vello_shaders v0.11.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling fdeflate v0.3.7
+   Compiling zmij v1.0.21
+   Compiling byteorder v1.5.0
+   Compiling hash32 v0.2.1
+   Compiling icu_locale_fallback v2.3.0
+   Compiling icu_properties v2.3.0
+   Compiling vello_encoding v0.11.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling spin v0.9.8
+   Compiling futures-core v0.3.32
+   Compiling memmap2 v0.9.11
+   Compiling parlance v0.1.1
+   Compiling serde_json v1.0.151
+   Compiling fontique v0.12.0
+   Compiling futures-intrusive v0.5.0
+   Compiling icu_segmenter v2.3.0
+   Compiling icu_normalizer v2.3.0
+   Compiling parley_data v0.12.0
+   Compiling png v0.18.1
+   Compiling harfrust v0.12.0
+   Compiling tracing-core v0.1.36
+   Compiling cobs v0.3.0
+   Compiling tracing-attributes v0.1.31
+   Compiling pollster v1.0.1
+   Compiling memchr v2.8.0
+   Compiling pin-project-lite v0.2.17
+   Compiling itoa v1.0.18
+   Compiling parley_emoji v0.12.0
+   Compiling parley_engine v0.12.0
+   Compiling tracing v0.1.44
+   Compiling netrender_device v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender_device)
+warning: function `submit` is never used
+  --> netrender_device\src\frame.rs:19:15
+   |
+19 | pub(crate) fn submit(queue: &wgpu::Queue, encoder: wgpu::CommandEncoder) {
+   |               ^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `netrender_device` (lib) generated 1 warning
+   Compiling postcard v1.1.3
+   Compiling netrender-vello v0.11.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+   Compiling parley v0.12.0
+   Compiling bitflags v1.3.2
+   Compiling png v0.17.16
+   Compiling netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7m 03s
+     Running unittests src\lib.rs (C:/t/cargo-targets/netrender/build\debug\deps\netrender-e92f8a0ee19876d8.exe)
+
+running 4 tests
+test vello_tile_rasterizer::master::empty_tile_layers_tests::malformed_scopes_are_not_rewritten ... ok
+test vello_tile_rasterizer::master::empty_tile_layers_tests::empty_masks_filters_backdrops_and_blends_keep_parent_scopes ... ok
+test vello_tile_rasterizer::master::empty_tile_layers_tests::spatially_filtered_empty_nested_scopes_are_removed ... ok
+test vello_tile_rasterizer::master::empty_tile_layers_tests::retained_draw_preserves_nested_clip_alpha_and_painter_order ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 71 filtered out; finished in 0.00s
+

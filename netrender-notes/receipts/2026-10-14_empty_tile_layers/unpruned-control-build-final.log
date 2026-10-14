@@ -1,0 +1,21 @@
+warning: function `submit` is never used
+  --> netrender_device\src\frame.rs:19:15
+   |
+19 | pub(crate) fn submit(queue: &wgpu::Queue, encoder: wgpu::CommandEncoder) {
+   |               ^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `netrender_device` (lib) generated 1 warning
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+warning: function `prune_empty_tile_layers` is never used
+   --> netrender\src\vello_tile_rasterizer\master.rs:452:4
+    |
+452 | fn prune_empty_tile_layers(ops: &mut Vec<SceneOp>) {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `netrender` (lib) generated 1 warning
+   Compiling netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.88s

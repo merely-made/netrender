@@ -1,0 +1,7 @@
+{
+  "base": "f4147feca69f177cf8c276c130549aa6dd3e201f",
+  "variant": "only pruning call disabled; debug metric unchanged; originalUTF8preserved",
+  "master_working_file_sha256": "a353076bc8f15f91c59a113092ae682bcded7881b4d8261421c542f532dd5ed5",
+  "executable_sha256": "a894b277e9ca348cd3c5a19c6a4d175b1b0f9dcb00352fb03c82513e4aa6ac7f",
+  "vello": "2eae6243881d5b24c984d5ee35dde509ca5db782"
+}

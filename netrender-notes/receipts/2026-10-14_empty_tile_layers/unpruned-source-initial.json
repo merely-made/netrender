@@ -1,0 +1,7 @@
+{
+  "base": "f4147feca69f177cf8c276c130549aa6dd3e201f",
+  "variant": "published tile filtering; only safe pruning call disabled; debug metric unchanged",
+  "master_working_file_sha256": "58cd01b08374ac0906ba38c4fae5671377d09b0b4d3da14a27af38f58be8b16f",
+  "executable_sha256": "3c47af6f5a24b9a23c6fa240331230920822740e5e4693d268a69644c5d1bdc3",
+  "vello": "2eae6243881d5b24c984d5ee35dde509ca5db782"
+}
