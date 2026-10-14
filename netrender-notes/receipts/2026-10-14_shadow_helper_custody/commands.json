@@ -1,0 +1,53 @@
+{
+  "base_commit": "43c5fc0e3e4d75f1eb708bda7f2b08f31df7fddc",
+  "provider": "2eae6243881d5b24c984d5ee35dde509ca5db782",
+  "environment": {
+    "CARGO_TARGET_DIR": "C:/t/cargo-targets/netrender",
+    "CARGO_BUILD_BUILD_DIR": "C:/t/cargo-targets/netrender/build",
+    "WGPU_BACKEND": "vulkan"
+  },
+  "gates": [
+    {
+      "command": "cargo +1.99.0 test -p netrender --test shadow_mask_lifecycle --locked --offline -j1 -- --nocapture",
+      "capture_environment": {
+        "NETRENDER_SHADOW_CAPTURE_DIR": "C:\\Users\\mark_\\Code\\repos\\netrender\\netrender-notes\\receipts\\2026-10-14_shadow_helper_custody\\unrepaired"
+      },
+      "log": "unrepaired-control.log",
+      "expected_exit": 101,
+      "result": "expected leak/stale-pixel failure on exact prior source"
+    },
+    {
+      "command": "cargo +1.99.0 test -p netrender --test shadow_mask_lifecycle --locked --offline -j1 -- --nocapture",
+      "capture_environment": {
+        "NETRENDER_SHADOW_CAPTURE_DIR": "C:\\Users\\mark_\\Code\\repos\\netrender\\netrender-notes\\receipts\\2026-10-14_shadow_helper_custody\\fixed"
+      },
+      "log": "fixed-gpu-final.log",
+      "expected_exit": 0,
+      "passed": 1
+    },
+    {
+      "command": "cargo +1.99.0 test -p netrender --test filter_texture_lifecycle --locked --offline -j1 -- --test-threads=1",
+      "log": "filter-regression.log",
+      "passed": 8
+    },
+    {
+      "command": "cargo +1.99.0 test -p netrender --test p5prime_c_register_texture --locked --offline -j1 -- --test-threads=1",
+      "log": "register-regression.log",
+      "passed": 1
+    }
+  ],
+  "working_file_sha256": {
+    "netrender/src/renderer/mod.rs": "ef028b549d0a1decbbd4ff27eaeaa8317a54713c6962e0236ec607afb2768521",
+    "netrender/src/vello_tile_rasterizer/mod.rs": "5393b5acf922c62a4dce03a9674957fa57e817476f16ab7b602a44527a7bfb83",
+    "netrender/tests/shadow_mask_lifecycle.rs": "db864e867570f5c5e18bc25f6ee3124403a5e23960772d40863ef75dc7a20b1c"
+  },
+  "git_blob_ids": {
+    "netrender/src/renderer/mod.rs": "d92b4e6bb5369091012692be506f69afd13ba72a",
+    "netrender/src/vello_tile_rasterizer/mod.rs": "6f6e21fd3eca03bfa9f4a46aaa85f174ee41805f",
+    "netrender/tests/shadow_mask_lifecycle.rs": "604d1d839f0a8d9169743a731119d872d04b70cd"
+  },
+  "cargo_lock_sha256": "b2f9768acf7d92720124f13a13934dea5c4b40f83571d7292876f8b04999f559",
+  "unchanged_prior_receipt": true,
+  "same_device_per_test": true,
+  "fresh_renderer_oracle_exact_rgba": true
+}

@@ -1,0 +1,168 @@
+{
+  "same_device_oracle_pairs": [
+    {
+      "actual": "fixed\\case0-global-reused.png",
+      "oracle": "fixed\\case0-global-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case0-retained-reused.png",
+      "oracle": "fixed\\case0-retained-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case0-surface10-reused.png",
+      "oracle": "fixed\\case0-surface10-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case0-surface20-reused.png",
+      "oracle": "fixed\\case0-surface20-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case1-global-reused.png",
+      "oracle": "fixed\\case1-global-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case1-retained-reused.png",
+      "oracle": "fixed\\case1-retained-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case1-surface10-reused.png",
+      "oracle": "fixed\\case1-surface10-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case1-surface20-reused.png",
+      "oracle": "fixed\\case1-surface20-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case2-global-reused.png",
+      "oracle": "fixed\\case2-global-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case2-retained-reused.png",
+      "oracle": "fixed\\case2-retained-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case2-surface10-reused.png",
+      "oracle": "fixed\\case2-surface10-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case2-surface20-reused.png",
+      "oracle": "fixed\\case2-surface20-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case3-global-reused.png",
+      "oracle": "fixed\\case3-global-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case3-retained-reused.png",
+      "oracle": "fixed\\case3-retained-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case3-surface10-reused.png",
+      "oracle": "fixed\\case3-surface10-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case3-surface20-reused.png",
+      "oracle": "fixed\\case3-surface20-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case4-global-reused.png",
+      "oracle": "fixed\\case4-global-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case4-retained-reused.png",
+      "oracle": "fixed\\case4-retained-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case4-surface10-reused.png",
+      "oracle": "fixed\\case4-surface10-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case4-surface20-reused.png",
+      "oracle": "fixed\\case4-surface20-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case5-global-reused.png",
+      "oracle": "fixed\\case5-global-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case5-retained-reused.png",
+      "oracle": "fixed\\case5-retained-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case5-surface10-reused.png",
+      "oracle": "fixed\\case5-surface10-oracle.png",
+      "rgba_identical": true
+    },
+    {
+      "actual": "fixed\\case5-surface20-reused.png",
+      "oracle": "fixed\\case5-surface20-oracle.png",
+      "rgba_identical": true
+    }
+  ],
+  "pair_count": 24,
+  "retired_images_zero": 4,
+  "negative_control": {
+    "live_counts": [
+      1,
+      2,
+      3
+    ],
+    "first_mismatch": [
+      19,
+      0
+    ],
+    "actual": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "oracle": [
+      51,
+      127,
+      203,
+      1
+    ],
+    "rgba_extrema": [
+      [
+        0,
+        51
+      ],
+      [
+        0,
+        127
+      ],
+      [
+        0,
+        203
+      ],
+      [
+        0,
+        113
+      ]
+    ],
+    "changed_pixels": 3408
+  }
+}

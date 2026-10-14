@@ -357,6 +357,9 @@ impl Renderer {
     /// `render_vello` calls until `unregister_image_vello` is
     /// called or the renderer is dropped. Overrides win over
     /// `scene.image_sources` entries with the same `ImageKey`.
+    /// Reusing a key refreshes same-sized pixels without changing cached
+    /// image identities; a resize retires the old identity and rebuilds
+    /// global, per-surface and retained scene caches.
     ///
     /// # Panics
     ///
@@ -367,7 +370,11 @@ impl Renderer {
             .as_ref()
             .expect("Renderer::insert_image_vello requires enable_vello = true");
         let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
-        rast.register_texture(key, (*texture).clone());
+        let identity_changed = rast.register_or_refresh_texture(key, (*texture).clone());
+        drop(rast);
+        if identity_changed {
+            self.invalidate_external_image_tile_caches();
+        }
     }
 
     /// Drop a previously-registered `insert_image_vello` entry.
@@ -378,7 +385,11 @@ impl Renderer {
             return;
         };
         let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
-        rast.unregister_texture(key);
+        let removed = rast.remove_registered_texture(key);
+        drop(rast);
+        if removed {
+            self.invalidate_external_image_tile_caches();
+        }
     }
 
     /// Poll deferred Classic curve-quality results without blocking. Returns pending

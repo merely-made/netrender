@@ -374,21 +374,44 @@ impl VelloTileRasterizer {
     /// result, mask coverage texture, etc.) that exists only on the
     /// GPU and has no CPU-side `ImageData`. Overrides win over
     /// `scene.image_sources` entries with the same `ImageKey`.
+    /// A same-sized replacement preserves its Vello identity and refreshes
+    /// atlas pixels. A resized replacement retires the old identity.
     pub fn register_texture(&mut self, key: ImageKey, texture: wgpu::Texture) {
+        self.register_or_refresh_texture(key, texture);
+    }
+
+    /// Returns whether cached scene handles need to be rebuilt. Renderer
+    /// owners also invalidate their paired global/per-surface tile caches.
+    pub(crate) fn register_or_refresh_texture(
+        &mut self,
+        key: ImageKey,
+        texture: wgpu::Texture,
+    ) -> bool {
+        if self.refresh_texture(key, texture.clone()) {
+            return false;
+        }
+        self.remove_registered_texture(key);
         let image = self.vello_renderer.register_texture(texture);
-        // A replaced entry abandons its Vello identity rather than retiring
-        // it, so the counter rises either way; only `unregister_texture`
-        // brings it down. See [`Self::live_texture_registrations`].
         self.image_overrides.insert(key, image);
         self.live_texture_registrations += 1;
+        self.invalidate_image_override_caches();
+        true
     }
 
     /// Drop a previously-registered `register_texture` entry.
     /// No-op if `key` was never registered.
     pub fn unregister_texture(&mut self, key: ImageKey) {
+        self.remove_registered_texture(key);
+    }
+
+    pub(crate) fn remove_registered_texture(&mut self, key: ImageKey) -> bool {
         if let Some(image) = self.image_overrides.remove(&key) {
             self.vello_renderer.unregister_texture(image);
             self.live_texture_registrations = self.live_texture_registrations.saturating_sub(1);
+            self.invalidate_image_override_caches();
+            true
+        } else {
+            false
         }
     }
 
@@ -400,6 +423,9 @@ impl VelloTileRasterizer {
         let Some(image) = self.image_overrides.get(&key) else {
             return false;
         };
+        if [image.width, image.height] != [texture.width(), texture.height()] {
+            return false;
+        }
         self.vello_renderer.override_image(
             image,
             Some(wgpu::TexelCopyTextureInfoBase {
@@ -428,13 +454,9 @@ impl VelloTileRasterizer {
         self.last_dirty_count
     }
 
-    /// Live `vello::Renderer::register_texture` handles — registrations
-    /// minus retirements. Deliberately NOT `image_overrides.len()`: handing
-    /// a key a second texture mints a fresh Vello `ImageData` identity and
-    /// abandons the previous one, which stays in Vello's paint-texture table
-    /// while the map keeps one key. The leak is only visible per handle, so
-    /// this is the receipt the filter passes' key/handle reuse is measured
-    /// against.
+    /// Live `vello::Renderer::register_texture` handles: registrations minus
+    /// retirements. Counted per identity rather than inferred from map size,
+    /// so repeated-key lifecycle controls can detect abandoned handles.
     pub fn live_texture_registrations(&self) -> usize {
         self.live_texture_registrations
     }
