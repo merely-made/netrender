@@ -37,6 +37,8 @@ vello-cpu = ["dep:vello_cpu", "dep:vello_sparse_common", "dep:vello_sparse_text"
 vello-hybrid = ["dep:vello_hybrid", "dep:vello_sparse_common", "dep:vello_sparse_text"]
 # Current upstream renderer name; vello-hybrid remains a compatibility alias.
 vello-gpu = ["vello-hybrid"]
+# Direct browser WebGL2; it shares the sparse provider and outline text types.
+vello-webgl = ["dep:vello_hybrid", "vello_hybrid/webgl", "dep:vello_sparse_common", "dep:vello_sparse_text", "dep:web-sys", "dep:wasm-bindgen"]
 vello-all = ["vello-cpu", "vello-gpu"]
 
 [dependencies]
@@ -78,7 +80,15 @@ wgpu = { workspace = true, features = ["webgpu"] }
 # drop-in replacement backed by performance.now(). Used by the frame
 # profiling spans and the per-frame render diagnostic.
 web-time = "1"
+web-sys = { version = "0.3", features = ["HtmlCanvasElement", "WebGl2RenderingContext", "WebGlTexture", "WebGlBuffer", "WebGlSync"], optional = true }
+wasm-bindgen = { version = "0.2", optional = true }
 
 [dev-dependencies]
 png = "0.17"
 netrender_text = { path = "../netrender_text" }
+
+[[example]]
+name = "webgl_scene"
+path = "examples/webgl_scene.rs"
+crate-type = ["cdylib"]
+required-features = ["vello-webgl"]

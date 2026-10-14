@@ -311,14 +311,14 @@ impl ImageState {
     fn plan(&self, scene: &Scene, backend: VelloBackend) -> Result<FramePlan, SparseSessionError> {
         super::validate_scene_operations(backend, scene, true)?;
         validate::scene(scene, self.limits)?;
-        if backend == VelloBackend::Hybrid {
+        if matches!(backend, VelloBackend::Hybrid | VelloBackend::WebGl2) {
             for (index, op) in scene.ops.iter().enumerate() {
                 if matches!(op, SceneOp::Pattern(pattern) if !pattern.nearest) {
                     return Err(super::unsupported(
                         backend,
                         index,
                         "Pattern",
-                        "pinned Hybrid bilinear repeat clamps filter taps at tile seams; only explicit nearest sampling is admitted",
+                        "pinned GPU bilinear repeat clamps filter taps at tile seams; only explicit nearest sampling is admitted",
                     ).into());
                 }
             }
@@ -899,3 +899,9 @@ impl HybridSession {
 mod text;
 pub(super) mod validate;
 pub use text::{SparseTextLimits, SparseTextStats};
+
+#[cfg(all(target_arch = "wasm32", feature = "vello-webgl"))]
+#[path = "webgl.rs"]
+mod webgl;
+#[cfg(all(target_arch = "wasm32", feature = "vello-webgl"))]
+pub use webgl::{WebGlSession, WebGlSessionInit, WebGlSessionError};
