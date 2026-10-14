@@ -1,0 +1,962 @@
+{
+  "runs": [
+    {
+      "label": "supplier-webgl-session-red-3",
+      "command": [
+        "cargo",
+        "+1.99.0",
+        "check",
+        "--offline",
+        "--locked",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--features",
+        "vello-webgl",
+        "--example",
+        "webgl_scene",
+        "-p",
+        "netrender",
+        "-j1"
+      ],
+      "exit": 101,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 96870400,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-625d2ec010f1437c85e19d984eacd6a7.service",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "ef42839ddf512d999ec0b522f12722b010fb81a8b86ce799914d598099da6f93",
+      "summaries": [],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    },
+    {
+      "label": "supplier-webgl-session-green-2",
+      "command": [
+        "cargo",
+        "+1.99.0",
+        "check",
+        "--offline",
+        "--locked",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--features",
+        "vello-webgl",
+        "--example",
+        "webgl_scene",
+        "-p",
+        "netrender",
+        "-j1"
+      ],
+      "exit": 0,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 151711744,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-76978e6c56c347ffaccb27ff23b9a27c.service",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e11e7fb5a68f08c7b6f6b043e46c8b271f9fc49a6a5cd637c7d9b5c3c0381d9c",
+      "summaries": [],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    },
+    {
+      "label": "supplier-webgl-cpu-reference-2",
+      "command": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "netrender",
+        "--no-default-features",
+        "--features",
+        "vello-cpu",
+        "--test",
+        "webgl_scene",
+        "-j1",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "exit": 0,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 819548160,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-4134286bc0404f7ba85995dbce2c4675.service",
+      "stdout_sha256": "c5dbb41ce48b946104770ab2b77c9bf30e99c2d8483fb4209f813b577bedcf29",
+      "stderr_sha256": "1115afdf3bc9a5caeb2ab613b8a766476dc85d9eeb91beb7b11996a065f6bd7a",
+      "summaries": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    },
+    {
+      "label": "supplier-webgl-fixture-build-4",
+      "command": [
+        "cargo",
+        "+1.99.0",
+        "build",
+        "--offline",
+        "--locked",
+        "-p",
+        "netrender",
+        "--example",
+        "webgl_scene",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--no-default-features",
+        "--features",
+        "vello-webgl",
+        "--release",
+        "-j1"
+      ],
+      "exit": 0,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 390590464,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-5e9f52d573e54a29a4fee00a5b3375bc.service",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "0fb9f40daf0a97c1a0feaca272bf56049c04e1ce9e47d51ca0caa5e88c53815c",
+      "summaries": [],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    },
+    {
+      "label": "supplier-webgl-runtime-9",
+      "command": [
+        "/usr/bin/python3",
+        "/home/markik/Code/worktrees/mere-webgl-presentation/.superpowers/sdd/2026-10-13_browser_presentation_tenants_plan/run-webgl-fixture.py",
+        "/home/markik/Code/testing/genet/webgl-viewer-20261013/netrender-fixture-run-9"
+      ],
+      "exit": 1,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 290336768,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-d31b7c445c4b472088b8fe65bfd9dc2d.service",
+      "stdout_sha256": "69e1c96dd5ac7f1bebe2868012e2d19cdaf3a63c653f1d702da5797463e6b74c",
+      "stderr_sha256": "13b1d94fa332b7b487ed825f4c1417f5d28433f6f5211e7279637e3c390678ac",
+      "summaries": [],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    },
+    {
+      "label": "supplier-webgl-runtime-11",
+      "command": [
+        "python3",
+        "/home/markik/Code/worktrees/mere-webgl-presentation/.superpowers/sdd/2026-10-13_browser_presentation_tenants_plan/run-webgl-fixture-live.py",
+        "/home/markik/Code/testing/genet/webgl-viewer-20261013/netrender-fixture-run-11"
+      ],
+      "exit": 1,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 284327936,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-91b3504c5d9f4bb483ccf9b5e248e9eb.service",
+      "stdout_sha256": "b1017f0696a43ffd5abb7260ec5517768ebfc773c154cb4ce0d5ca3e0d5c4953",
+      "stderr_sha256": "b9aa5daff0432113a5ab6229300a75119233b6bd837d50647e1cd7484fe71b4d",
+      "summaries": [],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    },
+    {
+      "label": "supplier-webgl-runtime-12",
+      "command": [
+        "python3",
+        "/home/markik/Code/worktrees/mere-webgl-presentation/.superpowers/sdd/2026-10-13_browser_presentation_tenants_plan/run-webgl-fixture-live.py",
+        "/home/markik/Code/testing/genet/webgl-viewer-20261013/netrender-fixture-run-12"
+      ],
+      "exit": 0,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 251281408,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-bd601e04a8cf42e6831e8df78dece1dd.service",
+      "stdout_sha256": "fbf73e9146a2b1459596e3454f519ab687cf858b56b340089417fe1f1e4746a5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    },
+    {
+      "label": "supplier-webgl-runtime-13",
+      "command": [
+        "python3",
+        "/home/markik/Code/worktrees/mere-webgl-presentation/.superpowers/sdd/2026-10-13_browser_presentation_tenants_plan/run-webgl-fixture-live.py",
+        "/home/markik/Code/testing/genet/webgl-viewer-20261013/netrender-fixture-run-13"
+      ],
+      "exit": 0,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 250757120,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-5fa951ad0b134cfab5124e0e098a199f.service",
+      "stdout_sha256": "ae2257b12eb886fdde85226fa8ccd69749dcf13d9f076fc3b415f3812e96cea5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    },
+    {
+      "label": "supplier-webgl-firefox-1",
+      "command": [
+        "python3",
+        "/home/markik/Code/worktrees/mere-webgl-presentation/.superpowers/sdd/2026-10-13_browser_presentation_tenants_plan/run-webgl-fixture-live.py",
+        "/home/markik/Code/testing/genet/webgl-viewer-20261013/netrender-fixture-firefox-1",
+        "--browser",
+        "firefox",
+        "--headed"
+      ],
+      "exit": 0,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 790085632,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-95c0fa9b69b74d208bc1643d3e87967d.service",
+      "stdout_sha256": "2e4c80ce373cfc555d9867e044e4ea4fb0313801b6985770828599b148a96408",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summaries": [],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    },
+    {
+      "label": "supplier-sparse-regressions-1",
+      "command": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "netrender",
+        "--no-default-features",
+        "--features",
+        "vello-cpu,vello-hybrid",
+        "--test",
+        "vb2_sparse_images",
+        "--test",
+        "vb2_sparse_patterns",
+        "--test",
+        "vb3_sparse_text",
+        "--test",
+        "vb5_sparse_fragments",
+        "--test",
+        "webgl_scene",
+        "-j1",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "source_unchanged": true,
+      "resource_status": "complete",
+      "kernel_memory_peak_bytes": 972197888,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0",
+        "sock_throttled": "0"
+      },
+      "unit": "turnstone-overlap-3c03b47cb68441be82400ecea9d89123.service",
+      "stdout_sha256": "2b5c992102ecc317d5816ad2e34bfd9a00f7372519eb1e57023acafe148a7085",
+      "stderr_sha256": "110545673444290b1d2c0ae908b9f060d62d663d341d6bd13439cdc330607189",
+      "summaries": [
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.98s",
+        "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.79s",
+        "test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.57s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "unit_cleanup": [
+        "ActiveState=inactive",
+        "MainPID=0"
+      ]
+    }
+  ],
+  "browser_fixtures": {
+    "netrender-fixture-run-9": {
+      "result": "fail",
+      "stage": "mixed render",
+      "error": "Error: image top right: 64,128,64,255, expected 0,255,0,255",
+      "stack": "Error: image top right: 64,128,64,255, expected 0,255,0,255\n    at assert (http://127.0.0.1:8974/:5:42)\n    at near (http://127.0.0.1:8974/:6:49)\n    at http://127.0.0.1:8974/:19:2",
+      "steps": [
+        {
+          "name": "image-diagnostic",
+          "samples": [
+            {
+              "x": 8,
+              "y": 40,
+              "pixel": [
+                128,
+                0,
+                127,
+                255
+              ]
+            },
+            {
+              "x": 16,
+              "y": 40,
+              "pixel": [
+                124,
+                8,
+                123,
+                255
+              ]
+            },
+            {
+              "x": 24,
+              "y": 40,
+              "pixel": [
+                64,
+                128,
+                64,
+                255
+              ]
+            },
+            {
+              "x": 32,
+              "y": 40,
+              "pixel": [
+                64,
+                128,
+                64,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 40,
+              "pixel": [
+                64,
+                128,
+                64,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 48,
+              "pixel": [
+                62,
+                124,
+                70,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 56,
+              "pixel": [
+                32,
+                64,
+                159,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 64,
+              "pixel": [
+                32,
+                64,
+                159,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 71,
+              "pixel": [
+                32,
+                64,
+                159,
+                255
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "netrender-fixture-run-11": {
+      "result": "fail",
+      "stage": "context restoration",
+      "renderer": "ANGLE (AMD, AMD Radeon Graphics (radeonsi renoir ACO), OpenGL ES 3.2)",
+      "error": "Error: context restoration event timeout",
+      "stack": "Error: context restoration event timeout\n    at http://127.0.0.1:8974/:39:233",
+      "steps": [
+        {
+          "name": "image-diagnostic",
+          "samples": [
+            {
+              "x": 8,
+              "y": 40,
+              "pixel": [
+                128,
+                0,
+                127,
+                255
+              ]
+            },
+            {
+              "x": 16,
+              "y": 40,
+              "pixel": [
+                124,
+                8,
+                123,
+                255
+              ]
+            },
+            {
+              "x": 24,
+              "y": 40,
+              "pixel": [
+                60,
+                135,
+                60,
+                255
+              ]
+            },
+            {
+              "x": 32,
+              "y": 40,
+              "pixel": [
+                0,
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 40,
+              "pixel": [
+                0,
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 48,
+              "pixel": [
+                0,
+                247,
+                8,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 56,
+              "pixel": [
+                0,
+                120,
+                135,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 64,
+              "pixel": [
+                0,
+                0,
+                255,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 71,
+              "pixel": [
+                0,
+                0,
+                255,
+                255
+              ]
+            }
+          ]
+        },
+        {
+          "name": "ordered-images-clip-opacity-glyph",
+          "glyphPixels": 266,
+          "stats": "SparseResourceStats { source_count: 1, source_bytes: 16, cached_images: 1, cached_bytes: 16, gpu_texture_bytes: 36, hydrated_images: 1, uploaded_images: 1 }"
+        },
+        {
+          "name": "late-refusal-preserves-frame-and-resources"
+        },
+        {
+          "name": "resize-transparent",
+          "width": 31,
+          "height": 23
+        }
+      ]
+    },
+    "netrender-fixture-run-12": {
+      "result": "pass",
+      "scope": "Netrender direct Vello WebGL2 semantic fixtures",
+      "renderer": "ANGLE (AMD, AMD Radeon Graphics (radeonsi renoir ACO), OpenGL ES 3.2)",
+      "steps": [
+        {
+          "name": "image-diagnostic",
+          "samples": [
+            {
+              "x": 8,
+              "y": 40,
+              "pixel": [
+                128,
+                0,
+                127,
+                255
+              ]
+            },
+            {
+              "x": 16,
+              "y": 40,
+              "pixel": [
+                124,
+                8,
+                123,
+                255
+              ]
+            },
+            {
+              "x": 24,
+              "y": 40,
+              "pixel": [
+                60,
+                135,
+                60,
+                255
+              ]
+            },
+            {
+              "x": 32,
+              "y": 40,
+              "pixel": [
+                0,
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 40,
+              "pixel": [
+                0,
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 48,
+              "pixel": [
+                0,
+                247,
+                8,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 56,
+              "pixel": [
+                0,
+                120,
+                135,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 64,
+              "pixel": [
+                0,
+                0,
+                255,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 71,
+              "pixel": [
+                0,
+                0,
+                255,
+                255
+              ]
+            }
+          ]
+        },
+        {
+          "name": "ordered-images-clip-opacity-glyph",
+          "glyphPixels": 266,
+          "stats": "SparseResourceStats { source_count: 1, source_bytes: 16, cached_images: 1, cached_bytes: 16, gpu_texture_bytes: 36, hydrated_images: 1, uploaded_images: 1 }"
+        },
+        {
+          "name": "late-refusal-preserves-frame-and-resources"
+        },
+        {
+          "name": "resize-transparent",
+          "width": 31,
+          "height": 23
+        },
+        {
+          "name": "loss-restoration-stale-refusal",
+          "generation": 2
+        }
+      ]
+    },
+    "netrender-fixture-run-13": {
+      "result": "pass",
+      "scope": "Netrender direct Vello WebGL2 semantic fixtures",
+      "renderer": "ANGLE (AMD, AMD Radeon Graphics (radeonsi renoir ACO), OpenGL ES 3.2)",
+      "steps": [
+        {
+          "name": "image-diagnostic",
+          "samples": [
+            {
+              "x": 8,
+              "y": 40,
+              "pixel": [
+                128,
+                0,
+                127,
+                255
+              ]
+            },
+            {
+              "x": 16,
+              "y": 40,
+              "pixel": [
+                124,
+                8,
+                123,
+                255
+              ]
+            },
+            {
+              "x": 24,
+              "y": 40,
+              "pixel": [
+                60,
+                135,
+                60,
+                255
+              ]
+            },
+            {
+              "x": 32,
+              "y": 40,
+              "pixel": [
+                0,
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 40,
+              "pixel": [
+                0,
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 48,
+              "pixel": [
+                0,
+                247,
+                8,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 56,
+              "pixel": [
+                0,
+                120,
+                135,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 64,
+              "pixel": [
+                0,
+                0,
+                255,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 71,
+              "pixel": [
+                0,
+                0,
+                255,
+                255
+              ]
+            }
+          ]
+        },
+        {
+          "name": "ordered-images-clip-opacity-glyph",
+          "glyphPixels": 266,
+          "stats": "SparseResourceStats { source_count: 1, source_bytes: 16, cached_images: 1, cached_bytes: 16, gpu_texture_bytes: 36, hydrated_images: 1, uploaded_images: 1 }"
+        },
+        {
+          "name": "late-refusal-preserves-frame-and-resources"
+        },
+        {
+          "name": "image-replacement-removal-preserves-unrelated-cache",
+          "stats": "SparseResourceStats { source_count: 1, source_bytes: 4, cached_images: 1, cached_bytes: 4, gpu_texture_bytes: 16, hydrated_images: 4, uploaded_images: 4 }"
+        },
+        {
+          "name": "resize-transparent",
+          "width": 31,
+          "height": 23
+        },
+        {
+          "name": "loss-restoration-stale-refusal",
+          "generation": 2
+        }
+      ]
+    },
+    "netrender-fixture-firefox-1": {
+      "result": "pass",
+      "scope": "Netrender direct Vello WebGL2 semantic fixtures",
+      "renderer": "Radeon HD 3200 Graphics, or similar",
+      "steps": [
+        {
+          "name": "image-diagnostic",
+          "samples": [
+            {
+              "x": 8,
+              "y": 40,
+              "pixel": [
+                128,
+                0,
+                127,
+                255
+              ]
+            },
+            {
+              "x": 16,
+              "y": 40,
+              "pixel": [
+                124,
+                8,
+                123,
+                255
+              ]
+            },
+            {
+              "x": 24,
+              "y": 40,
+              "pixel": [
+                60,
+                135,
+                60,
+                255
+              ]
+            },
+            {
+              "x": 32,
+              "y": 40,
+              "pixel": [
+                0,
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 40,
+              "pixel": [
+                0,
+                255,
+                0,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 48,
+              "pixel": [
+                0,
+                247,
+                8,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 56,
+              "pixel": [
+                0,
+                120,
+                135,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 64,
+              "pixel": [
+                0,
+                0,
+                255,
+                255
+              ]
+            },
+            {
+              "x": 39,
+              "y": 71,
+              "pixel": [
+                0,
+                0,
+                255,
+                255
+              ]
+            }
+          ]
+        },
+        {
+          "name": "ordered-images-clip-opacity-glyph",
+          "glyphPixels": 266,
+          "stats": "SparseResourceStats { source_count: 1, source_bytes: 16, cached_images: 1, cached_bytes: 16, gpu_texture_bytes: 36, hydrated_images: 1, uploaded_images: 1 }"
+        },
+        {
+          "name": "late-refusal-preserves-frame-and-resources"
+        },
+        {
+          "name": "image-replacement-removal-preserves-unrelated-cache",
+          "stats": "SparseResourceStats { source_count: 1, source_bytes: 4, cached_images: 1, cached_bytes: 4, gpu_texture_bytes: 16, hydrated_images: 4, uploaded_images: 4 }"
+        },
+        {
+          "name": "resize-transparent",
+          "width": 31,
+          "height": 23
+        },
+        {
+          "name": "loss-restoration-stale-refusal",
+          "generation": 2
+        }
+      ]
+    }
+  },
+  "lock_sha256": "a05f644a51c6b7d972b2b41f421f653b2dc875f99e82a4711a75d5928363cc02",
+  "vello_source": "2eae6243881d5b24c984d5ee35dde509ca5db782"
+}

@@ -19,6 +19,8 @@ pub enum VelloBackend {
     Hybrid,
     /// Pure CPU sparse-strips rasterization.
     Cpu,
+    /// Browser WebGL2 rasterization of the shared sparse scene.
+    WebGl2,
 }
 
 /// Operations admitted by Netrender's current adapter, rather than every
@@ -55,6 +57,7 @@ impl VelloBackend {
             Self::Classic => true,
             Self::Hybrid => cfg!(feature = "vello-hybrid"),
             Self::Cpu => cfg!(feature = "vello-cpu"),
+            Self::WebGl2 => cfg!(all(target_arch = "wasm32", feature = "vello-webgl")),
         }
     }
 
@@ -78,7 +81,7 @@ impl VelloBackend {
                 gpu_output: true,
                 cpu_output: false,
             },
-            Self::Hybrid => BackendCapabilities {
+            Self::Hybrid | Self::WebGl2 => BackendCapabilities {
                 solid_geometry: true,
                 gradients: true,
                 layers: true,
@@ -380,7 +383,11 @@ fn unsupported(
     }
 }
 
-#[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+#[cfg(any(
+    feature = "vello-cpu",
+    feature = "vello-hybrid",
+    feature = "vello-webgl"
+))]
 mod sparse {
     use super::{BackendAdmissionError, VelloBackend};
     use crate::scene::{
@@ -453,7 +460,7 @@ mod sparse {
         }
     }
 
-    #[cfg(feature = "vello-hybrid")]
+    #[cfg(any(feature = "vello-hybrid", feature = "vello-webgl"))]
     impl SparseContext for vello_hybrid::Scene {
         fn set_transform(&mut self, transform: Affine) {
             self.set_transform(transform);
@@ -910,13 +917,29 @@ mod sparse {
     }
 }
 
-#[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+#[cfg(any(
+    feature = "vello-cpu",
+    feature = "vello-hybrid",
+    feature = "vello-webgl"
+))]
 mod fragments;
-#[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+#[cfg(any(
+    feature = "vello-cpu",
+    feature = "vello-hybrid",
+    feature = "vello-webgl"
+))]
 mod sessions;
-#[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+#[cfg(any(
+    feature = "vello-cpu",
+    feature = "vello-hybrid",
+    feature = "vello-webgl"
+))]
 pub use fragments::{SparseFragmentLimits, SparseFragmentRegistry, SparseFragmentStats};
-#[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+#[cfg(any(
+    feature = "vello-cpu",
+    feature = "vello-hybrid",
+    feature = "vello-webgl"
+))]
 pub use sessions::{
     SparseResourceLimits, SparseResourceStats, SparseSessionError, SparseTextLimits,
     SparseTextStats,
@@ -954,7 +977,11 @@ mod tests {
     use super::*;
     #[cfg(feature = "vello-all")]
     use crate::scene::ImageData;
-    #[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+    #[cfg(any(
+        feature = "vello-cpu",
+        feature = "vello-hybrid",
+        feature = "vello-webgl"
+    ))]
     use crate::scene::Scene;
 
     #[test]
@@ -1032,7 +1059,11 @@ mod tests {
         assert_eq!(cpu.render(&warm).unwrap().data_as_u8_slice(), original);
     }
 
-    #[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+    #[cfg(any(
+        feature = "vello-cpu",
+        feature = "vello-hybrid",
+        feature = "vello-webgl"
+    ))]
     #[test]
     fn sparse_viewport_preflight_and_free_lowerers_agree() {
         for (width, height) in [
@@ -1110,7 +1141,11 @@ mod tests {
         assert!(validate_scene_for_backend(VelloBackend::Classic, &Scene::new(65_535, 1)).is_ok());
     }
 
-    #[cfg(any(feature = "vello-cpu", feature = "vello-hybrid"))]
+    #[cfg(any(
+        feature = "vello-cpu",
+        feature = "vello-hybrid",
+        feature = "vello-webgl"
+    ))]
     #[test]
     fn sparse_viewport_largest_backend_dimensions_are_accepted() {
         for (backend, largest_width) in
@@ -1328,3 +1363,6 @@ mod tests {
         scene_to_vello_hybrid(&scene).unwrap();
     }
 }
+
+#[cfg(all(target_arch = "wasm32", feature = "vello-webgl"))]
+pub use sessions::{WebGlSession, WebGlSessionInit, WebGlSessionError};
