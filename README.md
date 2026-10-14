@@ -37,6 +37,14 @@ open. See the
 and [text receipts](netrender-notes/receipts/2026-09-27_sparse_text/README.md)
 for the tested adapter scope, and the [real-panel replay receipt](netrender-notes/receipts/2026-09-28_isocosm_replay/README.md)
 for consumer evidence. Classic remains the default.
+The opt-in wasm-only `vello-webgl` route exposes `WebGlSession::start`
+and polling initialization on a host-owned canvas. It uses Vello GPU's
+WebGL2 backend directly, with the same sparse admission, CPU image sources
+and outline text. Its standalone Chrome/Firefox fixture covers composition,
+image replacement/removal, resize, context recreation and stale-generation
+refusal. Browser host integration remains in progress. See the
+[direct WebGL receipt](netrender-notes/receipts/2026-10-13_direct_webgl/README.md).
+
 The separate [Vello upstream adoption lane](netrender-notes/2026-10-08_vello_upstream_lane.md)
 scopes the stable-release crate moves and preservation of append and buffer
 recovery before any renderer repin.
@@ -87,7 +95,7 @@ cargo run -p netrender --example demo_card_grid
 
 Optional features on `netrender`: `serde` (scene capture/replay),
 `linear-light-canary` (the upstream-gate test), `vello-cpu`, `vello-hybrid`,
-and `vello-all` (both experimental sparse adapters). Classic is always
+`vello-webgl` (direct browser WebGL2), and `vello-all` (CPU and Hybrid). Classic is always
 compiled. The sparse features do not yet provide a general host renderer
 switch or full scene parity; unsupported operations return admission errors.
 

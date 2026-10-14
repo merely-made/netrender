@@ -1,0 +1,10 @@
+{
+  "result": "pass",
+  "controls": [
+    "silent GL upload error refuses frame",
+    "failed upload is not cached",
+    "failed upload texture deleted",
+    "retry uploads both owned images"
+  ],
+  "errors": []
+}

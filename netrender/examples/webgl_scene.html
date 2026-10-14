@@ -1,0 +1,60 @@
+<!doctype html><meta charset="utf-8"><canvas id="canvas" width="128" height="128"></canvas><pre id="result">pending</pre>
+<script type="module">
+import init,{WebGlFixture} from './pkg/webgl_scene.js';
+let stage="module import"; let renderer=null; const steps=[]; const canvas=document.querySelector('canvas');
+const assert=(ok,message)=>{if(!ok)throw new Error(message)};
+const near=(actual,expected,label,tolerance=3)=>assert(actual.every((v,i)=>Math.abs(v-expected[i])<=tolerance),`${label}: ${actual}, expected ${expected}`);
+const pixel=(bytes,x,y)=>Array.from(bytes.slice(((canvas.height-1-y)*canvas.width+x)*4,((canvas.height-1-y)*canvas.width+x)*4+4));
+const frame=()=>new Promise(resolve=>requestAnimationFrame(resolve));
+async function ready(fixture){for(let n=0;n<300;n++){if(fixture.poll())return;await frame()}throw new Error('shader initialization did not finish')}
+try {
+ stage="wasm init"; await init(); stage="fixture constructor"; let fixture=new WebGlFixture(canvas,1n); stage="shader init"; await ready(fixture);
+ renderer=fixture.renderer();
+ stage='mixed render'; fixture.render_case('mixed',1n); const mixed=fixture.pixels();
+ steps.push({name:'image-diagnostic',samples:[[8,40],[16,40],[24,40],[32,40],[39,40],[39,48],[39,56],[39,64],[39,71]].map(([x,y])=>({x,y,pixel:pixel(mixed,x,y)}))});
+ near(pixel(mixed,4,4),[255,0,0,255],'ordered red');
+ near(pixel(mixed,48,16),[0,128,128,255],'clipped opacity');
+ near(pixel(mixed,80,16),[0,0,255,255],'outside clip');
+ near(pixel(mixed,8,40),[128,0,127,255],'transparent image top left',4);
+ near(pixel(mixed,39,40),[0,255,0,255],'image top right',4);
+ near(pixel(mixed,39,71),[0,0,255,255],'transparent image bottom right',4);
+ let glyphPixels=0;for(let y=60;y<115;y++)for(let x=70;x<125;x++){const p=pixel(mixed,x,y);if(p[0]>150&&p[1]>150&&p[2]<100)glyphPixels++}
+ assert(glyphPixels>50,`outline glyph pixels ${glyphPixels}`);
+ steps.push({name:'ordered-images-clip-opacity-glyph',glyphPixels,stats:fixture.stats()});
+ const before=fixture.pixels(),stats=fixture.stats();let refused=false;
+ try{fixture.render_case('late-filter',1n)}catch(error){refused=String(error).includes('filter')}
+ assert(refused,'late filter must explicitly refuse');
+ assert(fixture.pixels().every((v,i)=>v===before[i]),'late refusal changed framebuffer');
+ assert(fixture.stats()===stats,'late refusal changed image resources');
+ steps.push({name:'late-refusal-preserves-frame-and-resources'});
+ let resizeRefused=false;try{fixture.render_resized_case('late-filter',31,23,1n)}catch(error){resizeRefused=String(error).includes('filter')}
+ assert(resizeRefused,'recording must refuse late filter before resizing');assert(canvas.width===128&&canvas.height===128,'rejected recording resized canvas');assert(fixture.pixels().every((v,i)=>v===before[i]),'rejected recording changed pixels');assert(fixture.stats()===stats,'rejected recording changed resources');
+ const maximum=canvas.getContext('webgl2').getParameter(WebGL2RenderingContext.MAX_RENDERBUFFER_SIZE);let sizeRefused=false;try{fixture.render_resized_case('green',maximum+1,1,1n)}catch(error){sizeRefused=String(error).includes('dimensions')}
+ assert(sizeRefused,'oversized device target must refuse before resizing');assert(canvas.width===128&&canvas.height===128,'invalid target resized canvas');assert(fixture.pixels().every((v,i)=>v===before[i]),'invalid target changed pixels');
+ steps.push({name:'recording-refusal-preserves-canvas-dimensions-and-pixels',maximum});
+
+ fixture.set_solid_image(71n,new Uint8Array([255,0,0,255]));fixture.set_solid_image(72n,new Uint8Array([0,255,0,255]));fixture.render_images(true,1n);
+ const uploads=fixture.uploaded_images();near(pixel(fixture.pixels(),4,4),[255,0,0,255],'first owned image');near(pixel(fixture.pixels(),24,4),[0,255,0,255],'unrelated image');
+ fixture.set_solid_image(71n,new Uint8Array([0,0,255,255]));fixture.render_images(true,1n);
+ assert(fixture.uploaded_images()===uploads+1n,'replacement re-uploaded unrelated image');near(pixel(fixture.pixels(),4,4),[0,0,255,255],'replacement pixels');near(pixel(fixture.pixels(),24,4),[0,255,0,255],'retained unrelated pixels');
+ assert(fixture.remove_image(71n),'remove owned image');fixture.render_images(false,1n);assert(fixture.uploaded_images()===uploads+1n,'removal re-uploaded unrelated image');near(pixel(fixture.pixels(),4,4),[0,0,0,255],'removed image cleared');near(pixel(fixture.pixels(),24,4),[0,255,0,255],'retained image after removal');
+ steps.push({name:'image-replacement-removal-preserves-unrelated-cache',stats:fixture.stats()});
+ fixture.render_resized_case('transparent',31,23,1n);
+ near(pixel(fixture.pixels(),30,22),[0,0,128,128],'odd-size transparent last pixel');
+ steps.push({name:'resize-transparent',width:31,height:23});
+ const stable=fixture.pixels();let stale=false;try{fixture.render_case('red',0n)}catch(error){stale=String(error).includes('StaleGeneration')}
+ assert(stale,'stale generation must refuse');assert(fixture.pixels().every((v,i)=>v===stable[i]),'stale frame changed pixels');
+ const gl=canvas.getContext('webgl2'),loss=gl.getExtension('WEBGL_lose_context');assert(loss,'loss extension required');
+ stage='context loss'; const lost=new Promise(resolve=>canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();resolve()},{once:true}));loss.loseContext();await Promise.race([lost,new Promise((_,reject)=>setTimeout(()=>reject(new Error('context loss event timeout')),10000))]);
+ let lossRefused=false;try{fixture.render_case('green',1n)}catch(error){lossRefused=String(error).includes('ContextLost')}
+ assert(lossRefused,'lost context must refuse rendering');
+ stage='context restoration'; const restored=new Promise(resolve=>canvas.addEventListener('webglcontextrestored',resolve,{once:true}));await frame(); loss.restoreContext();await Promise.race([restored,new Promise((_,reject)=>setTimeout(()=>reject(new Error('context restoration event timeout')),10000))]);
+ fixture.free();fixture=new WebGlFixture(canvas,2n);await ready(fixture);
+ fixture.render_case('green',2n);near(pixel(fixture.pixels(),30,22),[0,255,0,255],'restored current frame');
+ let old=false;try{fixture.render_case('red',1n)}catch(error){old=String(error).includes('StaleGeneration')}
+ assert(old,'restored session accepted old generation');
+ steps.push({name:'loss-restoration-stale-refusal',generation:2});
+ document.querySelector('#result').textContent=JSON.stringify({result:'pass',scope:'Netrender direct Vello WebGL2 semantic fixtures',renderer,steps});
+ document.title='PASS';fixture.free();
+} catch(error){document.querySelector('#result').textContent=JSON.stringify({result:'fail',stage,renderer,error:String(error),stack:error.stack,steps});document.title='FAIL'} finally { await fetch('/result',{method:'POST',body:document.querySelector('#result').textContent}); }
+</script>

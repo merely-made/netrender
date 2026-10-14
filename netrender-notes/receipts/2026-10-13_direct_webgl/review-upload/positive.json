@@ -1,0 +1,127 @@
+{
+  "result": "pass",
+  "scope": "Netrender direct Vello WebGL2 semantic fixtures",
+  "renderer": "ANGLE (AMD, AMD Radeon Graphics (radeonsi renoir ACO), OpenGL ES 3.2)",
+  "steps": [
+    {
+      "name": "image-diagnostic",
+      "samples": [
+        {
+          "x": 8,
+          "y": 40,
+          "pixel": [
+            128,
+            0,
+            127,
+            255
+          ]
+        },
+        {
+          "x": 16,
+          "y": 40,
+          "pixel": [
+            124,
+            8,
+            123,
+            255
+          ]
+        },
+        {
+          "x": 24,
+          "y": 40,
+          "pixel": [
+            60,
+            135,
+            60,
+            255
+          ]
+        },
+        {
+          "x": 32,
+          "y": 40,
+          "pixel": [
+            0,
+            255,
+            0,
+            255
+          ]
+        },
+        {
+          "x": 39,
+          "y": 40,
+          "pixel": [
+            0,
+            255,
+            0,
+            255
+          ]
+        },
+        {
+          "x": 39,
+          "y": 48,
+          "pixel": [
+            0,
+            247,
+            8,
+            255
+          ]
+        },
+        {
+          "x": 39,
+          "y": 56,
+          "pixel": [
+            0,
+            120,
+            135,
+            255
+          ]
+        },
+        {
+          "x": 39,
+          "y": 64,
+          "pixel": [
+            0,
+            0,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 39,
+          "y": 71,
+          "pixel": [
+            0,
+            0,
+            255,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ordered-images-clip-opacity-glyph",
+      "glyphPixels": 266,
+      "stats": "SparseResourceStats { source_count: 1, source_bytes: 16, cached_images: 1, cached_bytes: 16, gpu_texture_bytes: 36, hydrated_images: 1, uploaded_images: 1 }"
+    },
+    {
+      "name": "late-refusal-preserves-frame-and-resources"
+    },
+    {
+      "name": "recording-refusal-preserves-canvas-dimensions-and-pixels",
+      "maximum": 16384
+    },
+    {
+      "name": "image-replacement-removal-preserves-unrelated-cache",
+      "stats": "SparseResourceStats { source_count: 1, source_bytes: 4, cached_images: 1, cached_bytes: 4, gpu_texture_bytes: 16, hydrated_images: 4, uploaded_images: 4 }"
+    },
+    {
+      "name": "resize-transparent",
+      "width": 31,
+      "height": 23
+    },
+    {
+      "name": "loss-restoration-stale-refusal",
+      "generation": 2
+    }
+  ]
+}

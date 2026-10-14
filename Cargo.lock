@@ -1120,6 +1120,8 @@ dependencies = [
  "vello_common",
  "vello_cpu",
  "vello_gpu",
+ "wasm-bindgen",
+ "web-sys",
  "web-time",
  "wgpu",
 ]
@@ -2047,10 +2049,12 @@ dependencies = [
  "bytemuck",
  "glifo",
  "hashbrown 0.17.1",
+ "js-sys",
  "log",
  "thiserror",
  "vello_common",
  "vello_gpu_shaders",
+ "web-sys",
  "wgpu",
 ]
 
