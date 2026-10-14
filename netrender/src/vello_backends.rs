@@ -1365,4 +1365,4 @@ mod tests {
 }
 
 #[cfg(all(target_arch = "wasm32", feature = "vello-webgl"))]
-pub use sessions::{WebGlSession, WebGlSessionInit, WebGlSessionError};
+pub use sessions::{WebGlSession, WebGlSessionInit, WebGlSessionError, WebGlPreparedFrame};

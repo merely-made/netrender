@@ -58,12 +58,22 @@ impl WebGlSessionInit {
                 Ok(None)
             }
             WebGlRendererInitStatus::Complete(renderer) => {
+                if renderer.gl_context().is_context_lost() {
+                    return Err(WebGlSessionError::ContextLost);
+                }
                 let dimension = renderer
                     .gl_context()
                     .get_parameter(Gl::MAX_TEXTURE_SIZE)
                     .map_err(|e| provider(format!("MAX_TEXTURE_SIZE: {e:?}")))?
                     .as_f64()
                     .ok_or_else(|| provider("MAX_TEXTURE_SIZE is not numeric"))?
+                    as u32;
+                let target_dimension = renderer
+                    .gl_context()
+                    .get_parameter(Gl::MAX_RENDERBUFFER_SIZE)
+                    .map_err(|error| provider(format!("MAX_RENDERBUFFER_SIZE: {error:?}")))?
+                    .as_f64()
+                    .ok_or_else(|| provider("MAX_RENDERBUFFER_SIZE is not numeric"))?
                     as u32;
                 Ok(Some(WebGlSession {
                     state: ImageState::new(
@@ -75,6 +85,7 @@ impl WebGlSessionInit {
                     resources: self.resources.take().expect("init owns resources"),
                     textures: HashMap::new(),
                     generation: self.generation,
+                    target_dimension: dimension.min(target_dimension),
                 }))
             }
         }
@@ -88,6 +99,7 @@ pub struct WebGlSession {
     resources: vello_hybrid::Resources,
     textures: HashMap<VariantKey, WebGlTexture>,
     generation: u64,
+    target_dimension: u32,
 }
 impl WebGlSession {
     pub fn start(
@@ -178,9 +190,37 @@ impl WebGlSession {
     /// it before changing canvas dimensions; render repeats the same checks.
     pub fn validate_scene(&self, scene: &Scene, generation: u64) -> Result<(), WebGlSessionError> {
         self.check_generation(generation)?;
+        self.validate_target_extent(scene.viewport_width, scene.viewport_height)?;
         let plan = self.state.plan(scene, VelloBackend::WebGl2)?;
         self.admit_image_uploads(&plan)?;
         self.text.plan(scene)?;
+        Ok(())
+    }
+    pub fn max_image_dimension(&self) -> u32 {
+        self.state.max_dimension
+    }
+    fn validate_target_extent(&self, width: u32, height: u32) -> Result<(), WebGlSessionError> {
+        if width == 0
+            || height == 0
+            || width > self.target_dimension
+            || height > self.target_dimension
+        {
+            return Err(SparseSessionError::InvalidTarget {
+                reason: "viewport exceeds WebGL target dimensions",
+            }
+            .into());
+        }
+        Ok(())
+    }
+    fn check_target(&self, width: u32, height: u32) -> Result<(), WebGlSessionError> {
+        if self.gl_context().drawing_buffer_width() != width as i32
+            || self.gl_context().drawing_buffer_height() != height as i32
+        {
+            return Err(SparseSessionError::InvalidTarget {
+                reason: "drawing buffer must match scene viewport",
+            }
+            .into());
+        }
         Ok(())
     }
     fn admit_image_uploads(&self, plan: &FramePlan) -> Result<(), SparseSessionError> {
@@ -208,6 +248,19 @@ impl WebGlSession {
         clear: [f32; 4],
     ) -> Result<(), WebGlSessionError> {
         self.check_generation(generation)?;
+        self.check_target(scene.viewport_width, scene.viewport_height)?;
+        self.prepare(scene, generation, clear)?.present()
+    }
+    /// Complete admission, outline/curve recording and owned image upload.
+    /// The returned borrow prevents changing this session before presentation.
+    /// Hosts may resize their canvas only after this returns successfully.
+    pub fn prepare(
+        &mut self,
+        scene: &Scene,
+        generation: u64,
+        clear: [f32; 4],
+    ) -> Result<WebGlPreparedFrame<'_>, WebGlSessionError> {
+        self.check_generation(generation)?;
         if clear
             .iter()
             .any(|v| !v.is_finite() || !(0.0..=1.0).contains(v))
@@ -218,14 +271,7 @@ impl WebGlSession {
             }
             .into());
         }
-        if self.gl_context().drawing_buffer_width() != scene.viewport_width as i32
-            || self.gl_context().drawing_buffer_height() != scene.viewport_height as i32
-        {
-            return Err(SparseSessionError::InvalidTarget {
-                reason: "drawing buffer must match scene viewport",
-            }
-            .into());
-        }
+        self.validate_target_extent(scene.viewport_width, scene.viewport_height)?;
         // Late unsupported operations fail here, before CPU/GPU cache mutation.
         let plan = self.state.plan(scene, VelloBackend::WebGl2)?;
         self.admit_image_uploads(&plan)?;
@@ -313,22 +359,47 @@ impl WebGlSession {
             }
             bindings.insert(ids[key], self.textures[key].clone());
         }
-        self.renderer
-            .render(
-                &packet,
-                &mut self.resources,
-                &vello_hybrid::RenderSize {
-                    width: scene.viewport_width as u16,
-                    height: scene.viewport_height as u16,
-                },
-                &bindings,
-                AlphaColor::<Srgb>::new(clear),
-            )
-            .map_err(provider)?;
-        if self.gl_context().is_context_lost() {
+        self.check_generation(generation)?;
+        Ok(WebGlPreparedFrame {
+            session: self,
+            packet,
+            bindings,
+            generation,
+            width: scene.viewport_width,
+            height: scene.viewport_height,
+            clear,
+        })
+    }
+}
+/// An admitted recording tied to the session that owns every GL handle.
+pub struct WebGlPreparedFrame<'a> {
+    session: &'a mut WebGlSession,
+    packet: vello_hybrid::Scene,
+    bindings: WebGlTextureBindings,
+    generation: u64,
+    width: u32,
+    height: u32,
+    clear: [f32; 4],
+}
+impl WebGlPreparedFrame<'_> {
+    pub fn present(self) -> Result<(), WebGlSessionError> {
+        self.session.check_generation(self.generation)?;
+        self.session.check_target(self.width, self.height)?;
+        let result = self.session.renderer.render(
+            &self.packet,
+            &mut self.session.resources,
+            &vello_hybrid::RenderSize {
+                width: self.width as u16,
+                height: self.height as u16,
+            },
+            &self.bindings,
+            AlphaColor::<Srgb>::new(self.clear),
+        );
+        if self.session.gl_context().is_context_lost() {
             return Err(WebGlSessionError::ContextLost);
         }
-        self.text.maintain();
+        result.map_err(provider)?;
+        self.session.text.maintain();
         Ok(())
     }
 }

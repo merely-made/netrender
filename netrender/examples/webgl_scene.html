@@ -27,13 +27,19 @@ try {
  assert(fixture.pixels().every((v,i)=>v===before[i]),'late refusal changed framebuffer');
  assert(fixture.stats()===stats,'late refusal changed image resources');
  steps.push({name:'late-refusal-preserves-frame-and-resources'});
+ let resizeRefused=false;try{fixture.render_resized_case('late-filter',31,23,1n)}catch(error){resizeRefused=String(error).includes('filter')}
+ assert(resizeRefused,'recording must refuse late filter before resizing');assert(canvas.width===128&&canvas.height===128,'rejected recording resized canvas');assert(fixture.pixels().every((v,i)=>v===before[i]),'rejected recording changed pixels');assert(fixture.stats()===stats,'rejected recording changed resources');
+ const maximum=canvas.getContext('webgl2').getParameter(WebGL2RenderingContext.MAX_RENDERBUFFER_SIZE);let sizeRefused=false;try{fixture.render_resized_case('green',maximum+1,1,1n)}catch(error){sizeRefused=String(error).includes('dimensions')}
+ assert(sizeRefused,'oversized device target must refuse before resizing');assert(canvas.width===128&&canvas.height===128,'invalid target resized canvas');assert(fixture.pixels().every((v,i)=>v===before[i]),'invalid target changed pixels');
+ steps.push({name:'recording-refusal-preserves-canvas-dimensions-and-pixels',maximum});
+
  fixture.set_solid_image(71n,new Uint8Array([255,0,0,255]));fixture.set_solid_image(72n,new Uint8Array([0,255,0,255]));fixture.render_images(true,1n);
  const uploads=fixture.uploaded_images();near(pixel(fixture.pixels(),4,4),[255,0,0,255],'first owned image');near(pixel(fixture.pixels(),24,4),[0,255,0,255],'unrelated image');
  fixture.set_solid_image(71n,new Uint8Array([0,0,255,255]));fixture.render_images(true,1n);
  assert(fixture.uploaded_images()===uploads+1n,'replacement re-uploaded unrelated image');near(pixel(fixture.pixels(),4,4),[0,0,255,255],'replacement pixels');near(pixel(fixture.pixels(),24,4),[0,255,0,255],'retained unrelated pixels');
  assert(fixture.remove_image(71n),'remove owned image');fixture.render_images(false,1n);assert(fixture.uploaded_images()===uploads+1n,'removal re-uploaded unrelated image');near(pixel(fixture.pixels(),4,4),[0,0,0,255],'removed image cleared');near(pixel(fixture.pixels(),24,4),[0,255,0,255],'retained image after removal');
  steps.push({name:'image-replacement-removal-preserves-unrelated-cache',stats:fixture.stats()});
- canvas.width=31;canvas.height=23;fixture.render_case('transparent',1n);
+ fixture.render_resized_case('transparent',31,23,1n);
  near(pixel(fixture.pixels(),30,22),[0,0,128,128],'odd-size transparent last pixel');
  steps.push({name:'resize-transparent',width:31,height:23});
  const stable=fixture.pixels();let stale=false;try{fixture.render_case('red',0n)}catch(error){stale=String(error).includes('StaleGeneration')}

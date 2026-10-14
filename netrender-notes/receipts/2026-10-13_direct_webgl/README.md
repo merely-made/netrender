@@ -41,3 +41,14 @@ used the serialized ThinkPad lock, kernel memory caps, disabled swapping,
 unchanged source checks and browser cgroup membership assertions. The Chrome
 fixture peak was 250757120 bytes and Firefox 790085632 bytes, with no pressure
 or OOM events. These are standalone fixture costs, not viewer RAM budgets.
+
+The host resize boundary is additionally qualified on2026-10-14.
+`WebGlSession::prepare` returns a recording borrowed from its owning session
+after full source admission, outline/curve recording and owned image uploads.
+The host changes canvas dimensions only after this succeeds, then calls
+`WebGlPreparedFrame::present`. Rejected late filters and device-oversized
+viewports leave both the old canvas dimensions and pixels unchanged.
+Successful odd-size rendering retains its transparent last pixel. Device
+texture/renderbuffer dimensions are checked before recording. Initialization
+refuses a context already lost. Existing direct rendering delegates through
+this boundary while retaining its target-size checks. See recording.json.
