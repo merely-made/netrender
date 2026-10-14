@@ -1,0 +1,22 @@
+--- run_runtime_guarded_r3.py
++++ run_runtime_guarded_r4.py
+@@ -4,7 +4,7 @@
+ """Prepared direct RG1 libtest runtime. Execution requires a fresh exclusive GPU lease."""
+ import argparse,datetime,hashlib,json,os,pathlib,signal,subprocess,sys,time,types
+ HERE=pathlib.Path(__file__).resolve().parent
+-SEAL=HERE/'runtime-derivative-seal-r3.json'
++SEAL=HERE/'runtime-derivative-seal-r4.json'
+ UTC=datetime.timezone.utc
+ WORK=360
+ CLEANUP=10
+@@ -171,5 +171,8 @@
+     return 0 if record['status']=='same_adapter_release_measurement_completed' else 1
+ 
+ if __name__=='__main__':
+-    try:sys.exit(main())
+-    except BaseException as error:print('RG1 runtime admission refused: '+repr(error),file=sys.stderr);sys.exit(1)
++    try:result=main()
++    except BaseException as error:
++        print('RG1 runtime admission refused: '+repr(error),file=sys.stderr)
++        result=1
++    sys.exit(result)

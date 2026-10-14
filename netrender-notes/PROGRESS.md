@@ -77,6 +77,24 @@ Genet/Cambium callback recovery is qualified separately from native presentation
 physical driver reset, browser automatic replacement and OS assistive actions
 remain separately scoped.
 
+## Optimized RG1 allocation measurement, 2026-10-14
+
+The [release measurement capsule](receipts/2026-10-14_rg1_release_measurement/README.md)
+records accepted data and owned resource closure for Netrender `f4147feca`,
+provider `2eae6243`, and AMD Radeon Pro Vega 56 / Metal. Both original workloads
+report **MATERIAL** after 16 completed warmups and 64 completed release samples
+each: allocation p95 is 0.889 / 1.153 ms and host-work p95 is 3.627 / 3.649 ms.
+The source harness retains the original unrounded predicates and both alpha
+oracles. This replaces earlier unoptimized RG1 timing evidence on that adapter.
+
+The RG5 materiality trigger is met; pooling remains unimplemented and its
+allocation/pixel/platform done condition is open. The reported 33/35 creations
+and projected logical peak 2 do not prove physical pooling or residency. The
+overall R3 launcher remains **FAILED with CLI exit 1**, separately from the
+accepted test data and closed resources. R4's prepared bootstrap correction has
+only isolated exit controls, with no GPU rerun. No matched old/new Classic,
+other-platform or sustained-frame claim follows from this measurement.
+
 ## Current canonical plans
 
 The original plan audit was 2026-08-10. Later activated work is indexed
@@ -257,7 +275,8 @@ Captures elide font payloads, which is why they are 2 KB rather than
   — **RG0 through RG3 and render-executor extraction delivered; RG2c passed
   the graph-promotion gate; Paredros and Mesocosm consumer receipts, headed
   presentation, and Paredros rebuild-all are complete; RG4 is untriggered,
-  RG5 deferred, and broader GPU execution remains gated.** Evolves the
+  RG5 materiality triggered on Metal with pooling unimplemented, and broader
+  GPU execution remains gated.** Evolves the
   delivered Phase 6 filter DAG into a validated, inspectable execution plan
   over the existing shared `WgpuHandles`. `vk-graph` informs compiled GPU work;
   AnyRender informs the semantic adapter seam above it. Both are prior art,
@@ -280,7 +299,9 @@ Captures elide font payloads, which is why they are 2 KB rather than
   and 64 completed release samples of both 256 x 256 and 1024 x 1024 production
   box-shadow plans. Allocation p95 is 0.111 ms and 0.102 ms on the measured
   RTX 4060/Vulkan row, below the predeclared absolute and relative thresholds,
-  so RG5 remains deferred despite 33/35 logical creations. Commit `b06a21407`
+  so that historical row did not trigger RG5 despite 33/35 logical creations.
+  The 2026-10-14 optimized Metal receipt now reports MATERIAL for both rows;
+  pooling implementation and its done condition remain open. Commit `b06a21407`
   delivers RG2a's independent scene corpus and typed three-backend semantic
   preflight. It also fixes sparse transformed primitive clips discovered by
   the cross-backend anchors. Commit `cfa0261c2` delivers RG2b's explicit

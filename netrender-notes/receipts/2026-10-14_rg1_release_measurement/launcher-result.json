@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-14T06:11:52.342421+00:00",
+  "status": "MEASUREMENT_AND_CLOSURE_COMPLETE_LAUNCHER_EXIT_ANOMALY",
+  "launcher_exit_code": 1,
+  "launcher_stderr": "RG1 runtime admission refused: SystemExit(0)",
+  "cause": "outer __main__ catches successful sys.exit(main()) in except BaseException after measurement and closure receipts complete",
+  "runtime_status": "same_adapter_release_measurement_completed",
+  "runtime_sha256": "7c8e77c692ef39ce180f2afdc6c3d9b1b56a186d90e059b8ab4a9b03749e70d3",
+  "resource_release_sha256": "eb26be94827364c541ff12e9e28b658eaa36059ceeaae013d18b7313e06a0557",
+  "owned_pid_pgid_rows": [],
+  "gpu_launches": 1,
+  "relaunch_attempted": false,
+  "runtime_receipts_unchanged": true
+}

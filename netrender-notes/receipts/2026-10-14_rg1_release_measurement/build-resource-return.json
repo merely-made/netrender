@@ -1,0 +1,16 @@
+{
+  "status": "CPU_BUILD_RESOURCES_CLOSED",
+  "at": "2026-10-14T00:53:19.908962+00:00",
+  "build_receipt_sha256": "a3a0b398e16fdba8f9da8c1360989244b0602494ddc5f75387158416abd7f0e1",
+  "cargo_pgid": 83293,
+  "members": [],
+  "locks_free": [
+    "/Users/markik/Code/targets/mere-s2s3/release/.cargo-lock",
+    "/Users/markik/Code/targets/mere-s2s3/debug/.cargo-lock",
+    "/Users/markik/Code/targets/mere-s2s3/wasm32-unknown-unknown/debug/.cargo-lock"
+  ],
+  "executable": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/rg1-release-libtest-frozen",
+  "executable_sha256": "9bf013f9f362271ee271f6808904535cbefa020d16eb3e727e1d72ea45af0510",
+  "test_executed": false,
+  "elapsed_seconds": 156.279486557
+}

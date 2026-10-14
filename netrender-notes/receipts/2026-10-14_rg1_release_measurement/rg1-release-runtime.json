@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/rg1-release-libtest-frozen",
+    "render_graph_tests::rg_measurement::rg1_repeated_box_shadow_measurement",
+    "--ignored",
+    "--exact",
+    "--test-threads=1",
+    "--nocapture"
+  ],
+  "elapsed_seconds": 2.368050824,
+  "exit_code": 0,
+  "group_gone": true,
+  "limit_seconds": 357.916542817,
+  "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/rg1-release-runtime.log",
+  "log_sha256": "36b76047e96f7a36fa64645add6b7b623c9aa0364278938f1cd9e3d474ef7a72",
+  "name": "rg1-release-runtime",
+  "status": "completed"
+}

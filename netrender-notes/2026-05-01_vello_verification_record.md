@@ -2068,6 +2068,30 @@ snapshot. It does not close host selection, selection/step/resize behavior,
 live Isometer image import or whole-loop performance. Single cold dev-frame
 timings on the shared host are explicitly not an interactive benchmark.
 
+## Optimized RG1 allocation pressure (2026-10-14) — DATA/CLOSURE ACCEPTED; LAUNCHER FAILED
+
+The [compact capsule](receipts/2026-10-14_rg1_release_measurement/README.md)
+records one optimized ignored libtest on Netrender `f4147feca` and provider
+`2eae6243`, using AMD Radeon Pro Vega 56 / Metal. Both 256 x 256 / blur 16 and
+1024 x 1024 / blur 64 rows completed 16 warmups and 64 timed samples, then
+passed their untimed alpha oracles. Allocation p95 is 0.889 / 1.153 ms,
+host-work p95 3.627 / 3.649 ms, and both original unrounded harness verdicts
+are MATERIAL. The allocation counts are 33/35; projected logical peak is 2.
+
+Independent postrun review accepts the actual data and resource closure:
+all nine owned groups closed, sealed inputs stayed unchanged, and the runtime
+completed in 7.114755702 seconds within its finite bounds. The test returned
+exit 0, but the outer launcher caught successful `SystemExit(0)` and produced
+CLI exit 1 after complete receipts. Its overall failure remains recorded. R4's
+future bootstrap repair passes only isolated exit controls and was not used
+for a GPU rerun.
+
+This optimized same-adapter receipt replaces the prior unoptimized timing
+evidence and meets the RG5 materiality trigger. Pooling remains unimplemented;
+projected peak is not physical pooling or residency evidence. The historical
+§11.42 RTX/Vulkan NOT_MATERIAL result keeps its original scope. No matched
+old/new Classic, other-platform or sustained-frame qualification is claimed.
+
 ## 11.99 Open items — moved (2026-05-05)
 
 The catalogue of deferred refinements that originally lived here

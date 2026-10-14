@@ -1,0 +1,133 @@
+{
+  "schema": "rg1-release-measurement-capsule-provenance/v1",
+  "recorded_at_utc": "2026-10-14T06:25:09.442900+00:00",
+  "copied_exact_files": {
+    "runtime.json": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/runtime.json",
+      "sha256": "7c8e77c692ef39ce180f2afdc6c3d9b1b56a186d90e059b8ab4a9b03749e70d3",
+      "bytes": 30932
+    },
+    "runtime-release.json": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/runtime-release.json",
+      "sha256": "eb26be94827364c541ff12e9e28b658eaa36059ceeaae013d18b7313e06a0557",
+      "bytes": 4261
+    },
+    "rg1-release-runtime.log": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/rg1-release-runtime.log",
+      "sha256": "36b76047e96f7a36fa64645add6b7b623c9aa0364278938f1cd9e3d474ef7a72",
+      "bytes": 2559
+    },
+    "rg1-release-runtime.json": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/rg1-release-runtime.json",
+      "sha256": "781778924e1e67a662ea6fa3d29990d34528a81eb67bbb9d5f58dd2fb48c5b26",
+      "bytes": 636
+    },
+    "launcher-result.json": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3-launcher-result.json",
+      "sha256": "f11fca9a84806136d2ffa5a7416b5542224b7936a7650f816422866fb74f44c3",
+      "bytes": 720
+    },
+    "independent-postrun-audit.json": {
+      "path": "/Users/markik/Code/output/vello-next-gates-20261013/rg1/independent-r3-postrun-audit-20261014T061421Z.json",
+      "sha256": "fdc47362bf41832bbbbfd5610b466b6f138ce43105fdf33c2b51a78d67812e38",
+      "bytes": 12220
+    },
+    "build.json": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/build.json",
+      "sha256": "a3a0b398e16fdba8f9da8c1360989244b0602494ddc5f75387158416abd7f0e1",
+      "bytes": 18685
+    },
+    "build-resource-return.json": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/resource-return.json",
+      "sha256": "846e85e24dd89e003cd361db5afb2596b38ad4bc311d2420ea90b684cb465770",
+      "bytes": 724
+    },
+    "bootstrap-control-r4.json": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/bootstrap-control-r4.json",
+      "sha256": "36a626fe165859efa44b6fe2357f7a66cedf88a7206f7d06f315bbf644b056d8",
+      "bytes": 2260
+    },
+    "runtime-driver-r4.diff": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-driver-r4.diff",
+      "sha256": "3537e8f73ad3ec59af8960975514f9fd5f9408164b7572049377fa196d0613b0",
+      "bytes": 890
+    }
+  },
+  "external_frozen_inputs": {
+    "candidate.json": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/candidate.json",
+      "sha256": "8b4b5e4623ee0c91f4ab326fd5cd6234be77bfbe93cd36f1686216a64f6d8d3c",
+      "bytes": 74689
+    },
+    "runtime-derivative-seal-r3.json": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-derivative-seal-r3.json",
+      "sha256": "d47f4b679f4b29cd48a963326dd8e35601e2c8621d20c92cd20b2b2b40634d91",
+      "bytes": 108678
+    },
+    "runtime-derivative-seal-r4.json": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-derivative-seal-r4.json",
+      "sha256": "c99cd691496efca072a934783ad462a42dce1a5eb06b0491e904f02819c3afa2",
+      "bytes": 111768
+    },
+    "build-derivative-seal-r3-repaired.json": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-derivative-seal-r3-repaired.json",
+      "sha256": "c0bbad15c6bb6400407c9e8d262e1665093e0a5ae9abe876fda5566c73a92bc3",
+      "bytes": 100626
+    },
+    "build-r3/rg1-release-libtest-frozen": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/rg1-release-libtest-frozen",
+      "sha256": "9bf013f9f362271ee271f6808904535cbefa020d16eb3e727e1d72ea45af0510",
+      "bytes": 10368536
+    },
+    "runtime-r3/owned-process.json": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/owned-process.json",
+      "sha256": "28527f6d12de6e9e0463397195257c22ffb136925f8865bb3b17447ac41bf56f",
+      "bytes": 6233
+    },
+    "run_runtime_guarded_r3.py": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/run_runtime_guarded_r3.py",
+      "sha256": "6f126dccaa27cc5db91aed27a79394d7977d928aec3fadaec597512af14eda2d",
+      "bytes": 14505
+    },
+    "run_runtime_guarded_r4.py": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/run_runtime_guarded_r4.py",
+      "sha256": "f33b39c3ee520ce95e403a4cdda6d55adbd2196901ca4d879e41ebf4c29c1b2b",
+      "bytes": 14537
+    },
+    "owned_process_runtime_r2.py": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/owned_process_runtime_r2.py",
+      "sha256": "ad4fac1fed1e9daca80602c6de24ec8171d543bdb94994031a2fe2bb95ba2bdd",
+      "bytes": 14703
+    },
+    "run_gate.py": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/run_gate.py",
+      "sha256": "a3fd6b3c0b396b873e5ac351d277a54b91ac3c1ca31befa53fb2a71e1597eb2f",
+      "bytes": 12800
+    },
+    "runtime-r3-lease.json": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3-lease.json",
+      "sha256": "75a3e5259cfdb3a5d8aee9651ccfb26e744f637acb19311116428aec04a5c6c6",
+      "bytes": 1800
+    }
+  },
+  "frozen_source_snapshots": [
+    {
+      "head": "f4147feca69f177cf8c276c130549aa6dd3e201f",
+      "root": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+      "sealed_files": 149
+    },
+    {
+      "head": "2eae6243881d5b24c984d5ee35dde509ca5db782",
+      "root": "/Users/markik/Code/worktrees/vello-release-adoption",
+      "sealed_files": 381
+    }
+  ],
+  "coordinator_acceptance": {
+    "evidence_kind": "parent-session authorization message; no coordinator receipt file or hash exists",
+    "reported_scope": "DATA and RESOURCE CLOSURE separately accepted; grant released; overall launcherCLI1 remains failed; no GPU rerun solely for exit defect",
+    "source": "Root message to acceptance_audit after independent postrun receipt; do not substitute for durable audit"
+  },
+  "historical_artifacts_unchanged": true,
+  "documentation_only_worktree_base": "f4147feca69f177cf8c276c130549aa6dd3e201f",
+  "no_runtime_executed_to_prepare_capsule": true
+}

@@ -1,0 +1,20 @@
+
+running 1 test
+test render_graph_tests::rg_measurement::rg1_repeated_box_shadow_measurement ... rg-measurement adapter name="AMD Radeon Pro Vega 56" backend=Metal driver="" driver_info=""
+rg-measurement row=small dim=256 blur_radius_px=16 warmups=16 samples=64 completion_timeout=5s
+  phase median p95: construction=0.032ms 0.045ms; binding=0.000ms 0.000ms; execute_overhead=0.016ms 0.020ms; compile=0.022ms 0.027ms; allocate=0.734ms 0.889ms; encode=1.257ms 1.691ms; submit=0.758ms 1.035ms; completion=3.524ms 5.284ms; total_to_completion=6.429ms 8.364ms
+  host_work median=2.808ms p95=3.627ms; transient_creations=33 logical_created_bytes=Some(8650752) peak_live_images=2 peak_live_bytes=Some(524288)
+  descriptor size=256x256 format=Rgba8Unorm usage=TextureUsages(COPY_SRC | TEXTURE_BINDING | RENDER_ATTACHMENT) creations=33 estimated_bytes=Some(262144) projected_peak_live=2 projected_peak_bytes=Some(524288)
+  pool_gate frame_budget_ms=16.667 allocation_p95_ms=0.889 host_work_p95_ms=3.627 exact_descriptor_pressure=true verdict=MATERIAL
+  methodology: logical peak-live is a projected pooling lower bound; the executor currently eagerly creates all task outputs, so it is not physical live allocation evidence
+rg-measurement row=large dim=1024 blur_radius_px=64 warmups=16 samples=64 completion_timeout=5s
+  phase median p95: construction=0.032ms 0.043ms; binding=0.000ms 0.000ms; execute_overhead=0.020ms 0.023ms; compile=0.023ms 0.027ms; allocate=0.784ms 1.153ms; encode=1.334ms 1.642ms; submit=0.813ms 0.890ms; completion=3.915ms 4.662ms; total_to_completion=7.077ms 7.663ms
+  host_work median=3.007ms p95=3.649ms; transient_creations=35 logical_created_bytes=Some(17039360) peak_live_images=2 peak_live_bytes=Some(4456448)
+  descriptor size=1024x1024 format=Rgba8Unorm usage=TextureUsages(COPY_SRC | TEXTURE_BINDING | RENDER_ATTACHMENT) creations=2 estimated_bytes=Some(4194304) projected_peak_live=1 projected_peak_bytes=Some(4194304)
+  descriptor size=256x256 format=Rgba8Unorm usage=TextureUsages(COPY_SRC | TEXTURE_BINDING | RENDER_ATTACHMENT) creations=33 estimated_bytes=Some(262144) projected_peak_live=2 projected_peak_bytes=Some(524288)
+  pool_gate frame_budget_ms=16.667 allocation_p95_ms=1.153 host_work_p95_ms=3.649 exact_descriptor_pressure=true verdict=MATERIAL
+  methodology: logical peak-live is a projected pooling lower bound; the executor currently eagerly creates all task outputs, so it is not physical live allocation evidence
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 69 filtered out; finished in 1.76s
+

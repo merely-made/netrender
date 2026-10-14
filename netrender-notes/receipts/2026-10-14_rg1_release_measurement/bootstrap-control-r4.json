@@ -1,0 +1,66 @@
+{
+  "schema": "rg1-ast-isolated-launcher-bootstrap-controls/v1",
+  "status": "PASS",
+  "at_utc": "2026-10-14T06:15:58.642099+00:00",
+  "elapsed_seconds": 0.025185751000000006,
+  "controls": [
+    {
+      "mode": "0",
+      "expected_exit": 0,
+      "result": {
+        "exit_code": 0,
+        "main_call_count": 1,
+        "stderr": ""
+      },
+      "status": "PASS"
+    },
+    {
+      "mode": "1",
+      "expected_exit": 1,
+      "result": {
+        "exit_code": 1,
+        "main_call_count": 1,
+        "stderr": ""
+      },
+      "status": "PASS"
+    },
+    {
+      "mode": "exception",
+      "expected_exit": 1,
+      "result": {
+        "exit_code": 1,
+        "main_call_count": 1,
+        "stderr": "RG1 runtime admission refused: RuntimeError('isolated real RuntimeError control')\n"
+      },
+      "status": "PASS"
+    }
+  ],
+  "historical_r3_success_exit_negative": {
+    "exit_code": 1,
+    "main_call_count": 1,
+    "stderr": "RG1 runtime admission refused: SystemExit(0)\n"
+  },
+  "source_files": {
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/run_runtime_guarded_r3.py": "6f126dccaa27cc5db91aed27a79394d7977d928aec3fadaec597512af14eda2d",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/run_runtime_guarded_r4.py": "f33b39c3ee520ce95e403a4cdda6d55adbd2196901ca4d879e41ebf4c29c1b2b",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/bootstrap_controls_r4.py": "31be46ab01f5b52f0a61148d5fd73fe816f12b54e9b3e5781d9ebe9eb090a272"
+  },
+  "interpreter": {
+    "reported_path": "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "resolved_path": "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9",
+    "sha256": "5c5950c62eee5fd227a67e4bdfcde81c9add59799bba0949635f3d5ba9661c26"
+  },
+  "unchanged_function_bodies": true,
+  "execution_scope": {
+    "only_ast_extracted_bootstrap_executed": true,
+    "actual_runner_main_executed": false,
+    "runner_module_top_level_executed": false,
+    "helper_executed": false,
+    "parser_executed": false,
+    "subprocess_spawned": false,
+    "gpu_test_executed": false,
+    "cargo_compiler_or_cache_executed": false
+  },
+  "historical_r3_cli_green_claim": false,
+  "r4_gpu_runtime_qualified": false
+}

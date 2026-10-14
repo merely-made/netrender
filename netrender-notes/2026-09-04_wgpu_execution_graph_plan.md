@@ -1040,6 +1040,21 @@ physical residency: the current executor eagerly creates all selected task
 outputs before encoding. RG5 therefore remains deferred unless a later
 consumer, backend, or memory-pressure receipt crosses the documented trigger.
 
+The later [2026-10-14 optimized Metal receipt](receipts/2026-10-14_rg1_release_measurement/README.md)
+crosses this unchanged materiality trigger on AMD Radeon Pro Vega 56. Its
+256 x 256 / blur 16 row reports allocation median/p95 0.734/0.889 ms and
+host-work p95 3.627 ms; 1024 x 1024 / blur 64 reports 0.784/1.153 ms and
+3.649 ms. Each row completes 16 warmups and 64 timed samples, retains the
+original alpha oracle and has 33/35 creations versus projected logical peak 2.
+Both verdicts are MATERIAL from unrounded harness durations.
+
+This establishes the RG5 investigation trigger; it does not implement a pool
+or close the done condition below. The independent audit accepts the actual
+measurement and owned closure while preserving the overall R3 launcher CLI
+exit 1 failure. R4 is a prepared exit-bootstrap correction only, with no GPU
+rerun. The historical Vulkan result above remains intact, and no matched
+Classic, other-platform or sustained-frame conclusion is implied.
+
 **Done condition:** allocation counts fall on a repeated multi-pass workload,
 readback remains equivalent, and WebGPU/GL plus one native backend validate
 without raw-hal access.
