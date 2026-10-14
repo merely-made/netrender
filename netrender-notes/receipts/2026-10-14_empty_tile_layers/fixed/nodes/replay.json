@@ -1,0 +1,28 @@
+{
+  "adapter": {
+    "backend": "Vulkan",
+    "device": 10464,
+    "device_type": "DiscreteGpu",
+    "driver": "NVIDIA",
+    "driver_info": "610.88",
+    "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "vendor": 4318
+  },
+  "generation": 17,
+  "image_key": 15011715060995194881,
+  "readback_timeout_seconds": 10,
+  "resource": "netrender-notes/receipts/2026-10-14_empty_tile_layers/captured/00_inline_nodes.source-1176657005713031169.png",
+  "same_device_stage_and_render": true,
+  "scene": "netrender-notes/receipts/2026-10-14_empty_tile_layers/captured/00_inline_nodes.scene.json",
+  "scene_ops": 127,
+  "source_alpha": "straight",
+  "source_size": [
+    1175,
+    1538
+  ],
+  "tile_size": 64,
+  "viewport": [
+    2360,
+    1600
+  ]
+}

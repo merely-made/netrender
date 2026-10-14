@@ -301,6 +301,9 @@ impl VelloTileRasterizer {
             self.paint_dirty_overlay(&mut master, tile_cache);
         }
 
+        log::debug!(target: "netrender::tile_scopes",
+            "master_clip_records={};cached_tiles={}",
+            master.encoding().n_clips, tile_scenes.len());
         master
     }
 
@@ -424,12 +427,8 @@ fn filter_scene_to_tile(scene: &Scene, tile_rect: [f32; 4]) -> Scene {
                 .is_some_and(|aabb| aabb_intersects(aabb, tile_rect)),
             SceneOp::GlyphRun(run) => crate::tile_cache::world_aabb_glyph_run(run, scene)
                 .is_some_and(|aabb| aabb_intersects(aabb, tile_rect)),
-            // Layer push/pop ops carry no visible content of their
-            // own — they wrap inner ops. Always include them so the
-            // filtered scene stays balanced (every PushLayer has its
-            // matching PopLayer). The layer's clip narrows what
-            // pixels can be touched anyway, so passing the wrap
-            // through to vello is correct.
+            // Keep scopes balanced during spatial filtering, then remove
+            // only harmless groups with no retained drawing children.
             SceneOp::PushLayer(_) | SceneOp::PopLayer => true,
             // Roadmap E4 — fragment-bearing scenes take the retained
             // master path and never reach the per-tile filter. If one
@@ -442,5 +441,141 @@ fn filter_scene_to_tile(scene: &Scene, tile_rect: [f32; 4]) -> Scene {
         }
     }
 
+    prune_empty_tile_layers(&mut filtered.ops);
     filtered
+}
+
+/// Remove empty normal source-over groups after tile filtering. An empty
+/// mask or backdrop/filter group may still modify the parent, so those
+/// groups and their enclosing scopes remain intact. Malformed streams are
+/// left unchanged for the normal owner validation/lowering path.
+fn prune_empty_tile_layers(ops: &mut Vec<SceneOp>) {
+    use crate::scene::SceneCompose;
+
+    let mut keep = vec![true; ops.len()];
+    let mut stack: Vec<(usize, bool)> = Vec::new();
+    for (index, op) in ops.iter().enumerate() {
+        match op {
+            SceneOp::PushLayer(_) => stack.push((index, false)),
+            SceneOp::PopLayer => {
+                let Some((start, has_content)) = stack.pop() else {
+                    return;
+                };
+                let SceneOp::PushLayer(layer) = &ops[start] else {
+                    unreachable!();
+                };
+                let harmless = layer.compose == SceneCompose::SrcOver
+                    && layer.blend_mode == SceneBlendMode::Normal
+                    && layer.backdrop_filter.is_none()
+                    && layer.filters.is_empty()
+                    && layer.alpha.is_finite()
+                    && (0.0..=1.0).contains(&layer.alpha);
+                if !has_content && harmless {
+                    keep[start] = false;
+                    keep[index] = false;
+                } else if let Some((_, parent_content)) = stack.last_mut() {
+                    *parent_content = true;
+                }
+            }
+            _ => {
+                if let Some((_, has_content)) = stack.last_mut() {
+                    *has_content = true;
+                }
+            }
+        }
+    }
+    if !stack.is_empty() {
+        return;
+    }
+    let mut index = 0;
+    ops.retain(|_| {
+        let retain = keep[index];
+        index += 1;
+        retain
+    });
+}
+
+#[cfg(test)]
+mod empty_tile_layers_tests {
+    use super::*;
+    use crate::scene::{SceneClip, SceneFilter, SceneLayer};
+
+    #[test]
+    fn spatially_filtered_empty_nested_scopes_are_removed() {
+        let mut scene = Scene::new(128, 128);
+        scene.push_layer(SceneLayer::alpha(0.5));
+        scene.push_layer(SceneLayer::clip(SceneClip::Rect {
+            rect: [64.0, 64.0, 128.0, 128.0],
+            radii: [4.0; 4],
+        }));
+        scene.push_rect(70.0, 70.0, 90.0, 90.0, [1.0; 4]);
+        scene.pop_layer();
+        scene.pop_layer();
+        let filtered = filter_scene_to_tile(&scene, [0.0, 0.0, 64.0, 64.0]);
+        assert!(filtered.ops.is_empty());
+        assert_eq!(scene.ops.len(), 5);
+    }
+
+    #[test]
+    fn retained_draw_preserves_nested_clip_alpha_and_painter_order() {
+        let mut scene = Scene::new(128, 128);
+        scene.push_layer(SceneLayer::alpha(0.5));
+        scene.push_layer(SceneLayer::clip(SceneClip::Rect {
+            rect: [0.0, 0.0, 128.0, 128.0],
+            radii: [4.0; 4],
+        }));
+        scene.push_rect(1.0, 1.0, 9.0, 9.0, [1.0; 4]);
+        scene.pop_layer();
+        scene.pop_layer();
+        let filtered = filter_scene_to_tile(&scene, [0.0, 0.0, 64.0, 64.0]);
+        assert_eq!(filtered.ops.len(), 5);
+        let SceneOp::PushLayer(layer) = &filtered.ops[0] else {
+            panic!()
+        };
+        assert_eq!(layer.alpha, 0.5);
+        assert!(
+            matches!(&filtered.ops[1], SceneOp::PushLayer(SceneLayer { clip: SceneClip::Rect { radii, .. }, .. }) if *radii == [4.0; 4])
+        );
+        assert!(matches!(filtered.ops[2], SceneOp::Rect(_)));
+    }
+
+    #[test]
+    fn empty_masks_filters_backdrops_and_blends_keep_parent_scopes() {
+        let mut effects = vec![SceneLayer::alpha_mask()];
+        let mut backdrop = SceneLayer::alpha(1.0);
+        backdrop.backdrop_filter = Some(SceneFilter::Blur(2.0));
+        effects.push(backdrop);
+        let mut filtered = SceneLayer::alpha(1.0);
+        filtered.filters.push(SceneFilter::Invert(1.0));
+        effects.push(filtered);
+        let mut blend = SceneLayer::alpha(1.0);
+        blend.blend_mode = SceneBlendMode::Multiply;
+        effects.push(blend);
+        for effect in effects {
+            let mut ops = vec![
+                SceneOp::PushLayer(SceneLayer::alpha(0.5)),
+                SceneOp::PushLayer(effect),
+                SceneOp::PopLayer,
+                SceneOp::PopLayer,
+            ];
+            prune_empty_tile_layers(&mut ops);
+            assert_eq!(ops.len(), 4);
+        }
+    }
+
+    #[test]
+    fn malformed_scopes_are_not_rewritten() {
+        for mut ops in [
+            vec![SceneOp::PushLayer(SceneLayer::alpha(1.0))],
+            vec![
+                SceneOp::PushLayer(SceneLayer::alpha(1.0)),
+                SceneOp::PopLayer,
+                SceneOp::PopLayer,
+            ],
+        ] {
+            let original_len = ops.len();
+            prune_empty_tile_layers(&mut ops);
+            assert_eq!(ops.len(), original_len);
+        }
+    }
 }

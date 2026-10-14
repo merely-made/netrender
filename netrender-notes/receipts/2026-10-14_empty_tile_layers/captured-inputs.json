@@ -1,0 +1,55 @@
+{
+  "origin": "Turnstone canonical scopedA4 onGenet199; actual paired texture captured beforestage",
+  "files": [
+    {
+      "original": "C:\\Users\\mark_\\Code\\repos\\turnstone\\docs\\receipts\\stations_windows_20261013\\native\\preliminary-19947-a4-scoped\\captures\\00_inline_nodes.scene.json",
+      "captured": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\00_inline_nodes.scene.json",
+      "sha256": "632ba9fd5f1b926cc502b8c2ce1a174e22131e98f10d50b699b381772dad5637"
+    },
+    {
+      "original": "C:\\Users\\mark_\\Code\\repos\\turnstone\\docs\\receipts\\stations_windows_20261013\\native\\preliminary-19947-a4-scoped\\captures\\00_inline_nodes.raw.png",
+      "captured": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\00_inline_nodes.raw.png",
+      "sha256": "28b1fca908a49bc10700b47fcbe858c83a560770256af762cbe248ac8f91fe65"
+    },
+    {
+      "original": "C:\\Users\\mark_\\Code\\repos\\turnstone\\docs\\receipts\\stations_windows_20261013\\native\\preliminary-19947-a4-scoped\\captures\\00_inline_nodes.png",
+      "captured": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\00_inline_nodes.png",
+      "sha256": "28b1fca908a49bc10700b47fcbe858c83a560770256af762cbe248ac8f91fe65"
+    },
+    {
+      "original": "C:\\Users\\mark_\\Code\\repos\\turnstone\\docs\\receipts\\stations_windows_20261013\\native\\preliminary-19947-a4-scoped\\captures\\00_inline_nodes.sources.json",
+      "captured": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\00_inline_nodes.sources.json",
+      "sha256": "5494cee705f0298992f0a43805ec5b76402bb9a63f8e165037f03831b7f166ed"
+    },
+    {
+      "original": "C:\\Users\\mark_\\Code\\repos\\turnstone\\docs\\receipts\\stations_windows_20261013\\native\\preliminary-19947-a4-scoped\\captures\\00_inline_nodes.source-1176657005713031169.png",
+      "captured": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\00_inline_nodes.source-1176657005713031169.png",
+      "sha256": "45f34c46e6f6c08d0194b064df860827e87c7e53ab16e6d5ab1c00a358e1e17d"
+    },
+    {
+      "original": "C:\\Users\\mark_\\Code\\repos\\turnstone\\docs\\receipts\\stations_windows_20261013\\native\\preliminary-19947-a4-scoped\\captures\\01_inline_roster.scene.json",
+      "captured": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\01_inline_roster.scene.json",
+      "sha256": "5e68cf9d7eda5237aacd2fc88e05b43647b56fb358a0679a42ac0b8b7018c693"
+    },
+    {
+      "original": "C:\\Users\\mark_\\Code\\repos\\turnstone\\docs\\receipts\\stations_windows_20261013\\native\\preliminary-19947-a4-scoped\\captures\\01_inline_roster.raw.png",
+      "captured": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\01_inline_roster.raw.png",
+      "sha256": "77e112b32e3a4d07259b83bbe3d8de1d2c23973fcf023977a4bdf7e03c725e8c"
+    },
+    {
+      "original": "C:\\Users\\mark_\\Code\\repos\\turnstone\\docs\\receipts\\stations_windows_20261013\\native\\preliminary-19947-a4-scoped\\captures\\01_inline_roster.png",
+      "captured": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\01_inline_roster.png",
+      "sha256": "77e112b32e3a4d07259b83bbe3d8de1d2c23973fcf023977a4bdf7e03c725e8c"
+    },
+    {
+      "original": "C:\\Users\\mark_\\Code\\repos\\turnstone\\docs\\receipts\\stations_windows_20261013\\native\\preliminary-19947-a4-scoped\\captures\\01_inline_roster.sources.json",
+      "captured": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\01_inline_roster.sources.json",
+      "sha256": "fd7143f036a121fe567a846b72d208e35636d71096c24c0765419fb526f638fa"
+    },
+    {
+      "original": "C:\\Users\\mark_\\Code\\repos\\turnstone\\docs\\receipts\\stations_windows_20261013\\native\\preliminary-19947-a4-scoped\\captures\\01_inline_roster.source-1176657005713031169.png",
+      "captured": "netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\01_inline_roster.source-1176657005713031169.png",
+      "sha256": "45f34c46e6f6c08d0194b064df860827e87c7e53ab16e6d5ab1c00a358e1e17d"
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling libloading v0.8.9
+   Compiling serde_bytes v0.11.19
+   Compiling static_assertions v1.1.0
+   Compiling foldhash v0.2.0
+   Compiling allocator-api2 v0.2.21
+   Compiling unicode-ident v1.0.24
+   Compiling litemap v0.8.2
+   Compiling raw-window-handle v0.6.2
+   Compiling wgpu-types v30.0.1
+   Compiling icu_locale_core v2.3.0
+   Compiling naga v30.0.1
+   Compiling hashbrown v0.16.1
+   Compiling hashbrown v0.17.1
+   Compiling linebender_resource_handle v0.1.1
+   Compiling ash v0.38.0+1.3.281
+   Compiling parking_lot v0.12.5
+   Compiling potential_utf v0.1.5
+   Compiling zerotrie v0.2.5
+   Compiling libm v0.2.16
+   Compiling presser v0.3.1
+   Compiling equivalent v1.0.2
+   Compiling indexmap v2.14.0
+   Compiling gpu-allocator v0.28.0
+   Compiling num-traits v0.2.19
+   Compiling icu_provider v2.3.1
+   Compiling wgpu-naga-bridge v30.0.0
+   Compiling ordered-float v5.3.0
+   Compiling zerocopy v0.8.48
+   Compiling thiserror v2.0.18
+   Compiling range-alloc v0.1.5
+   Compiling unicode-width v0.2.2
+   Compiling bit-vec v0.9.1
+   Compiling simd-adler32 v0.3.9
+   Compiling utf8_iter v1.0.4
+   Compiling rustc-hash v1.1.0
+   Compiling renderdoc-sys v1.1.0
+   Compiling cfg-if v1.0.4
+   Compiling profiling v1.0.17
+   Compiling wgpu-hal v30.0.1
+   Compiling half v2.7.1
+   Compiling naga-types v30.0.1
+   Compiling icu_collections v2.3.0
+   Compiling bit-set v0.10.0
+   Compiling codespan-reporting v0.13.1
+   Compiling skrifa v0.44.0
+   Compiling polycool v0.4.0
+   Compiling bitflags v2.11.1
+   Compiling adler2 v2.0.1
+   Compiling log v0.4.34
+   Compiling arrayvec v0.7.6
+   Compiling miniz_oxide v0.8.9
+   Compiling kurbo v0.13.1
+   Compiling crc32fast v1.5.0
+   Compiling wgpu-core-deps-windows-linux-android v30.0.1
+   Compiling euclid v0.22.14
+   Compiling color v0.3.3
+   Compiling svg_fmt v0.4.5
+   Compiling guillotiere v0.7.0
+   Compiling peniko v0.6.1
+   Compiling wgpu-core v30.0.1
+   Compiling flate2 v1.1.9
+   Compiling icu_properties_data v2.3.0
+   Compiling vello_shaders v0.11.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling icu_locale_fallback_data v2.3.0
+   Compiling fdeflate v0.3.7
+   Compiling byteorder v1.5.0
+   Compiling hash32 v0.2.1
+   Compiling icu_locale_fallback v2.3.0
+   Compiling icu_properties v2.3.0
+   Compiling wgpu v30.0.1
+   Compiling vello_encoding v0.11.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling icu_normalizer_data v2.3.0
+   Compiling icu_segmenter_data v2.3.0
+   Compiling spin v0.9.8
+   Compiling memmap2 v0.9.11
+   Compiling futures-core v0.3.32
+   Compiling parlance v0.1.1
+   Compiling fontique v0.12.0
+   Compiling futures-intrusive v0.5.0
+   Compiling heapless v0.7.17
+   Compiling icu_segmenter v2.3.0
+   Compiling icu_normalizer v2.3.0
+   Compiling parley_data v0.12.0
+   Compiling zmij v1.0.21
+   Compiling png v0.18.1
+   Compiling harfrust v0.12.0
+   Compiling cobs v0.3.0
+   Compiling tracing-core v0.1.36
+   Compiling tracing-attributes v0.1.31
+   Compiling pin-project-lite v0.2.17
+   Compiling pollster v1.0.1
+   Compiling memchr v2.8.0
+   Compiling parley_emoji v0.12.0
+   Compiling itoa v1.0.18
+   Compiling serde_json v1.0.151
+   Compiling parley_engine v0.12.0
+   Compiling netrender_device v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender_device)
+warning: function `submit` is never used
+  --> netrender_device\src\frame.rs:19:15
+   |
+19 | pub(crate) fn submit(queue: &wgpu::Queue, encoder: wgpu::CommandEncoder) {
+   |               ^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `netrender_device` (lib) generated 1 warning
+   Compiling tracing v0.1.44
+   Compiling postcard v1.1.3
+   Compiling netrender-vello v0.11.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+   Compiling parley v0.12.0
+   Compiling bitflags v1.3.2
+   Compiling png v0.17.16
+   Compiling netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 20m 07s

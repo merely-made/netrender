@@ -1,0 +1,97 @@
+{
+  "repository": "C:/Users/mark_/Code/repos/netrender",
+  "base_commit": "f4147feca69f177cf8c276c130549aa6dd3e201f",
+  "vello_supplier": "2eae6243881d5b24c984d5ee35dde509ca5db782",
+  "cargo_lock_working_file_sha256": "b2f9768acf7d92720124f13a13934dea5c4b40f83571d7292876f8b04999f559",
+  "environment": {
+    "CARGO_TARGET_DIR": "C:/t/cargo-targets/netrender",
+    "CARGO_BUILD_BUILD_DIR": "C:/t/cargo-targets/netrender/build"
+  },
+  "gates": [
+    {
+      "command": "cargo +1.99.0 test -p netrender --lib empty_tile_layers_tests --features serde --locked --offline -j1",
+      "log": "unit-tests.log",
+      "result": "resolution refused before compilation; exact locked parley0.12.0 not yet cached"
+    },
+    {
+      "command": "cargo +1.99.0 test -p netrender --lib empty_tile_layers_tests --features serde --locked -j1",
+      "additional_environment": {
+        "CARGO_NET_GIT_FETCH_WITH_CLI": "true"
+      },
+      "log": "unit-tests-online.log",
+      "result": "passed4/4; populated exact locked supplier versions without lock changes"
+    },
+    {
+      "command": "cargo +1.99.0 build -p netrender --example retained_scene_replay --features serde --locked --offline -j1",
+      "log": "replay-build.log",
+      "result": "interrupted during dependency compile to coordinate supplier cache ownership; no source failure claimed"
+    },
+    {
+      "command": "cargo +1.99.0 build -p netrender --example retained_scene_replay --features serde --locked --offline -j1",
+      "log": "replay-build-final.log",
+      "result": "passed; default shipping dev profile panic=abort; elapsed20m07s includes package-cache wait"
+    },
+    {
+      "command": "cargo +1.99.0 test -p netrender --lib empty_tile_layers_tests --features serde --locked --offline -j1",
+      "log": "unit-tests-final.log",
+      "result": "passed4/4 on final candidate source with actual encoded clip-count debug metric; elapsed11.86s"
+    }
+  ],
+  "candidate_working_file_sha256": {
+    "netrender/src/vello_tile_rasterizer/master.rs": "9061ae97d34247a46f61b254cc7710f30f654fe9a04d70c5fdd847537a785379",
+    "netrender/examples/retained_scene_replay.rs": "48ef948b325a1f834cf99b8b16d9cf150d53a52bd31ecad65f1c98f1e13d8eb8"
+  },
+  "replay_executable": {
+    "path": "C:/t/cargo-targets/netrender/debug/examples/retained_scene_replay.exe",
+    "sha256": "624cfa1b9821b394514fe742e3423504e95303e251eed4ec70514d6e49e2adb4"
+  },
+  "gpu_qualification": "passed exact paired Scene/resource unpruned+fixed controls; native adopted-supplier raw/final gate separate",
+  "integration_base_commit": "484347ff846dece47fc6c6840a25e08e7e7856ec",
+  "upstream_reconcile": "documentation/receipts only; no production source, manifest, lock or provider differences",
+  "gpu_environment": {
+    "WGPU_BACKEND": "vulkan"
+  },
+  "gpu_source_control": {
+    "unpruned": "unpruned-source.json",
+    "fixed_master_sha256": "9061ae97d34247a46f61b254cc7710f30f654fe9a04d70c5fdd847537a785379",
+    "final_executable_sha256": "e5fc4b6281ef3d026e2c54bac5f96575bdc89a2a3b9f8c6b475aee8ff9fe4c31",
+    "guard_comment_encoding_repair": "originalcandidate9061 restoredbyteexact; explicitUTF8cleannegativecontrol rerun preserved",
+    "source_guard_enforced_before_build": true
+  },
+  "gpu_commands": [
+    {
+      "command": "retained_scene_replay netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\00_inline_nodes.scene.json netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\00_inline_nodes.source-1176657005713031169.png 15011715060995194881 17 straight netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\unpruned\\nodes",
+      "variant": "unpruned",
+      "generation": 17,
+      "log": "unpruned-nodes-final.log"
+    },
+    {
+      "command": "retained_scene_replay netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\01_inline_roster.scene.json netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\01_inline_roster.source-1176657005713031169.png 15011715060995194881 19 straight netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\unpruned\\links",
+      "variant": "unpruned",
+      "generation": 19,
+      "log": "unpruned-links-final.log"
+    },
+    {
+      "command": "retained_scene_replay netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\00_inline_nodes.scene.json netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\00_inline_nodes.source-1176657005713031169.png 15011715060995194881 17 straight netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\fixed\\nodes",
+      "variant": "fixed",
+      "generation": 17,
+      "log": "fixed-nodes-final.log"
+    },
+    {
+      "command": "retained_scene_replay netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\01_inline_roster.scene.json netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\captured\\01_inline_roster.source-1176657005713031169.png 15011715060995194881 19 straight netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\fixed\\links",
+      "variant": "fixed",
+      "generation": 19,
+      "log": "fixed-links-final.log"
+    }
+  ],
+  "gpu_control_builds": {
+    "command": "cargo +1.99.0 build -p netrender --example retained_scene_replay --features serde --locked --offline -j1",
+    "unpruned_log": "unpruned-control-build-final.log",
+    "restored_log": "restored-fixed-build-guarded.log"
+  },
+  "comparison_command": "python netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\compare.py netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\unpruned\\nodes netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\fixed\\nodes netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\unpruned\\links netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\fixed\\links netrender-notes\\receipts\\2026-10-14_empty_tile_layers\\pixel-comparison.json",
+  "candidate_git_blob_ids": {
+    "netrender\\src\\vello_tile_rasterizer\\master.rs": "f91a90867dab19d474843c67c100d4f9ffbf3180",
+    "netrender\\examples\\retained_scene_replay.rs": "14e9edbc078c58cef1e06f6408ced6d87b86752d"
+  }
+}

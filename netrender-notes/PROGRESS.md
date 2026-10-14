@@ -95,6 +95,22 @@ accepted test data and closed resources. R4's prepared bootstrap correction has
 only isolated exit controls, with no GPU rerun. No matched old/new Classic,
 other-platform or sustained-frame claim follows from this measurement.
 
+## Retained empty tile layers, 2026-10-14
+
+The [same-scene GPU receipt](receipts/2026-10-14_empty_tile_layers/README.md)
+qualifies pruning balanced empty normal source-over groups after tiled draw
+filtering. Intact Turnstone Nodes and Links scenes, actual producer textures and
+font resources retain their authority. On the unchanged Vello `2eae6243` / RTX 4060
+Vulkan provider, Nodes encoded clips drop 72,150 to 4,278 and the authored opaque
+header/roster holes disappear; Links drops 12,950 to 3,772 with exact RGBA equality.
+Small Nodes RGB 1/alpha 0 differences remain within the prior pixel gate. Four
+focused scope/mask/effect controls pass. Nonempty CSS clips and alpha scopes,
+empty masks/effects and malformed streams remain unchanged.
+
+Updated native raw/final captures after normal consumer adoption remain a
+separate gate. The static provider prefix-scan limitation does not close general
+Classic large-clip parity; no hardcoded cap or new recovery owner is introduced.
+
 ## Current canonical plans
 
 The original plan audit was 2026-08-10. Later activated work is indexed
