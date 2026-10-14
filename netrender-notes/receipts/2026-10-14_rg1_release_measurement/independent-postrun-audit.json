@@ -1,0 +1,337 @@
+{
+  "all580_verified": true,
+  "alpha_oracle_evidence": "both actual source-bound assertions reached and test succeeded; raw pixel values not printed",
+  "at": "2026-10-14T06:14:21.120907+00:00",
+  "auditor_executions": "pure parser + read-only Git/ps only; no driver,Cargo,compiler,cache,GPU,browser,native,rerun,signal",
+  "checks": [
+    {
+      "details": null,
+      "name": "runtime_receipt_known_hash",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "release_known_hash",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "launcher_result_known_hash",
+      "passed": true
+    },
+    {
+      "details": [],
+      "name": "all580_fresh_sealed_hashes",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "r3_identity_link",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "build_binary_profile_links",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "measurement_component_completed",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "one_gpu_no_compiler_cache",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "exact_runtime_environment",
+      "passed": true
+    },
+    {
+      "details": {
+        "adapter": {
+          "backend": "Metal",
+          "driver": "",
+          "driver_info": "",
+          "name": "AMD Radeon Pro Vega 56"
+        },
+        "classification_authority": "harness computes from unrounded durations; printed values have 0.001ms precision",
+        "matched_classic_timing_claim": false,
+        "pooling_closed": false,
+        "rows": [
+          {
+            "allocation_p95_ms_printed": 0.889,
+            "exact_descriptor_pressure": true,
+            "frame_budget_ms": 16.667,
+            "host_work_p95_ms_printed": 3.627,
+            "name": "small",
+            "verdict": "MATERIAL"
+          },
+          {
+            "allocation_p95_ms_printed": 1.153,
+            "exact_descriptor_pressure": true,
+            "frame_budget_ms": 16.667,
+            "host_work_p95_ms_printed": 3.649,
+            "name": "large",
+            "verdict": "MATERIAL"
+          }
+        ]
+      },
+      "name": "actual_log_parser_equals_receipt",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "log_hash_matches",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "nine_commands_order_exact",
+      "passed": true
+    },
+    {
+      "details": [],
+      "name": "command_results_logs_independent",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "libtest_exit0_one_passed",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "material_both_with_original_numbers",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "fresh_grant_identity",
+      "passed": true
+    },
+    {
+      "details": {
+        "elapsed_monotonic_seconds": 7.114755702,
+        "elapsed_utc_seconds": 7.11452,
+        "ended": "2026-10-14T06:08:45.643825+00:00",
+        "lease_remaining_at_start_seconds": 395.653787,
+        "started": "2026-10-14T06:08:38.529305+00:00"
+      },
+      "name": "strict_clock_and_duration_bounds",
+      "passed": true
+    },
+    {
+      "details": {
+        "count": 191,
+        "minimum_free_bytes": 47787307008
+      },
+      "name": "disk_floor_reserve_all191",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "no_interruption_or_receipt_error",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "all_nine_owned_groups_closed",
+      "passed": true
+    },
+    {
+      "details": [],
+      "name": "cleanup_no_signals_and_timely",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "release_hash_links_and_closure",
+      "passed": true
+    },
+    {
+      "details": [
+        {
+          "after_head": "f4147feca69f177cf8c276c130549aa6dd3e201f",
+          "after_status": "",
+          "before_head": "f4147feca69f177cf8c276c130549aa6dd3e201f",
+          "before_status": "",
+          "expected_head": "f4147feca69f177cf8c276c130549aa6dd3e201f",
+          "head": "f4147feca69f177cf8c276c130549aa6dd3e201f",
+          "head_exit": 0,
+          "root": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+          "status": "",
+          "status_exit": 0
+        },
+        {
+          "after_head": "2eae6243881d5b24c984d5ee35dde509ca5db782",
+          "after_status": "",
+          "before_head": "2eae6243881d5b24c984d5ee35dde509ca5db782",
+          "before_status": "",
+          "expected_head": "2eae6243881d5b24c984d5ee35dde509ca5db782",
+          "head": "2eae6243881d5b24c984d5ee35dde509ca5db782",
+          "head_exit": 0,
+          "root": "/Users/markik/Code/worktrees/vello-release-adoption",
+          "status": "",
+          "status_exit": 0
+        }
+      ],
+      "name": "fresh_and_receipt_source_heads_clean",
+      "passed": true
+    },
+    {
+      "details": [
+        "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source/.cargo/config.toml"
+      ],
+      "name": "fresh_config_inventory",
+      "passed": true
+    },
+    {
+      "details": {
+        "brand": {
+          "birth": [
+            1791958120,
+            613182
+          ],
+          "executable": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/rg1-release-libtest-frozen",
+          "parent_at_birth": 55571,
+          "uid": 501,
+          "zombie": false
+        },
+        "driver_pid": 55571,
+        "gpu_pgid": 55595,
+        "gpu_pid": 55595
+      },
+      "name": "gpu_exact_launch_brand",
+      "passed": true
+    },
+    {
+      "details": {
+        "at": "2026-10-14T06:14:22.678801+00:00",
+        "matching_rows": [],
+        "recorded_pgids": [
+          55573,
+          55578,
+          55583,
+          55590,
+          55595,
+          55635,
+          55640,
+          55645,
+          55650
+        ],
+        "recorded_pids": [
+          55571,
+          55573,
+          55578,
+          55583,
+          55590,
+          55595,
+          55635,
+          55640,
+          55645,
+          55650
+        ]
+      },
+      "name": "fresh_exact_pid_pgid_absence",
+      "passed": true
+    },
+    {
+      "details": {
+        "guard_line": 173,
+        "handler_line": 175,
+        "mechanism": "successful main returns0; sys.exit(0) raises SystemExit(0), caught by BaseException; refusal text prints then sys.exit(1)",
+        "try_line": 174
+      },
+      "name": "exact_launcher_exit_defect_confirmed",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "launcher_anomaly_evidence_links",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "no_pool_or_matched_claim",
+      "passed": true
+    },
+    {
+      "details": null,
+      "name": "all_runtime_artifacts_preserved",
+      "passed": true
+    }
+  ],
+  "elapsed_seconds": 1.563236669,
+  "failures": [],
+  "launcher_pass_claim": false,
+  "materiality": "MATERIAL_BOTH_ROWS",
+  "measurement": {
+    "adapter": {
+      "backend": "Metal",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    },
+    "classification_authority": "harness computes from unrounded durations; printed values have 0.001ms precision",
+    "matched_classic_timing_claim": false,
+    "pooling_closed": false,
+    "rows": [
+      {
+        "allocation_p95_ms_printed": 0.889,
+        "exact_descriptor_pressure": true,
+        "frame_budget_ms": 16.667,
+        "host_work_p95_ms_printed": 3.627,
+        "name": "small",
+        "verdict": "MATERIAL"
+      },
+      {
+        "allocation_p95_ms_printed": 1.153,
+        "exact_descriptor_pressure": true,
+        "frame_budget_ms": 16.667,
+        "host_work_p95_ms_printed": 3.649,
+        "name": "large",
+        "verdict": "MATERIAL"
+      }
+    ]
+  },
+  "measurement_component": "ACCEPTED",
+  "overall_launcher": "FAILED_EXIT1_AFTER_SUCCESSFUL_COMPONENTS",
+  "owned_resource_closure_component": "ACCEPTED",
+  "preserved_artifacts": true,
+  "runtime_artifact_hashes": {
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3-launcher-result.json": "f11fca9a84806136d2ffa5a7416b5542224b7936a7650f816422866fb74f44c3",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/owned-process.json": "28527f6d12de6e9e0463397195257c22ffb136925f8865bb3b17447ac41bf56f",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/rg1-release-runtime.json": "781778924e1e67a662ea6fa3d29990d34528a81eb67bbb9d5f58dd2fb48c5b26",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/rg1-release-runtime.log": "36b76047e96f7a36fa64645add6b7b623c9aa0364278938f1cd9e3d474ef7a72",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/runtime-release.json": "eb26be94827364c541ff12e9e28b658eaa36059ceeaae013d18b7313e06a0557",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/runtime.json": "7c8e77c692ef39ce180f2afdc6c3d9b1b56a186d90e059b8ab4a9b03749e70d3",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-clean-0-after.json": "644dd976c14568106f94d8364d1f9debaa54d70d976f897cb073a1043e3d6b2a",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-clean-0-after.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-clean-0-before.json": "7ef2287b6cf832db6a07fcf8236979b2141f026eda9d8748704279dc7c6a280a",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-clean-0-before.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-clean-1-after.json": "6c4ade49da21339ce026be312e7cdb4a7f474bd385ad7f113db25b9241ea091e",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-clean-1-after.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-clean-1-before.json": "a5d759700ce0ded2135479cd14ba4fbf23434a28eecd09b039c68554cb281217",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-clean-1-before.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-head-0-after.json": "d171b054feed31886ac58599051760d0aff0fe6e78cd69f01fa2db6ebb47677c",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-head-0-after.log": "a99ba46d5d4b44033e4cb3e8bb62c26108f2fd76f455dd1bf22dfc6326d8860d",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-head-0-before.json": "bad39fb67b77f1a76ae5314590dcd20cb947fe76b4e4e7a0f33dc15193403b82",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-head-0-before.log": "a99ba46d5d4b44033e4cb3e8bb62c26108f2fd76f455dd1bf22dfc6326d8860d",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-head-1-after.json": "503831e93cb17d6f9f6abde7d0f79ada0e6e74b15e965caf808ba10a63f136e4",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-head-1-after.log": "ceef3bd7bcd326b3985d0bbb5997e9042088a4a5c4466cf8f573e21ac9eea69d",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-head-1-before.json": "69ac04b0017169131e6bef6571747d4d7d70d14e8632c49518363ee133a7f79a",
+    "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-head-1-before.log": "ceef3bd7bcd326b3985d0bbb5997e9042088a4a5c4466cf8f573e21ac9eea69d"
+  },
+  "schema": "rg1-independent-r3-postrun-audit/v1",
+  "scope_exclusions": [
+    "pooling closure",
+    "matched old/new Classic comparison",
+    "other adapter/platform qualification",
+    "overall launcher PASS"
+  ],
+  "status": "COMPONENT_RESULTS_ACCEPTED_LAUNCHER_DEFECT_CONFIRMED",
+  "unrounded_verdict_authority": "sealed source harness; printed timings0.001ms; no threshold change"
+}

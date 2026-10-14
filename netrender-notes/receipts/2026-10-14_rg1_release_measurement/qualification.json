@@ -1,0 +1,182 @@
+{
+  "schema": "rg1-release-measurement-component-acceptance/v1",
+  "measurement_component": "ACCEPTED",
+  "owned_resource_closure_component": "ACCEPTED",
+  "overall_launcher": "FAILED_EXIT1_AFTER_SUCCESSFUL_COMPONENTS",
+  "launcher_pass_claim": false,
+  "materiality": "MATERIAL_BOTH_ROWS",
+  "source": {
+    "netrender": "f4147feca69f177cf8c276c130549aa6dd3e201f",
+    "provider": "2eae6243881d5b24c984d5ee35dde509ca5db782",
+    "production_graph_same_as_build_box_shadow_mask": true,
+    "public_image_registry_excluded_from_timed_loop": true
+  },
+  "build": {
+    "profile": {
+      "debug_assertions": false,
+      "debuginfo": 0,
+      "opt_level": "3",
+      "overflow_checks": false,
+      "test": true
+    },
+    "receipt_sha256": "a3a0b398e16fdba8f9da8c1360989244b0602494ddc5f75387158416abd7f0e1",
+    "executable": {
+      "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/rg1-release-libtest-frozen",
+      "sha256": "9bf013f9f362271ee271f6808904535cbefa020d16eb3e727e1d72ea45af0510",
+      "bytes": 10368536
+    },
+    "optimized_libtest": true
+  },
+  "runtime": {
+    "adapter": {
+      "backend": "Metal",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    },
+    "arguments": [
+      "render_graph_tests::rg_measurement::rg1_repeated_box_shadow_measurement",
+      "--ignored",
+      "--exact",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "gpu_launch_count": 1,
+    "test_count": 1,
+    "passed_tests": 1,
+    "failed_tests": 0,
+    "ignored_tests": 0,
+    "elapsed_seconds": 7.114755702,
+    "maximum_work_seconds": 360,
+    "cleanup_seconds": 10,
+    "maximum_total_seconds": 370,
+    "within_total_and_utc_deadline": true,
+    "owned_groups_closed": true,
+    "minimum_free_bytes_observed": 47787307008,
+    "no_cleanup_signals": true,
+    "no_interruptions": true,
+    "preflight_and_postflight_verified": true
+  },
+  "workloads": [
+    {
+      "allocation_p95_ms_printed": 0.889,
+      "exact_descriptor_pressure": true,
+      "frame_budget_ms": 16.667,
+      "host_work_p95_ms_printed": 3.627,
+      "name": "small",
+      "verdict": "MATERIAL",
+      "blur_radius_px": 16,
+      "bounds": [
+        64,
+        64,
+        192,
+        192
+      ],
+      "corner_radius_px": 8,
+      "dim": 256,
+      "inset": false,
+      "transient_creations_expected": 33,
+      "allocation_median_ms_printed": 0.734,
+      "host_work_median_ms_printed": 2.808,
+      "total_to_completion_median_ms_printed": 6.429,
+      "total_to_completion_p95_ms_printed": 8.364,
+      "logical_created_bytes": 8650752,
+      "projected_peak_live_bytes": 524288,
+      "projected_logical_peak_live_images": 2,
+      "completed_warmups": 16,
+      "completed_timed_samples": 64,
+      "alpha_oracle_passed": true,
+      "oracle_pixel_values_printed": false
+    },
+    {
+      "allocation_p95_ms_printed": 1.153,
+      "exact_descriptor_pressure": true,
+      "frame_budget_ms": 16.667,
+      "host_work_p95_ms_printed": 3.649,
+      "name": "large",
+      "verdict": "MATERIAL",
+      "blur_radius_px": 64,
+      "bounds": [
+        64,
+        64,
+        960,
+        960
+      ],
+      "corner_radius_px": 8,
+      "dim": 1024,
+      "inset": false,
+      "transient_creations_expected": 35,
+      "allocation_median_ms_printed": 0.784,
+      "host_work_median_ms_printed": 3.007,
+      "total_to_completion_median_ms_printed": 7.077,
+      "total_to_completion_p95_ms_printed": 7.663,
+      "logical_created_bytes": 17039360,
+      "projected_peak_live_bytes": 4456448,
+      "projected_logical_peak_live_images": 2,
+      "completed_warmups": 16,
+      "completed_timed_samples": 64,
+      "alpha_oracle_passed": true,
+      "oracle_pixel_values_printed": false
+    }
+  ],
+  "protocol": {
+    "completed_timed_samples_per_row": 64,
+    "completion_poll": "Wait submission_index=None on fixture-exclusive queue, timeout5s. Readback waits own copy submission index with shared5s poll/recv deadline. No exact-index timing claim for graph wait.",
+    "device_count": 1,
+    "enable_vello": true,
+    "graph_iterations_total": 162,
+    "max_iteration_completion_seconds": 5,
+    "max_readback_shared_deadline_seconds": 5,
+    "oracle_readbacks_total": 2,
+    "percentiles": "nearest rank; median32nd/p9561st of64",
+    "renderer_count": 1,
+    "sample_drop": "each output dropped after completion; oracle outside timed set",
+    "surfaces": 0,
+    "tile_cache_size": 64,
+    "timing_phases": [
+      "construction",
+      "binding (zero/no imports)",
+      "execute_overhead",
+      "compile",
+      "allocate",
+      "encode",
+      "submit",
+      "completion",
+      "total_to_completion",
+      "host_work"
+    ],
+    "untimed_oracle_iterations_per_row": 1,
+    "warmups_per_row": 16,
+    "windows": 0
+  },
+  "unchanged_predicates": {
+    "accepted_runtime": "exit0; exactly1passed ignored exacttest; both rows16warmup64sample5s; fixed adapter; clean unchanged inputs; exact descriptor pressuretrue; harness verdict computed unrounded",
+    "material": "exists descriptor creations>=3 AND peak>=1 AND creations>=2*peak; total creations>=3; AND (allocate_p95_ms>=16.667*0.02 OR (allocate_p95_ms>=host_work_p95_ms*0.15 AND allocate_p95_ms>=0.10))",
+    "pixel_oracles": [
+      "center alpha>=240",
+      "pixel(48,dim/2) alpha>5 and<250",
+      "pixel(0,0) alpha<=5"
+    ],
+    "pool_completion": "NOT claimed; RG5 needs lower actual allocations, equivalent pixels, WebGPU/GL and native backend without rawHAL",
+    "structural_assertion": "transient_creations>=3 AND peak_live_count>=2, fixed source; runner additionally checks current expected33/35 andpeak2"
+  },
+  "verdict_authority": "actual sealed harness computes using unrounded durations; all displayed millisecond values rounded to0.001; neither parser nor documentation recomputes verdict from rounded values",
+  "alpha_evidence": "Both out-of-band source-bound assert_mask_oracle calls reached and actual test succeeded; raw sampled alpha values not printed. Each oracle asserts center>=240, edge(48,dim/2)>5 and<250, corner(0,0)<=5.",
+  "limits": {
+    "pooling_implemented": false,
+    "physical_pool_residency_proved": false,
+    "pooling_validation_complete": false,
+    "projected_peak_is_logical_lower_bound": true,
+    "matched_old_new_classic_comparison": false,
+    "other_platform_or_adapter_qualified": false,
+    "sustained_frame_budget_qualified": false,
+    "new_r4_gpu_runtime": false
+  },
+  "bootstrap_future_fix": {
+    "r3_failure": "outer BaseException caught successfulSystemExit0 and producedCLI1",
+    "r4": "prepared bootstrap only, three isolated exit controls PASS, no real runner/helper/parser/GPU; fresh grant required for any future runtime",
+    "receipt": "bootstrap-control-r4.json"
+  },
+  "provenance": "provenance.json",
+  "independent_acceptance": "independent-postrun-audit.json"
+}

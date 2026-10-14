@@ -1,0 +1,535 @@
+{
+  "absolute_deadline": "2026-10-14T01:08:36.750042+00:00",
+  "build_dir": "/Users/markik/Code/targets/mere-s2s3/build",
+  "build_only": true,
+  "cache_cleanup_performed": false,
+  "candidate_sha256": "8b4b5e4623ee0c91f4ab326fd5cd6234be77bfbe93cd36f1686216a64f6d8d3c",
+  "cargo_artifact_features": [
+    "default"
+  ],
+  "cargo_artifact_profile": {
+    "debug_assertions": false,
+    "debuginfo": 0,
+    "opt_level": "3",
+    "overflow_checks": false,
+    "test": true
+  },
+  "cargo_executable": "/Users/markik/Code/targets/mere-s2s3/build/release/deps/netrender-a7f8d7905fd9c063",
+  "cleanup": {
+    "cargo-release-no-run": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T00:52:00.889104+00:00",
+          "observation": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "cargo-version": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T00:52:01.017364+00:00",
+          "observation": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "rustc-version": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T00:52:00.953379+00:00",
+          "observation": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-clean-0-after": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T00:52:00.760078+00:00",
+          "observation": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-clean-0-before": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T00:52:01.207719+00:00",
+          "observation": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-clean-1-after": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T00:52:00.633174+00:00",
+          "observation": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-clean-1-before": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T00:52:01.080757+00:00",
+          "observation": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-head-0-after": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T00:52:00.823458+00:00",
+          "observation": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-head-0-before": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T00:52:01.270659+00:00",
+          "observation": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-head-1-after": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T00:52:00.696856+00:00",
+          "observation": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-head-1-before": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T00:52:01.144173+00:00",
+          "observation": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    }
+  },
+  "cleanup_reserve_seconds": 10,
+  "commands": [
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+      "deadline_seconds": 10,
+      "elapsed_seconds": 0.263691638,
+      "ended_at": "2026-10-14T00:49:25.206061+00:00",
+      "exit_code": 0,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/source-head-0-before.log",
+      "log_sha256": "a99ba46d5d4b44033e4cb3e8bb62c26108f2fd76f455dd1bf22dfc6326d8860d",
+      "name": "source-head-0-before",
+      "observed_group_closed": true,
+      "started_at": "2026-10-14T00:49:25.004328+00:00"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+      "deadline_seconds": 10,
+      "elapsed_seconds": 0.25646372200000006,
+      "ended_at": "2026-10-14T00:49:25.465253+00:00",
+      "exit_code": 0,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/source-clean-0-before.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "source-clean-0-before",
+      "observed_group_closed": true,
+      "started_at": "2026-10-14T00:49:25.270446+00:00"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/worktrees/vello-release-adoption",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+      "deadline_seconds": 10,
+      "elapsed_seconds": 0.2604016640000001,
+      "ended_at": "2026-10-14T00:49:25.842102+00:00",
+      "exit_code": 0,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/source-head-1-before.log",
+      "log_sha256": "ceef3bd7bcd326b3985d0bbb5997e9042088a4a5c4466cf8f573e21ac9eea69d",
+      "name": "source-head-1-before",
+      "observed_group_closed": true,
+      "started_at": "2026-10-14T00:49:25.645197+00:00"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/worktrees/vello-release-adoption",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+      "deadline_seconds": 10,
+      "elapsed_seconds": 0.26949466599999994,
+      "ended_at": "2026-10-14T00:49:26.111664+00:00",
+      "exit_code": 0,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/source-clean-1-before.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "source-clean-1-before",
+      "observed_group_closed": true,
+      "started_at": "2026-10-14T00:49:25.907863+00:00"
+    },
+    {
+      "command": [
+        "/Users/markik/.rustup/toolchains/1.99.0-x86_64-apple-darwin/bin/cargo",
+        "--version",
+        "--verbose"
+      ],
+      "cwd": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+      "deadline_seconds": 10,
+      "elapsed_seconds": 0.2685923969999999,
+      "ended_at": "2026-10-14T00:49:27.464810+00:00",
+      "exit_code": 0,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/cargo-version.log",
+      "log_sha256": "b4d1d1ceb90397c078a023985609e86316660781c33dc0f43476b37696eb9c82",
+      "name": "cargo-version",
+      "observed_group_closed": true,
+      "started_at": "2026-10-14T00:49:27.259854+00:00"
+    },
+    {
+      "command": [
+        "/Users/markik/.rustup/toolchains/1.99.0-x86_64-apple-darwin/bin/rustc",
+        "--version",
+        "--verbose"
+      ],
+      "cwd": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+      "deadline_seconds": 10,
+      "elapsed_seconds": 0.26906664700000027,
+      "ended_at": "2026-10-14T00:49:27.736034+00:00",
+      "exit_code": 0,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/rustc-version.log",
+      "log_sha256": "b1184c1aecf3182548f3bbdd91e5043e464821b1dcbf6d5ca8246339bd0be84a",
+      "name": "rustc-version",
+      "observed_group_closed": true,
+      "started_at": "2026-10-14T00:49:27.530946+00:00"
+    },
+    {
+      "command": [
+        "/Users/markik/.rustup/toolchains/1.99.0-x86_64-apple-darwin/bin/cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--offline",
+        "--no-run",
+        "-p",
+        "netrender",
+        "--lib",
+        "render_graph_tests::rg_measurement::rg1_repeated_box_shadow_measurement",
+        "-j",
+        "2",
+        "--message-format=json-render-diagnostics"
+      ],
+      "cwd": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+      "deadline_seconds": 1100,
+      "elapsed_seconds": 150.650634085,
+      "ended_at": "2026-10-14T00:51:58.388803+00:00",
+      "exit_code": 0,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/cargo-release-no-run.log",
+      "log_sha256": "c2c98a8a0f42d658df78c5a8fd7b74959a4e076fe9d4f8459d4c5262884718ff",
+      "name": "cargo-release-no-run",
+      "observed_group_closed": true,
+      "started_at": "2026-10-14T00:49:27.802620+00:00"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+      "deadline_seconds": 10,
+      "elapsed_seconds": 0.2578870440000003,
+      "ended_at": "2026-10-14T00:51:58.713970+00:00",
+      "exit_code": 0,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/source-head-0-after.log",
+      "log_sha256": "a99ba46d5d4b44033e4cb3e8bb62c26108f2fd76f455dd1bf22dfc6326d8860d",
+      "name": "source-head-0-after",
+      "observed_group_closed": true,
+      "started_at": "2026-10-14T00:51:58.515523+00:00"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+      "deadline_seconds": 10,
+      "elapsed_seconds": 0.25646798500000045,
+      "ended_at": "2026-10-14T00:51:58.973482+00:00",
+      "exit_code": 0,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/source-clean-0-after.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "source-clean-0-after",
+      "observed_group_closed": true,
+      "started_at": "2026-10-14T00:51:58.776547+00:00"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/worktrees/vello-release-adoption",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+      "deadline_seconds": 10,
+      "elapsed_seconds": 0.25653000399998405,
+      "ended_at": "2026-10-14T00:51:59.325454+00:00",
+      "exit_code": 0,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/source-head-1-after.log",
+      "log_sha256": "ceef3bd7bcd326b3985d0bbb5997e9042088a4a5c4466cf8f573e21ac9eea69d",
+      "name": "source-head-1-after",
+      "observed_group_closed": true,
+      "started_at": "2026-10-14T00:51:59.128723+00:00"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/worktrees/vello-release-adoption",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+      "deadline_seconds": 10,
+      "elapsed_seconds": 0.25764454899999123,
+      "ended_at": "2026-10-14T00:51:59.585174+00:00",
+      "exit_code": 0,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/source-clean-1-after.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "source-clean-1-after",
+      "observed_group_closed": true,
+      "started_at": "2026-10-14T00:51:59.388588+00:00"
+    }
+  ],
+  "deferred_launch_interrupts": [],
+  "derivative_seal_sha256": "c0bbad15c6bb6400407c9e8d262e1665093e0a5ae9abe876fda5566c73a92bc3",
+  "driver_sha256": "29c25bc3604b3049055e8278c4adcc7935cac2cb71f46e9a558cd284a7927d2c",
+  "elapsed_seconds": 156.279486557,
+  "ended_at": "2026-10-14T00:52:01.274876+00:00",
+  "environment_overrides": {
+    "CARGO_BUILD_BUILD_DIR": "/Users/markik/Code/targets/mere-s2s3/build",
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_PROFILE_RELEASE_CODEGEN_UNITS": "16",
+    "CARGO_PROFILE_RELEASE_DEBUG": "0",
+    "CARGO_PROFILE_RELEASE_DEBUG_ASSERTIONS": "false",
+    "CARGO_PROFILE_RELEASE_INCREMENTAL": "false",
+    "CARGO_PROFILE_RELEASE_LTO": "false",
+    "CARGO_PROFILE_RELEASE_OPT_LEVEL": "3",
+    "CARGO_PROFILE_RELEASE_OVERFLOW_CHECKS": "false",
+    "CARGO_PROFILE_RELEASE_STRIP": "none",
+    "CARGO_TARGET_DIR": "/Users/markik/Code/targets/mere-s2s3",
+    "NETRENDER_RG_FRAME_BUDGET_MS": "16.667",
+    "RUSTC": "/Users/markik/.rustup/toolchains/1.99.0-x86_64-apple-darwin/bin/rustc",
+    "RUSTUP_TOOLCHAIN": "1.99.0",
+    "RUST_BACKTRACE": "1",
+    "WGPU_BACKEND": "metal"
+  },
+  "executable": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/rg1-release-libtest-frozen",
+  "executable_sha256": "9bf013f9f362271ee271f6808904535cbefa020d16eb3e727e1d72ea45af0510",
+  "final_free_bytes": 87260086272,
+  "initial_free_bytes": 87555571712,
+  "initial_free_requirement_bytes": 5368709120,
+  "lease": {
+    "build_paths": {
+      "CARGO_BUILD_BUILD_DIR": "/Users/markik/Code/targets/mere-s2s3/build",
+      "CARGO_TARGET_DIR": "/Users/markik/Code/targets/mere-s2s3"
+    },
+    "deadline": "2026-10-14T01:08:36.750042+00:00",
+    "debug": 0,
+    "incremental": 0,
+    "jobs": 2,
+    "scope": "CPU-only separate repaired RG1 derivative ONE optimized no-run libtest compilation, artifact profile verify/freeze/hash; no benchmark/test execution",
+    "started_at": "2026-10-14T00:48:36.750042+00:00",
+    "status": "leased",
+    "thread_id": "01a126c3-a147-7ac2-8c40-98e5dd24eaff"
+  },
+  "lease_ledger_sha256": "d42ff812e1110c21714d9e81d2cca5ee5470b1bd88ad77a6f7d6fdd38eacd6d5",
+  "owned_processes_closed": true,
+  "per_command_seconds": 1100,
+  "schema": "rg1-guarded-build/v1",
+  "started_at": "2026-10-14T00:49:24.999012+00:00",
+  "status": "built_not_run",
+  "stop_free_bytes": 1342177280,
+  "target_dir": "/Users/markik/Code/targets/mere-s2s3",
+  "test_executed": false,
+  "tool_versions": {
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)\nrelease: 1.99.0\ncommit-hash: 5f94df4789f005f9a352888e8355ffc645b7ed0e\ncommit-date: 2026-08-27\nhost: x86_64-apple-darwin\nlibgit2: 1.9.6 (sys:0.21.0 vendored)\nlibcurl: 8.7.1 (sys:0.4.90+curl-8.21.0 system ssl:(SecureTransport) LibreSSL/3.3.6)\nssl: OpenSSL 3.6.3 9 Jun 2026\nos: Mac OS 15.8.1 [64-bit]\n",
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-apple-darwin\nrelease: 1.99.0\nLLVM version: 23.1.1\n"
+  },
+  "toolchain_files_sha256": {
+    "/Library/Developer/CommandLineTools/usr/bin/git": "4c5ca299b5311572b4f948d11efd7c66dcadf30950fbf260688ee32f4a63f6a4",
+    "/Users/markik/.rustup/toolchains/1.99.0-x86_64-apple-darwin/bin/cargo": "dcaece99ed4ac9ab5d2fa87de5725e98d90e0d0ec2c474a6067b3dccf2ff1c9e",
+    "/Users/markik/.rustup/toolchains/1.99.0-x86_64-apple-darwin/bin/rustc": "4cd2349d91f51ad2ff5ddd4809f5f528443f5d1696109ff29480d32b86b15b5e",
+    "/Users/markik/.rustup/toolchains/1.99.0-x86_64-apple-darwin/lib/libLLVM.dylib": "79d99a31722ec54fca6a96092108405c421f467c1d8a5ffb0e1a68c7919cb5b4",
+    "/Users/markik/.rustup/toolchains/1.99.0-x86_64-apple-darwin/lib/librustc_driver-f8f70c60c58874da.dylib": "c24f620b13b0cd180e3214d291eecc4f54e537b87f424f60cc069d1886a3d4bc",
+    "/Users/markik/.rustup/toolchains/1.99.0-x86_64-apple-darwin/lib/rustlib/manifest-rust-std-x86_64-apple-darwin": "4c53e929b533e41e75e2118925f8a8aca97aea19d4faa2529d4dc291b4780760",
+    "/Users/markik/.rustup/toolchains/1.99.0-x86_64-apple-darwin/lib/rustlib/manifest-rustc-x86_64-apple-darwin": "b36934d3e08b7df82bbc8671942ae7f175637df9e24b4742a186ed11418f036b"
+  },
+  "total_seconds": 1200,
+  "within_total_and_utc_deadline": true
+}

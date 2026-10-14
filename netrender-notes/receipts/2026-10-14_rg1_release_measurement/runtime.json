@@ -1,0 +1,1202 @@
+{
+  "absolute_deadline": "2026-10-14T06:14:48.529305+00:00",
+  "build_receipt_sha256": "a3a0b398e16fdba8f9da8c1360989244b0602494ddc5f75387158416abd7f0e1",
+  "candidate_sha256": "8b4b5e4623ee0c91f4ab326fd5cd6234be77bfbe93cd36f1686216a64f6d8d3c",
+  "cleanup": {
+    "rg1-release-runtime": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.390135+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-clean-0-after": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.263135+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-clean-0-before": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.579656+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-clean-1-after": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.138129+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-clean-1-before": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.453943+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-head-0-after": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.326915+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-head-0-before": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.642392+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-head-1-after": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.200337+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-head-1-before": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.517730+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    }
+  },
+  "cleanup_reserve_seconds": 10,
+  "commands": [
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+        "rev-parse",
+        "HEAD"
+      ],
+      "elapsed_seconds": 0.2516753460000001,
+      "exit_code": 0,
+      "group_gone": true,
+      "limit_seconds": 10,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-head-0-before.log",
+      "log_sha256": "a99ba46d5d4b44033e4cb3e8bb62c26108f2fd76f455dd1bf22dfc6326d8860d",
+      "name": "source-head-0-before",
+      "status": "completed"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+        "status",
+        "--porcelain"
+      ],
+      "elapsed_seconds": 0.24881007700000013,
+      "exit_code": 0,
+      "group_gone": true,
+      "limit_seconds": 10,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-clean-0-before.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "source-clean-0-before",
+      "status": "completed"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/worktrees/vello-release-adoption",
+        "rev-parse",
+        "HEAD"
+      ],
+      "elapsed_seconds": 0.25074688599999995,
+      "exit_code": 0,
+      "group_gone": true,
+      "limit_seconds": 10,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-head-1-before.log",
+      "log_sha256": "ceef3bd7bcd326b3985d0bbb5997e9042088a4a5c4466cf8f573e21ac9eea69d",
+      "name": "source-head-1-before",
+      "status": "completed"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/worktrees/vello-release-adoption",
+        "status",
+        "--porcelain"
+      ],
+      "elapsed_seconds": 0.249053462,
+      "exit_code": 0,
+      "group_gone": true,
+      "limit_seconds": 10,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-clean-1-before.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "source-clean-1-before",
+      "status": "completed"
+    },
+    {
+      "command": [
+        "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/rg1-release-libtest-frozen",
+        "render_graph_tests::rg_measurement::rg1_repeated_box_shadow_measurement",
+        "--ignored",
+        "--exact",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "elapsed_seconds": 2.368050824,
+      "exit_code": 0,
+      "group_gone": true,
+      "limit_seconds": 357.916542817,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/rg1-release-runtime.log",
+      "log_sha256": "36b76047e96f7a36fa64645add6b7b623c9aa0364278938f1cd9e3d474ef7a72",
+      "name": "rg1-release-runtime",
+      "status": "completed"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+        "rev-parse",
+        "HEAD"
+      ],
+      "elapsed_seconds": 0.2549859880000005,
+      "exit_code": 0,
+      "group_gone": true,
+      "limit_seconds": 10,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-head-0-after.log",
+      "log_sha256": "a99ba46d5d4b44033e4cb3e8bb62c26108f2fd76f455dd1bf22dfc6326d8860d",
+      "name": "source-head-0-after",
+      "status": "completed"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/output/vello-rg1-release-policy-20261013/netrender-source",
+        "status",
+        "--porcelain"
+      ],
+      "elapsed_seconds": 0.25329711899999996,
+      "exit_code": 0,
+      "group_gone": true,
+      "limit_seconds": 10,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-clean-0-after.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "source-clean-0-after",
+      "status": "completed"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/worktrees/vello-release-adoption",
+        "rev-parse",
+        "HEAD"
+      ],
+      "elapsed_seconds": 0.2559830989999998,
+      "exit_code": 0,
+      "group_gone": true,
+      "limit_seconds": 10,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-head-1-after.log",
+      "log_sha256": "ceef3bd7bcd326b3985d0bbb5997e9042088a4a5c4466cf8f573e21ac9eea69d",
+      "name": "source-head-1-after",
+      "status": "completed"
+    },
+    {
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/git",
+        "-C",
+        "/Users/markik/Code/worktrees/vello-release-adoption",
+        "status",
+        "--porcelain"
+      ],
+      "elapsed_seconds": 0.25415188499999974,
+      "exit_code": 0,
+      "group_gone": true,
+      "limit_seconds": 10,
+      "log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/source-clean-1-after.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "source-clean-1-after",
+      "status": "completed"
+    }
+  ],
+  "compiler_cache_accessed": false,
+  "compiler_invoked": false,
+  "deferred_launch_interrupts": [],
+  "disk_observations": [
+    {
+      "at": "2026-10-14T06:08:38.531269+00:00",
+      "free_bytes": 47787749376
+    },
+    {
+      "at": "2026-10-14T06:08:38.532012+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.311790+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.527388+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.554719+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.555566+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.556258+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.556922+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.557520+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.558647+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.559378+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.560356+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.561117+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.561733+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.562354+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.562977+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.563555+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.564158+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.564832+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.565634+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.566173+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.566800+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.567718+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.568528+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.569154+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.570338+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.571240+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.571956+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.572571+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.573426+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.574176+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.574733+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.575282+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.575876+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.576477+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.577613+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.578159+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.578746+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.579247+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.580180+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.580666+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.581122+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.581610+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.582119+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.582740+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.583187+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.583629+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.584113+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.584538+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.585292+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.585958+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.586651+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.587338+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.588148+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.588654+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.589455+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.590129+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.590689+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.591434+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.592099+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.592588+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.593157+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.593873+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.594891+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.596267+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.596885+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.597438+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.598167+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.599237+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.599841+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.600334+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.600897+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.601505+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.605394+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.607375+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.607444+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.613579+00:00",
+      "free_bytes": 47787745280
+    },
+    {
+      "at": "2026-10-14T06:08:39.794493+00:00",
+      "free_bytes": 47787741184
+    },
+    {
+      "at": "2026-10-14T06:08:39.859808+00:00",
+      "free_bytes": 47787737088
+    },
+    {
+      "at": "2026-10-14T06:08:39.865609+00:00",
+      "free_bytes": 47787737088
+    },
+    {
+      "at": "2026-10-14T06:08:40.045429+00:00",
+      "free_bytes": 47787737088
+    },
+    {
+      "at": "2026-10-14T06:08:40.109294+00:00",
+      "free_bytes": 47787732992
+    },
+    {
+      "at": "2026-10-14T06:08:40.114907+00:00",
+      "free_bytes": 47787732992
+    },
+    {
+      "at": "2026-10-14T06:08:40.294336+00:00",
+      "free_bytes": 47787728896
+    },
+    {
+      "at": "2026-10-14T06:08:40.360709+00:00",
+      "free_bytes": 47787724800
+    },
+    {
+      "at": "2026-10-14T06:08:40.366735+00:00",
+      "free_bytes": 47787724800
+    },
+    {
+      "at": "2026-10-14T06:08:40.546071+00:00",
+      "free_bytes": 47787724800
+    },
+    {
+      "at": "2026-10-14T06:08:40.610460+00:00",
+      "free_bytes": 47787720704
+    },
+    {
+      "at": "2026-10-14T06:08:40.612789+00:00",
+      "free_bytes": 47787708416
+    },
+    {
+      "at": "2026-10-14T06:08:40.619212+00:00",
+      "free_bytes": 47787708416
+    },
+    {
+      "at": "2026-10-14T06:08:40.779595+00:00",
+      "free_bytes": 47787708416
+    },
+    {
+      "at": "2026-10-14T06:08:40.932755+00:00",
+      "free_bytes": 47787704320
+    },
+    {
+      "at": "2026-10-14T06:08:41.089881+00:00",
+      "free_bytes": 47787622400
+    },
+    {
+      "at": "2026-10-14T06:08:41.246282+00:00",
+      "free_bytes": 47787528192
+    },
+    {
+      "at": "2026-10-14T06:08:41.406498+00:00",
+      "free_bytes": 47787462656
+    },
+    {
+      "at": "2026-10-14T06:08:41.560892+00:00",
+      "free_bytes": 47787397120
+    },
+    {
+      "at": "2026-10-14T06:08:41.727631+00:00",
+      "free_bytes": 47787397120
+    },
+    {
+      "at": "2026-10-14T06:08:41.908791+00:00",
+      "free_bytes": 47787397120
+    },
+    {
+      "at": "2026-10-14T06:08:42.078774+00:00",
+      "free_bytes": 47787397120
+    },
+    {
+      "at": "2026-10-14T06:08:42.246548+00:00",
+      "free_bytes": 47787397120
+    },
+    {
+      "at": "2026-10-14T06:08:42.409684+00:00",
+      "free_bytes": 47787401216
+    },
+    {
+      "at": "2026-10-14T06:08:42.571138+00:00",
+      "free_bytes": 47787401216
+    },
+    {
+      "at": "2026-10-14T06:08:42.737057+00:00",
+      "free_bytes": 47787401216
+    },
+    {
+      "at": "2026-10-14T06:08:42.914936+00:00",
+      "free_bytes": 47787339776
+    },
+    {
+      "at": "2026-10-14T06:08:42.983416+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:43.757996+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:43.973175+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.000881+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.001766+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.002448+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.003047+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.003618+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.004768+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.005463+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.006450+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.007148+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.007730+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.008314+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.008885+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.009413+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.009980+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.010670+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.011501+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.012064+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.012706+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.013699+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.014490+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.015142+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.016371+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.017272+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.018041+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.018678+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.019576+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.020324+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.020892+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.021432+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.022032+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.022654+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.023802+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.024313+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.024828+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.025292+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.026231+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.026697+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.027118+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.027591+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.028106+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.028744+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.029247+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.029718+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.030256+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.030746+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.031584+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.032305+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.033076+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.033766+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.034588+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.035102+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.035932+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.036627+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.037177+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.037932+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.038614+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.039114+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.039690+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.040406+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.041383+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.042645+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.043223+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.043733+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.044430+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.045494+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.046120+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.046863+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.047503+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.048201+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.052042+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.054167+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.054238+00:00",
+      "free_bytes": 47787335680
+    },
+    {
+      "at": "2026-10-14T06:08:44.060684+00:00",
+      "free_bytes": 47787331584
+    },
+    {
+      "at": "2026-10-14T06:08:44.244338+00:00",
+      "free_bytes": 47787327488
+    },
+    {
+      "at": "2026-10-14T06:08:44.309903+00:00",
+      "free_bytes": 47787323392
+    },
+    {
+      "at": "2026-10-14T06:08:44.316510+00:00",
+      "free_bytes": 47787323392
+    },
+    {
+      "at": "2026-10-14T06:08:44.499034+00:00",
+      "free_bytes": 47787323392
+    },
+    {
+      "at": "2026-10-14T06:08:44.563894+00:00",
+      "free_bytes": 47787319296
+    },
+    {
+      "at": "2026-10-14T06:08:44.570422+00:00",
+      "free_bytes": 47787319296
+    },
+    {
+      "at": "2026-10-14T06:08:44.754555+00:00",
+      "free_bytes": 47787315200
+    },
+    {
+      "at": "2026-10-14T06:08:44.820693+00:00",
+      "free_bytes": 47787311104
+    },
+    {
+      "at": "2026-10-14T06:08:44.827033+00:00",
+      "free_bytes": 47787311104
+    },
+    {
+      "at": "2026-10-14T06:08:45.010651+00:00",
+      "free_bytes": 47787311104
+    },
+    {
+      "at": "2026-10-14T06:08:45.075543+00:00",
+      "free_bytes": 47787307008
+    }
+  ],
+  "elapsed_seconds": 7.114755702,
+  "ended_at": "2026-10-14T06:08:45.643825+00:00",
+  "environment_overrides": {
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_PROFILE_RELEASE_CODEGEN_UNITS": "16",
+    "CARGO_PROFILE_RELEASE_DEBUG": "0",
+    "CARGO_PROFILE_RELEASE_DEBUG_ASSERTIONS": "false",
+    "CARGO_PROFILE_RELEASE_INCREMENTAL": "false",
+    "CARGO_PROFILE_RELEASE_LTO": "false",
+    "CARGO_PROFILE_RELEASE_OPT_LEVEL": "3",
+    "CARGO_PROFILE_RELEASE_OVERFLOW_CHECKS": "false",
+    "CARGO_PROFILE_RELEASE_STRIP": "none",
+    "NETRENDER_RG_FRAME_BUDGET_MS": "16.667",
+    "RUSTC": "/Users/markik/.rustup/toolchains/1.99.0-x86_64-apple-darwin/bin/rustc",
+    "RUSTUP_TOOLCHAIN": "1.99.0",
+    "RUST_BACKTRACE": "1",
+    "WGPU_BACKEND": "metal"
+  },
+  "executable": {
+    "path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/build-r3/rg1-release-libtest-frozen",
+    "sha256": "9bf013f9f362271ee271f6808904535cbefa020d16eb3e727e1d72ea45af0510"
+  },
+  "expected_adapter": {
+    "backend": "Metal",
+    "driver": "",
+    "driver_info": "",
+    "name": "AMD Radeon Pro Vega 56"
+  },
+  "gpu_test_launch_count": 1,
+  "interrupts": [],
+  "lease_path": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3-lease.json",
+  "lease_sha256": "75a3e5259cfdb3a5d8aee9651ccfb26e744f637acb19311116428aec04a5c6c6",
+  "matched_classic_timing_claim": false,
+  "maximum_total_seconds": 370,
+  "maximum_work_seconds": 360,
+  "measurement": {
+    "adapter": {
+      "backend": "Metal",
+      "driver": "",
+      "driver_info": "",
+      "name": "AMD Radeon Pro Vega 56"
+    },
+    "classification_authority": "harness computes from unrounded durations; printed values have 0.001ms precision",
+    "matched_classic_timing_claim": false,
+    "pooling_closed": false,
+    "rows": [
+      {
+        "allocation_p95_ms_printed": 0.889,
+        "exact_descriptor_pressure": true,
+        "frame_budget_ms": 16.667,
+        "host_work_p95_ms_printed": 3.627,
+        "name": "small",
+        "verdict": "MATERIAL"
+      },
+      {
+        "allocation_p95_ms_printed": 1.153,
+        "exact_descriptor_pressure": true,
+        "frame_budget_ms": 16.667,
+        "host_work_p95_ms_printed": 3.649,
+        "name": "large",
+        "verdict": "MATERIAL"
+      }
+    ]
+  },
+  "output_reserve_bytes": 67108864,
+  "owned_processes_closed": true,
+  "pooling_closed": false,
+  "postflight_verified": true,
+  "preflight_verified": true,
+  "runtime_log": "/Users/markik/Code/output/vello-rg1-release-policy-20261013/runtime-r3/rg1-release-runtime.log",
+  "runtime_log_sha256": "36b76047e96f7a36fa64645add6b7b623c9aa0364278938f1cd9e3d474ef7a72",
+  "runtime_seal_sha256": "d47f4b679f4b29cd48a963326dd8e35601e2c8621d20c92cd20b2b2b40634d91",
+  "schema": "rg1-guarded-runtime/v2",
+  "scope": "one exact frozen optimized RG1 ignored libtest; no compiler/cache or pooling closure",
+  "started_at": "2026-10-14T06:08:38.529305+00:00",
+  "status": "same_adapter_release_measurement_completed",
+  "stop_free_bytes": 1342177280,
+  "within_total_and_utc_deadline": true,
+  "work_deadline": "2026-10-14T06:14:38.529305+00:00"
+}

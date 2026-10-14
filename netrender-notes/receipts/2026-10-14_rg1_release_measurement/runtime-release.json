@@ -1,0 +1,199 @@
+{
+  "cleanup": {
+    "rg1-release-runtime": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.390135+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-clean-0-after": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.263135+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-clean-0-before": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.579656+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-clean-1-after": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.138129+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-clean-1-before": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.453943+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-head-0-after": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.326915+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-head-0-before": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.642392+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-head-1-after": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.200337+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    },
+    "source-head-1-before": {
+      "closed": true,
+      "exit_code": 0,
+      "final": {
+        "exit_code": 0,
+        "members": [],
+        "retries": [],
+        "state": "gone"
+      },
+      "steps": [
+        {
+          "at": "2026-10-14T06:08:45.517730+00:00",
+          "proof": {
+            "exit_code": 0,
+            "members": [],
+            "retries": [],
+            "state": "gone"
+          }
+        }
+      ]
+    }
+  },
+  "closed": true,
+  "ended_at": "2026-10-14T06:08:45.643825+00:00",
+  "interrupts": [],
+  "runtime_receipt_sha256": "7c8e77c692ef39ce180f2afdc6c3d9b1b56a186d90e059b8ab4a9b03749e70d3",
+  "status": "OWNED_RUNTIME_RESOURCES_CLOSED",
+  "within_total_and_utc_deadline": true
+}
