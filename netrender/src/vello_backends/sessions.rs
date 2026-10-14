@@ -904,4 +904,4 @@ pub use text::{SparseTextLimits, SparseTextStats};
 #[path = "webgl.rs"]
 mod webgl;
 #[cfg(all(target_arch = "wasm32", feature = "vello-webgl"))]
-pub use webgl::{WebGlSession, WebGlSessionInit, WebGlSessionError};
+pub use webgl::{WebGlSession, WebGlSessionInit, WebGlSessionError, WebGlPreparedFrame};

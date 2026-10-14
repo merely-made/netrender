@@ -18,6 +18,80 @@ mod browser {
         JsValue::from_str(&error.to_string())
     }
 
+    fn case_scene(name: &str, w: u32, h: u32) -> Result<Scene, JsValue> {
+        let mut scene = Scene::new(w, h);
+        match name {
+            "red" => scene.push_rect(0., 0., w as f32, h as f32, [1., 0., 0., 1.]),
+            "green" => scene.push_rect(0., 0., w as f32, h as f32, [0., 1., 0., 1.]),
+            "transparent" => scene.push_rect(0., 0., w as f32, h as f32, [0., 0., 0.5, 0.5]),
+            "mixed" => {
+                scene.push_rect(0., 0., w as f32, h as f32, [0., 0., 1., 1.]);
+                scene.push_rect(0., 0., 32., 32., [1., 0., 0., 1.]);
+                scene
+                    .ops
+                    .push(SceneOp::PushLayer(SceneLayer::clip(SceneClip::Rect {
+                        rect: [32., 0., 64., 32.],
+                        radii: [0.; 4],
+                    })));
+                scene.ops.push(SceneOp::PushLayer(SceneLayer::alpha(0.5)));
+                scene.push_rect(0., 0., w as f32, h as f32, [0., 1., 0., 1.]);
+                scene.ops.push(SceneOp::PopLayer);
+                scene.ops.push(SceneOp::PopLayer);
+                scene.image_sources.insert(
+                    71,
+                    ImageData::from_bytes(
+                        2,
+                        2,
+                        vec![
+                            255, 0, 0, 128, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 255, 0,
+                        ],
+                    ),
+                );
+                scene.push_image_full(
+                    8.,
+                    40.,
+                    40.,
+                    72.,
+                    [0., 0., 1., 1.],
+                    [1.; 4],
+                    71,
+                    0,
+                    netrender::NO_CLIP,
+                );
+                let font = scene.push_font(FontBlob {
+                    data: Blob::new(Arc::new(FONT.to_vec())),
+                    index: 0,
+                });
+                let glyph = skrifa::FontRef::new(FONT)
+                    .map_err(js)?
+                    .charmap()
+                    .map('a' as u32)
+                    .ok_or_else(|| js("trusted fixture is missing its lowercase a glyph"))?
+                    .to_u32();
+                scene.push_glyph_run(
+                    font,
+                    48.,
+                    vec![Glyph {
+                        id: glyph,
+                        x: 70.,
+                        y: 110.,
+                    }],
+                    [1., 1., 0., 1.],
+                );
+            }
+            "late-filter" => {
+                scene.push_rect(0., 0., w as f32, h as f32, [1., 0., 0., 1.]);
+                let mut layer = SceneLayer::alpha(1.);
+                layer.filters.push(SceneFilter::Blur(2.));
+                scene.ops.push(SceneOp::PushLayer(layer));
+                scene.push_rect(0., 0., 8., 8., [0., 1., 0., 1.]);
+                scene.ops.push(SceneOp::PopLayer);
+            }
+            _ => return Err(js("unknown fixture case")),
+        }
+        Ok(scene)
+    }
+
     #[wasm_bindgen]
     pub struct WebGlFixture {
         canvas: HtmlCanvasElement,
@@ -56,82 +130,31 @@ mod browser {
             Ok(self.session.is_some())
         }
         pub fn render_case(&mut self, name: &str, generation: u64) -> Result<(), JsValue> {
-            let (w, h) = (self.canvas.width(), self.canvas.height());
-            let mut scene = Scene::new(w, h);
-            match name {
-                "red" => scene.push_rect(0., 0., w as f32, h as f32, [1., 0., 0., 1.]),
-                "green" => scene.push_rect(0., 0., w as f32, h as f32, [0., 1., 0., 1.]),
-                "transparent" => scene.push_rect(0., 0., w as f32, h as f32, [0., 0., 0.5, 0.5]),
-                "mixed" => {
-                    scene.push_rect(0., 0., w as f32, h as f32, [0., 0., 1., 1.]);
-                    scene.push_rect(0., 0., 32., 32., [1., 0., 0., 1.]);
-                    scene
-                        .ops
-                        .push(SceneOp::PushLayer(SceneLayer::clip(SceneClip::Rect {
-                            rect: [32., 0., 64., 32.],
-                            radii: [0.; 4],
-                        })));
-                    scene.ops.push(SceneOp::PushLayer(SceneLayer::alpha(0.5)));
-                    scene.push_rect(0., 0., w as f32, h as f32, [0., 1., 0., 1.]);
-                    scene.ops.push(SceneOp::PopLayer);
-                    scene.ops.push(SceneOp::PopLayer);
-                    scene.image_sources.insert(
-                        71,
-                        ImageData::from_bytes(
-                            2,
-                            2,
-                            vec![
-                                255, 0, 0, 128, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 255, 0,
-                            ],
-                        ),
-                    );
-                    scene.push_image_full(
-                        8.,
-                        40.,
-                        40.,
-                        72.,
-                        [0., 0., 1., 1.],
-                        [1.; 4],
-                        71,
-                        0,
-                        netrender::NO_CLIP,
-                    );
-                    let font = scene.push_font(FontBlob {
-                        data: Blob::new(Arc::new(FONT.to_vec())),
-                        index: 0,
-                    });
-                    let glyph = skrifa::FontRef::new(FONT)
-                        .map_err(js)?
-                        .charmap()
-                        .map('a' as u32)
-                        .ok_or_else(|| js("trusted fixture is missing its lowercase a glyph"))?
-                        .to_u32();
-                    scene.push_glyph_run(
-                        font,
-                        48.,
-                        vec![Glyph {
-                            id: glyph,
-                            x: 70.,
-                            y: 110.,
-                        }],
-                        [1., 1., 0., 1.],
-                    );
-                }
-                "late-filter" => {
-                    scene.push_rect(0., 0., w as f32, h as f32, [1., 0., 0., 1.]);
-                    let mut layer = SceneLayer::alpha(1.);
-                    layer.filters.push(SceneFilter::Blur(2.));
-                    scene.ops.push(SceneOp::PushLayer(layer));
-                    scene.push_rect(0., 0., 8., 8., [0., 1., 0., 1.]);
-                    scene.ops.push(SceneOp::PopLayer);
-                }
-                _ => return Err(js("unknown fixture case")),
-            }
+            let scene = case_scene(name, self.canvas.width(), self.canvas.height())?;
             self.session
                 .as_mut()
                 .ok_or_else(|| js("fixture not ready"))?
                 .render(&scene, generation)
                 .map_err(js)
+        }
+        // The host resizes only after complete recording succeeds.
+        pub fn render_resized_case(
+            &mut self,
+            name: &str,
+            w: u32,
+            h: u32,
+            generation: u64,
+        ) -> Result<(), JsValue> {
+            let scene = case_scene(name, w, h)?;
+            let prepared = self
+                .session
+                .as_mut()
+                .ok_or_else(|| js("fixture not ready"))?
+                .prepare(&scene, generation, [0.; 4])
+                .map_err(js)?;
+            self.canvas.set_width(w);
+            self.canvas.set_height(h);
+            prepared.present().map_err(js)
         }
         pub fn set_solid_image(&mut self, key: u64, rgba: &[u8]) -> Result<(), JsValue> {
             if rgba.len() != 4 {
