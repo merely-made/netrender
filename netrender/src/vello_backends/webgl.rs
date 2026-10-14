@@ -16,6 +16,10 @@ use web_sys::{HtmlCanvasElement, WebGl2RenderingContext as Gl, WebGlTexture};
 pub enum WebGlSessionError {
     Sparse(SparseSessionError),
     Provider(String),
+    ImageUpload {
+        key: ImageKey,
+        reason: String,
+    },
     ContextLost,
     StaleGeneration {
         expected: u64,
@@ -38,6 +42,19 @@ impl From<SparseSessionError> for WebGlSessionError {
 }
 fn provider(error: impl std::fmt::Display) -> WebGlSessionError {
     WebGlSessionError::Provider(error.to_string())
+}
+
+/// A new texture is temporary until its upload is verified.
+struct PendingTexture<'a> {
+    gl: &'a Gl,
+    texture: Option<WebGlTexture>,
+}
+impl Drop for PendingTexture<'_> {
+    fn drop(&mut self) {
+        if let Some(texture) = &self.texture {
+            self.gl.delete_texture(Some(texture));
+        }
+    }
 }
 
 pub struct WebGlSessionInit {
@@ -334,7 +351,19 @@ impl WebGlSession {
                 let texture = gl
                     .create_texture()
                     .ok_or_else(|| provider("image texture allocation failed"))?;
-                gl.bind_texture(Gl::TEXTURE_2D, Some(&texture));
+                let mut owned = PendingTexture {
+                    gl,
+                    texture: Some(texture),
+                };
+                let failure = |reason| WebGlSessionError::ImageUpload {
+                    key: key.key,
+                    reason,
+                };
+                let previous = gl.get_error();
+                if previous != Gl::NO_ERROR {
+                    return Err(failure(format!("before upload GL error {previous:#x}")));
+                }
+                gl.bind_texture(Gl::TEXTURE_2D, owned.texture.as_ref());
                 gl.tex_parameteri(Gl::TEXTURE_2D, Gl::TEXTURE_MIN_FILTER, Gl::LINEAR as i32);
                 gl.tex_parameteri(Gl::TEXTURE_2D, Gl::TEXTURE_MAG_FILTER, Gl::LINEAR as i32);
                 gl.tex_parameteri(Gl::TEXTURE_2D, Gl::TEXTURE_WRAP_S, Gl::CLAMP_TO_EDGE as i32);
@@ -353,8 +382,15 @@ impl WebGlSession {
                     Gl::UNSIGNED_BYTE,
                     Some(&pad_edges(cached.pixmap.data_as_u8_slice(), *key)),
                 )
-                .map_err(|error| provider(format!("image upload: {error:?}")))?;
-                self.textures.insert(*key, texture);
+                .map_err(|error| failure(format!("image upload: {error:?}")))?;
+                let status = gl.get_error();
+                if status != Gl::NO_ERROR {
+                    return Err(failure(format!("image upload GL error {status:#x}")));
+                }
+                self.textures.insert(
+                    *key,
+                    owned.texture.take().expect("verified upload owns texture"),
+                );
                 self.state.uploaded = self.state.uploaded.saturating_add(1);
             }
             bindings.insert(ids[key], self.textures[key].clone());
