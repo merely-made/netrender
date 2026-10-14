@@ -111,6 +111,22 @@ Updated native raw/final captures after normal consumer adoption remain a
 separate gate. The static provider prefix-scan limitation does not close general
 Classic large-clip parity; no hardcoded cap or new recovery owner is introduced.
 
+## Shadow helper image custody, 2026-10-14
+
+The [separate helper receipt](receipts/2026-10-14_shadow_helper_custody/README.md)
+qualifies same-key box-shadow mask refresh and explicit retirement. Same-sized
+updates preserve Vello identity and refresh atlas pixels; resized sources retire
+the prior identity and rebuild cached handles. Actual unchanged-Scene GPU output
+matches a fresh renderer sharing the same Device across global, two per-surface
+and retained paths. Live registrations remain one during updates and zero after
+retirement. The previous `43c5fc0e3` supplier fails the explicit leak/stale-pixel
+negative control. The new lifecycle test, eight existing filter controls and one
+registered-texture control pass on unchanged Vello `2eae6243`.
+
+This does not relabel the preceding empty-tile qualification or implement generic
+GC, physical pooling or caller mask namespaces. Native consumer adoption and
+explicit owner withdrawal remain separate.
+
 ## Current canonical plans
 
 The original plan audit was 2026-08-10. Later activated work is indexed

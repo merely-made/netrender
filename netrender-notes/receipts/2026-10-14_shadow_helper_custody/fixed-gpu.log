@@ -1,0 +1,49 @@
+   Compiling smallvec v1.16.3
+   Compiling parking_lot_core v0.9.12
+   Compiling parking_lot v0.12.5
+   Compiling linebender_resource_handle v0.1.1
+   Compiling wgpu-hal v30.0.1
+   Compiling kurbo v0.13.1
+   Compiling wgpu-core-deps-windows-linux-android v30.0.1
+   Compiling color v0.3.3
+   Compiling peniko v0.6.1
+   Compiling wgpu-core v30.0.1
+   Compiling wgpu v30.0.1
+   Compiling vello_encoding v0.11.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling fontique v0.12.0
+   Compiling futures-intrusive v0.5.0
+   Compiling icu_normalizer v2.3.0
+   Compiling icu_segmenter v2.3.0
+   Compiling vello_shaders v0.11.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling harfrust v0.12.0
+   Compiling parley_engine v0.12.0
+   Compiling netrender_device v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender_device)
+warning: function `submit` is never used
+  --> netrender_device\src\frame.rs:19:15
+   |
+19 | pub(crate) fn submit(queue: &wgpu::Queue, encoder: wgpu::CommandEncoder) {
+   |               ^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `netrender_device` (lib) generated 1 warning
+   Compiling netrender-vello v0.11.0 (https://github.com/mark-ik/vello?rev=2eae6243881d5b24c984d5ee35dde509ca5db782#2eae6243)
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+   Compiling parley v0.12.0
+   Compiling netrender_text v0.1.1 (C:\Users\mark_\Code\repos\netrender\netrender_text)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 17s
+     Running tests\shadow_mask_lifecycle.rs (C:/t/cargo-targets/netrender/build\debug\deps\shadow_mask_lifecycle-02211465641908f0.exe)
+
+running 1 test
+adapter=NVIDIA GeForce RTX 4060 Laptop GPU backend=Vulkan vendor=4318 device=10464
+case0: size64 blur2 invertfalse, live1; four cached lanes match oracle
+case1: size64 blur2 invertfalse, live1; four cached lanes match oracle
+case2: size64 blur8 invertfalse, live1; four cached lanes match oracle
+case3: size64 blur8 inverttrue, live1; four cached lanes match oracle
+case4: size96 blur8 invertfalse, live1; four cached lanes match oracle
+case5: size64 blur2 invertfalse, live1; four cached lanes match oracle
+explicit retire, duplicate retire, unchanged-scene re-admission: live0
+test repeated_shadow_key_refresh_resize_and_retire_match_same_device_oracle ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.06s
+

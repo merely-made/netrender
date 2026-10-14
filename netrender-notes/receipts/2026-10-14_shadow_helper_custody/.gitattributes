@@ -1,0 +1,3 @@
+* -text whitespace=cr-at-eol,-blank-at-eof
+*.png binary
+*.patch whitespace=cr-at-eol,-blank-at-eof,-blank-at-eol

@@ -1,0 +1,25 @@
+warning: function `submit` is never used
+  --> netrender_device\src\frame.rs:19:15
+   |
+19 | pub(crate) fn submit(queue: &wgpu::Queue, encoder: wgpu::CommandEncoder) {
+   |               ^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `netrender_device` (lib) generated 1 warning
+   Compiling netrender v0.1.2 (C:\Users\mark_\Code\repos\netrender\netrender)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.72s
+     Running tests\filter_texture_lifecycle.rs (C:/t/cargo-targets/netrender/build\debug\deps\filter_texture_lifecycle-a6f3b09753a32084.exe)
+
+running 8 tests
+test backdrop_filter_reused_renderer_tracks_moving_content ... ok
+test backdrop_filter_texture_table_stays_bounded ... ok
+test element_filter_reused_renderer_tracks_moving_content ... ok
+test element_filter_texture_table_stays_bounded ... ok
+test report_adapter ... ok
+test retiring_the_filter_retires_its_texture ... ok
+test static_backdrop_filter_reuses_tiles ... ok
+test static_element_filter_reuses_tiles ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.43s
+
