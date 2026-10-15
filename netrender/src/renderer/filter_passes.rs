@@ -33,6 +33,8 @@ impl Renderer {
         netrender_device::render_graph::ExecutionPlan,
         netrender_device::render_graph::ImageNode,
     ) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         use crate::filter::{blur_pass_callback, clip_rectangle_callback, make_bilinear_sampler};
         use netrender_device::render_graph::{ImageLoad, ImageUse, RenderGraph, TransientImageDesc};
 
@@ -167,6 +169,8 @@ impl Renderer {
         wgpu::Texture,
         netrender_device::render_graph::ExecutionReport,
     ) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let device = self.wgpu_device.core.device.clone();
         let queue = self.wgpu_device.core.queue.clone();
         let (mut outputs, report) = plan
@@ -224,6 +228,8 @@ impl Renderer {
         blur_radius_px: f32,
         invert: bool,
     ) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let (plan, output) =
             self.build_box_shadow_plan(dim, bounds, corner_radius, blur_radius_px, invert);
         let (blurred, _report) = self.execute_box_shadow_plan(plan, output);
@@ -275,6 +281,8 @@ impl Renderer {
         rast: &mut crate::vello_tile_rasterizer::VelloTileRasterizer,
         tc: &mut TileCache,
     ) -> Result<Option<Scene>, crate::VelloError> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         if !has_backdrop_filter(scene) && !has_element_filter(scene) {
             // A page that stopped filtering must not keep the textures alive.
             self.retire_unused_filter_slots(rast, &[]);
@@ -310,6 +318,8 @@ impl Renderer {
         texture: wgpu::Texture,
         used: &mut Vec<ImageKey>,
     ) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         used.push(key);
         let size = [texture.width(), texture.height()];
         let mut slots = self
@@ -342,6 +352,8 @@ impl Renderer {
         rast: &mut crate::vello_tile_rasterizer::VelloTileRasterizer,
         used: &[ImageKey],
     ) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let mut slots = self
             .filter_image_slots
             .lock()
@@ -378,6 +390,8 @@ impl Renderer {
         tc: &mut TileCache,
         used: &mut Vec<ImageKey>,
     ) -> Result<Scene, crate::VelloError> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         use crate::scene::{SceneClip, SceneFilter, SceneImage, SceneOp, NO_CLIP, SHARP_CLIP};
 
         let mut processed = scene.clone();
@@ -498,6 +512,8 @@ impl Renderer {
         tc: &TileCache,
         scene: &Scene,
     ) -> Result<wgpu::Texture, crate::VelloError> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let device = &self.wgpu_device.core.device;
         let texture = device.create_texture(&wgpu::TextureDescriptor {
             label: Some("netrender D1 backdrop prefix"),

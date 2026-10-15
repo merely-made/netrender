@@ -28,6 +28,12 @@
     mismatched_lifetime_syntaxes
 )]
 
+// Without classic Vello every Renderer method diverges at its first
+// statement; the remaining bodies are deliberately unreachable.
+#![cfg_attr(
+    feature = "without-classic-vello",
+    allow(unreachable_code, unused_variables, unused_mut, unused_imports, dead_code)
+)]
 pub mod external_texture;
 mod filter;
 pub mod hit_test;

@@ -106,6 +106,22 @@ pub fn create_netrender_instance(
     handles: WgpuHandles,
     options: NetrenderOptions,
 ) -> Result<Renderer, RendererError> {
+    #[cfg(feature = "without-classic-vello")]
+    {
+        let _ = (handles, options);
+        Err(RendererError::VelloInit(
+            "classic Vello is not compiled into this build".into(),
+        ))
+    }
+    #[cfg(not(feature = "without-classic-vello"))]
+    create_classic_instance(handles, options)
+}
+
+#[cfg(not(feature = "without-classic-vello"))]
+fn create_classic_instance(
+    handles: WgpuHandles,
+    options: NetrenderOptions,
+) -> Result<Renderer, RendererError> {
     let wgpu_device =
         WgpuDevice::with_external(handles).map_err(RendererError::WgpuFeaturesMissing)?;
 

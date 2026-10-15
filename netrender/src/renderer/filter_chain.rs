@@ -29,6 +29,8 @@ impl Renderer {
         dim: u32,
         blur_radius_px: f32,
     ) -> wgpu::Texture {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         use crate::filter::{blur_pass_callback, make_bilinear_sampler};
         use netrender_device::render_graph::{
             ImageAccess, ImageLoad, ImageUse, RenderGraph, TransientImageDesc,
@@ -166,6 +168,8 @@ impl Renderer {
         dim: u32,
         matrix: [f32; 20],
     ) -> wgpu::Texture {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         use crate::filter::{color_matrix_callback, make_bilinear_sampler};
         use netrender_device::render_graph::{ImageLoad, ImageUse, RenderGraph, TransientImageDesc};
         use std::collections::HashMap;
@@ -219,6 +223,8 @@ impl Renderer {
         dim: u32,
         filters: &[crate::scene::SceneFilter],
     ) -> wgpu::Texture {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         use crate::scene::SceneFilter;
         let mut tex = input;
         for f in filters {
@@ -244,6 +250,8 @@ impl Renderer {
         tc: &mut TileCache,
         used: &mut Vec<ImageKey>,
     ) -> Result<Scene, crate::VelloError> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         use crate::scene::{SceneClip, SceneFilter, SceneImage, SceneOp, NO_CLIP, SHARP_CLIP};
 
         let mut processed = scene.clone();
