@@ -228,7 +228,77 @@ impl Default for ColorLoad {
     }
 }
 
+/// A private binding and its admitted expected content. Keys are full physical keys.
+#[derive(Clone, Copy, Debug)]
+pub struct ExternalImagePromotion {
+    pub temporary: ImageKey,
+    pub stable: ImageKey,
+    pub size: [u32; 2],
+    pub generation: u64,
+}
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ExternalImagePromotionError {
+    AliasedKeys,
+    Unavailable,
+    MissingPrivateImage(ImageKey),
+    StalePrivateImage(ImageKey),
+    ForeignStableImage(ImageKey),
+}
+
 impl Renderer {
+    /// Publish qualified private images without a new conversion, atlas upload,
+    /// or provider submission. The host owns serialization and whole-frame
+    /// acceptance; this method proves only complete resource move admission.
+    pub fn promote_external_images(
+        &self,
+        moves: &[ExternalImagePromotion],
+    ) -> Result<(), ExternalImagePromotionError> {
+        let mut sources = std::collections::HashSet::new();
+        let mut destinations = std::collections::HashSet::new();
+        for item in moves {
+            if item.temporary == item.stable
+                || !sources.insert(item.temporary)
+                || !destinations.insert(item.stable)
+            {
+                return Err(ExternalImagePromotionError::AliasedKeys);
+            }
+        }
+        if sources.iter().any(|key| destinations.contains(key)) {
+            return Err(ExternalImagePromotionError::AliasedKeys);
+        }
+        let Some(rasterizer) = &self.vello_rasterizer else {
+            return Err(ExternalImagePromotionError::Unavailable);
+        };
+        // The established stage/unregister paths release their state lock
+        // before taking rasterizer. They never hold the opposite lock order.
+        let mut images = self.external_images.lock().expect("external_images lock");
+        let mut rasterizer = rasterizer.lock().expect("vello_rasterizer lock");
+        for item in moves {
+            let Some(actual) = images.get(&item.temporary) else {
+                return Err(ExternalImagePromotionError::MissingPrivateImage(item.temporary));
+            };
+            if actual.size != item.size || actual.generation != item.generation {
+                return Err(ExternalImagePromotionError::StalePrivateImage(item.temporary));
+            }
+            if !rasterizer.has_texture_override(item.temporary) {
+                return Err(ExternalImagePromotionError::MissingPrivateImage(item.temporary));
+            }
+            if images.contains_key(&item.stable) != rasterizer.has_texture_override(item.stable) {
+                return Err(ExternalImagePromotionError::ForeignStableImage(item.stable));
+            }
+        }
+        for item in moves {
+            rasterizer.promote_texture_override(item.temporary, item.stable);
+            let state = images.remove(&item.temporary).expect("preflighted private image");
+            images.insert(item.stable, state);
+        }
+        if !moves.is_empty() { rasterizer.invalidate_image_override_caches(); }
+        drop(rasterizer);
+        drop(images);
+        if !moves.is_empty() { self.invalidate_external_image_tile_caches(); }
+        Ok(())
+    }
+
     /// Stage a same-device producer for use as a normal [`SceneImage`].
     ///
     /// The source may omit `COPY_SRC`: staging samples it on the GPU, converts
