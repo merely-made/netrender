@@ -54,7 +54,7 @@ vello_cpu = { workspace = true, features = ["std", "u8_pipeline", "text"], optio
 vello_hybrid = { workspace = true, features = ["std", "wgpu", "text"], optional = true }
 vello_sparse_common = { workspace = true, features = ["std"], optional = true }
 # Same source/type identity as the sparse renderers; Hybrid does not re-export Glyph.
-vello_sparse_text = { package = "glifo", version = "0.4.0", git = "https://github.com/mark-ik/vello", rev = "2eae6243881d5b24c984d5ee35dde509ca5db782", default-features = false, features = ["std"], optional = true }
+vello_sparse_text = { package = "glifo", version = "0.4.0", git = "https://github.com/mark-ik/vello", rev = "276b46648c08f3d2062e70559afa999842e1873c", default-features = false, features = ["std"], optional = true }
 # Roadmap R1 — per-glyph hit testing uses skrifa::metrics::GlyphMetrics
 # to query real font-supplied glyph bounds instead of the em-box
 # approximation. Pinned at the same minor as vello's transitive
