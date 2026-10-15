@@ -37,6 +37,7 @@ pub mod registry;
 #[cfg(test)]
 mod render_graph_tests;
 mod renderer;
+pub use renderer::{ExternalImagePromotion, ExternalImagePromotionError};
 pub mod scene;
 pub mod tile_cache;
 pub mod vello_backends;
