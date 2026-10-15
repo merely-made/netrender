@@ -379,6 +379,8 @@ impl Renderer {
         radius: f32,
         branch: &str,
     ) -> ImageNode {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         if radius <= 0.0 {
             return input;
         }
@@ -457,6 +459,8 @@ impl Renderer {
         dim: u32,
         filters: &[SceneFilter],
     ) -> ImageNode {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let size = wgpu::Extent3d {
             width: dim,
             height: dim,
@@ -501,6 +505,8 @@ impl Renderer {
         effect: &CombinedEffectDecomposition,
         execution: RasterExecution,
     ) -> CombinedEffectPlan {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let dim = effect.prefix.viewport_width;
         let size = wgpu::Extent3d {
             width: dim,

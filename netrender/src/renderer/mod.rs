@@ -67,6 +67,10 @@ use filters::{make_external_tail_target, scene_tail_fragment};
 
 pub struct Renderer {
     pub wgpu_device: WgpuDevice,
+    /// A build without classic Vello cannot construct a Renderer, so every
+    /// method is statically unreachable there and its code is not linked.
+    #[cfg(feature = "without-classic-vello")]
+    pub(crate) unavailable: std::convert::Infallible,
     /// Phase 7: tile-cache invalidation algorithm. Configured via
     /// `NetrenderOptions::tile_cache_size`. Required for
     /// `render_vello` (the vello rasterizer holds its per-tile
@@ -253,6 +257,8 @@ impl Renderer {
         &self,
         moves: &[ExternalImagePromotion],
     ) -> Result<(), ExternalImagePromotionError> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let mut sources = std::collections::HashSet::new();
         let mut destinations = std::collections::HashSet::new();
         for item in moves {
@@ -315,6 +321,8 @@ impl Renderer {
         alpha: SourceAlpha,
         generation: u64,
     ) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let size = [source_size[0].max(1), source_size[1].max(1)];
         let previous = self
             .external_images
@@ -367,6 +375,8 @@ impl Renderer {
 
     /// Retire a host producer image and its Vello atlas registration.
     pub fn unregister_external_image(&self, key: ImageKey) -> bool {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let removed = self
             .external_images
             .lock()
@@ -388,6 +398,8 @@ impl Renderer {
     /// identities. Called only after a replacement or removal, never for a
     /// same-sized refresh which keeps the old identity valid.
     fn invalidate_external_image_tile_caches(&self) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         if let Some(tc) = &self.tile_cache {
             tc.lock().expect("tile_cache lock").clear();
         }
@@ -401,6 +413,8 @@ impl Renderer {
     /// Borrow the tile cache mutex (used by tests for invalidation
     /// inspection). Returns `None` if `tile_cache_size` was `None`.
     pub fn tile_cache(&self) -> Option<&Mutex<TileCache>> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         self.tile_cache.as_ref()
     }
 
@@ -410,6 +424,8 @@ impl Renderer {
     /// is replaced in place. Its next keyed render then rebuilds from the full
     /// scene instead of reusing tile scenes from the previous content source.
     pub fn invalidate_surface_tiles(&self, surface: u64) -> bool {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         self.surface_tiles
             .lock()
             .expect("surface_tiles lock")
@@ -435,6 +451,8 @@ impl Renderer {
     ///
     /// If `enable_vello` was false at construction.
     pub fn insert_image_vello(&self, key: ImageKey, texture: Arc<wgpu::Texture>) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self
             .vello_rasterizer
             .as_ref()
@@ -451,6 +469,8 @@ impl Renderer {
     /// No-op if `key` was never registered or `enable_vello` is
     /// false.
     pub fn unregister_image_vello(&self, key: ImageKey) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let Some(rast_mutex) = self.vello_rasterizer.as_ref() else {
             return;
         };
@@ -468,6 +488,8 @@ impl Renderer {
     /// or event-loop wait, qualify the final frame only when this returns `(0, 0)`.
     /// A provider quality limit or failed counter download remains a typed Vello error.
     pub fn poll_vello_curve_quality(&self) -> Result<Option<(usize, u64)>, vello::Error> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let Some(rast_mutex) = &self.vello_rasterizer else {
             return Ok(None);
         };
@@ -477,6 +499,8 @@ impl Renderer {
 
     /// Pending Classic quality counter count and exact bytes, without polling.
     pub fn vello_curve_quality_status(&self) -> Option<(usize, u64)> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self.vello_rasterizer.as_ref()?;
         let rast = rast_mutex.lock().expect("vello_rasterizer lock");
         Some(rast.curve_quality_status())
@@ -487,6 +511,8 @@ impl Renderer {
     /// frame (unchanged scene). Returns `None` if `enable_vello`
     /// was false.
     pub fn vello_last_dirty_count(&self) -> Option<usize> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self.vello_rasterizer.as_ref()?;
         let rast = rast_mutex.lock().expect("vello_rasterizer lock");
         Some(rast.last_dirty_count())
@@ -496,6 +522,8 @@ impl Renderer {
     /// rasterizer's cache. Returns `None` if `enable_vello` was
     /// false.
     pub fn vello_cached_tile_count(&self) -> Option<usize> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self.vello_rasterizer.as_ref()?;
         let rast = rast_mutex.lock().expect("vello_rasterizer lock");
         Some(rast.cached_tile_count())
@@ -508,6 +536,8 @@ impl Renderer {
     /// the filter passes reuse handles instead of minting one per frame.
     /// Returns `None` if `enable_vello` was false.
     pub fn vello_live_texture_registrations(&self) -> Option<usize> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self.vello_rasterizer.as_ref()?;
         let rast = rast_mutex.lock().expect("vello_rasterizer lock");
         Some(rast.live_texture_registrations())
@@ -520,6 +550,8 @@ impl Renderer {
     /// (pan / scroll / drag) cost an append, not a re-lower.
     /// Returns `None` if `enable_vello` was false.
     pub fn register_fragment(&self, fragment: crate::scene::SceneFragment) -> Option<u64> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self.vello_rasterizer.as_ref()?;
         let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
         Some(rast.retained.register(fragment))
@@ -530,6 +562,8 @@ impl Renderer {
     /// Returns `Some(false)` if the id is unknown, `None` if
     /// `enable_vello` was false.
     pub fn update_fragment(&self, id: u64, fragment: crate::scene::SceneFragment) -> Option<bool> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self.vello_rasterizer.as_ref()?;
         let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
         Some(rast.retained.update(id, fragment))
@@ -539,6 +573,8 @@ impl Renderer {
     /// warns and paints nothing. Returns `Some(false)` if the id is
     /// unknown, `None` if `enable_vello` was false.
     pub fn remove_fragment(&self, id: u64) -> Option<bool> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self.vello_rasterizer.as_ref()?;
         let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
         Some(rast.retained.remove(id))
@@ -548,6 +584,8 @@ impl Renderer {
     /// lowered since construction. Flat across placement-only frames;
     /// grows by one per content generation actually placed.
     pub fn fragment_lower_count(&self) -> Option<u64> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self.vello_rasterizer.as_ref()?;
         let rast = rast_mutex.lock().expect("vello_rasterizer lock");
         Some(rast.retained.lower_count())
@@ -556,6 +594,8 @@ impl Renderer {
     /// Roadmap E4 receipt — how many frames reused the cached master
     /// wholesale (nothing changed at all, not even placement).
     pub fn fragment_master_hits(&self) -> Option<u64> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self.vello_rasterizer.as_ref()?;
         let rast = rast_mutex.lock().expect("vello_rasterizer lock");
         Some(rast.retained.master_hits())
@@ -570,6 +610,8 @@ impl Renderer {
     /// - If a vello render error occurs (mirrors the existing
     ///   `render()` shape, which doesn't return a Result).
     pub fn render_vello(&self, scene: &Scene, target_view: &wgpu::TextureView, clear: ColorLoad) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         self.render_vello_checked(scene, target_view, clear)
             .unwrap_or_else(|error| panic!("vello render_to_texture failed: {error:?}"));
     }
@@ -582,6 +624,8 @@ impl Renderer {
         target_view: &wgpu::TextureView,
         clear: ColorLoad,
     ) -> Result<(), crate::VelloError> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         self.render_vello_scaled_checked(scene, target_view, clear, 1.0)
     }
 
@@ -598,6 +642,8 @@ impl Renderer {
         clear: ColorLoad,
         scale: f32,
     ) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         self.render_vello_scaled_checked(scene, target_view, clear, scale)
             .unwrap_or_else(|error| panic!("vello render_to_texture failed: {error:?}"));
     }
@@ -611,6 +657,8 @@ impl Renderer {
         clear: ColorLoad,
         scale: f32,
     ) -> Result<(), crate::VelloError> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self
             .vello_rasterizer
             .as_ref()
@@ -654,6 +702,8 @@ impl Renderer {
         clear: ColorLoad,
         scale: f32,
     ) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         self.render_vello_scaled_for_checked(surface, scene, target_view, clear, scale)
             .unwrap_or_else(|error| panic!("vello render_to_texture failed: {error:?}"));
     }
@@ -668,6 +718,8 @@ impl Renderer {
         clear: ColorLoad,
         scale: f32,
     ) -> Result<(), crate::VelloError> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self
             .vello_rasterizer
             .as_ref()
@@ -721,6 +773,8 @@ impl Renderer {
         clear: ColorLoad,
         scale: f32,
     ) -> Result<(), crate::VelloError> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let base = match clear {
             ColorLoad::Clear(c) => {
                 vello::peniko::Color::new([c.r as f32, c.g as f32, c.b as f32, c.a as f32])
@@ -800,6 +854,8 @@ impl Renderer {
         viewport_height: u32,
         placement: ExternalTexturePlacement,
     ) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let pipe = self.external_texture_pipeline(target_format);
 
         crate::external_texture::compose_external_texture(
@@ -818,6 +874,8 @@ impl Renderer {
         &self,
         target_format: wgpu::TextureFormat,
     ) -> ExternalTexturePipeline {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let mut pipelines = self
             .external_texture_pipelines
             .lock()
@@ -847,6 +905,8 @@ impl Renderer {
         placement: ExternalTexturePlacement,
         encoder: &mut wgpu::CommandEncoder,
     ) -> bool {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let pipe = self.external_texture_pipeline(target_format);
         crate::external_texture::encode_external_texture(
             &self.wgpu_device.core.device,
@@ -869,6 +929,8 @@ impl Renderer {
         viewport_height: u32,
         placement: ExternalTexturePlacement,
     ) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let mut encoder =
             self.wgpu_device
                 .core
@@ -910,6 +972,8 @@ impl Renderer {
         base_color: vello::peniko::Color,
         tenant: &OpaqueTenantInput<'_>,
     ) -> OpaqueTenantReceipt {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self.vello_rasterizer.as_ref().expect(
             "Renderer::render_with_opaque_tenant requires NetrenderOptions::enable_vello = true",
         );
@@ -1059,6 +1123,8 @@ impl Renderer {
     /// calls at the same viewport / format; increments on resize or
     /// format change.
     pub fn vello_master_allocations(&self) -> Option<usize> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self.vello_rasterizer.as_ref()?;
         let rast = rast_mutex.lock().expect("vello_rasterizer lock");
         Some(rast.master_allocations())
@@ -1083,6 +1149,8 @@ impl Renderer {
     ///
     /// Plus a `total` wall-clock duration on `FrameTimings` itself.
     pub fn last_frame_timings(&self) -> Option<crate::profiling::FrameTimings> {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self.vello_rasterizer.as_ref()?;
         let rast = rast_mutex.lock().expect("vello_rasterizer lock");
         rast.last_timings().cloned()
@@ -1131,6 +1199,8 @@ impl Renderer {
         compositor: &mut dyn Compositor,
         base_color: vello::peniko::Color,
     ) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         self.render_with_compositor_and_external_textures(
             scene,
             master_format,
@@ -1160,6 +1230,8 @@ impl Renderer {
         base_color: vello::peniko::Color,
         external_textures: &[ExternalTextureComposite<'_>],
     ) {
+        #[cfg(feature = "without-classic-vello")]
+        let () = match self.unavailable {};
         let rast_mutex = self.vello_rasterizer.as_ref().expect(
             "Renderer::render_with_compositor requires NetrenderOptions::enable_vello = true",
         );
