@@ -34,6 +34,12 @@
     feature = "without-classic-vello",
     allow(unreachable_code, unused_variables, unused_mut, unused_imports, dead_code)
 )]
+// The opt-out exists only for final browser artifacts. A native graph that
+// unified it in would silently lose its only renderer.
+#[cfg(all(feature = "without-classic-vello", not(target_arch = "wasm32")))]
+compile_error!(
+    "netrender's `without-classic-vello` is only for wasm32 browser artifacts; native hosts present through Classic Vello"
+);
 pub mod external_texture;
 mod filter;
 pub mod hit_test;
