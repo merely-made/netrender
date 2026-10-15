@@ -287,14 +287,12 @@ impl TextState {
                             glyph_error(glyph.id, "missing or malformed glyph outline")
                         })?;
                         let mut pen = CountingPen::default();
-                        outline
-                            .draw(
-                                DrawSettings::unhinted(Size::new(upem as f32), location.coords()),
-                                &mut pen,
-                            )
-                            .map_err(|_| {
-                                glyph_error(glyph.id, "glyph outline failed validation")
-                            })?;
+                        draw_outline(
+                            &outline,
+                            DrawSettings::unhinted(Size::new(upem as f32), location.coords()),
+                            &mut pen,
+                        )
+                        .map_err(|_| glyph_error(glyph.id, "glyph outline failed validation"))?;
                         if !pen.finite {
                             return Err(glyph_error(glyph.id, "non-finite outline coordinates"));
                         }
@@ -469,6 +467,37 @@ impl CountingPen {
     fn segment(&mut self) {
         self.segments = self.segments.saturating_add(1);
     }
+}
+/// Draw `outline` and replay it into `pen`.
+///
+/// Skrifa's glyf and CFF interpreters are generic over the pen. Drawing into
+/// `Vec<PathElement>`, the pen Read Fonts provides and the one the Vello
+/// renderers' glyph caches also use, keeps a single copy of them per binary.
+fn draw_outline(
+    outline: &skrifa::outline::OutlineGlyph<'_>,
+    settings: DrawSettings<'_>,
+    pen: &mut impl OutlinePen,
+) -> Result<skrifa::outline::AdjustedMetrics, skrifa::outline::DrawError> {
+    use skrifa::outline::pen::PathElement;
+    let mut elements = Vec::<PathElement>::new();
+    let metrics = outline.draw(settings, &mut elements)?;
+    for element in elements {
+        match element {
+            PathElement::MoveTo { x, y } => pen.move_to(x, y),
+            PathElement::LineTo { x, y } => pen.line_to(x, y),
+            PathElement::QuadTo { cx0, cy0, x, y } => pen.quad_to(cx0, cy0, x, y),
+            PathElement::CurveTo {
+                cx0,
+                cy0,
+                cx1,
+                cy1,
+                x,
+                y,
+            } => pen.curve_to(cx0, cy0, cx1, cy1, x, y),
+            PathElement::Close => pen.close(),
+        }
+    }
+    Ok(metrics)
 }
 impl OutlinePen for CountingPen {
     fn move_to(&mut self, x: f32, y: f32) {
