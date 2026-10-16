@@ -54,3 +54,23 @@ evidence does not establish shipping host renderer selection, browser
 qualification, OS assistive-technology interaction or forced driver-loss
 recovery. Shadow requests require authoritative complete payloads; the CPU
 materializer refuses missing masks rather than approximating them.
+
+The image side-table now carries decoded RGBA8 pixels as `Arc<Vec<u8>>`.
+Cloning an image for a retained frame or a composited layer shares the pixel
+allocation, and translation wraps that same allocation in a renderer blob.
+The JSON image payload remains an inline byte array. Supplier tests cover
+clone identity, serialization, composite key remapping, retained fragments,
+and a CPU raster of opaque and translucent pixels. Post-cut gates passed 46
+API/renderer/resource-bundle tests, including the CPU pixel draw. The existing
+corpus gate passed three tests and failed `translation_matches_recorded_ops`
+on `livery_article_card` border Stroke-versus-Shape output. A freshly compiled
+unchanged `f4f9c0d87` control reproduces that exact failure; expected fixtures
+were not rewritten. This is allocation sharing, not stable renderer Blob
+identity across translations or new GPU qualification.
+
+Gates ran offline/locked with one Cargo job, serial tests, 5 GiB memory cap,
+zero swap allowance, 150% CPU and nice 10 under the shared machine lock. Raw
+logs, a fresh-control dependency receipt, and hashes are retained at
+`/home/markik/Code/testing/audits/genet-architecture-20261016/followups/`.
+Genet's architecture audit records the paired consumer adoption and final
+source hashes. Both supplier and consumer are local-only until published.

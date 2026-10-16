@@ -226,7 +226,7 @@ pub(crate) fn register_images(
         let nr_key = ((ir.key.0 .0 as u64) << 32) | (ir.key.1 as u64) | (1 << 63);
         scene.set_image_source(
             nr_key,
-            ImageData::from_bytes(ir.width, ir.height, ir.data.clone()),
+            ImageData::from_blob(ir.width, ir.height, peniko::Blob::new(ir.data.clone())),
         );
         map.insert(ir.key, nr_key);
     }
