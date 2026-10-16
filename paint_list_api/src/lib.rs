@@ -166,8 +166,10 @@ pub struct ImageResource {
     pub width: u32,
     /// Image height in pixels.
     pub height: u32,
-    /// Decoded RGBA8 bytes (`width * height * 4`).
-    pub data: Vec<u8>,
+    /// Decoded RGBA8 bytes (`width * height * 4`), shared across paint
+    /// outputs and scene translation. Serialization still writes the bytes
+    /// inline for IPC and capture replay.
+    pub data: std::sync::Arc<Vec<u8>>,
 }
 
 // =============================================================================
@@ -570,6 +572,34 @@ mod tests {
         assert_eq!(parsed.viewport, envelope.viewport);
         assert_eq!(parsed.generation, 7);
         assert_eq!(parsed.commands.len(), 1);
+    }
+
+    #[test]
+    fn image_resource_clone_shares_pixels_and_keeps_wire_shape() {
+        use std::sync::Arc;
+
+        let pixels = Arc::new(vec![255, 0, 0, 255, 0, 255, 0, 255]);
+        let image = ImageResource {
+            key: ImageKey::new(IdNamespace(3), 7),
+            width: 2,
+            height: 1,
+            data: pixels.clone(),
+        };
+        assert_eq!(
+            image.data.len(),
+            image.width as usize * image.height as usize * 4
+        );
+        assert!(Arc::ptr_eq(&image.data, &image.clone().data));
+
+        let json = serde_json::to_value(&image).expect("serialize image");
+        assert_eq!(
+            json["data"],
+            serde_json::json!([255, 0, 0, 255, 0, 255, 0, 255])
+        );
+        let parsed: ImageResource = serde_json::from_value(json).expect("deserialize image");
+        assert_eq!(parsed.key, image.key);
+        assert_eq!((parsed.width, parsed.height), (2, 1));
+        assert_eq!(&*parsed.data, &*pixels);
     }
 
     #[test]

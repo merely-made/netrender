@@ -49,6 +49,10 @@ thresholds. Browser qualification, OS assistive-technology interaction and
 forced driver loss remain separate acceptance gates. Classic remains the
 shipping host renderer; this work does not enable automatic renderer fallback.
 
+The image side-table sharing change passes 46 focused API, composition,
+resource-bundle and CPU raster tests. The corpus has three passes and one
+baseline-reproduced border mismatch. See the [adapter note](2026-10-11_complete_producer_resources.md).
+
 ## Classic edge isolation, 2026-10-11
 
 The [bounded curve/glyph receipt](receipts/2026-10-11_classic_edge_gates/README.md)
