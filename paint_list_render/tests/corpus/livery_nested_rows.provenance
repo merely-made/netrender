@@ -10,6 +10,12 @@ covers: DrawRect x5, DrawText x3, PushClip/PopClip x3, DrawBorder x2.
   to produce.
 payloads-elided: yes, same as livery_article_card — 1,045,720 bytes of
   font data replaced with a stand-in, .ops golden verified identical
-  against a --keep-payloads capture.
+  against a --keep-payloads capture. tests/livery_captured_borders.rs
+  extracts the two captured border commands for CPU pixel checks.
+translation-note: the solid per-side outer border now lowers to a
+  clipped joined ring with separate filled side polygons, and the
+  solid rounded wide-row border to a filled ring. The earlier rects
+  and inset stroke golden predated the joined-border implementation
+  in ef5412d76; the captured commands themselves are unchanged.
 regenerate: cargo run -p genet-livery --example capture_paint_corpus --
   <this directory>
