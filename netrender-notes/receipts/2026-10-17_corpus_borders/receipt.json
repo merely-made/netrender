@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-17",
+  "base_commit": "8eef8a7c239804c0bbbe811498ea0c79c3ffaf60",
+  "root_cause": "Golden streams predate ef5412d760a978584c8c1801e8a765c51aecd403 joined solid-border lowering. Article card Stroke became a ring Shape; nested rows mixed-color side Rects became joined paths/layers and rounded Stroke became ring Shape.",
+  "production_changes": false,
+  "dependency_changes": false,
+  "fixture_command_bytes_changed": false,
+  "source_sha256": {
+    "paint_list_render/tests/livery_captured_borders.rs": "200871db7ddc6b24895ab686e137eada015a595e45c093bc84924726fd502ad0",
+    "paint_list_render/tests/corpus/livery_article_card.ops": "0b2a086c738bd82c5d3d92884b3b3e9c3449554c10bbdef698809f8ee298e405",
+    "paint_list_render/tests/corpus/livery_article_card.provenance": "868966ba9098f5e1b5e7a4a218472d4b1a291bd2189275544f68f76f02229d95",
+    "paint_list_render/tests/corpus/livery_nested_rows.ops": "b0cbcd75c7ec84b063c2aaa000f46a1d89dd479150bf5d434bc9a3a324afc344",
+    "paint_list_render/tests/corpus/livery_nested_rows.provenance": "06b98da19ea3e138a817dd788213a9f6fb809b4df00fbced14d6b2e9b7b5d788",
+    "paint_list_render/tests/corpus/livery_article_card.paintlist": "9b68b96bcd69272cee7667efa1e4b49a5252c11ff28ceb89dbd8a9c249bc9276",
+    "paint_list_render/tests/corpus/livery_nested_rows.paintlist": "e935e72af53f33a60aa2aa6da512a8e58d8b7c703e1c2180639582f2bc166d64",
+    "paint_list_render/src/emit.rs": "f588ad1c2612b24074f54ea5cb4643e650226e1fcb91d199a5f8b2a1d49d9bd3",
+    "netrender/src/vello_tile_rasterizer/master.rs": "9061ae97d34247a46f61b254cc7710f30f654fe9a04d70c5fdd847537a785379",
+    "netrender/src/vello_tile_rasterizer/retained.rs": "c9b8d43929669bd89423a735217ff26501c03ea393e82e75d0d03f9c530579c8",
+    "Cargo.lock": "07d77aafd16a8501931bfaa462430cda37c90f5d3ba9694700f16c397844654e",
+    "rust-toolchain.toml": "d13306be0ecda81ce779baa290ffb417380d525928477f16200884b5169cca33"
+  },
+  "command": "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p paint_list_render --features replay-cpu,resource-bundle --lib --test pcorpus_replay --test resource_bundle --test pe4_leaf_fragment_e2e --test livery_captured_borders --no-fail-fast -- --test-threads=1 --nocapture",
+  "result": {
+    "passed": 48,
+    "failed": 0,
+    "ignored": 0,
+    "summaries": [
+      "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.13s",
+      "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.05s",
+      "test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s"
+    ],
+    "exit_status": 0,
+    "peak_rss_kib": 342172,
+    "swaps": 0
+  },
+  "adapter": "AMD Radeon Graphics (RADV RENOIR), Vulkan, Mesa 26.2.4",
+  "pixel_contract": {
+    "cpu": "Captured article ring plus nested-row mixed-color sides and rounded row; widths, bounds, holes, corner coverage, color and joined alpha.",
+    "gpu": "Actual Classic draw/readback; captured article ring flat and retained, initial and moved (3,4), one fragment lowering.",
+    "comparison": "All alpha bytes exact; RGB exact wherever alpha is nonzero. Opaque-black initial and moved outputs raw-byte exact.",
+    "transparent_rgb": "Pinned Vello fine.wgsl stores straight RGBA via fg.rgb / max(fg.a,1e-6); tiny coverage can quantize alpha to zero with residual RGB. Raw equality initially failed only for these invisible color bytes. Direct unretained border forced through the master path reproduced the distinction; no geometry or visible-color tolerance was added."
+  },
+  "resource_limits": {
+    "lock": "/home/markik/Code/testing/machine-heavy.lock",
+    "memory_max": "5G",
+    "memory_swap_max": 0,
+    "cpu_quota": "150%",
+    "nice": 10,
+    "cargo_jobs": 1,
+    "test_threads": 1,
+    "timeout_seconds": 600,
+    "max_observed_process_rss_kib": 888324
+  },
+  "attempts": {
+    "corpus-baseline.log": "Current main reproduces article Stroke/Shape mismatch.",
+    "border-pixels.log": "CPU geometry passed; raw GPU equality failed only at alpha-zero RGB.",
+    "border-control.log": "Diagnostic only; edited during compile. Opaque initial/moved comparisons exact; direct-master control also has only alpha-zero RGB differences.",
+    "retained-final.log": "Article pixel and retained tests pass; corpus uncovers nested_rows expectation previously hidden by first failure.",
+    "corpus-dump.log": "Diagnostic actual streams; all other fixtures unchanged.",
+    "all-verified.log": "Final 48-test gate, all pass."
+  },
+  "limits": [
+    "Full fixture text cannot be rasterized because font payloads were elided; original fixture commands unchanged.",
+    "The article second nonuniform dashed border remains translated as before; this does not qualify its dashed pixels.",
+    "No browser, other GPU/platform or downstream integration claim. No consumer pin changes needed for tests and documentation only."
+  ],
+  "raw_directory": "/home/markik/Code/testing/audits/genet-architecture-20261017/netrender-border-repair",
+  "raw_sha256": {
+    "run-command.sh": "ee96df47f8560fd9c09556ab857ada4bb009908fb57a03abfabbe55d1c3521ab",
+    "corpus-baseline.log": "2547ff0773d5b80990255193bbe9b4094967ef9b9aea46e10f624189d32e474b",
+    "baseline.json": "67c45c5af24a69a2f37cad408c4988bf0de63174693f35d4697b2f01c863e0ba",
+    "border-pixels.log": "b871089abe4611b4b62d58723cfe0edfc41c6025ad7d7c8e4683be48772ffe15",
+    "border-control.log": "8e976fccb097e6d96b09f3fd1eb8b77bd19041e82352f97bcf7603e06c536db6",
+    "retained-final.log": "62b4d0b63991ccbad10341f12fae1b160ee84874dfbf74f7c5270ab6f1924346",
+    "corpus-dump.log": "952ed9c59527d86c48900ca3384c4f5c0ca824654a8ccf4c4367fd5acf56bbc5",
+    "all-verified.log": "92e18807e72e462ee34d10610b5c44283338c78c0d57631deac13c6dd93ef705"
+  }
+}

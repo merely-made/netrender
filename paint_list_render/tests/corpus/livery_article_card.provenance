@@ -14,8 +14,13 @@ payloads-elided: yes. FontResource carries raw TTF bytes inline and its
   2,037,474 bytes. Font and image payloads are replaced with a short
   stand-in; every command field is untouched. Verified rather than
   assumed: capturing with --keep-payloads and blessing produces a
-  byte-identical .ops golden. Consequence: this fixture cannot be
-  rasterized, only translated. Fine for the CPU tier; a constraint on
-  any future GPU tier.
+  byte-identical .ops golden. The complete fixture cannot be rasterized
+  with elided fonts; tests/livery_captured_borders.rs extracts its captured
+  border command for CPU and retained GPU pixel checks.
+translation-note: the solid rounded border now lowers to a filled ring
+  (SceneShape) with explicit outer and inner contours. The previous
+  inset SceneStroke golden predated the joined-border implementation in
+  ef5412d76. The second border command's translation is unchanged;
+  its pixels are outside this border-only check.
 regenerate: cargo run -p genet-livery --example capture_paint_corpus --
   <this directory>

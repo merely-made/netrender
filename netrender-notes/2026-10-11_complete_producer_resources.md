@@ -74,3 +74,5 @@ logs, a fresh-control dependency receipt, and hashes are retained at
 `/home/markik/Code/testing/audits/genet-architecture-20261016/followups/`.
 Genet's architecture audit records the paired consumer adoption and final
 source hashes. Both supplier and consumer are local-only until published.
+
+The corpus failure above is superseded by the [2026-10-17 border verification](receipts/2026-10-17_corpus_borders/README.md): captured border pixels and retained GPU output justify correcting two stale goldens; all 48 selected tests pass. Production translation and captured commands are unchanged.

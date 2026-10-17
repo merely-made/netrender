@@ -50,8 +50,10 @@ forced driver loss remain separate acceptance gates. Classic remains the
 shipping host renderer; this work does not enable automatic renderer fallback.
 
 The image side-table sharing change passes 46 focused API, composition,
-resource-bundle and CPU raster tests. The corpus has three passes and one
-baseline-reproduced border mismatch. See the [adapter note](2026-10-11_complete_producer_resources.md).
+resource-bundle and CPU raster tests. The former corpus border mismatches are now resolved: two stale goldens were
+updated after CPU pixel and retained AMD GPU verification. The combined gate
+passes 48 tests; see the [border receipt](receipts/2026-10-17_corpus_borders/README.md)
+and the historical [adapter note](2026-10-11_complete_producer_resources.md).
 
 ## Classic edge isolation, 2026-10-11
 
