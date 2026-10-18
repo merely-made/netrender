@@ -183,7 +183,7 @@ fn assert_border_pixels(bytes: &[u8], dx: usize, dy: usize) {
 #[cfg(feature = "replay-cpu")]
 #[test]
 fn captured_solid_border_keeps_css_ring_geometry_on_cpu() {
-    let scene = translate_paint_list(&captured_border());
+    let scene = translate_paint_list(&captured_border()).expect("captured solid border admitted");
     let mut cpu = netrender::vello_backends::CpuSession::new(
         netrender::vello_backends::SparseResourceLimits::default(),
     );
@@ -194,7 +194,8 @@ fn captured_solid_border_keeps_css_ring_geometry_on_cpu() {
 #[cfg(feature = "replay-cpu")]
 #[test]
 fn captured_nested_rows_keep_joined_side_colors_and_rounded_hole_on_cpu() {
-    let scene = translate_paint_list(&captured_nested_borders());
+    let scene =
+        translate_paint_list(&captured_nested_borders()).expect("captured row borders admitted");
     let mut cpu = netrender::vello_backends::CpuSession::new(
         netrender::vello_backends::SparseResourceLimits::default(),
     );
@@ -343,7 +344,7 @@ fn shifted_flat_border(mut envelope: PaintEnvelope, dx: f32, dy: f32) -> Scene {
         }),
     );
     envelope.commands.push(PaintCmd::PopTransform);
-    translate_paint_list(&envelope)
+    translate_paint_list(&envelope).expect("shifted solid border admitted")
 }
 
 #[test]
@@ -354,12 +355,13 @@ fn captured_solid_border_retains_the_same_pixels_as_flat_translation() {
         handles.adapter.get_info()
     );
     let envelope = captured_border();
-    let flat = translate_paint_list(&envelope);
+    let flat = translate_paint_list(&envelope).expect("captured solid border admitted");
     let flat_pixels = render_bytes(&renderer(&handles), &handles, &flat);
     assert_border_pixels(&flat_pixels, 0, 0);
 
     let retained_renderer = renderer(&handles);
-    let fragment = translate_paint_cmds_to_fragment(&envelope.commands, &[], &[]);
+    let fragment = translate_paint_cmds_to_fragment(&envelope.commands, &[], &[])
+        .expect("captured solid border fragment admitted");
     let id = retained_renderer
         .register_fragment(fragment)
         .expect("register captured border fragment");

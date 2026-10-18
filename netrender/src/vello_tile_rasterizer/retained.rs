@@ -32,8 +32,7 @@
 //! Before that the layer lived in the run's sub-scene and a
 //! layer-scoped placement had to inline un-retained. One spike
 //! limitation survives: nested fragments (fragment content placing
-//! another fragment) are skipped at lower time by `scene_to_vello`'s
-//! own warn arm.
+//! another fragment) are refused by both retained registries.
 
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
@@ -116,6 +115,10 @@ impl RetainedState {
             }
             None => false,
         }
+    }
+
+    pub(crate) fn contains(&self, id: FragmentId) -> bool {
+        self.fragments.contains_key(&id)
     }
 
     pub(crate) fn remove(&mut self, id: FragmentId) -> bool {

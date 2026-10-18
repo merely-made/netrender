@@ -65,7 +65,7 @@ pub use crate::registry::{FontRegistry, ImageRegistry};
 pub use crate::renderer::init::{NetrenderOptions, create_netrender_instance};
 pub use crate::renderer::{
     ColorLoad, OpaqueTenantInput, OpaqueTenantMetadata, OpaqueTenantReceipt, Renderer,
-    RendererError,
+    RendererError, RetainedFragmentError,
 };
 
 // `FontBlob.data` is `peniko::Blob<u8>`; consumers constructing one

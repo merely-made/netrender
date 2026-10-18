@@ -1091,45 +1091,7 @@ fn validate_capture_bytes(
             }
             PaintCmd::DrawBorder(item) => match &item.details {
                 paint_list_api::BorderDetails::Normal(b) => {
-                    if !b.do_aa {
-                        return Err(bad("non-antialiased border geometry is not lowered"));
-                    }
-                    for (side, width) in [
-                        (b.left, item.widths.left),
-                        (b.right, item.widths.right),
-                        (b.top, item.widths.top),
-                        (b.bottom, item.widths.bottom),
-                    ] {
-                        if width < 0.0
-                            || (width > 0.0
-                                && matches!(
-                                    side.style,
-                                    paint_list_api::BorderStyle::None
-                                        | paint_list_api::BorderStyle::Hidden
-                                ))
-                        {
-                            return Err(bad("invisible border would be painted by translator"));
-                        }
-                        if !matches!(
-                            side.style,
-                            paint_list_api::BorderStyle::None
-                                | paint_list_api::BorderStyle::Hidden
-                                | paint_list_api::BorderStyle::Solid
-                        ) {
-                            return Err(bad("border fallback is not admitted"));
-                        }
-                    }
-                    if [
-                        b.radius.top_left,
-                        b.radius.top_right,
-                        b.radius.bottom_left,
-                        b.radius.bottom_right,
-                    ]
-                    .iter()
-                    .any(|r| r.width < 0.0 || r.height < 0.0)
-                    {
-                        return Err(bad("negative border radius"));
-                    }
+                    crate::emit::admit_normal_border(item, b).map_err(bad)?;
                 }
                 paint_list_api::BorderDetails::NinePatch(_) => {
                     return Err(bad("nine-patch portable replay is not admitted"));
@@ -1169,7 +1131,13 @@ fn translate_capture_with_limits(
     limits: BundleLimits,
 ) -> Result<TranslatedResourceScene, BundleError> {
     validate_capture_with_limits(capture, limits)?;
-    let output = crate::translate_envelope_with_external_textures(&capture.envelope);
+    let output =
+        crate::translate_envelope_with_external_textures(&capture.envelope).map_err(|e| {
+            BundleError::InvalidEnvelope {
+                command: Some(e.command),
+                reason: e.reason,
+            }
+        })?;
     Ok(TranslatedResourceScene {
         scene: output.scene,
         external_textures: output

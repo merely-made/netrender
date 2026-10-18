@@ -24,3 +24,7 @@ translation-note: the solid rounded border now lowers to a filled ring
   its pixels are outside this border-only check.
 regenerate: cargo run -p genet-livery --example capture_paint_corpus --
   <this directory>
+admission-note: complete translation now refuses command 8, the nonuniform
+  dashed top border, instead of approximating it with a solid rectangle.
+  The captured commands are unchanged. The separate solid-border pixel and
+  retained tests continue to qualify the admitted command in isolation.

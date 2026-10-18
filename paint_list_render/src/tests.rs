@@ -9,7 +9,8 @@
 use crate::composite::merge_layers;
 
 use paint_list_api::{
-    ColorF, CommonPlacement, DeviceIntSize, EngineId, LayoutPoint, LayoutRect, PaintCmd, PaintList,
+    BorderDetails, BorderItem, BorderSide, BorderStyle, ColorF, CommonPlacement, DeviceIntSize,
+    EngineId, LayoutPoint, LayoutRect, LayoutSideOffsets, NormalBorder, PaintCmd, PaintList,
     PrimitiveFlags, RectItem,
 };
 use serde::{Deserialize, Serialize};
@@ -57,6 +58,243 @@ fn list_with(viewport: DeviceIntSize, cmds: Vec<PaintCmd>) -> StubPaintList {
     }
 }
 
+fn test_border(style: BorderStyle) -> BorderItem {
+    BorderItem {
+        placement: placement_at(box2d(2.0, 2.0, 24.0, 18.0)),
+        widths: LayoutSideOffsets::new(2.0, 2.0, 2.0, 2.0),
+        details: BorderDetails::Normal(NormalBorder {
+            top: BorderSide {
+                color: ColorF::BLACK,
+                style,
+            },
+            right: BorderSide {
+                color: ColorF::BLACK,
+                style,
+            },
+            bottom: BorderSide {
+                color: ColorF::BLACK,
+                style,
+            },
+            left: BorderSide {
+                color: ColorF::BLACK,
+                style,
+            },
+            ..NormalBorder::default()
+        }),
+    }
+}
+
+#[test]
+fn unsupported_border_refuses_entire_stream_with_command_index() {
+    let list = list_with(
+        DeviceIntSize::new(32, 24),
+        vec![
+            PaintCmd::DrawRect(RectItem {
+                placement: placement_at(box2d(0.0, 0.0, 1.0, 1.0)),
+                color: ColorF::WHITE,
+            }),
+            PaintCmd::DrawBorder(test_border(BorderStyle::Double)),
+        ],
+    );
+    let error = translate_paint_list(&list).expect_err("double border must refuse");
+    assert_eq!(error.command, 1);
+    assert_eq!(error.reason, "border style or geometry is not lowered");
+
+    let fragment_error = translate_paint_cmds_to_fragment(&list.commands, &[], &[])
+        .expect_err("retained translation must refuse the same border");
+    assert_eq!(fragment_error, error);
+}
+
+#[test]
+fn mixed_patterned_border_refuses_instead_of_painting_solid_rects() {
+    let mut border = test_border(BorderStyle::Dashed);
+    let BorderDetails::Normal(sides) = &mut border.details else {
+        unreachable!()
+    };
+    sides.right.style = BorderStyle::Solid;
+    let error = translate_paint_cmd_stream(
+        DeviceIntSize::new(32, 24),
+        &[PaintCmd::DrawBorder(border)],
+        &[],
+        &[],
+    )
+    .expect_err("mixed dashed border must refuse");
+    assert_eq!(error.command, 0);
+    assert_eq!(error.reason, "border style or geometry is not lowered");
+}
+
+#[test]
+fn nonfinite_normal_border_inputs_refuse_before_emission() {
+    let cases: [(&str, fn(&mut BorderItem)); 4] = [
+        ("non-finite border bounds", |border| {
+            border.placement.bounds.min.x = f32::INFINITY;
+        }),
+        ("non-finite border width", |border| {
+            border.widths.left = f32::NAN;
+        }),
+        ("non-finite border radius", |border| {
+            let BorderDetails::Normal(sides) = &mut border.details else {
+                unreachable!()
+            };
+            sides.radius.top_left.width = f32::NAN;
+        }),
+        ("non-finite border color", |border| {
+            let BorderDetails::Normal(sides) = &mut border.details else {
+                unreachable!()
+            };
+            sides.top.color.a = f32::NAN;
+        }),
+    ];
+    for (reason, mutate) in cases {
+        let mut border = test_border(BorderStyle::Solid);
+        mutate(&mut border);
+        let error = translate_paint_cmd_stream(
+            DeviceIntSize::new(32, 24),
+            &[PaintCmd::DrawBorder(border)],
+            &[],
+            &[],
+        )
+        .expect_err("non-finite border must refuse");
+        assert_eq!(error, TranslationError { command: 0, reason });
+    }
+}
+
+#[test]
+fn nine_patch_slice_offsets_stay_within_each_source_axis() {
+    use std::sync::Arc;
+    use paint_list_api::{
+        DeviceIntSideOffsets, IdNamespace, ImageKey, ImageRendering, ImageResource,
+        NinePatchBorder, NinePatchSource, RepeatMode,
+    };
+
+    let key = ImageKey::new(IdNamespace(1), 20);
+    let image = ImageResource {
+        key,
+        width: 4,
+        height: 4,
+        data: Arc::new(vec![255; 4 * 4 * 4]),
+    };
+    let make_border = |slice| {
+        PaintCmd::DrawBorder(BorderItem {
+            placement: placement_at(box2d(2.0, 2.0, 24.0, 18.0)),
+            widths: LayoutSideOffsets::new(2.0, 2.0, 2.0, 2.0),
+            details: BorderDetails::NinePatch(NinePatchBorder {
+                source: NinePatchSource::Image(key, ImageRendering::Auto),
+                width: 4,
+                height: 4,
+                slice,
+                fill: false,
+                repeat_horizontal: RepeatMode::Stretch,
+                repeat_vertical: RepeatMode::Stretch,
+            }),
+        })
+    };
+    let translated = translate_paint_cmd_stream(
+        DeviceIntSize::new(32, 24),
+        &[make_border(DeviceIntSideOffsets::new(1, 1, 1, 1))],
+        &[],
+        &[image.clone()],
+    )
+    .expect("in-source slices admitted");
+    assert!(translated
+        .scene
+        .ops
+        .iter()
+        .any(|op| matches!(op, netrender::SceneOp::Image(_))));
+
+    // The renderer permits overlapping source corners; only individual
+    // offsets outside their own axis are rejected.
+    translate_paint_cmd_stream(
+        DeviceIntSize::new(32, 24),
+        &[make_border(DeviceIntSideOffsets::new(3, 3, 3, 3))],
+        &[],
+        &[image.clone()],
+    )
+    .expect("overlapping but in-source slices admitted");
+
+    for (slice, reason) in [
+        (
+            DeviceIntSideOffsets::new(-1, 1, 1, 1),
+            "negative nine-patch source slice",
+        ),
+        (
+            DeviceIntSideOffsets::new(1, 1, 1, -1),
+            "negative nine-patch source slice",
+        ),
+        (
+            DeviceIntSideOffsets::new(5, 1, 1, 1),
+            "nine-patch source slice exceeds its axis extent",
+        ),
+        (
+            DeviceIntSideOffsets::new(1, 5, 1, 1),
+            "nine-patch source slice exceeds its axis extent",
+        ),
+        (
+            DeviceIntSideOffsets::new(1, 1, 5, 1),
+            "nine-patch source slice exceeds its axis extent",
+        ),
+        (
+            DeviceIntSideOffsets::new(1, 1, 1, 5),
+            "nine-patch source slice exceeds its axis extent",
+        ),
+    ] {
+        let error = translate_paint_cmd_stream(
+            DeviceIntSize::new(32, 24),
+            &[make_border(slice)],
+            &[],
+            &[image.clone()],
+        )
+        .expect_err("out-of-source slice must refuse");
+        assert_eq!(error, TranslationError { command: 0, reason });
+    }
+}
+
+#[test]
+fn uniform_patterned_border_keeps_stroke_path() {
+    for style in [BorderStyle::Dashed, BorderStyle::Dotted] {
+        let translated = translate_paint_cmd_stream(
+            DeviceIntSize::new(32, 24),
+            &[PaintCmd::DrawBorder(test_border(style))],
+            &[],
+            &[],
+        )
+        .expect("uniform patterned border admitted");
+        let [netrender::SceneOp::Stroke(stroke)] = translated.scene.ops.as_slice() else {
+            panic!("patterned border must remain one stroke");
+        };
+        assert!(!stroke.dash_pattern.is_empty());
+    }
+}
+
+#[test]
+#[cfg(feature = "replay-cpu")]
+fn uniform_patterned_border_keeps_painted_segments_and_gaps_on_cpu() {
+    for style in [BorderStyle::Dashed, BorderStyle::Dotted] {
+        let translated = translate_paint_cmd_stream(
+            DeviceIntSize::new(32, 24),
+            &[PaintCmd::DrawBorder(test_border(style))],
+            &[],
+            &[],
+        )
+        .expect("uniform patterned border admitted");
+        let mut cpu = netrender::vello_backends::CpuSession::new(
+            netrender::vello_backends::SparseResourceLimits::default(),
+        );
+        let image = cpu
+            .render(&translated.scene)
+            .expect("rasterize patterned border");
+        let rgba = image.data_as_u8_slice();
+        let alpha = |x: usize, y: usize| rgba[(y * 32 + x) * 4 + 3];
+        let top: Vec<_> = (5..23).map(|x| alpha(x, 3)).collect();
+        assert!(
+            top.iter().any(|a| *a > 200),
+            "painted {style:?} segment: {top:?}"
+        );
+        assert!(top.contains(&0), "transparent {style:?} gap: {top:?}");
+        assert_eq!(alpha(14, 10), 0, "border center stays transparent");
+    }
+}
+
 #[test]
 fn translucent_colors_premultiply_at_lowering() {
     // ColorF is unpremultiplied; scene colors are premultiplied and every
@@ -72,7 +310,7 @@ fn translucent_colors_premultiply_at_lowering() {
             color: ColorF::new(1.0, 0.0, 0.0, 0.5),
         })],
     );
-    let scene = translate_paint_list(&list);
+    let scene = translate_paint_list(&list).expect("translate paint list");
     let rect_color = scene
         .ops
         .iter()
@@ -92,7 +330,7 @@ fn translucent_colors_premultiply_at_lowering() {
 #[test]
 fn empty_list_translates_to_empty_scene() {
     let list = list_with(DeviceIntSize::new(800, 600), Vec::new());
-    let scene = translate_paint_list(&list);
+    let scene = translate_paint_list(&list).expect("translate paint list");
     assert_eq!(scene.viewport_width, 800);
     assert_eq!(scene.viewport_height, 600);
     assert_eq!(scene.ops.len(), 0);
@@ -112,7 +350,7 @@ fn draw_rect_emits_scene_rect() {
             },
         })],
     );
-    let scene = translate_paint_list(&list);
+    let scene = translate_paint_list(&list).expect("translate paint list");
     assert_eq!(scene.ops.len(), 1);
     assert!(matches!(scene.ops[0], netrender::SceneOp::Rect(_)));
 }
@@ -143,7 +381,8 @@ fn commands_only_layers_concatenate_into_one_scene() {
         CompositeLayer::commands_only(&underlay),
         CompositeLayer::commands_only(&doc),
     ];
-    let out = composite_paint_layers(DeviceIntSize::new(800, 600), &layers);
+    let out = composite_paint_layers(DeviceIntSize::new(800, 600), &layers)
+        .expect("translate composited layers");
     let rects = out
         .scene
         .ops
@@ -270,7 +509,8 @@ fn composite_images_remap_keys_without_copying_pixels() {
         .collect();
     assert_eq!(command_keys, vec![images[0].key, images[1].key]);
 
-    let translated = composite_paint_layers(DeviceIntSize::new(2, 1), &layers);
+    let translated = composite_paint_layers(DeviceIntSize::new(2, 1), &layers)
+        .expect("translate composited layers");
     let scene_keys: Vec<_> = translated
         .scene
         .ops
@@ -310,7 +550,8 @@ fn retained_fragment_keeps_image_pixel_allocation() {
         height: 1,
         data: pixels.clone(),
     };
-    let fragment = translate_paint_cmds_to_fragment(&[], &[], &[image]);
+    let fragment =
+        translate_paint_cmds_to_fragment(&[], &[], &[image]).expect("translate image fragment");
     assert_eq!(fragment.image_sources.len(), 1);
     let source = fragment.image_sources.values().next().unwrap();
     assert_eq!((source.width, source.height), (1, 1));
@@ -339,8 +580,9 @@ fn shared_image_payload_rasters_distinct_opaque_and_translucent_pixels() {
         alpha_type: AlphaType::Alpha,
         color: ColorF::WHITE,
     });
-    let scene =
-        translate_paint_cmd_stream(DeviceIntSize::new(2, 1), &[command], &[], &[image]).scene;
+    let scene = translate_paint_cmd_stream(DeviceIntSize::new(2, 1), &[command], &[], &[image])
+        .expect("translate image command")
+        .scene;
     let source = scene
         .image_sources
         .values()
@@ -387,7 +629,7 @@ fn draw_stroke_emits_stroked_scene_shape() {
             dash: None,
         })],
     );
-    let scene = translate_paint_list(&list);
+    let scene = translate_paint_list(&list).expect("translate paint list");
     let stroked = scene
         .ops
         .iter()
@@ -430,7 +672,7 @@ fn draw_stroke_carries_cap_join_dash() {
             }),
         })],
     );
-    let scene = translate_paint_list(&list);
+    let scene = translate_paint_list(&list).expect("translate paint list");
     let shape = scene
         .ops
         .iter()
@@ -458,7 +700,7 @@ fn push_pop_layer_emits_layer_pair() {
             PaintCmd::PopLayer,
         ],
     );
-    let scene = translate_paint_list(&list);
+    let scene = translate_paint_list(&list).expect("translate paint list");
     assert_eq!(scene.ops.len(), 2);
     assert!(matches!(scene.ops[0], netrender::SceneOp::PushLayer(_)));
     assert!(matches!(scene.ops[1], netrender::SceneOp::PopLayer));
@@ -482,7 +724,7 @@ fn push_layer_carries_filter_chain() {
             PaintCmd::PopLayer,
         ],
     );
-    let scene = translate_paint_list(&list);
+    let scene = translate_paint_list(&list).expect("translate paint list");
     let layer = match &scene.ops[0] {
         netrender::SceneOp::PushLayer(l) => l,
         other => panic!("expected PushLayer, got {other:?}"),
@@ -523,7 +765,7 @@ fn push_transform_adds_palette_entry_and_positions_child_ops() {
             PaintCmd::PopTransform,
         ],
     );
-    let scene = translate_paint_list(&list);
+    let scene = translate_paint_list(&list).expect("translate paint list");
     // One transform palette entry beyond identity (index 1).
     assert!(
         scene.transforms.len() >= 2,
@@ -577,7 +819,7 @@ fn nested_transforms_compose() {
             PaintCmd::PopTransform,
         ],
     );
-    let scene = translate_paint_list(&list);
+    let scene = translate_paint_list(&list).expect("translate paint list");
     let rect = match &scene.ops[0] {
         netrender::SceneOp::Rect(r) => r,
         other => panic!("expected Rect, got {other:?}"),
@@ -598,7 +840,7 @@ fn push_clip_rect_emits_clipped_layer() {
             PaintCmd::PopClip,
         ],
     );
-    let scene = translate_paint_list(&list);
+    let scene = translate_paint_list(&list).expect("translate paint list");
     assert_eq!(scene.ops.len(), 2);
     let layer = match &scene.ops[0] {
         netrender::SceneOp::PushLayer(l) => l,
@@ -620,7 +862,8 @@ fn external_texture_stages_an_in_order_scene_image() {
             content_generation: None,
         })],
     );
-    let out = translate_paint_cmd_stream(list.viewport, &list.commands, &[], &[]);
+    let out = translate_paint_cmd_stream(list.viewport, &list.commands, &[], &[])
+        .expect("translate external texture");
     let image = match &out.scene.ops[..] {
         [netrender::SceneOp::Image(image)] => image,
         other => panic!("expected one in-order external image, got {other:?}"),
@@ -663,7 +906,8 @@ fn external_texture_keeps_the_active_transform_and_layer_scope() {
         ],
     );
 
-    let out = translate_paint_cmd_stream(list.viewport, &list.commands, &[], &[]);
+    let out = translate_paint_cmd_stream(list.viewport, &list.commands, &[], &[])
+        .expect("translate external texture");
     let image = out
         .scene
         .ops

@@ -13,7 +13,7 @@ use std::sync::Arc;
 use netrender::{FontBlob, FontId, ImageData, ImageKey as NrImageKey, Scene, peniko};
 use paint_list_api::{FontInstanceKey, FontResource, IdNamespace, ImageKey, ImageResource, PaintCmd};
 use crate::translate_paint_cmd_stream;
-use crate::TranslatedDisplayList;
+use crate::{TranslatedDisplayList, TranslationError};
 
 /// First `IdNamespace` the compositor remaps layers into. Far above the small
 /// per-producer namespaces (genet fonts 0, images 1; nematic/inker likewise low)
@@ -59,7 +59,7 @@ impl<'a> CompositeLayer<'a> {
 pub fn composite_paint_layers(
     viewport: paint_list_api::DeviceIntSize,
     layers: &[CompositeLayer<'_>],
-) -> TranslatedDisplayList {
+) -> Result<TranslatedDisplayList, TranslationError> {
     let (commands, fonts, images) = merge_layers(layers);
     translate_paint_cmd_stream(viewport, &commands, &fonts, &images)
 }

@@ -185,7 +185,8 @@ fn leaf_fragment_flow_matches_envelope_flow_and_retains_across_layout_moves() {
 
     // Fragment path renderer: translate the leaf splice ONCE.
     let frag_r = renderer(&handles);
-    let fragment = translate_paint_cmds_to_fragment(&leaf_splice(), &[], &[]);
+    let fragment =
+        translate_paint_cmds_to_fragment(&leaf_splice(), &[], &[]).expect("leaf translation");
     let id = frag_r.register_fragment(fragment).expect("register");
 
     // Two layout positions for the leaf's box: initial, then moved
@@ -195,7 +196,8 @@ fn leaf_fragment_flow_matches_envelope_flow_and_retains_across_layout_moves() {
         // Envelope path: full list, fresh renderer (its own tile state),
         // translated flat.
         let env_r = renderer(&handles);
-        let flat_scene = translate_paint_list(&envelope_with_leaf_at(dx, dy));
+        let flat_scene =
+            translate_paint_list(&envelope_with_leaf_at(dx, dy)).expect("envelope translation");
         let expected = render_bytes(&env_r, &handles, &flat_scene);
 
         let got = render_bytes(&frag_r, &handles, &fragment_scene(id, dx, dy));
@@ -227,7 +229,8 @@ fn place_retained_fragment_marker_composes_with_the_active_transform() {
     let handles = boot().expect("wgpu boot");
 
     let frag_r = renderer(&handles);
-    let fragment = translate_paint_cmds_to_fragment(&leaf_splice(), &[], &[]);
+    let fragment =
+        translate_paint_cmds_to_fragment(&leaf_splice(), &[], &[]).expect("leaf translation");
     let id = frag_r.register_fragment(fragment).expect("register");
 
     // Marker envelope: backdrop, then a PushTransform (the enclosing
@@ -257,12 +260,13 @@ fn place_retained_fragment_marker_composes_with_the_active_transform() {
         fonts: Vec::new(),
         images: Vec::new(),
     };
-    let marker_scene = translate_paint_list(&envelope);
+    let marker_scene = translate_paint_list(&envelope).expect("marker translation");
     let got = render_bytes(&frag_r, &handles, &marker_scene);
 
     // Flat reference: the leaf inlined at the composed position.
     let env_r = renderer(&handles);
-    let flat = translate_paint_list(&envelope_with_leaf_at(54.0, 74.0));
+    let flat =
+        translate_paint_list(&envelope_with_leaf_at(54.0, 74.0)).expect("envelope translation");
     let expected = render_bytes(&env_r, &handles, &flat);
 
     assert_eq!(
@@ -283,7 +287,8 @@ fn place_retained_fragment_marker_composes_with_the_active_transform() {
 fn leaf_epoch_bump_updates_content() {
     let handles = boot().expect("wgpu boot");
     let frag_r = renderer(&handles);
-    let fragment = translate_paint_cmds_to_fragment(&leaf_splice(), &[], &[]);
+    let fragment =
+        translate_paint_cmds_to_fragment(&leaf_splice(), &[], &[]).expect("leaf translation");
     let id = frag_r.register_fragment(fragment).expect("register");
 
     let _ = render_bytes(&frag_r, &handles, &fragment_scene(id, 30.0, 30.0));
@@ -291,7 +296,8 @@ fn leaf_epoch_bump_updates_content() {
     // The "repaint": level fill drops to 40%.
     let mut repainted = leaf_splice();
     repainted[1] = fill(2.0, 2.0, 40.0, 22.0, ColorF::new(0.85, 0.35, 0.2, 1.0));
-    let new_fragment = translate_paint_cmds_to_fragment(&repainted, &[], &[]);
+    let new_fragment =
+        translate_paint_cmds_to_fragment(&repainted, &[], &[]).expect("repaint translation");
     assert_eq!(frag_r.update_fragment(id, new_fragment), Some(true));
 
     let got = render_bytes(&frag_r, &handles, &fragment_scene(id, 30.0, 30.0));
@@ -302,7 +308,11 @@ fn leaf_epoch_bump_updates_content() {
     let env_r = renderer(&handles);
     let mut env = envelope_with_leaf_at(30.0, 30.0);
     env.commands[3] = fill(2.0, 2.0, 40.0, 22.0, ColorF::new(0.85, 0.35, 0.2, 1.0));
-    let expected = render_bytes(&env_r, &handles, &translate_paint_list(&env));
+    let expected = render_bytes(
+        &env_r,
+        &handles,
+        &translate_paint_list(&env).expect("envelope translation"),
+    );
 
     assert_eq!(
         got, expected,
