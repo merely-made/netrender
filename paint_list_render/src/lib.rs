@@ -24,8 +24,9 @@
 //! ## Mapping summary
 //!
 //! Most variants map 1:1 to a `netrender::SceneOp`. The painter-side
-//! gaps flagged for follow-up (`DrawPath`, `DrawStroke`, nine-patch
-//! borders, inset `DrawShadow`) emit a fallback or `warn!`-and-skip.
+//! gaps flagged for follow-up (`DrawPath`, `DrawStroke`, inset
+//! `DrawShadow`) emit a fallback or `warn!`-and-skip. Borders whose
+//! style or geometry cannot be represented return a translation error.
 //!
 //! `DrawShadow` is fully wired for outset shadows: hard shadows
 //! (blur 0) lower to a solid rect; blurred ones record a
@@ -34,6 +35,7 @@
 //! image op into the scene at the right paint position.
 
 use std::collections::HashMap;
+use std::fmt;
 
 use log::warn;
 use netrender::{
@@ -102,11 +104,86 @@ pub struct BoxShadowMaskRequest {
 /// The full translator output: a [`netrender::Scene`] plus the side
 /// channels the painter needs to finish the frame (external-texture
 /// composites and blurred-shadow mask requests).
+#[derive(Debug)]
 pub struct TranslatedDisplayList {
     pub scene: Scene,
     pub external_textures: Vec<ExternalTextureDraw>,
     /// Blurred box-shadow masks to build before rendering this scene.
     pub box_shadow_masks: Vec<BoxShadowMaskRequest>,
+}
+
+/// A paint command that cannot be translated without changing its border
+/// appearance. The command index refers to the original command stream.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct TranslationError {
+    pub command: usize,
+    pub reason: &'static str,
+}
+
+impl fmt::Display for TranslationError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "paint command {}: {}", self.command, self.reason)
+    }
+}
+
+impl std::error::Error for TranslationError {}
+
+fn preflight_borders(
+    commands: &[PaintCmd],
+    images: &[ImageResource],
+) -> Result<(), TranslationError> {
+    for (command, cmd) in commands.iter().enumerate() {
+        let PaintCmd::DrawBorder(border) = cmd else {
+            continue;
+        };
+        let reason = match &border.details {
+            ple::BorderDetails::Normal(sides) => admit_normal_border(border, sides).err(),
+            ple::BorderDetails::NinePatch(np) => {
+                let bounds = &border.placement.bounds;
+                let widths = &border.widths;
+                if [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y]
+                    .iter()
+                    .any(|value| !value.is_finite())
+                {
+                    Some("non-finite border bounds")
+                } else if [widths.top, widths.right, widths.bottom, widths.left]
+                    .iter()
+                    .any(|width| !width.is_finite() || *width < 0.0)
+                {
+                    Some("invalid nine-patch border width")
+                } else {
+                    match &np.source {
+                        ple::NinePatchSource::Image(key, _) => {
+                            if np.width <= 0 || np.height <= 0 {
+                                Some("nine-patch source extent is not positive")
+                            } else if np.slice.top < 0
+                                || np.slice.bottom < 0
+                                || np.slice.left < 0
+                                || np.slice.right < 0
+                            {
+                                Some("negative nine-patch source slice")
+                            } else if np.slice.top > np.height
+                                || np.slice.bottom > np.height
+                                || np.slice.left > np.width
+                                || np.slice.right > np.width
+                            {
+                                Some("nine-patch source slice exceeds its axis extent")
+                            } else if !images.iter().any(|image| image.key == *key) {
+                                Some("nine-patch source image is not registered")
+                            } else {
+                                None
+                            }
+                        }
+                        _ => Some("nine-patch gradient source is not lowered"),
+                    }
+                }
+            }
+        };
+        if let Some(reason) = reason {
+            return Err(TranslationError { command, reason });
+        }
+    }
+    Ok(())
 }
 // =============================================================================
 // PaintList → Scene entry points
@@ -116,19 +193,21 @@ pub struct TranslatedDisplayList {
 /// become normal in-order scene images; hosts needing their source lifecycle
 /// use [`translate_envelope_with_external_textures`] or
 /// [`translate_paint_cmd_stream`] for the associated staging metadata.
-pub fn translate_paint_list<L: PaintList>(list: &L) -> Scene {
+pub fn translate_paint_list<L: PaintList>(list: &L) -> Result<Scene, TranslationError> {
     translate_paint_cmd_stream(
         list.viewport(),
         list.commands(),
         list.fonts(),
         list.images(),
     )
-    .scene
+    .map(|translated| translated.scene)
 }
 
 /// Receive-side companion: translate a wire envelope. Thin wrapper
 /// since `PaintEnvelope` itself impls `PaintList`.
-pub fn translate_envelope(envelope: &paint_list_api::PaintEnvelope) -> Scene {
+pub fn translate_envelope(
+    envelope: &paint_list_api::PaintEnvelope,
+) -> Result<Scene, TranslationError> {
     translate_paint_list(envelope)
 }
 
@@ -156,7 +235,7 @@ pub fn translate_paint_cmds_to_fragment(
     commands: &[PaintCmd],
     fonts: &[FontResource],
     images: &[ImageResource],
-) -> netrender::scene::SceneFragment {
+) -> Result<netrender::scene::SceneFragment, TranslationError> {
     // Viewport only sizes the translator's box-shadow mask scratch;
     // fragment content never reads it. Use a nominal square.
     let translated = translate_paint_cmd_stream(
@@ -164,7 +243,7 @@ pub fn translate_paint_cmds_to_fragment(
         commands,
         fonts,
         images,
-    );
+    )?;
     if !translated.external_textures.is_empty() {
         log::warn!(
             "translate_paint_cmds_to_fragment: {} DrawExternalTexture command(s) skipped — \
@@ -181,14 +260,16 @@ pub fn translate_paint_cmds_to_fragment(
             translated.box_shadow_masks.len()
         );
     }
-    netrender::scene::SceneFragment::from_scene(translated.scene)
+    Ok(netrender::scene::SceneFragment::from_scene(
+        translated.scene,
+    ))
 }
 
 /// Variant that also returns external-source staging metadata and box-shadow
 /// mask requests. The external image itself is already in the returned Scene.
 pub fn translate_envelope_with_external_textures(
     envelope: &paint_list_api::PaintEnvelope,
-) -> TranslatedDisplayList {
+) -> Result<TranslatedDisplayList, TranslationError> {
     translate_paint_cmd_stream(
         envelope.viewport(),
         envelope.commands(),
@@ -222,7 +303,10 @@ pub fn translate_paint_cmd_stream(
     commands: &[PaintCmd],
     fonts: &[FontResource],
     images: &[ImageResource],
-) -> TranslatedDisplayList {
+) -> Result<TranslatedDisplayList, TranslationError> {
+    // Admit the whole command stream before creating a scene or registering
+    // resources. A later unsupported border cannot leave a partial scene.
+    preflight_borders(commands, images)?;
     let viewport_w = viewport.width.max(0) as u32;
     let viewport_h = viewport.height.max(0) as u32;
     let mut scene = Scene::new(viewport_w, viewport_h);
@@ -347,7 +431,11 @@ pub fn translate_paint_cmd_stream(
                 ple::BorderDetails::NinePatch(np) => {
                     emit_nine_patch(&mut scene, border, np, &image_map, tid)
                 }
-                ple::BorderDetails::Normal(_) => emit_border_first_cut(&mut scene, border, tid),
+                ple::BorderDetails::Normal(sides) => {
+                    let mode = admit_normal_border(border, sides)
+                        .expect("border preflight already admitted this command");
+                    emit_border_first_cut(&mut scene, border, sides, mode, tid);
+                }
             },
             PaintCmd::DrawLinearGradient(g) => emit_linear_gradient(&mut scene, g, tid),
             PaintCmd::DrawRadialGradient(g) => emit_radial_gradient(&mut scene, g, tid),
@@ -655,9 +743,9 @@ pub fn translate_paint_cmd_stream(
         }
     }
 
-    TranslatedDisplayList {
+    Ok(TranslatedDisplayList {
         scene,
         external_textures,
         box_shadow_masks,
-    }
+    })
 }

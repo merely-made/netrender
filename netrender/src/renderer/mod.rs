@@ -65,6 +65,29 @@ pub(crate) use rg2b::RasterExecution;
 
 use filters::{make_external_tail_target, scene_tail_fragment};
 
+/// Refusal from Classic retained-fragment admission.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RetainedFragmentError {
+    /// The renderer was constructed without Classic Vello.
+    Unavailable,
+    /// Retained fragment content places another retained fragment.
+    NestedFragment,
+    /// An update named an id that this renderer does not retain.
+    MissingFragment { id: crate::scene::FragmentId },
+}
+
+impl std::fmt::Display for RetainedFragmentError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Unavailable => write!(f, "Classic retained fragments are unavailable"),
+            Self::NestedFragment => write!(f, "nested retained fragments are not supported"),
+            Self::MissingFragment { id } => write!(f, "retained fragment {id} is not registered"),
+        }
+    }
+}
+
+impl std::error::Error for RetainedFragmentError {}
+
 pub struct Renderer {
     pub wgpu_device: WgpuDevice,
     /// A build without classic Vello cannot construct a Renderer, so every
@@ -548,25 +571,68 @@ impl Renderer {
     /// [`crate::scene::Scene::place_fragment`]. The fragment's
     /// lowering is cached across frames, so placement-only changes
     /// (pan / scroll / drag) cost an append, not a re-lower.
-    /// Returns `None` if `enable_vello` was false.
+    /// Returns `None` if Classic Vello is unavailable or the fragment
+    /// contains a nested retained placement. Use [`Self::try_register_fragment`]
+    /// to distinguish those refusals.
     pub fn register_fragment(&self, fragment: crate::scene::SceneFragment) -> Option<u64> {
+        self.try_register_fragment(fragment).ok()
+    }
+
+    /// Register a Classic retained fragment with an explicit refusal reason.
+    /// Nested retained placements are unsupported by both Classic and Sparse.
+    pub fn try_register_fragment(
+        &self,
+        fragment: crate::scene::SceneFragment,
+    ) -> Result<u64, RetainedFragmentError> {
         #[cfg(feature = "without-classic-vello")]
         let () = match self.unavailable {};
-        let rast_mutex = self.vello_rasterizer.as_ref()?;
+        let rast_mutex = self
+            .vello_rasterizer
+            .as_ref()
+            .ok_or(RetainedFragmentError::Unavailable)?;
+        if fragment.has_nested_retained_placement() {
+            return Err(RetainedFragmentError::NestedFragment);
+        }
         let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
-        Some(rast.retained.register(fragment))
+        Ok(rast.retained.register(fragment))
     }
 
     /// Roadmap E4 — replace a retained fragment's content. Bumps its
     /// generation, so the next frame that places it re-lowers.
-    /// Returns `Some(false)` if the id is unknown, `None` if
-    /// `enable_vello` was false.
+    /// Returns `Some(false)` if the id is unknown or the replacement
+    /// contains a nested retained placement; `None` if Classic Vello is
+    /// unavailable. Use [`Self::try_update_fragment`] for the precise reason.
     pub fn update_fragment(&self, id: u64, fragment: crate::scene::SceneFragment) -> Option<bool> {
+        match self.try_update_fragment(id, fragment) {
+            Ok(()) => Some(true),
+            Err(RetainedFragmentError::Unavailable) => None,
+            Err(_) => Some(false),
+        }
+    }
+
+    /// Replace a Classic retained fragment without changing its old content
+    /// or cached lowering when admission fails.
+    pub fn try_update_fragment(
+        &self,
+        id: u64,
+        fragment: crate::scene::SceneFragment,
+    ) -> Result<(), RetainedFragmentError> {
         #[cfg(feature = "without-classic-vello")]
         let () = match self.unavailable {};
-        let rast_mutex = self.vello_rasterizer.as_ref()?;
+        let rast_mutex = self
+            .vello_rasterizer
+            .as_ref()
+            .ok_or(RetainedFragmentError::Unavailable)?;
         let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
-        Some(rast.retained.update(id, fragment))
+        if !rast.retained.contains(id) {
+            return Err(RetainedFragmentError::MissingFragment { id });
+        }
+        if fragment.has_nested_retained_placement() {
+            return Err(RetainedFragmentError::NestedFragment);
+        }
+        let updated = rast.retained.update(id, fragment);
+        debug_assert!(updated);
+        Ok(())
     }
 
     /// Roadmap E4 — drop a retained fragment. Placing a removed id

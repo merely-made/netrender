@@ -34,6 +34,11 @@ use super::*;
 /// calls `append_fragment`. Parallel scene-building consumers must
 /// decide their painter-order policy explicitly (typically: each
 /// fragment owns a Z-band or a workspace pane).
+///
+/// Retained fragments registered with Classic or Sparse must not contain
+/// [`SceneOp::Fragment`] placements. Both registries reject such content at
+/// registration and update; ordinary `Scene::append_fragment` remains a flat
+/// merge and does not impose this restriction.
 #[derive(Debug, Clone)]
 pub struct SceneFragment {
     /// Draw operations in painter order (fragment-local).
@@ -57,6 +62,11 @@ impl Default for SceneFragment {
 }
 
 impl SceneFragment {
+    /// Shared retained-fragment admission rule for Classic and Sparse.
+    pub(crate) fn has_nested_retained_placement(&self) -> bool {
+        self.ops.iter().any(|op| matches!(op, SceneOp::Fragment(_)))
+    }
+
     /// Construct an empty fragment with the identity transform at
     /// index 0 and the sentinel font at index 0 (matching
     /// [`Scene::new`]'s palette invariants).

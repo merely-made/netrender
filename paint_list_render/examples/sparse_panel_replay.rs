@@ -552,7 +552,7 @@ fn replay(
         }
         receipt["missing_font_control_rejected"] = json!(true);
     }
-    let translated = paint_list_render::translate_envelope_with_external_textures(&envelope);
+    let translated = paint_list_render::translate_envelope_with_external_textures(&envelope)?;
     receipt["box_shadow_masks"] = json!(translated.box_shadow_masks.len());
     receipt["external_textures"] = json!(translated.external_textures.len());
     if !translated.external_textures.is_empty() || !translated.box_shadow_masks.is_empty() {

@@ -331,7 +331,7 @@ fn aggregate_source_structure_and_nonempty_sentinel_refuse_before_hashing() {
     ));
 }
 #[test]
-fn invisible_borders_and_gradient_tile_fallback_refuse() {
+fn invisible_borders_are_noops_and_gradient_tile_fallback_refuses() {
     let bounds = LayoutRect::new(LayoutPoint::new(0.0, 0.0), LayoutPoint::new(2.0, 2.0));
     let mut c = capture();
     c.envelope.commands.push(PaintCmd::DrawBorder(BorderItem {
@@ -339,10 +339,8 @@ fn invisible_borders_and_gradient_tile_fallback_refuse() {
         widths: LayoutSideOffsets::new(1.0, 0.0, 0.0, 0.0),
         details: BorderDetails::Normal(NormalBorder::default()),
     }));
-    assert!(matches!(
-        validate_capture(&c),
-        Err(BundleError::InvalidEnvelope { .. })
-    ));
+    validate_capture(&c).expect("invisible border is admitted as a no-op");
+    assert_eq!(translate_capture(&c).unwrap().scene.ops.len(), 1);
     let gradient = LinearGradientItem {
         placement: CommonPlacement::new(bounds),
         gradient: LinearGradientPayload {
@@ -504,6 +502,25 @@ fn border_antialiasing_request_cannot_be_silently_changed() {
         Err(BundleError::InvalidEnvelope {
             command: Some(0),
             ..
+        })
+    ));
+}
+
+#[test]
+fn portable_capture_uses_the_normal_border_style_admission() {
+    let mut c = joined_border_capture(LayoutSize::zero());
+    let PaintCmd::DrawBorder(item) = &mut c.envelope.commands[0] else {
+        unreachable!()
+    };
+    let BorderDetails::Normal(border) = &mut item.details else {
+        unreachable!()
+    };
+    border.left.style = BorderStyle::Double;
+    assert!(matches!(
+        validate_capture(&c),
+        Err(BundleError::InvalidEnvelope {
+            command: Some(0),
+            reason: "border style or geometry is not lowered"
         })
     ));
 }

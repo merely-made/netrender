@@ -23,7 +23,7 @@
 //!    that cannot tell you whether a scene is real or invented is not
 //!    evidence.
 //! 3. **Translation stability** — `translate_paint_list` produces the
-//!    exact `Scene` op stream recorded in the fixture's `.ops` file.
+//!    exact `Scene` op stream or explicit admission refusal recorded in the fixture's `.ops` file.
 //!    This is the consumer-visible contract, and the diff is readable.
 //!
 //! Deliberately CPU-only: no GPU, no device boot, so it runs anywhere.
@@ -152,11 +152,14 @@ fn wire_encoding_round_trips() {
 #[test]
 fn translation_matches_recorded_ops() {
     let mut blessed = Vec::new();
+    let mut failures = Vec::new();
 
     for path in fixtures() {
         let (_, envelope) = load(&path);
-        let scene = translate_paint_list(&envelope);
-        let actual = scene.dump_ops();
+        let actual = match translate_paint_list(&envelope) {
+            Ok(scene) => scene.dump_ops(),
+            Err(error) => format!("Translation refused: {error}\n"),
+        };
 
         let golden_path = path.with_extension("ops");
 
@@ -167,37 +170,20 @@ fn translation_matches_recorded_ops() {
             continue;
         }
 
-        let expected = fs::read_to_string(&golden_path).unwrap_or_else(|e| {
-            panic!(
-                "{} has no recorded .ops ({e}).\n\
-                 Record it with NETRENDER_CORPUS_BLESS=1 and review the result.",
-                path.display()
-            )
-        });
-
-        // `.gitattributes` marks `*.ops` as `-text` so a Windows
-        // checkout cannot rewrite them to CRLF. Normalize anyway: a
-        // contributor whose git predates that rule, or who edits a
-        // golden by hand in a CRLF editor, should get a real diff rather
-        // than a whole-file mismatch on invisible characters.
-        let expected = expected.replace("\r\n", "\n");
-
-        if actual != expected {
-            let (line_no, exp_line, act_line) = first_difference(&expected, &actual);
-            panic!(
-                "{} translated differently than recorded.\n\
-                 First difference at line {line_no}:\n  \
-                 expected: {exp_line}\n  \
-                 actual:   {act_line}\n\
-                 ({} expected lines, {} actual)\n\n\
-                 If this change is intended, re-record with \
-                 NETRENDER_CORPUS_BLESS=1 and include the .ops diff in the commit.",
-                stem(&path),
-                expected.lines().count(),
-                actual.lines().count(),
-            );
-        }
+        record_difference(
+            &mut failures,
+            &stem(&path),
+            fs::read_to_string(&golden_path),
+            &actual,
+        );
     }
+
+    assert!(
+        failures.is_empty(),
+        "{} corpus fixture(s) failed:\n\n{}\n\nIf intended, re-record with NETRENDER_CORPUS_BLESS=1 and review every change.",
+        failures.len(),
+        failures.join("\n\n"),
+    );
 
     if !blessed.is_empty() {
         // Loud on purpose: a blessed run asserts nothing.
@@ -208,6 +194,53 @@ fn translation_matches_recorded_ops() {
             blessed.join(", ")
         );
     }
+}
+
+/// Collect mismatches so one broken fixture cannot hide later failures.
+fn record_difference(
+    failures: &mut Vec<String>,
+    name: &str,
+    expected: std::io::Result<String>,
+    actual: &str,
+) {
+    let expected = match expected {
+        Ok(expected) => expected.replace("\r\n", "\n"),
+        Err(error) => {
+            failures.push(format!("{name}: cannot read recorded .ops: {error}"));
+            return;
+        }
+    };
+    if actual != expected {
+        let (line, expected_line, actual_line) = first_difference(&expected, actual);
+        failures.push(format!(
+            "{name} translated differently than recorded.\nFirst difference at line {line}:\n  expected: {expected_line}\n  actual:   {actual_line}\n({} expected lines, {} actual)",
+            expected.lines().count(), actual.lines().count(),
+        ));
+    }
+}
+
+#[test]
+fn reports_later_mismatches_and_missing_goldens_after_first_failure() {
+    let mut failures = Vec::new();
+    record_difference(&mut failures, "first", Ok("old\n".into()), "new\n");
+    record_difference(&mut failures, "matching", Ok("same\r\n".into()), "same\n");
+    record_difference(
+        &mut failures,
+        "later",
+        Ok("one\ntwo\n".into()),
+        "one\nchanged\n",
+    );
+    record_difference(
+        &mut failures,
+        "missing",
+        Err(std::io::Error::from(std::io::ErrorKind::NotFound)),
+        "ops\n",
+    );
+    assert_eq!(failures.len(), 3);
+    assert!(failures[0].contains("first translated differently"));
+    assert!(failures[1].contains("later translated differently"));
+    assert!(failures[1].contains("line 2"));
+    assert!(failures[2].contains("missing: cannot read recorded .ops"));
 }
 
 /// First differing line, 1-indexed, with both sides. Missing lines render

@@ -14,7 +14,7 @@ use netrender::{
     GradientKind, ImageKey as NrImageKey, NO_CLIP, SHARP_CLIP, Scene, SceneBlendMode, SceneClip,
     SceneLayer, SceneStroke, SceneStrokeCap, SceneStrokeJoin, Transform,
 };
-use paint_list_api::{self as ple, ColorF, ImageKey};
+use paint_list_api::{self as ple, ImageKey};
 use crate::convert::*;
 
 pub(crate) const BOX_SHADOW_MASK_KEY_BASE: u64 = 0xFFFF_0000_0000_0000;
@@ -671,17 +671,66 @@ fn emit_joined_solid_border(
     scene.pop_layer();
 }
 
-pub(crate) fn emit_border_first_cut(scene: &mut Scene, border: &ple::BorderItem, tid: u32) {
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum NormalBorderMode {
+    JoinedSolid,
+    UniformPattern,
+}
+
+/// The renderer's supported normal-border geometry. Both ordinary translation
+/// and portable capture admission use this decision, so a style cannot pass
+/// validation and then quietly become a different painted style.
+pub(crate) fn admit_normal_border(
+    border: &ple::BorderItem,
+    sides: &ple::NormalBorder,
+) -> Result<NormalBorderMode, &'static str> {
     use ple::BorderStyle as BS;
-    let rect = &border.placement.bounds;
     let widths = &border.widths;
-    let sides = match &border.details {
-        ple::BorderDetails::Normal(n) => n,
-        ple::BorderDetails::NinePatch(_) => {
-            warn!("[paint translator] nine-patch border deferred");
-            return;
-        }
-    };
+    if !sides.do_aa {
+        return Err("non-antialiased border geometry is not lowered");
+    }
+    let bounds = &border.placement.bounds;
+    if [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y]
+        .iter()
+        .any(|value| !value.is_finite())
+    {
+        return Err("non-finite border bounds");
+    }
+    if [sides.top, sides.right, sides.bottom, sides.left]
+        .iter()
+        .any(|side| {
+            [side.color.r, side.color.g, side.color.b, side.color.a]
+                .iter()
+                .any(|value| !value.is_finite())
+        })
+    {
+        return Err("non-finite border color");
+    }
+    if [widths.top, widths.right, widths.bottom, widths.left]
+        .iter()
+        .any(|width| !width.is_finite())
+    {
+        return Err("non-finite border width");
+    }
+    if [widths.top, widths.right, widths.bottom, widths.left]
+        .iter()
+        .any(|width| *width < 0.0)
+    {
+        return Err("negative border width");
+    }
+    let r = &sides.radius;
+    if [r.top_left, r.top_right, r.bottom_right, r.bottom_left]
+        .iter()
+        .any(|radius| !radius.width.is_finite() || !radius.height.is_finite())
+    {
+        return Err("non-finite border radius");
+    }
+    if [r.top_left, r.top_right, r.bottom_right, r.bottom_left]
+        .iter()
+        .any(|radius| radius.width < 0.0 || radius.height < 0.0)
+    {
+        return Err("negative border radius");
+    }
 
     if [
         (widths.top, sides.top),
@@ -692,51 +741,51 @@ pub(crate) fn emit_border_first_cut(scene: &mut Scene, border: &ple::BorderItem,
     .iter()
     .all(|(width, side)| *width <= 0.0 || matches!(side.style, BS::Solid | BS::None | BS::Hidden))
     {
-        emit_joined_solid_border(scene, border, sides, tid);
-        return;
+        return Ok(NormalBorderMode::JoinedSolid);
     }
 
-    // Uniform border (all four sides identical width / style / color) is the
-    // common case and the only one a single stroked path can render — strokes
-    // can't carry per-side colors. When it's also rounded or dashed/dotted, take
-    // the stroke fast path; the 4-rect fallback below handles the rest (and
-    // per-side borders, always square).
-    let r = &sides.radius;
-    let has_radius = r.top_left.width > 0.0
-        || r.top_right.width > 0.0
-        || r.bottom_right.width > 0.0
-        || r.bottom_left.width > 0.0;
+    // Patterned strokes cannot carry per-side colors, widths, or styles. Their
+    // corner radii also have one axis, so elliptical corners are not admitted.
     let w = widths.top;
-    let uniform_width = (widths.right - w).abs() < 0.01
-        && (widths.bottom - w).abs() < 0.01
-        && (widths.left - w).abs() < 0.01;
+    let uniform_width = widths.right == w && widths.bottom == w && widths.left == w;
     let s = sides.top.style;
     let uniform_style = sides.right.style == s && sides.bottom.style == s && sides.left.style == s;
     let c = sides.top.color;
-    let col_eq = |a: &ColorF, b: &ColorF| {
-        (a.r - b.r).abs() < 0.004
-            && (a.g - b.g).abs() < 0.004
-            && (a.b - b.b).abs() < 0.004
-            && (a.a - b.a).abs() < 0.004
-    };
-    let uniform_color = col_eq(&sides.right.color, &c)
-        && col_eq(&sides.bottom.color, &c)
-        && col_eq(&sides.left.color, &c);
-    // dotted/dashed need a stroke (dash pattern); solid needs a stroke only to
-    // round. `double`/`groove`/etc. fall through to the (square, solid) fallback.
-    let dash = match s {
-        BS::Dotted => Some(vec![w.max(1.0), w.max(1.0)]),
-        BS::Dashed => Some(vec![(w * 3.0).max(1.0), w.max(1.0)]),
-        _ => None,
-    };
-    let strokeable = matches!(s, BS::Solid | BS::Dotted | BS::Dashed);
-
+    let uniform_color = sides.right.color == c && sides.bottom.color == c && sides.left.color == c;
     if w > 0.01
         && uniform_width
         && uniform_style
         && uniform_color
-        && strokeable
-        && (has_radius || dash.is_some())
+        && matches!(s, BS::Dotted | BS::Dashed)
+        && [r.top_left, r.top_right, r.bottom_right, r.bottom_left]
+            .iter()
+            .all(|radius| radius.width == radius.height)
+    {
+        return Ok(NormalBorderMode::UniformPattern);
+    }
+    Err("border style or geometry is not lowered")
+}
+
+pub(crate) fn emit_border_first_cut(
+    scene: &mut Scene,
+    border: &ple::BorderItem,
+    sides: &ple::NormalBorder,
+    mode: NormalBorderMode,
+    tid: u32,
+) {
+    if mode == NormalBorderMode::JoinedSolid {
+        emit_joined_solid_border(scene, border, sides, tid);
+        return;
+    }
+    let rect = &border.placement.bounds;
+    let w = border.widths.top;
+    let r = &sides.radius;
+    let c = sides.top.color;
+    let dash = match sides.top.style {
+        ple::BorderStyle::Dotted => vec![w.max(1.0), w.max(1.0)],
+        ple::BorderStyle::Dashed => vec![(w * 3.0).max(1.0), w.max(1.0)],
+        _ => unreachable!("admission only selects patterned styles here"),
+    };
     {
         // Stroke is centered on its path; a CSS border sits inside the
         // border-box, so inset the path by w/2 and shrink the corner radii to
@@ -761,56 +810,10 @@ pub(crate) fn emit_border_first_cut(scene: &mut Scene, border: &ple::BorderItem,
             clip_corner_radii: SHARP_CLIP,
             cap: SceneStrokeCap::Butt,
             join: SceneStrokeJoin::Miter,
-            dash_pattern: dash.unwrap_or_default(),
+            dash_pattern: dash,
             dash_offset: 0.0,
         });
-        return;
     }
-
-    // Fallback: per-side filled rects (square corners). Handles non-uniform
-    // borders and styles the stroke path doesn't model yet (double/groove/...).
-    if widths.top > 0.0 {
-        scene.push_rect_transformed(
-            rect.min.x,
-            rect.min.y,
-            rect.max.x,
-            rect.min.y + widths.top,
-            color_to_array(&sides.top.color),
-            tid,
-        );
-    }
-    if widths.bottom > 0.0 {
-        scene.push_rect_transformed(
-            rect.min.x,
-            rect.max.y - widths.bottom,
-            rect.max.x,
-            rect.max.y,
-            color_to_array(&sides.bottom.color),
-            tid,
-        );
-    }
-    if widths.left > 0.0 {
-        scene.push_rect_transformed(
-            rect.min.x,
-            rect.min.y,
-            rect.min.x + widths.left,
-            rect.max.y,
-            color_to_array(&sides.left.color),
-            tid,
-        );
-    }
-    if widths.right > 0.0 {
-        scene.push_rect_transformed(
-            rect.max.x - widths.right,
-            rect.min.y,
-            rect.max.x,
-            rect.max.y,
-            color_to_array(&sides.right.color),
-            tid,
-        );
-    }
-    let _ = sides.radius;
-    let _ = sides.do_aa;
 }
 
 pub(crate) fn emit_linear_gradient(scene: &mut Scene, item: &ple::LinearGradientItem, tid: u32) {

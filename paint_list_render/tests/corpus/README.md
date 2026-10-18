@@ -132,3 +132,10 @@ Sample rather than committing all of it: pick fixtures that cover
 distinct command shapes, keep them small, and let the rest stay in the
 run. Still uncovered by anything here: gradients, images, external
 textures, box shadows, and nine-patch borders.
+
+Admission refusals are recorded in `.ops` as `Translation refused: ...`.
+The article-card fixture deliberately contains a nonuniform dashed border,
+which is refused instead of rendered as a solid rectangle. Its command bytes
+remain intact; the captured solid border has separate pixel tests. Replay
+collects all differing or missing expectations before failing, so one stale
+fixture cannot hide another.

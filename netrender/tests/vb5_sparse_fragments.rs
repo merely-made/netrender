@@ -123,6 +123,29 @@ fn malformed_and_unsupported_content_is_refused() {
     assert!(resolve(&registry, &frame).is_err());
 }
 
+#[test]
+fn nested_update_rejection_keeps_sparse_source() {
+    let mut registry = registry();
+    let id = registry.register_fragment(red()).unwrap();
+    let mut frame = Scene::new(64, 64);
+    frame.place_fragment(id, Transform::IDENTITY);
+    let before = resolve(&registry, &frame).unwrap();
+
+    let mut nested_scene = Scene::new(64, 64);
+    nested_scene.place_fragment(id, Transform::IDENTITY);
+    let nested = SceneFragment::from_scene(nested_scene);
+    assert!(matches!(
+        registry.update_fragment(id, nested),
+        Err(SparseSessionError::InvalidScene {
+            reason: "nested retained fragments are not supported",
+            ..
+        })
+    ));
+    assert_eq!(registry.generation(id), Some(0));
+    let after = resolve(&registry, &frame).unwrap();
+    assert_eq!(format!("{:?}", after.ops), format!("{:?}", before.ops));
+}
+
 #[cfg(feature = "vello-cpu")]
 mod cpu {
     use super::*;

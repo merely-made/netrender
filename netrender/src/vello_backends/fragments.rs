@@ -161,11 +161,7 @@ impl SparseFragmentRegistry {
                 "fragment requires identity transform and empty font sentinel at index 0",
             ));
         }
-        if fragment
-            .ops
-            .iter()
-            .any(|op| matches!(op, SceneOp::Fragment(_)))
-        {
+        if fragment.has_nested_retained_placement() {
             return Err(invalid("nested retained fragments are not supported"));
         }
         // Check references and balance before ID remapping; invalid local IDs

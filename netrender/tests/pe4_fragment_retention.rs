@@ -17,7 +17,10 @@
 //! usable oracle (the same choice the pa/p2 golden suites made).
 
 use netrender::scene::{SceneFragment, Transform};
-use netrender::{boot, create_netrender_instance, ColorLoad, NetrenderOptions, Renderer, Scene};
+use netrender::{
+    boot, create_netrender_instance, ColorLoad, NetrenderOptions, Renderer, RetainedFragmentError,
+    Scene,
+};
 
 const DIM: u32 = 256;
 const TILE: u32 = 64;
@@ -214,6 +217,44 @@ fn content_update_relowers_and_changes_pixels() {
         after, expected,
         "updated content must match its flat reference"
     );
+}
+
+#[test]
+fn nested_fragment_rejection_keeps_rendered_content_and_master_cache() {
+    let handles = boot().expect("wgpu boot");
+    let r = renderer(&handles);
+    let id = r.register_fragment(card_fragment()).expect("register");
+    let mut scene = base_scene();
+    scene.place_fragment(id, Transform::translate_2d(40.0, 32.0));
+    let before = render_bytes(&r, &handles, &scene);
+    assert_eq!(r.fragment_lower_count(), Some(1));
+
+    let mut nested_scene = Scene::new(DIM, DIM);
+    nested_scene.place_fragment(id, Transform::IDENTITY);
+    let nested = SceneFragment::from_scene(nested_scene);
+    assert_eq!(
+        r.try_register_fragment(nested.clone()),
+        Err(RetainedFragmentError::NestedFragment)
+    );
+    assert_eq!(r.register_fragment(nested.clone()), None);
+    assert_eq!(
+        r.try_update_fragment(id, nested.clone()),
+        Err(RetainedFragmentError::NestedFragment)
+    );
+    assert_eq!(r.update_fragment(id, nested), Some(false));
+
+    let after = render_bytes(&r, &handles, &scene);
+    assert_eq!(
+        after, before,
+        "rejected update must preserve the old pixels"
+    );
+    assert_eq!(
+        r.fragment_lower_count(),
+        Some(1),
+        "old lowering stays cached"
+    );
+    assert_eq!(r.fragment_master_hits(), Some(1), "old master stays cached");
+    assert_eq!(r.register_fragment(card_fragment()), Some(id + 1));
 }
 
 /// Painter order across the fragment boundary: direct op below,
