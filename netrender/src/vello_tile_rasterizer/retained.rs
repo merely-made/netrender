@@ -41,9 +41,9 @@ use std::hash::Hasher;
 use vello::kurbo::{Affine, Rect};
 use vello::peniko::{Fill, Mix};
 
-use crate::scene::{FragmentId, Scene, SceneFragment, SceneOp, Transform};
+use crate::scene::{FragmentId, ImageKey, Scene, SceneFragment, SceneOp, Transform};
 use crate::tile_cache::op_hash;
-use crate::vello_rasterizer::{emit_push_layer, scene_to_vello_with_overrides, transform_to_affine};
+use crate::vello_rasterizer::{emit_push_layer, scene_to_vello_with_image_sources, transform_to_affine};
 
 use super::VelloTileRasterizer;
 
@@ -78,11 +78,19 @@ pub(crate) struct RetainedState {
 impl RetainedState {
     /// Drop the whole-master shortcut when an external image receives a new
     /// Vello identity or is retired. Its frame signature contains image keys,
-    /// not override identities.
-    pub(crate) fn invalidate_image_override_cache(&mut self) {
+    /// not override identities. Re-lower only fragments whose image draws use
+    /// one of the changed keys.
+    pub(crate) fn invalidate_image_override_cache(&mut self, keys: &[ImageKey]) {
         self.cached_master = None;
         for fragment in self.fragments.values_mut() {
-            fragment.lowered = None;
+            let affected = fragment.fragment.ops.iter().any(|op| match op {
+                SceneOp::Image(image) => keys.contains(&image.key),
+                SceneOp::Pattern(pattern) => keys.contains(&pattern.tile),
+                _ => false,
+            });
+            if affected {
+                fragment.lowered = None;
+            }
         }
     }
 
@@ -239,12 +247,13 @@ impl Run {
     fn flush_into(
         &mut self,
         master: &mut vello::Scene,
-        merged_images: &HashMap<u64, vello::peniko::ImageData>,
+        cached_images: &HashMap<u64, vello::peniko::ImageData>,
+        overrides: &HashMap<u64, vello::peniko::ImageData>,
     ) {
         if self.is_empty {
             return;
         }
-        let sub = scene_to_vello_with_overrides(&self.scene, merged_images);
+        let sub = scene_to_vello_with_image_sources(&self.scene, cached_images, overrides);
         master.append(&sub, None);
         self.scene.ops.clear();
         self.is_empty = true;
@@ -289,12 +298,6 @@ impl VelloTileRasterizer {
 
         let compose_span = Span::start("master_compose");
 
-        // Merged Path A + Path B image map, same as the tile path.
-        let mut merged_images = self.image_data.clone();
-        for (key, image) in &self.image_overrides {
-            merged_images.insert(*key, image.clone());
-        }
-
         let mut master = vello::Scene::new();
 
         // Phase 12a' scene-level alpha + blend wrap, mirroring
@@ -332,10 +335,18 @@ impl VelloTileRasterizer {
                         );
                         continue;
                     };
-                    run.flush_into(&mut master, &merged_images);
+                    run.flush_into(
+                        &mut master,
+                        self.image_data.entries(),
+                        &self.image_overrides,
+                    );
                     if retained.lowered.is_none() {
                         let tmp = fragment_to_scene(&retained.fragment);
-                        let lowered = scene_to_vello_with_overrides(&tmp, &merged_images);
+                        let lowered = scene_to_vello_with_image_sources(
+                            &tmp,
+                            self.image_data.entries(),
+                            &self.image_overrides,
+                        );
                         let r = self.retained.fragments.get_mut(&f.id).unwrap();
                         r.lowered = Some(lowered);
                         self.retained.lower_count += 1;
@@ -351,7 +362,11 @@ impl VelloTileRasterizer {
                 SceneOp::PushLayer(layer) => {
                     // Hoisted to the master so the scope is open around
                     // fragment appends, not buried in the run sub-scene.
-                    run.flush_into(&mut master, &merged_images);
+                    run.flush_into(
+                        &mut master,
+                        self.image_data.entries(),
+                        &self.image_overrides,
+                    );
                     emit_push_layer(&mut master, layer, scene);
                     layer_depth += 1;
                 }
@@ -361,7 +376,11 @@ impl VelloTileRasterizer {
                         "SceneOp::PopLayer with no matching PushLayer"
                     );
                     if layer_depth > 0 {
-                        run.flush_into(&mut master, &merged_images);
+                        run.flush_into(
+                            &mut master,
+                            self.image_data.entries(),
+                            &self.image_overrides,
+                        );
                         master.pop_layer();
                         layer_depth -= 1;
                     }
@@ -369,7 +388,11 @@ impl VelloTileRasterizer {
                 other => run.push(other.clone()),
             }
         }
-        run.flush_into(&mut master, &merged_images);
+        run.flush_into(
+            &mut master,
+            self.image_data.entries(),
+            &self.image_overrides,
+        );
 
         // An unbalanced scene would otherwise trap the root wrap inside
         // a stray layer.

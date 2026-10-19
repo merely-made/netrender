@@ -53,7 +53,7 @@ use netrender_device::WgpuHandles;
 
 use crate::scene::{ImageKey, Scene};
 use crate::tile_cache::{TileCache, TileCoord, aabb_intersects};
-use crate::vello_rasterizer::scene_to_vello_with_overrides;
+use crate::vello_rasterizer::{scene_to_vello_with_image_sources, CpuImageCache};
 
 mod master;
 mod retained;
@@ -81,7 +81,7 @@ pub struct VelloTileRasterizer {
     /// `Blob::id()` dedup keeps the GPU upload to once per
     /// `ImageKey`. Entries are added on first sight of a key and
     /// evicted when the key disappears from `scene.image_sources`.
-    image_data: HashMap<ImageKey, ImageData>,
+    image_data: CpuImageCache,
     /// Caller-registered GPU textures via `register_texture` (Path B).
     /// Persists across frames; entries survive until the texture is
     /// explicitly unregistered or the rasterizer is dropped.
@@ -146,7 +146,7 @@ impl VelloTileRasterizer {
             handles,
             vello_renderer,
             tile_scenes: HashMap::new(),
-            image_data: HashMap::new(),
+            image_data: CpuImageCache::default(),
             image_overrides: HashMap::new(),
             live_texture_registrations: 0,
             last_dirty_count: 0,
@@ -394,7 +394,7 @@ impl VelloTileRasterizer {
         let image = self.vello_renderer.register_texture(texture);
         self.image_overrides.insert(key, image);
         self.live_texture_registrations += 1;
-        self.invalidate_image_override_caches();
+        self.invalidate_image_override_caches(&[key]);
         true
     }
 
@@ -408,7 +408,7 @@ impl VelloTileRasterizer {
         if let Some(image) = self.image_overrides.remove(&key) {
             self.vello_renderer.unregister_texture(image);
             self.live_texture_registrations = self.live_texture_registrations.saturating_sub(1);
-            self.invalidate_image_override_caches();
+            self.invalidate_image_override_caches(&[key]);
             true
         } else {
             false
@@ -422,11 +422,15 @@ impl VelloTileRasterizer {
     /// Caller preflights the complete disjoint move set before the first move.
     /// Moving ImageData submits no GPU work and retains the qualified texture.
     pub(crate) fn promote_texture_override(&mut self, temporary: ImageKey, stable: ImageKey) {
-        let image = self.image_overrides.remove(&temporary).expect("preflighted private image");
+        let image = self
+            .image_overrides
+            .remove(&temporary)
+            .expect("preflighted private image");
         if let Some(previous) = self.image_overrides.insert(stable, image) {
             self.vello_renderer.unregister_texture(previous);
             self.live_texture_registrations = self.live_texture_registrations.saturating_sub(1);
         }
+        self.invalidate_image_override_caches(&[temporary, stable]);
     }
 
     /// Replace the backing GPU texture while preserving Vello's `ImageData`
@@ -457,9 +461,9 @@ impl VelloTileRasterizer {
     /// `ImageData` identity or is retired. The `ImageKey` embedded in a scene
     /// is intentionally stable, so neither the tile hash nor the retained
     /// fragment signature can otherwise observe this resource replacement.
-    pub(crate) fn invalidate_image_override_caches(&mut self) {
+    pub(crate) fn invalidate_image_override_caches(&mut self, keys: &[ImageKey]) {
         self.tile_scenes.clear();
-        self.retained.invalidate_image_override_cache();
+        self.retained.invalidate_image_override_cache(keys);
     }
 
     /// Number of tiles whose Scenes were rebuilt by the last
@@ -646,11 +650,11 @@ impl VelloTileRasterizer {
         target_view: &wgpu::TextureView,
         base_color: Color,
     ) -> Result<(), vello::Error> {
-        let mut merged_images = self.image_data.clone();
-        for (key, image) in &self.image_overrides {
-            merged_images.insert(*key, image.clone());
-        }
-        let overlay_scene = scene_to_vello_with_overrides(scene, &merged_images);
+        let overlay_scene = scene_to_vello_with_image_sources(
+            scene,
+            self.image_data.entries(),
+            &self.image_overrides,
+        );
         self.vello_renderer.render_to_texture(
             &self.handles.device,
             &self.handles.queue,

@@ -40,7 +40,7 @@
 
 pub(crate) mod init;
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex};
 
 use netrender_device::compositor::{Compositor, PresentedFrame};
@@ -124,11 +124,11 @@ pub struct Renderer {
     /// producer; entries are explicitly retired by `unregister_external_image`.
     external_images: Mutex<HashMap<ImageKey, ExternalImageState>>,
     external_image_staging_pipeline: Mutex<Option<ExternalImageStagingPipeline>>,
-    /// Filter-result texture slots: sentinel `ImageKey` -> the size of the
-    /// texture currently registered under it. One entry per filtered layer
+    /// Filter-result texture slots currently registered with the rasterizer.
+    /// One entry per filtered layer
     /// the frame needs, reused frame to frame so a cached tile's baked Vello
     /// handle stays valid. See `Renderer::publish_filter_texture`.
-    pub(crate) filter_image_slots: Mutex<HashMap<ImageKey, [u32; 2]>>,
+    pub(crate) filter_image_slots: Mutex<HashSet<ImageKey>>,
 }
 
 #[derive(Clone, Copy)]
@@ -304,13 +304,19 @@ impl Renderer {
         let mut rasterizer = rasterizer.lock().expect("vello_rasterizer lock");
         for item in moves {
             let Some(actual) = images.get(&item.temporary) else {
-                return Err(ExternalImagePromotionError::MissingPrivateImage(item.temporary));
+                return Err(ExternalImagePromotionError::MissingPrivateImage(
+                    item.temporary,
+                ));
             };
             if actual.size != item.size || actual.generation != item.generation {
-                return Err(ExternalImagePromotionError::StalePrivateImage(item.temporary));
+                return Err(ExternalImagePromotionError::StalePrivateImage(
+                    item.temporary,
+                ));
             }
             if !rasterizer.has_texture_override(item.temporary) {
-                return Err(ExternalImagePromotionError::MissingPrivateImage(item.temporary));
+                return Err(ExternalImagePromotionError::MissingPrivateImage(
+                    item.temporary,
+                ));
             }
             if images.contains_key(&item.stable) != rasterizer.has_texture_override(item.stable) {
                 return Err(ExternalImagePromotionError::ForeignStableImage(item.stable));
@@ -318,13 +324,16 @@ impl Renderer {
         }
         for item in moves {
             rasterizer.promote_texture_override(item.temporary, item.stable);
-            let state = images.remove(&item.temporary).expect("preflighted private image");
+            let state = images
+                .remove(&item.temporary)
+                .expect("preflighted private image");
             images.insert(item.stable, state);
         }
-        if !moves.is_empty() { rasterizer.invalidate_image_override_caches(); }
         drop(rasterizer);
         drop(images);
-        if !moves.is_empty() { self.invalidate_external_image_tile_caches(); }
+        if !moves.is_empty() {
+            self.invalidate_external_image_tile_caches();
+        }
         Ok(())
     }
 
@@ -381,10 +390,8 @@ impl Renderer {
         if new_image_identity && previous.is_some() {
             rast.unregister_texture(key);
             rast.register_texture(key, staged);
-            rast.invalidate_image_override_caches();
         } else if !rast.refresh_texture(key, staged.clone()) {
             rast.register_texture(key, staged);
-            rast.invalidate_image_override_caches();
         }
         drop(rast);
         if new_image_identity {
@@ -410,7 +417,6 @@ impl Renderer {
             if let Some(rast_mutex) = &self.vello_rasterizer {
                 let mut rast = rast_mutex.lock().expect("vello_rasterizer lock");
                 rast.unregister_texture(key);
-                rast.invalidate_image_override_caches();
             }
             self.invalidate_external_image_tile_caches();
         }

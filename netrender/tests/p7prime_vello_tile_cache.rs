@@ -292,17 +292,20 @@ fn p7prime_05_image_cache_persists_across_frames() {
     scene.image_sources.insert(TEST_IMG_KEY, one_pixel_image());
     scene.push_image(16.0, 16.0, 48.0, 48.0, TEST_IMG_KEY, one_pixel_image());
 
-    let (_t1, v1) = make_target(&handles.device);
+    let (t1, v1) = make_target(&handles.device);
     rasterizer
         .render(&scene, &mut tc, &v1, TRANSPARENT)
         .expect("render 1");
     let id1 = rasterizer
         .cached_image_blob_id(TEST_IMG_KEY)
         .expect("cache populated after first render");
+    let reader = netrender_device::WgpuDevice::with_external(handles.clone()).unwrap();
+    let first_pixels = reader.read_rgba8_texture(&t1, VIEWPORT, VIEWPORT);
+    assert_eq!(read_pixel(&first_pixels, 32, 32), [255, 0, 0, 255]);
 
     // Frame 2: same Scene reference, no dirty tiles. Cache must
     // hold the same Blob (id stable).
-    let (_t2, v2) = make_target(&handles.device);
+    let (t2, v2) = make_target(&handles.device);
     rasterizer
         .render(&scene, &mut tc, &v2, TRANSPARENT)
         .expect("render 2");
@@ -310,6 +313,10 @@ fn p7prime_05_image_cache_persists_across_frames() {
     assert_eq!(
         id1, id2,
         "Blob id must be stable across re-render of same Scene"
+    );
+    assert_eq!(
+        reader.read_rgba8_texture(&t2, VIEWPORT, VIEWPORT),
+        first_pixels
     );
 
     // Frame 3: brand-new Scene instance with the same ImageKey
@@ -320,7 +327,7 @@ fn p7prime_05_image_cache_persists_across_frames() {
         .image_sources
         .insert(TEST_IMG_KEY, one_pixel_image());
     scene_b.push_image(20.0, 20.0, 60.0, 60.0, TEST_IMG_KEY, one_pixel_image());
-    let (_t3, v3) = make_target(&handles.device);
+    let (t3, v3) = make_target(&handles.device);
     rasterizer
         .render(&scene_b, &mut tc, &v3, TRANSPARENT)
         .expect("render 3");
@@ -329,6 +336,9 @@ fn p7prime_05_image_cache_persists_across_frames() {
         id1, id3,
         "Blob id must survive Scene-instance swap when key is unchanged",
     );
+    let moved_pixels = reader.read_rgba8_texture(&t3, VIEWPORT, VIEWPORT);
+    assert_eq!(read_pixel(&moved_pixels, 50, 50), [255, 0, 0, 255]);
+    assert_eq!(read_pixel(&moved_pixels, 17, 17), [0, 0, 0, 0]);
 }
 
 /// A key dropped from `scene.image_sources` (e.g., consumer rebuilt
@@ -359,4 +369,102 @@ fn p7prime_06_image_cache_evicts_on_key_drop() {
         rasterizer.cached_image_blob_id(TEST_IMG_KEY).is_none(),
         "key dropped from scene.image_sources must evict from cache",
     );
+}
+
+/// Exercise image and pattern lookup through a real draw, including the
+/// collision where an override must win without replacing the CPU source.
+#[test]
+fn simple_image_lookup_preserves_override_precedence_and_retirement_pixels() {
+    use netrender::vello_rasterizer::{
+        VelloRasterizer, scene_to_vello_with_cache, scene_to_vello_with_overrides,
+    };
+    use std::collections::HashMap;
+    use vello::{AaConfig, AaSupport, RenderParams, Renderer, RendererOptions};
+
+    let handles = boot().expect("wgpu boot");
+    let reader = netrender_device::WgpuDevice::with_external(handles.clone()).unwrap();
+    let mut renderer = Renderer::new(
+        &handles.device,
+        RendererOptions {
+            use_cpu: false,
+            antialiasing_support: AaSupport::area_only(),
+            num_init_threads: None,
+            pipeline_cache: None,
+        },
+    )
+    .unwrap();
+    let (target, view) = make_target(&handles.device);
+    let mut draw = |scene: &vello::Scene| {
+        renderer
+            .render_to_texture(
+                &handles.device,
+                &handles.queue,
+                scene,
+                &view,
+                &RenderParams {
+                    base_color: TRANSPARENT,
+                    width: VIEWPORT,
+                    height: VIEWPORT,
+                    antialiasing_method: AaConfig::Area,
+                },
+            )
+            .unwrap();
+        reader.read_rgba8_texture(&target, VIEWPORT, VIEWPORT)
+    };
+    let source_scene = |rgba: [u8; 4]| {
+        let mut scene = Scene::new(VIEWPORT, VIEWPORT);
+        scene.push_image(
+            0.0,
+            0.0,
+            64.0,
+            64.0,
+            TEST_IMG_KEY,
+            ImageData::from_bytes(1, 1, rgba.to_vec()),
+        );
+        scene.push_pattern(TEST_IMG_KEY, [64.0, 0.0, 128.0, 64.0], [1.0, 1.0]);
+        scene
+    };
+    let samples = |pixels: &[u8], expected| {
+        assert_eq!(read_pixel(pixels, 32, 32), expected, "image");
+        assert_eq!(read_pixel(pixels, 96, 32), expected, "pattern");
+        assert_eq!(read_pixel(pixels, 32, 96), [0, 0, 0, 0], "outside");
+    };
+    let red = source_scene([255, 0, 0, 255]);
+    let mut rasterizer = VelloRasterizer::new();
+    assert!(
+        draw(&scene_to_vello_with_cache(&red, &HashMap::new()))
+            .iter()
+            .all(|byte| *byte == 0),
+        "cache-only lookup must not consult scene sources"
+    );
+    let red_pixels = draw(&rasterizer.scene_to_vello(&red));
+    samples(&red_pixels, [255, 0, 0, 255]);
+    assert_eq!(draw(&rasterizer.scene_to_vello(&red)), red_pixels);
+
+    let blue = vello::peniko::ImageData {
+        data: vello::peniko::Blob::new(std::sync::Arc::new(vec![0, 0, 255, 255])),
+        format: vello::peniko::ImageFormat::Rgba8,
+        alpha_type: vello::peniko::ImageAlphaType::Alpha,
+        width: 1,
+        height: 1,
+    };
+    rasterizer.register_texture(TEST_IMG_KEY, blue.clone());
+    let blue_pixels = draw(&rasterizer.scene_to_vello(&red));
+    samples(&blue_pixels, [0, 0, 255, 255]);
+    let overrides = HashMap::from([(TEST_IMG_KEY, blue)]);
+    assert_eq!(
+        draw(&scene_to_vello_with_overrides(&red, &overrides)),
+        blue_pixels
+    );
+    assert!(rasterizer.unregister_texture(TEST_IMG_KEY).is_some());
+    assert_eq!(draw(&rasterizer.scene_to_vello(&red)), red_pixels);
+
+    // Retire before reusing a key, as required by the existing source contract.
+    let empty = Scene::new(VIEWPORT, VIEWPORT);
+    assert!(draw(&rasterizer.scene_to_vello(&empty))
+        .iter()
+        .all(|byte| *byte == 0));
+    assert_eq!(rasterizer.cached_image_count(), 0);
+    let green = source_scene([0, 255, 0, 255]);
+    samples(&draw(&rasterizer.scene_to_vello(&green)), [0, 255, 0, 255]);
 }

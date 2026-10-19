@@ -12,12 +12,12 @@
 use vello::{
     Renderer,
     kurbo::{Affine, Rect},
-    peniko::{BlendMode, Brush, Color, Compose, Fill, ImageAlphaType, ImageData, ImageFormat, Mix},
+    peniko::{BlendMode, Brush, Color, Compose, Fill, Mix},
 };
 
 use crate::scene::{ImageKey, Scene, SceneBlendMode, SceneOp};
 use crate::tile_cache::TileCache;
-use crate::vello_rasterizer::scene_to_vello_with_overrides;
+use crate::vello_rasterizer::scene_to_vello_with_image_sources;
 
 use super::{MasterEntry, VelloTileRasterizer};
 
@@ -157,11 +157,6 @@ impl VelloTileRasterizer {
         // (Path B overrides win on key collision). Previously this
         // ran inside build_tile_scene and re-merged for every dirty
         // tile — O(N_images × N_dirty_tiles) instead of O(N_images).
-        let mut merged_images = self.image_data.clone();
-        for (key, image) in &self.image_overrides {
-            merged_images.insert(*key, image.clone());
-        }
-
         let invalidate_span = Span::start("tile_invalidate");
         let dirty = tile_cache.invalidate(scene);
         invalidate_span.stop_recording(timings);
@@ -174,7 +169,11 @@ impl VelloTileRasterizer {
                 .tile_world_rect(coord)
                 .expect("dirty tile must be in tile_cache");
             let filtered = filter_scene_to_tile(scene, world_rect);
-            let tile_scene = scene_to_vello_with_overrides(&filtered, &merged_images);
+            let tile_scene = scene_to_vello_with_image_sources(
+                &filtered,
+                self.image_data.entries(),
+                &self.image_overrides,
+            );
             tile_scenes.insert(coord, tile_scene);
         }
 
@@ -191,37 +190,7 @@ impl VelloTileRasterizer {
     }
 
     pub(super) fn refresh_image_data(&mut self, scene: &Scene) {
-        // Path A blobs are Arc<Vec<u8>> wrapped in peniko::Blob.
-        // Vello dedups uploads by Blob::id(), so we keep each
-        // entry alive across frames — same Arc, same id, one
-        // upload per ImageKey for the life of the rasterizer (or
-        // until the consumer drops the key from the scene).
-        for (key, data) in &scene.image_sources {
-            self.image_data.entry(*key).or_insert_with(|| ImageData {
-                data: data.data.clone(),
-                format: ImageFormat::Rgba8,
-                alpha_type: ImageAlphaType::Alpha,
-                width: data.width,
-                height: data.height,
-            });
-            // ImageKey is contractually a unique identifier for
-            // its bytes (Scene::set_image_source is or_insert).
-            // A size mismatch on re-encounter means the consumer
-            // reused a key for different data; flag it in debug.
-            debug_assert_eq!(
-                (
-                    self.image_data[key].width,
-                    self.image_data[key].height,
-                    self.image_data[key].data.len(),
-                ),
-                (data.width, data.height, data.data.len()),
-                "ImageKey {key:#x} reused with different dimensions or byte length",
-            );
-        }
-        // Evict cache entries whose keys disappeared from the
-        // scene (e.g., scene was rebuilt and a key retired).
-        self.image_data
-            .retain(|key, _| scene.image_sources.contains_key(key));
+        self.image_data.refresh(scene);
     }
 
     /// Return the `peniko::Blob` id for the cached Path A image
@@ -229,7 +198,7 @@ impl VelloTileRasterizer {
     /// the key remains in `scene.image_sources` — used by tests
     /// to verify the cross-frame cache invariant.
     pub fn cached_image_blob_id(&self, key: ImageKey) -> Option<u64> {
-        self.image_data.get(&key).map(|img| img.data.id())
+        self.image_data.entries().get(&key).map(|img| img.data.id())
     }
 
     fn compose_master(

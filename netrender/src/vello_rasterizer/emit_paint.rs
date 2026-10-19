@@ -7,7 +7,7 @@
 //! Paint op emitters: linear/radial/conic gradients, images (UV crop, alpha +
 //! chromatic tint), and repeated-tile patterns. See [`super`].
 
-use std::collections::HashMap;
+use std::borrow::Cow;
 
 use vello::kurbo::{Affine, Point, Rect};
 use vello::peniko::{
@@ -20,6 +20,7 @@ use crate::scene::{
 };
 
 use super::{push_clip_layer, transform_to_affine, unpremultiply_color};
+use super::ImageLookup;
 pub(super) fn emit_gradient(
     vscene: &mut vello::Scene,
     grad: &SceneGradient,
@@ -135,7 +136,7 @@ pub(super) fn emit_image(
     vscene: &mut vello::Scene,
     image: &SceneImage,
     transforms: &[Transform],
-    cache: &HashMap<ImageKey, ImageData>,
+    cache: &ImageLookup<'_>,
 ) -> Option<ImageKey> {
     let Some(img) = cache.get(&image.key) else {
         // A content scene (a fetched web page) must never crash the whole renderer:
@@ -168,7 +169,7 @@ pub(super) fn emit_image(
         ImageQuality::Medium
     };
     let (brush, brush_xform) = if image.clamp_to_uv {
-        let sub = crop_to_uv(img, image.uv);
+        let sub = crop_to_uv(&img, image.uv);
         let (sw, sh) = (sub.width, sub.height);
         (
             ImageBrush::new(sub)
@@ -178,11 +179,12 @@ pub(super) fn emit_image(
             uv_to_target_affine([0.0, 0.0, 1.0, 1.0], target, sw, sh),
         )
     } else {
+        let (iw, ih) = (img.width, img.height);
         (
-            ImageBrush::new(img.clone())
+            ImageBrush::new(Cow::into_owned(img))
                 .with_alpha(alpha)
                 .with_quality(quality),
-            uv_to_target_affine(image.uv, target, img.width, img.height),
+            uv_to_target_affine(image.uv, target, iw, ih),
         )
     };
 
@@ -226,7 +228,7 @@ pub(super) fn emit_pattern(
     vscene: &mut vello::Scene,
     pattern: &ScenePattern,
     transforms: &[Transform],
-    cache: &HashMap<ImageKey, ImageData>,
+    cache: &ImageLookup<'_>,
 ) -> Option<ImageKey> {
     let Some(img) = cache.get(&pattern.tile) else {
         // Same content-robustness as `emit_image`: skip a tiling pattern (a CSS
@@ -255,7 +257,7 @@ pub(super) fn emit_pattern(
         pattern.extent[3] as f64,
     );
 
-    let brush = ImageBrush::new(img.clone())
+    let brush = ImageBrush::new(Cow::into_owned(img))
         .with_extend(Extend::Repeat)
         .with_quality(if pattern.nearest {
             ImageQuality::Low
