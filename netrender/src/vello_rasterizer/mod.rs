@@ -49,7 +49,7 @@
 //! `(m[0], m[1], m[4], m[5], m[12], m[13])` = `(a, b, c, d, e, f)`,
 //! matching `kurbo::Affine::new([a, b, c, d, e, f])`.
 
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 use vello::kurbo::{Affine, Rect, RoundedRect, RoundedRectRadii};
 use vello::peniko::{self, Color, Fill, ImageAlphaType, ImageData, ImageFormat};
@@ -87,19 +87,34 @@ pub fn scene_to_vello_with_overrides(
     scene: &Scene,
     image_overrides: &HashMap<ImageKey, ImageData>,
 ) -> vello::Scene {
-    let images = build_image_cache(scene, image_overrides);
-    scene_to_vello_with_cache(scene, &images)
+    let empty = HashMap::new();
+    let images = ImageLookup::new(&empty, &scene.image_sources, image_overrides);
+    scene_to_vello_with_lookup(scene, &images)
 }
 
 /// Translate a [`Scene`] into a [`vello::Scene`] using a
-/// caller-supplied pre-built image cache. Same body as
-/// [`scene_to_vello_with_overrides`] minus the
-/// [`build_image_cache`] step; exposed for [`VelloRasterizer`] to
-/// reuse a persistent image cache across calls.
+/// caller-supplied pre-built image cache. Keys missing from this map
+/// are treated as missing, matching the original cache-only contract.
 pub fn scene_to_vello_with_cache(
     scene: &Scene,
     images: &HashMap<ImageKey, ImageData>,
 ) -> vello::Scene {
+    let empty_sources = HashMap::new();
+    let empty_overrides = HashMap::new();
+    let images = ImageLookup::new(images, &empty_sources, &empty_overrides);
+    scene_to_vello_with_lookup(scene, &images)
+}
+
+pub(crate) fn scene_to_vello_with_image_sources(
+    scene: &Scene,
+    cached: &HashMap<ImageKey, ImageData>,
+    overrides: &HashMap<ImageKey, ImageData>,
+) -> vello::Scene {
+    let images = ImageLookup::new(cached, &scene.image_sources, overrides);
+    scene_to_vello_with_lookup(scene, &images)
+}
+
+fn scene_to_vello_with_lookup(scene: &Scene, images: &ImageLookup<'_>) -> vello::Scene {
     let mut vscene = vello::Scene::new();
 
     // Single pass over the unified op list — painter order = consumer
@@ -172,11 +187,11 @@ pub fn scene_to_vello_with_cache(
         let unique: std::collections::HashSet<_> = missing_images.iter().copied().collect();
         log::warn!(
             "scene_to_vello: {} image/pattern op(s) referenced {} unregistered image key(s) \
-             and were skipped (scene carried {} sources). Keys >= {:#x} are unbuilt box-shadow \
+             and were skipped (up to {} image lookup entries were available). Keys >= {:#x} are unbuilt box-shadow \
              masks; lower keys are content images with no registered source. Missing: {:?}",
             missing_images.len(),
             unique.len(),
-            images.len(),
+            images.source_count_upper_bound(),
             0xFFFF_0000_0000_0000u64,
             unique,
         );
@@ -190,20 +205,12 @@ pub fn scene_to_vello_with_cache(
     vscene
 }
 
-/// Roadmap R4 — stateful wrapper around the simple
-/// (non-tile) translator that caches the per-frame image map
-/// across calls. Mirror of [`crate::vello_tile_rasterizer::VelloTileRasterizer`]'s
-/// `image_data` field for the simple-path consumer.
-///
-/// A streaming consumer that drives [`scene_to_vello`] once per
-/// frame pays an O(N_image_sources) HashMap rebuild every call —
-/// each entry constructs a fresh `peniko::ImageData` struct around
-/// the shared `peniko::Blob`. With `VelloRasterizer`, cached
-/// entries persist across frames and only the diff (newly added or
-/// dropped keys) touches the cache. Path B (`register_texture`)
-/// uses the same interface as the tile rasterizer.
+/// Stateful simple-path translator. Shares CPU-source identity retention with
+/// the tiled renderer, keeping Blob identities stable when producers rebuild
+/// their scenes. Source retirement happens on refresh; overrides have their
+/// own explicit registration lifetime. Lowering borrows both maps directly.
 pub struct VelloRasterizer {
-    image_data: HashMap<ImageKey, ImageData>,
+    image_data: CpuImageCache,
     image_overrides: HashMap<ImageKey, ImageData>,
 }
 
@@ -212,7 +219,7 @@ impl VelloRasterizer {
     /// `scene_to_vello` call.
     pub fn new() -> Self {
         Self {
-            image_data: HashMap::new(),
+            image_data: CpuImageCache::default(),
             image_overrides: HashMap::new(),
         }
     }
@@ -248,29 +255,8 @@ impl VelloRasterizer {
     /// keys keep their existing `ImageData`; new keys are inserted;
     /// keys absent from the scene are evicted).
     pub fn scene_to_vello(&mut self, scene: &Scene) -> vello::Scene {
-        self.refresh_image_data(scene);
-        // Merged cache: Path A (cached) + Path B (overrides win).
-        // The clone is per-entry Arc bumps + HashMap insert; cheap.
-        let mut merged = self.image_data.clone();
-        for (key, image) in &self.image_overrides {
-            merged.insert(*key, image.clone());
-        }
-        scene_to_vello_with_cache(scene, &merged)
-    }
-
-    fn refresh_image_data(&mut self, scene: &Scene) {
-        for (key, data) in &scene.image_sources {
-            self.image_data.entry(*key).or_insert_with(|| ImageData {
-                data: data.data.clone(),
-                format: ImageFormat::Rgba8,
-                alpha_type: ImageAlphaType::Alpha,
-                width: data.width,
-                height: data.height,
-            });
-        }
-        // Evict keys that disappeared from the scene.
-        self.image_data
-            .retain(|key, _| scene.image_sources.contains_key(key));
+        self.image_data.refresh(scene);
+        scene_to_vello_with_image_sources(scene, self.image_data.entries(), &self.image_overrides)
     }
 }
 
@@ -280,31 +266,79 @@ impl Default for VelloRasterizer {
     }
 }
 
-fn build_image_cache(
-    scene: &Scene,
-    overrides: &HashMap<ImageKey, ImageData>,
-) -> HashMap<ImageKey, ImageData> {
-    let mut cache = HashMap::with_capacity(scene.image_sources.len() + overrides.len());
-    // Path A — Arc-shared bytes from scene.image_sources. Cloning a
-    // peniko::Blob is Arc-bump + id copy; vello dedups atlas slots
-    // by Blob::id() so the same source bytes share one upload.
-    for (key, data) in &scene.image_sources {
-        cache.insert(
-            *key,
-            ImageData {
-                data: data.data.clone(),
-                format: ImageFormat::Rgba8,
-                alpha_type: ImageAlphaType::Alpha,
-                width: data.width,
-                height: data.height,
-            },
-        );
+/// Owns the retained CPU-source identities for both Classic rasterizers.
+/// Keys identify immutable pixels until absent from a refreshed scene.
+#[derive(Default)]
+pub(crate) struct CpuImageCache {
+    entries: HashMap<ImageKey, ImageData>,
+}
+
+impl CpuImageCache {
+    pub(crate) fn len(&self) -> usize {
+        self.entries.len()
     }
-    // Path B — caller-supplied overrides win on key collision.
-    for (key, image) in overrides {
-        cache.insert(*key, image.clone());
+    pub(crate) fn entries(&self) -> &HashMap<ImageKey, ImageData> {
+        &self.entries
     }
-    cache
+    pub(crate) fn refresh(&mut self, scene: &Scene) {
+        for (key, data) in &scene.image_sources {
+            self.entries
+                .entry(*key)
+                .or_insert_with(|| convert_image_source(data));
+            debug_assert_eq!(
+                (
+                    self.entries[key].width,
+                    self.entries[key].height,
+                    self.entries[key].data.len()
+                ),
+                (data.width, data.height, data.data.len()),
+                "ImageKey {key:#x} reused with different dimensions or byte length"
+            );
+        }
+        self.entries
+            .retain(|key, _| scene.image_sources.contains_key(key));
+    }
+}
+
+pub(crate) struct ImageLookup<'a> {
+    cached: &'a HashMap<ImageKey, ImageData>,
+    sources: &'a HashMap<ImageKey, crate::scene::ImageData>,
+    overrides: &'a HashMap<ImageKey, ImageData>,
+}
+impl<'a> ImageLookup<'a> {
+    fn new(
+        cached: &'a HashMap<ImageKey, ImageData>,
+        sources: &'a HashMap<ImageKey, crate::scene::ImageData>,
+        overrides: &'a HashMap<ImageKey, ImageData>,
+    ) -> Self {
+        Self {
+            cached,
+            sources,
+            overrides,
+        }
+    }
+    pub(crate) fn get(&self, key: &ImageKey) -> Option<Cow<'_, ImageData>> {
+        if let Some(image) = self.overrides.get(key).or_else(|| self.cached.get(key)) {
+            return Some(Cow::Borrowed(image));
+        }
+        self.sources
+            .get(key)
+            .map(|data| Cow::Owned(convert_image_source(data)))
+    }
+    fn source_count_upper_bound(&self) -> usize {
+        self.sources.len() + self.cached.len() + self.overrides.len()
+    }
+}
+
+// Keep the scene-to-peniko format policy identical for retained and local sources.
+fn convert_image_source(data: &crate::scene::ImageData) -> ImageData {
+    ImageData {
+        data: data.data.clone(),
+        format: ImageFormat::Rgba8,
+        alpha_type: ImageAlphaType::Alpha,
+        width: data.width,
+        height: data.height,
+    }
 }
 
 /// Push a clip layer for the given clip rect + per-corner radii.

@@ -1,0 +1,170 @@
+{
+  "date": "2026-10-19",
+  "base_commit": "c5efc94f876e93caba20807709189c5f9589492b",
+  "resources": {
+    "memory_max": "5G",
+    "swap_max": 0,
+    "cpu_quota": "150%",
+    "jobs": 1,
+    "test_threads": 1,
+    "timeout_seconds": 600,
+    "lock": "/home/markik/Code/testing/machine-heavy.lock"
+  },
+  "source_sha256": {
+    "netrender/src/renderer/filter_passes.rs": "fe8a905bc7b4f4c1f66f99bacb6fa84cb31092c6026288785a22039cbd53abca",
+    "netrender/src/renderer/init.rs": "1f539fcdf3c434a3acfc7ca64c605623d46c9cf291d23cee0529e468bf514ecd",
+    "netrender/src/renderer/mod.rs": "7629d191f80b09be32fea5abf72716055e1b9cec720c309077d37e0118f73485",
+    "netrender/src/vello_rasterizer/emit_paint.rs": "6204117f5014478bf8b612201dea8cb16dfc10ab04d43d87b123f2da194fb90c",
+    "netrender/src/vello_rasterizer/mod.rs": "e8362451f416a3694ccc0c9309b8137e3c641d1780bfd271dc5c72ee56fb3082",
+    "netrender/src/vello_tile_rasterizer/master.rs": "2ee6c2e8ce02b3956bfe35d4ecf2d7722913b5af31b33699266cf8d8051a7ab8",
+    "netrender/src/vello_tile_rasterizer/mod.rs": "d4587cd4f9f391bc99b45eeb9e9a45b515f30cbf66606fdd77ad2efe611e9dd4",
+    "netrender/src/vello_tile_rasterizer/retained.rs": "a28731fadf40f715d313e826ef98f34dfe05623f97bf842b29069a6f042bb9ee",
+    "netrender/tests/p7prime_vello_tile_cache.rs": "acf9fd5dd189307345a9cde3c08c9eed8632143c3720458059b392b86224d4f4",
+    "netrender/tests/pe4_fragment_retention.rs": "8799dee9bf04254a0143e7d4ec2156018f4fdff03e67919a73a77f7e59fb61ca",
+    "netrender/tests/pr4_simple_rasterizer_image_cache.rs": "76e699832cb51559e62c54074440ead6890f0823a33441ed1cec65f8c848bda2",
+    "Cargo.lock": "07d77aafd16a8501931bfaa462430cda37c90f5d3ba9694700f16c397844654e"
+  },
+  "gates": [
+    {
+      "log": "/home/markik/Code/testing/audits/genet-architecture-20261019/image-lookup/image-retained.log",
+      "sha256": "faf94ad9236a26a00202f547e0425030793093fc51c8604b01ddf9dbc0f90352",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --test pr4_simple_rasterizer_image_cache --test p7prime_vello_tile_cache --test pe4_fragment_retention -- --test-threads=1"
+      ],
+      "summaries": [
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.31s",
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.28s",
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "exit_status": [
+        "0"
+      ],
+      "peak_rss_kib": [
+        "668384"
+      ],
+      "swaps": [
+        "0"
+      ]
+    },
+    {
+      "log": "/home/markik/Code/testing/audits/genet-architecture-20261019/image-lookup/image-overrides.log",
+      "sha256": "26e299f2f574bae22d6ff529629a22fd07fa230ef818b642fc4311429262ee50",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --test p5prime_vello_image --test pc2_pattern_op --test shadow_mask_lifecycle --test pe4b_retained_in_layers -- --test-threads=1"
+      ],
+      "summaries": [
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.67s",
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: FAILED. 5 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.32s"
+      ],
+      "exit_status": [
+        "101"
+      ],
+      "peak_rss_kib": [
+        "271128"
+      ],
+      "swaps": [
+        "0"
+      ]
+    },
+    {
+      "log": "/home/markik/Code/testing/audits/genet-architecture-20261019/image-lookup/layers-control.log",
+      "sha256": "620256b9a6dd80f456cdc14fd664079f8322909cd24b9471a6f14ed013a248bb",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --test pe4b_retained_in_layers -- --test-threads=1 moving_placements_match_expanded_references layer_scoped_placement_lowers_once_across_moving_frames"
+      ],
+      "summaries": [
+        "test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 5 filtered out; finished in 5.85s"
+      ],
+      "exit_status": [
+        "101"
+      ],
+      "peak_rss_kib": [
+        "332500"
+      ],
+      "swaps": [
+        "0"
+      ]
+    },
+    {
+      "log": "/home/markik/Code/testing/audits/genet-architecture-20261019/image-lookup/retained-final.log",
+      "sha256": "59d600e9c98a3aa28c7c73fdac8982ed2ae3262fb48d3c4841b34f2218ceca1b",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --test pr4_simple_rasterizer_image_cache --test p7prime_vello_tile_cache --test pe4_fragment_retention --test pe4b_retained_in_layers --test shadow_mask_lifecycle --test filter_texture_lifecycle --test pd1_backdrop_filter --test pd2_element_filter --test p5prime_vello_image --test pc2_pattern_op --no-fail-fast -- --test-threads=1"
+      ],
+      "summaries": [
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.61s",
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.45s",
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.40s",
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s",
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.14s",
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.13s",
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.41s"
+      ],
+      "exit_status": [
+        "0"
+      ],
+      "peak_rss_kib": [
+        "332708"
+      ],
+      "swaps": [
+        "0"
+      ]
+    },
+    {
+      "log": "/home/markik/Code/testing/audits/genet-architecture-20261019/image-lookup/classic-disabled.log",
+      "sha256": "3419b8d47f81f10ef8f73437d4f1a026bd13b96f87da35a3b08d23906ffd465d",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo check --offline --locked -j1 -p netrender --features without-classic-vello,vello-cpu"
+      ],
+      "summaries": [],
+      "exit_status": [
+        "101"
+      ],
+      "peak_rss_kib": [
+        "875844"
+      ],
+      "swaps": [
+        "0"
+      ]
+    },
+    {
+      "log": "/home/markik/Code/testing/audits/genet-architecture-20261019/image-lookup/classic-disabled-wasm.log",
+      "sha256": "0d3a158b102b8c07aee09e05991c12f9ef0b7098ce36f524ff461b4b54fb3c5b",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo check --offline --locked -j1 -p netrender --target wasm32-unknown-unknown --features without-classic-vello,vello-webgl"
+      ],
+      "summaries": [],
+      "exit_status": [
+        "0"
+      ],
+      "peak_rss_kib": [
+        "923156"
+      ],
+      "swaps": [
+        "0"
+      ]
+    }
+  ],
+  "control": {
+    "commit": "c5efc94f876e93caba20807709189c5f9589492b",
+    "source_sha256": {
+      "Cargo.lock": "07d77aafd16a8501931bfaa462430cda37c90f5d3ba9694700f16c397844654e",
+      "netrender/src/vello_tile_rasterizer/retained.rs": "a1ec015874403e3fa4ab5ad6fe993f7fb42d6a5e0884656d48d0e17981f15cc6",
+      "netrender/src/vello_tile_rasterizer/mod.rs": "c3d038bd988a98fa802ea27e7f1858d2543525601b9c4975de2b4d8b54efdbde",
+      "netrender/src/renderer/filter_passes.rs": "f43d276b38f56dac30a3e832e24df3095da8e47de1e48918ac1495bd6e5cbc77",
+      "netrender/tests/pe4b_retained_in_layers.rs": "3a49c822c8823b84d7eceb169ab3532ee22ea5651d242935c8bfbc05b07ab6d7"
+    },
+    "log": "/home/markik/Code/testing/audits/genet-architecture-20261019/image-lookup/layers-control.log",
+    "log_sha256": "620256b9a6dd80f456cdc14fd664079f8322909cd24b9471a6f14ed013a248bb",
+    "result": "Both filtered placement retention failures reproduced on freshly compiled unchanged supplier. Worktree clean and removed after saving this provenance."
+  },
+  "assessment": {
+    "retained_final": "56 passed; zero failures or ignores, including GPU draws and both baseline-reproduced filtered retention failures.",
+    "classic_disabled": "Wasm WebGL configuration compiles; first native invocation rejected intentionally by target guard. No browser runtime claim.",
+    "performance": "Repeated map construction removed by source inspection; no measured GPU-upload speedup claim."
+  }
+}

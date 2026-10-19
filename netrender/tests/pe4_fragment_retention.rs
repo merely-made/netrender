@@ -12,7 +12,7 @@
 //! else (retention counters, master reuse) is only meaningful once
 //! that holds, because a cache that changes pixels is not a cache.
 //!
-//! Content is rects and strokes only — deterministic under vello's
+//! Content includes rects, strokes, and solid images — deterministic under vello's
 //! area AA on a single device, which is what makes byte-equality a
 //! usable oracle (the same choice the pa/p2 golden suites made).
 
@@ -24,6 +24,105 @@ use netrender::{
 
 const DIM: u32 = 256;
 const TILE: u32 = 64;
+
+#[test]
+fn fragment_local_images_and_direct_images_keep_their_owners() {
+    let handles = boot().expect("wgpu boot");
+    let r = renderer(&handles);
+    let fragment = |key, rgba: [u8; 4]| {
+        let mut scene = Scene::new(DIM, DIM);
+        scene.push_image(
+            0.0,
+            0.0,
+            32.0,
+            32.0,
+            key,
+            netrender::ImageData::from_bytes(1, 1, rgba.to_vec()),
+        );
+        scene.push_pattern(key, [32.0, 0.0, 64.0, 32.0], [1.0, 1.0]);
+        SceneFragment::from_scene(scene)
+    };
+    let id = r
+        .register_fragment(fragment(700, [255, 0, 0, 255]))
+        .unwrap();
+    let frame = |x: f32| {
+        let mut scene = Scene::new(DIM, DIM);
+        scene.push_image(
+            0.0,
+            0.0,
+            16.0,
+            16.0,
+            900,
+            netrender::ImageData::from_bytes(1, 1, vec![0, 0, 255, 255]),
+        );
+        scene.place_fragment(id, Transform::translate_2d(x, 32.0));
+        scene
+    };
+    let sample = |bytes: &[u8], x: usize, y: usize| {
+        let offset = (y * DIM as usize + x) * 4;
+        <[u8; 4]>::try_from(&bytes[offset..offset + 4]).unwrap()
+    };
+    let first = render_bytes(&r, &handles, &frame(32.0));
+    assert_eq!(sample(&first, 8, 8), [0, 0, 255, 255], "direct run");
+    assert_eq!(sample(&first, 40, 40), [255, 0, 0, 255], "local image");
+    assert_eq!(sample(&first, 72, 40), [255, 0, 0, 255], "local pattern");
+    assert_eq!(render_bytes(&r, &handles, &frame(32.0)), first);
+    let moved = render_bytes(&r, &handles, &frame(96.0));
+    assert_eq!(sample(&moved, 104, 40), [255, 0, 0, 255]);
+    assert_eq!(sample(&moved, 40, 40), [0, 0, 0, 255]);
+    assert_eq!(r.fragment_lower_count(), Some(1));
+    // A renderer override intentionally shadows the fragment-local source.
+    // Removing it must restore that source even after the master was cached.
+    let override_texture = handles.device.create_texture(&wgpu::TextureDescriptor {
+        label: Some("fragment image override"),
+        size: wgpu::Extent3d {
+            width: 1,
+            height: 1,
+            depth_or_array_layers: 1,
+        },
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: wgpu::TextureFormat::Rgba8Unorm,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING
+            | wgpu::TextureUsages::COPY_DST
+            | wgpu::TextureUsages::COPY_SRC,
+        view_formats: &[],
+    });
+    handles.queue.write_texture(
+        override_texture.as_image_copy(),
+        &[0, 0, 255, 255],
+        wgpu::TexelCopyBufferLayout {
+            offset: 0,
+            bytes_per_row: Some(4),
+            rows_per_image: Some(1),
+        },
+        wgpu::Extent3d {
+            width: 1,
+            height: 1,
+            depth_or_array_layers: 1,
+        },
+    );
+    r.insert_image_vello(700, std::sync::Arc::new(override_texture));
+    let overridden = render_bytes(&r, &handles, &frame(96.0));
+    assert_eq!(sample(&overridden, 104, 40), [0, 0, 255, 255]);
+    assert_eq!(sample(&overridden, 136, 40), [0, 0, 255, 255]);
+    r.unregister_image_vello(700);
+    assert_eq!(render_bytes(&r, &handles, &frame(96.0)), moved);
+    let lowers_before_update = r.fragment_lower_count().unwrap();
+    assert_eq!(
+        r.update_fragment(id, fragment(701, [0, 255, 0, 255])),
+        Some(true)
+    );
+    let updated = render_bytes(&r, &handles, &frame(96.0));
+    assert_eq!(sample(&updated, 104, 40), [0, 255, 0, 255]);
+    assert_eq!(sample(&updated, 136, 40), [0, 255, 0, 255]);
+    assert_eq!(sample(&updated, 8, 8), [0, 0, 255, 255]);
+    assert_eq!(r.fragment_lower_count(), Some(lowers_before_update + 1));
+    assert_eq!(r.remove_fragment(id), Some(true));
+    let empty = render_bytes(&r, &handles, &Scene::new(DIM, DIM));
+    assert_eq!(sample(&empty, 104, 40), [0, 0, 0, 255]);
+}
 
 fn make_target(device: &wgpu::Device) -> (wgpu::Texture, wgpu::TextureView) {
     let texture = device.create_texture(&wgpu::TextureDescriptor {

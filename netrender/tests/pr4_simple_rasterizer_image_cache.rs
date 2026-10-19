@@ -113,6 +113,26 @@ fn pr4_dropped_image_evicts_cache_entry() {
 }
 
 #[test]
+fn retired_source_releases_its_pixel_allocation() {
+    let bytes = Arc::new(vec![255; 16]);
+    let weak = Arc::downgrade(&bytes);
+    let mut scene = Scene::new(64, 64);
+    scene.set_image_source(1, NetImageData::from_blob(2, 2, Blob::new(bytes)));
+    let mut rasterizer = VelloRasterizer::new();
+    let _ = rasterizer.scene_to_vello(&scene);
+    scene.image_sources.clear();
+    assert!(
+        weak.upgrade().is_some(),
+        "source remains owned until refresh"
+    );
+    let _ = rasterizer.scene_to_vello(&scene);
+    assert!(
+        weak.upgrade().is_none(),
+        "retirement releases the cached bytes"
+    );
+}
+
+#[test]
 fn pr4_register_unregister_texture_round_trips() {
     let mut r = VelloRasterizer::new();
 

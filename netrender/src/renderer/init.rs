@@ -157,7 +157,7 @@ fn create_classic_instance(
         vello_rasterizer,
         external_texture_pipelines: Mutex::new(HashMap::new()),
         external_images: Mutex::new(HashMap::new()),
-        filter_image_slots: Mutex::new(HashMap::new()),
+        filter_image_slots: Mutex::new(Default::default()),
         external_image_staging_pipeline: Mutex::new(None),
     })
 }

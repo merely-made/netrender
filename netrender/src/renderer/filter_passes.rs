@@ -321,27 +321,19 @@ impl Renderer {
         #[cfg(feature = "without-classic-vello")]
         let () = match self.unavailable {};
         used.push(key);
-        let size = [texture.width(), texture.height()];
         let mut slots = self
             .filter_image_slots
             .lock()
             .expect("filter_image_slots lock");
-        let known = slots.get(&key).copied();
-        let refreshed = known == Some(size) && rast.refresh_texture(key, texture.clone());
-        if !refreshed {
-            if known.is_some() {
-                rast.unregister_texture(key);
-            }
-            rast.register_texture(key, texture);
-            if known.is_some() {
-                // Replacement, not first sight: cached scenes hold the dead
-                // handle. (First sight needs nothing — no cached scene can
-                // reference a key the scene has never carried.)
-                tc.clear();
-                rast.invalidate_image_override_caches();
-            }
+        let known = slots.contains(&key);
+        let identity_changed = rast.register_or_refresh_texture(key, texture);
+        if known && identity_changed {
+            // Only a slot already live in the prior frame can have stale
+            // scene references. First registration cannot invalidate a
+            // retained fragment that does not reference this key.
+            tc.clear();
         }
-        slots.insert(key, size);
+        slots.insert(key);
     }
 
     /// Unregister every filter slot the current frame did not claim. A cheap
@@ -362,7 +354,7 @@ impl Renderer {
             return;
         }
         let stale: Vec<ImageKey> = slots
-            .keys()
+            .iter()
             .copied()
             .filter(|k| !used.contains(k))
             .collect();
