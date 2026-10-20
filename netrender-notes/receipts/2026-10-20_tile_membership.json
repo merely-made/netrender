@@ -1,0 +1,209 @@
+{
+  "date": "2026-10-20",
+  "base_commit": "d92050146768357ead4e4e42967866be7061262e",
+  "change": "Share the current frame operation-to-tile index between dirty detection and Classic tile rebuilding; keep the old full scan only as a test oracle.",
+  "resources": {
+    "memory_max": "3G (stricter than inherited 5G ceiling)",
+    "swap_max": 0,
+    "cpu_quota": "150%",
+    "jobs": 1,
+    "test_threads": 1,
+    "nice": 10,
+    "timeout_seconds": 600,
+    "lock": "/home/markik/Code/testing/machine-heavy.lock"
+  },
+  "source_sha256": {
+    "netrender/src/tile_cache/index.rs": "f1d919a3afa4950315a0d50ac5dc5df78f91b31b5ea2891cda3eb95976892d49",
+    "netrender/src/tile_cache/mod.rs": "e436e63ee9a5210c170c17f6194ce8c197d386ec89ea4c04b21ba0e19f57034f",
+    "netrender/src/vello_tile_rasterizer/master.rs": "dc3779903ecfb95228f1626cad4716a7bb5ef7675d694edc0b57938898648b61",
+    "netrender/tests/p7prime_vello_tile_cache.rs": "a08bc7f2e0e73087fc9da26e2a6fb114d0d34c6a51f69564538cf1ee790ee280",
+    "Cargo.lock": "07d77aafd16a8501931bfaa462430cda37c90f5d3ba9694700f16c397844654e"
+  },
+  "upstream_checked": {
+    "netrender": "d92050146768357ead4e4e42967866be7061262e",
+    "genet": "6ef3cd37a78",
+    "mere": "21deb0cb2",
+    "turnstone": "e94e738",
+    "knot": "aa81a33"
+  },
+  "gates": [
+    {
+      "label": "final-unit",
+      "log": "/home/markik/Code/testing/audits/netrender-tile-index-20261020/final-unit.log",
+      "sha256": "ca5974adde6e587d3ee60c74e326d96c48fd7247e6ec99a07c81623a4ab469ea",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --lib -- --test-threads=1"
+      ],
+      "results": [
+        "test result: ok. 79 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.16s"
+      ],
+      "exit_status": [
+        "0"
+      ],
+      "peak_rss_kib": [
+        "380660"
+      ],
+      "swaps": [
+        "0"
+      ]
+    },
+    {
+      "label": "retained-gpu",
+      "log": "/home/markik/Code/testing/audits/netrender-tile-index-20261020/retained-gpu.log",
+      "sha256": "520e05b24e9b6084ab8cfaaccb61fb0aee55f387c3c6dce8adeb05bddf2face1",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --test p7prime_vello_tile_cache --test pe4_fragment_retention --test pe4b_retained_in_layers --test pa4_frame_profiler -- --test-threads=1 --nocapture"
+      ],
+      "results": [
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.23s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.01s",
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.85s",
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.96s"
+      ],
+      "exit_status": [
+        "0"
+      ],
+      "peak_rss_kib": [
+        "266444"
+      ],
+      "swaps": [
+        "0"
+      ]
+    },
+    {
+      "label": "classic-disabled-wasm",
+      "log": "/home/markik/Code/testing/audits/netrender-tile-index-20261020/classic-disabled-wasm.log",
+      "sha256": "dee4ccd4412fc3e02c78687927fec58d48fce9df5bf587926010c2da4b415076",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo check --offline --locked -j1 -p netrender --target wasm32-unknown-unknown --features without-classic-vello,vello-webgl"
+      ],
+      "results": [],
+      "exit_status": [
+        "0"
+      ],
+      "peak_rss_kib": [
+        "257380"
+      ],
+      "swaps": [
+        "0"
+      ]
+    }
+  ],
+  "earlier_attempts": [
+    {
+      "label": "baseline",
+      "log": "/home/markik/Code/testing/audits/netrender-tile-index-20261020/baseline.log",
+      "sha256": "bb81fe7531f9f8b4dddd351dc736456ba0cdba410a7eaf745296e5fc70c0b43d",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --test p7prime_vello_tile_cache -- --test-threads=1 --nocapture"
+      ],
+      "results": [
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.26s"
+      ],
+      "exit_status": [
+        "0"
+      ],
+      "peak_rss_kib": [
+        "331560"
+      ],
+      "swaps": [
+        "0"
+      ]
+    },
+    {
+      "label": "nested-baseline",
+      "log": "/home/markik/Code/testing/audits/netrender-tile-index-20261020/nested-baseline.log",
+      "sha256": "aa3dc5fd1e268bac3e3bf1a9da2b7c4fe7679aa390df835ae6d975de4e8e87f9",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --test p7prime_vello_tile_cache nested_scope_local -- --test-threads=1 --nocapture"
+      ],
+      "results": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 1.69s"
+      ],
+      "exit_status": [
+        "0"
+      ],
+      "peak_rss_kib": [
+        "332496"
+      ],
+      "swaps": [
+        "0"
+      ]
+    },
+    {
+      "label": "red",
+      "log": "/home/markik/Code/testing/audits/netrender-tile-index-20261020/red.log",
+      "sha256": "99533af92c8f894d1dfebd32aec3801198131fa8c007bbf8697c4cfe4ba3ae52",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --lib tile_cache::index -- --test-threads=1"
+      ],
+      "results": [],
+      "exit_status": [
+        "101"
+      ],
+      "peak_rss_kib": [
+        "332492"
+      ],
+      "swaps": [
+        "0"
+      ]
+    },
+    {
+      "label": "nonfinite-red",
+      "log": "/home/markik/Code/testing/audits/netrender-tile-index-20261020/nonfinite-red.log",
+      "sha256": "3db9640e76e4a5e6261bf85df35828057fdbc5fc2ddfc7726f2afca54c207c92",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --lib tile_cache::index -- --test-threads=1"
+      ],
+      "results": [
+        "test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 66 filtered out; finished in 0.01s"
+      ],
+      "exit_status": [
+        "101"
+      ],
+      "peak_rss_kib": [
+        "380784"
+      ],
+      "swaps": [
+        "0"
+      ]
+    },
+    {
+      "label": "retained-unit",
+      "log": "/home/markik/Code/testing/audits/netrender-tile-index-20261020/retained-unit.log",
+      "sha256": "a94409b1732bbc7d3d33d7636c6d5d22b9ed5f176fdfee6f05ed25653d5a629f",
+      "commands": [
+        "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --lib -- --test-threads=1"
+      ],
+      "results": [
+        "test result: ok. 79 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.60s"
+      ],
+      "exit_status": [
+        "0"
+      ],
+      "peak_rss_kib": [
+        "377116"
+      ],
+      "swaps": [
+        "0"
+      ]
+    }
+  ],
+  "review": {
+    "method": "Independent cheaper-subagent source review, with parent verification",
+    "corrections": [
+      "Preserve old membership for nonfinite AABBs during index construction; avoid a second membership cache.",
+      "Use actual finite-coordinate transform overflow and verify derived bounds; test finite/overflow/finite transitions."
+    ]
+  },
+  "structural_witness": "4096 off-tile operations plus one local operation yield exactly the one local index for tile rebuilding. Layer operations still merge into each tile in painter order. No measured timing speedup claimed.",
+  "pixel_witness": "AMD Radeon Graphics (RADV RENOIR), Mesa 26.2.4, Vulkan: retained 64px tiles compared byte-for-byte with fresh 128px single-tile rendering across nested alpha/clip layers, seam-crossing drawings, local recolor and removal.",
+  "boundaries": [
+    "Final library gate follows test-only oracle consolidation and comment corrections after the GPU gate; production behavior is identical.",
+    "The existing ignored rg1_repeated_box_shadow_measurement test remains ignored (physical repeated-plan measurement receipt).",
+    "No dependency or public API changes.",
+    "Retained fragment path bypasses the tile index as before.",
+    "Nonfinite membership correction tightens previously conservative dirty bins for operations excluded by the old renderer filter.",
+    "Wasm is a compilation check; browser runtime, Windows/macOS and downstream consumer repins are not qualified by these gates."
+  ]
+}

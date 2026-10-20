@@ -153,10 +153,8 @@ impl VelloTileRasterizer {
         self.refresh_image_data(scene);
         refresh_span.stop_recording(timings);
 
-        // Build the merged Path A + Path B image map once per frame
-        // (Path B overrides win on key collision). Previously this
-        // ran inside build_tile_scene and re-merged for every dirty
-        // tile — O(N_images × N_dirty_tiles) instead of O(N_images).
+        // Build tile membership once for both dependency hashes and dirty
+        // tile lowering. The rebuild below borrows the same ordered index.
         let invalidate_span = Span::start("tile_invalidate");
         let dirty = tile_cache.invalidate(scene);
         invalidate_span.stop_recording(timings);
@@ -165,10 +163,7 @@ impl VelloTileRasterizer {
 
         let rebuild_span = Span::start("dirty_tile_rebuild");
         for &coord in &dirty {
-            let world_rect = tile_cache
-                .tile_world_rect(coord)
-                .expect("dirty tile must be in tile_cache");
-            let filtered = filter_scene_to_tile(scene, world_rect);
+            let filtered = filter_scene_to_tile_indices(scene, tile_cache.op_indices(coord));
             let tile_scene = scene_to_vello_with_image_sources(
                 &filtered,
                 self.image_data.entries(),
@@ -324,90 +319,22 @@ impl VelloTileRasterizer {
     }
 }
 
-/// Filter `scene`'s primitives by AABB intersection with `tile_rect`,
-/// returning a new `Scene` with only the intersecting ops in their
-/// original painter order. Transforms and image_sources are
-/// shallow-cloned (cheap for transforms; for large image-source
-/// HashMaps this is a known inefficiency, see module docs).
-fn filter_scene_to_tile(scene: &Scene, tile_rect: [f32; 4]) -> Scene {
-    use crate::tile_cache::{aabb_intersects, world_aabb};
-
+/// Build a tile scene from the ordered spatial-index selection. The index
+/// owns membership and painter order; this path only clones selected ops.
+fn filter_scene_to_tile_indices(scene: &Scene, op_indices: impl Iterator<Item = usize>) -> Scene {
     let mut filtered = Scene::new(scene.viewport_width, scene.viewport_height);
     filtered.transforms = scene.transforms.clone();
-    // Fonts are cloned (Arc-shared payload — clone is cheap).
-    // Resolved by font_id in emit_glyph_run; the filtered Scene
-    // needs the same palette as the source.
     filtered.fonts = scene.fonts.clone();
-    // Image cache is supplied by the rasterizer's image_data via
-    // overrides at scene_to_vello time, so we can leave
-    // image_sources empty here — saves a HashMap clone.
     debug_assert!(filtered.image_sources.is_empty());
 
-    for op in &scene.ops {
-        let intersects = match op {
-            SceneOp::Rect(rect) => aabb_intersects(
-                world_aabb(
-                    [rect.x0, rect.y0, rect.x1, rect.y1],
-                    rect.transform_id,
-                    scene,
-                ),
-                tile_rect,
-            ),
-            SceneOp::Gradient(grad) => aabb_intersects(
-                world_aabb(
-                    [grad.x0, grad.y0, grad.x1, grad.y1],
-                    grad.transform_id,
-                    scene,
-                ),
-                tile_rect,
-            ),
-            SceneOp::Image(image) => aabb_intersects(
-                world_aabb(
-                    [image.x0, image.y0, image.x1, image.y1],
-                    image.transform_id,
-                    scene,
-                ),
-                tile_rect,
-            ),
-            SceneOp::Pattern(pattern) => aabb_intersects(
-                world_aabb(pattern.extent, pattern.transform_id, scene),
-                tile_rect,
-            ),
-            SceneOp::Stroke(stroke) => {
-                // Inflate by half stroke width so strokes whose pen
-                // reaches a tile aren't filtered out when their path
-                // bounds don't.
-                let half = stroke.stroke_width * 0.5;
-                aabb_intersects(
-                    world_aabb(
-                        [
-                            stroke.x0 - half,
-                            stroke.y0 - half,
-                            stroke.x1 + half,
-                            stroke.y1 + half,
-                        ],
-                        stroke.transform_id,
-                        scene,
-                    ),
-                    tile_rect,
-                )
-            }
-            SceneOp::Shape(shape) => crate::tile_cache::world_aabb_shape(shape, scene)
-                .is_some_and(|aabb| aabb_intersects(aabb, tile_rect)),
-            SceneOp::GlyphRun(run) => crate::tile_cache::world_aabb_glyph_run(run, scene)
-                .is_some_and(|aabb| aabb_intersects(aabb, tile_rect)),
-            // Keep scopes balanced during spatial filtering, then remove
-            // only harmless groups with no retained drawing children.
-            SceneOp::PushLayer(_) | SceneOp::PopLayer => true,
-            // Roadmap E4 — fragment-bearing scenes take the retained
-            // master path and never reach the per-tile filter. If one
-            // arrives, keep the op (harmless: lowering warns and skips
-            // it) so the painter-order stream stays intact.
-            SceneOp::Fragment(_) => true,
-        };
-        if intersects {
-            filtered.ops.push(op.clone());
-        }
+    for index in op_indices {
+        filtered.ops.push(
+            scene
+                .ops
+                .get(index)
+                .expect("tile index must refer to an op in the current scene")
+                .clone(),
+        );
     }
 
     prune_empty_tile_layers(&mut filtered.ops);
@@ -468,6 +395,16 @@ fn prune_empty_tile_layers(ops: &mut Vec<SceneOp>) {
 mod empty_tile_layers_tests {
     use super::*;
     use crate::scene::{SceneClip, SceneFilter, SceneLayer};
+    use crate::tile_cache::TileCache;
+
+    fn filter_tile_with_index(scene: &Scene, coord: crate::tile_cache::TileCoord) -> Scene {
+        const TILE_SIZE: u32 = 64;
+        let mut cache = TileCache::new(TILE_SIZE);
+        cache.invalidate(scene);
+        // Membership and order are differential-tested against the old full
+        // scan in tile_cache::index; these tests exercise layer pruning.
+        filter_scene_to_tile_indices(scene, cache.op_indices(coord))
+    }
 
     #[test]
     fn spatially_filtered_empty_nested_scopes_are_removed() {
@@ -480,7 +417,7 @@ mod empty_tile_layers_tests {
         scene.push_rect(70.0, 70.0, 90.0, 90.0, [1.0; 4]);
         scene.pop_layer();
         scene.pop_layer();
-        let filtered = filter_scene_to_tile(&scene, [0.0, 0.0, 64.0, 64.0]);
+        let filtered = filter_tile_with_index(&scene, (0, 0));
         assert!(filtered.ops.is_empty());
         assert_eq!(scene.ops.len(), 5);
     }
@@ -496,7 +433,7 @@ mod empty_tile_layers_tests {
         scene.push_rect(1.0, 1.0, 9.0, 9.0, [1.0; 4]);
         scene.pop_layer();
         scene.pop_layer();
-        let filtered = filter_scene_to_tile(&scene, [0.0, 0.0, 64.0, 64.0]);
+        let filtered = filter_tile_with_index(&scene, (0, 0));
         assert_eq!(filtered.ops.len(), 5);
         let SceneOp::PushLayer(layer) = &filtered.ops[0] else {
             panic!()

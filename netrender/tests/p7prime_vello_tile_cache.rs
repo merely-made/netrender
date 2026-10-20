@@ -461,10 +461,76 @@ fn simple_image_lookup_preserves_override_precedence_and_retirement_pixels() {
 
     // Retire before reusing a key, as required by the existing source contract.
     let empty = Scene::new(VIEWPORT, VIEWPORT);
-    assert!(draw(&rasterizer.scene_to_vello(&empty))
-        .iter()
-        .all(|byte| *byte == 0));
+    assert!(
+        draw(&rasterizer.scene_to_vello(&empty))
+            .iter()
+            .all(|byte| *byte == 0)
+    );
     assert_eq!(rasterizer.cached_image_count(), 0);
     let green = source_scene([0, 255, 0, 255]);
     samples(&draw(&rasterizer.scene_to_vello(&green)), [0, 255, 0, 255]);
+}
+
+/// Indexed rebuilds keep nested scopes and painter order while a local child
+/// changes or disappears. Compare a retained four-tile frame with a freshly
+/// lowered single-tile frame, including both sides of each tile seam.
+#[test]
+fn nested_scope_local_rebuild_matches_fresh_single_tile_pixels() {
+    use netrender::scene::{SceneClip, SceneLayer};
+
+    let handles = boot().expect("wgpu boot");
+    eprintln!("tile-index adapter: {:?}", handles.adapter.get_info());
+    let reader =
+        netrender_device::WgpuDevice::with_external(handles.clone()).expect("readback device");
+    let mut retained = VelloTileRasterizer::new(handles.clone()).expect("retained renderer");
+    let mut cache = TileCache::new(TILE_SIZE);
+
+    for (frame, child) in [Some([1.0, 0.0, 0.0, 1.0]), Some([0.0, 0.0, 1.0, 1.0]), None]
+        .into_iter()
+        .enumerate()
+    {
+        let mut scene = Scene::new(VIEWPORT, VIEWPORT);
+        scene.push_rect(0.0, 0.0, 128.0, 128.0, [0.0, 1.0, 0.0, 1.0]);
+        scene.push_layer(SceneLayer::alpha(0.5));
+        scene.push_layer(SceneLayer::clip(SceneClip::Rect {
+            rect: [4.0, 4.0, 124.0, 124.0],
+            radii: [0.0; 4],
+        }));
+        scene.push_rect(40.0, 40.0, 88.0, 88.0, [1.0, 1.0, 1.0, 1.0]);
+        if let Some(color) = child {
+            scene.push_rect(8.0, 8.0, 28.0, 28.0, color);
+        }
+        scene.pop_layer();
+        scene.pop_layer();
+        // An opaque sibling after the scopes must remain after them.
+        scene.push_rect(60.0, 60.0, 68.0, 68.0, [1.0, 0.0, 1.0, 1.0]);
+
+        let (target, view) = make_target(&handles.device);
+        retained
+            .render(&scene, &mut cache, &view, TRANSPARENT)
+            .expect("retained frame");
+        assert_eq!(retained.last_dirty_count(), if frame == 0 { 4 } else { 1 });
+        let pixels = reader.read_rgba8_texture(&target, VIEWPORT, VIEWPORT);
+
+        let mut fresh = VelloTileRasterizer::new(handles.clone()).expect("fresh renderer");
+        let mut whole = TileCache::new(VIEWPORT);
+        let (control, control_view) = make_target(&handles.device);
+        fresh
+            .render(&scene, &mut whole, &control_view, TRANSPARENT)
+            .expect("single-tile frame");
+        let control_pixels = reader.read_rgba8_texture(&control, VIEWPORT, VIEWPORT);
+        assert_eq!(
+            pixels, control_pixels,
+            "frame {frame}: retained tiles must match fresh whole scene"
+        );
+        assert_eq!(read_pixel(&pixels, 64, 64), [255, 0, 255, 255]);
+        assert_eq!(read_pixel(&pixels, 2, 2), [0, 255, 0, 255]);
+        if child.is_none() {
+            assert_eq!(
+                read_pixel(&pixels, 16, 16),
+                [0, 255, 0, 255],
+                "removed child clears retained tile"
+            );
+        }
+    }
 }

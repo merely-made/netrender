@@ -218,6 +218,13 @@ impl TileCache {
         self.dirty_count_last_invalidate = dirty.len();
         dirty
     }
+
+    /// Ordered scene-op indices affecting `coord` in the frame most recently
+    /// passed to [`Self::invalidate`]. The returned stream is the same one
+    /// used to calculate the tile dependency hash.
+    pub(crate) fn op_indices(&self, coord: TileCoord) -> impl Iterator<Item = usize> + '_ {
+        self.frame_index.op_indices(coord.0, coord.1)
+    }
 }
 
 // ── Geometry ───────────────────────────────────────────────────────────────
@@ -227,8 +234,8 @@ impl TileCache {
 /// Identity transform (id 0) is a fast path that returns `local`
 /// unchanged.
 ///
-/// Used by the tile cache's per-tile dependency hash and by the
-/// renderer's per-tile primitive filter (Phase 7B+). Conservative on
+/// Used once per operation by the tile index, which supplies dependency
+/// hashing and tile rebuilding with the same membership. Conservative on
 /// rotated rects (the AABB is larger than the rotated rect's true
 /// bounds) — correct in both directions: over-marking dirty is safe,
 /// over-including in a tile is safe (NDC clipping crops the extras).
