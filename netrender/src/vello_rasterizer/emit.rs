@@ -11,8 +11,8 @@ use vello::kurbo::{BezPath, Cap, Join, Point, Rect, RoundedRect, RoundedRectRadi
 use vello::peniko::{self, Fill, FontData};
 
 use crate::scene::{
-    FontBlob, NO_CLIP, PathOp, Scene, SceneBlendMode, SceneClip, SceneGlyphRun, SceneLayer,
-    SceneRect, SceneShape, SceneStroke, SceneStrokeCap, SceneStrokeJoin, Transform,
+    FontBlob, NO_CLIP, PathOp, SceneBlendMode, SceneClip, SceneGlyphRun, SceneLayer, SceneRect,
+    SceneShape, SceneStroke, SceneStrokeCap, SceneStrokeJoin, Transform,
 };
 
 use super::{push_clip_layer, transform_to_affine, unpremultiply_color};
@@ -277,25 +277,26 @@ pub(super) fn emit_stroke(
 /// Phase 12b' — emit a `vscene.push_layer` for a [`SceneLayer`] op.
 /// The matching `pop_layer` is emitted by the `SceneOp::PopLayer`
 /// arm of `scene_to_vello_with_overrides`.
-pub(crate) fn emit_push_layer(vscene: &mut vello::Scene, layer: &SceneLayer, scene: &Scene) {
+pub(crate) fn emit_push_layer(
+    vscene: &mut vello::Scene,
+    layer: &SceneLayer,
+    transforms: &[Transform],
+    viewport_width: u32,
+    viewport_height: u32,
+) {
     // Roadmap C3 — thread the layer's compose mode through so
     // alpha-mask layers (`SceneCompose::DestIn`) get their special
     // composite at pop time.
     let blend = map_layer_blend(layer.blend_mode, layer.compose);
     let alpha = layer.alpha.clamp(0.0, 1.0);
-    let world = transform_to_affine(&scene.transforms[layer.transform_id as usize]);
+    let world = transform_to_affine(&transforms[layer.transform_id as usize]);
 
     match &layer.clip {
         SceneClip::None => {
             // No clip → use the viewport rect so vello has a shape
             // to clip against; the layer is logically unbounded but
             // pixels outside the viewport never get sampled anyway.
-            let viewport = Rect::new(
-                0.0,
-                0.0,
-                scene.viewport_width as f64,
-                scene.viewport_height as f64,
-            );
+            let viewport = Rect::new(0.0, 0.0, viewport_width as f64, viewport_height as f64);
             vscene.push_layer(Fill::NonZero, blend, alpha, world, &viewport);
         }
         SceneClip::Rect { rect, radii } => {

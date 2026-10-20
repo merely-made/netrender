@@ -9,6 +9,15 @@ through the original implementation, check out the
 on a `webrender-wgpu-upstream/` side worktree. That checkout is gone; see
 [`archive/2026-08-10_branch_archive.md`](archive/2026-08-10_branch_archive.md).)
 
+## Borrowed Classic lowering, 2026-10-20
+
+Tile rebuilds and retained direct runs now borrow operation references and palettes;
+registered fragments lower directly from their local source data. This removes
+three temporary Scene-copy paths while preserving image and layer contracts.
+See the [cut note](2026-10-20_borrowed_lowering.md) and
+[qualification receipt](receipts/2026-10-20_borrowed_lowering.json).
+The two retained text checks now use a bundled font and execute on Fedora.
+
 ## Tile membership ownership, 2026-10-20
 
 Classic tile rebuilding now consumes the same ordered operation index as dirty

@@ -106,6 +106,10 @@ fn sentinel_blob() -> vello::peniko::Blob<u8> {
     vello::peniko::Blob::from_raw_parts(arc, SENTINEL_FONT_BLOB_ID)
 }
 
+pub(crate) fn is_sentinel_font(font: &FontBlob) -> bool {
+    font.index == 0 && font.data.id() == SENTINEL_FONT_BLOB_ID && font.data.as_ref().is_empty()
+}
+
 /// Custom (de)serialization for `clip_rect: [f32; 4]` fields. The
 /// in-memory `NO_CLIP` sentinel uses `±f32::INFINITY`, which JSON
 /// represents as `null` (and refuses to deserialize back as `f32`).
