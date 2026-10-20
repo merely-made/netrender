@@ -9,6 +9,19 @@ through the original implementation, check out the
 on a `webrender-wgpu-upstream/` side worktree. That checkout is gone; see
 [`archive/2026-08-10_branch_archive.md`](archive/2026-08-10_branch_archive.md).)
 
+## Tile membership ownership, 2026-10-20
+
+Classic tile rebuilding now consumes the same ordered operation index as dirty
+detection. It no longer scans every scene operation and recalculates world bounds
+for every dirty tile. Layer scopes remain interleaved in painter order, with the
+existing empty-layer pruning and retained-fragment route preserved. Nonfinite
+bounds use the previous render filter's intersection rule during index construction.
+
+The [receipt](receipts/2026-10-20_tile_membership.json) records differential
+selection checks, the bounded-selection witness, and retained GPU pixel tests.
+This is removal of repeated work, not a measured frame-time claim. Public APIs,
+dependency pins and downstream consumer checkouts are unchanged by this cut.
+
 ## Release integration, 2026-08-25
 
 The 0.1.2 release stack is the mainline package contract: `paint_list_api`,
