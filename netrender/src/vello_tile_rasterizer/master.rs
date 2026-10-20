@@ -17,7 +17,6 @@ use vello::{
 
 use crate::scene::{ImageKey, Scene, SceneBlendMode, SceneOp};
 use crate::tile_cache::TileCache;
-use crate::vello_rasterizer::scene_to_vello_with_image_sources;
 
 use super::{MasterEntry, VelloTileRasterizer};
 
@@ -163,9 +162,11 @@ impl VelloTileRasterizer {
 
         let rebuild_span = Span::start("dirty_tile_rebuild");
         for &coord in &dirty {
-            let filtered = filter_scene_to_tile_indices(scene, tile_cache.op_indices(coord));
-            let tile_scene = scene_to_vello_with_image_sources(
-                &filtered,
+            let ops = filter_scene_to_tile_indices(scene, tile_cache.op_indices(coord));
+            let view = crate::vello_rasterizer::SceneView::from_scene(scene);
+            let tile_scene = crate::vello_rasterizer::scene_to_vello_with_view(
+                &view,
+                ops.iter().copied(),
                 self.image_data.entries(),
                 &self.image_overrides,
             );
@@ -319,25 +320,21 @@ impl VelloTileRasterizer {
     }
 }
 
-/// Build a tile scene from the ordered spatial-index selection. The index
-/// owns membership and painter order; this path only clones selected ops.
-fn filter_scene_to_tile_indices(scene: &Scene, op_indices: impl Iterator<Item = usize>) -> Scene {
-    let mut filtered = Scene::new(scene.viewport_width, scene.viewport_height);
-    filtered.transforms = scene.transforms.clone();
-    filtered.fonts = scene.fonts.clone();
-    debug_assert!(filtered.image_sources.is_empty());
-
-    for index in op_indices {
-        filtered.ops.push(
+/// Borrow the ordered spatial-index selection. The index owns membership and
+/// painter order; this path retains only references to selected ops.
+fn filter_scene_to_tile_indices<'a>(
+    scene: &'a Scene,
+    op_indices: impl Iterator<Item = usize>,
+) -> Vec<&'a SceneOp> {
+    let mut filtered: Vec<_> = op_indices
+        .map(|index| {
             scene
                 .ops
                 .get(index)
                 .expect("tile index must refer to an op in the current scene")
-                .clone(),
-        );
-    }
-
-    prune_empty_tile_layers(&mut filtered.ops);
+        })
+        .collect();
+    prune_empty_tile_layer_refs(&mut filtered);
     filtered
 }
 
@@ -345,7 +342,7 @@ fn filter_scene_to_tile_indices(scene: &Scene, op_indices: impl Iterator<Item = 
 /// mask or backdrop/filter group may still modify the parent, so those
 /// groups and their enclosing scopes remain intact. Malformed streams are
 /// left unchanged for the normal owner validation/lowering path.
-fn prune_empty_tile_layers(ops: &mut Vec<SceneOp>) {
+fn prune_empty_tile_layer_refs(ops: &mut Vec<&SceneOp>) {
     use crate::scene::SceneCompose;
 
     let mut keep = vec![true; ops.len()];
@@ -357,7 +354,7 @@ fn prune_empty_tile_layers(ops: &mut Vec<SceneOp>) {
                 let Some((start, has_content)) = stack.pop() else {
                     return;
                 };
-                let SceneOp::PushLayer(layer) = &ops[start] else {
+                let SceneOp::PushLayer(layer) = ops[start] else {
                     unreachable!();
                 };
                 let harmless = layer.compose == SceneCompose::SrcOver
@@ -397,7 +394,7 @@ mod empty_tile_layers_tests {
     use crate::scene::{SceneClip, SceneFilter, SceneLayer};
     use crate::tile_cache::TileCache;
 
-    fn filter_tile_with_index(scene: &Scene, coord: crate::tile_cache::TileCoord) -> Scene {
+    fn filter_tile_with_index(scene: &Scene, coord: crate::tile_cache::TileCoord) -> Vec<&SceneOp> {
         const TILE_SIZE: u32 = 64;
         let mut cache = TileCache::new(TILE_SIZE);
         cache.invalidate(scene);
@@ -418,7 +415,7 @@ mod empty_tile_layers_tests {
         scene.pop_layer();
         scene.pop_layer();
         let filtered = filter_tile_with_index(&scene, (0, 0));
-        assert!(filtered.ops.is_empty());
+        assert!(filtered.is_empty());
         assert_eq!(scene.ops.len(), 5);
     }
 
@@ -434,15 +431,15 @@ mod empty_tile_layers_tests {
         scene.pop_layer();
         scene.pop_layer();
         let filtered = filter_tile_with_index(&scene, (0, 0));
-        assert_eq!(filtered.ops.len(), 5);
-        let SceneOp::PushLayer(layer) = &filtered.ops[0] else {
+        assert_eq!(filtered.len(), 5);
+        let SceneOp::PushLayer(layer) = filtered[0] else {
             panic!()
         };
         assert_eq!(layer.alpha, 0.5);
         assert!(
-            matches!(&filtered.ops[1], SceneOp::PushLayer(SceneLayer { clip: SceneClip::Rect { radii, .. }, .. }) if *radii == [4.0; 4])
+            matches!(filtered[1], SceneOp::PushLayer(SceneLayer { clip: SceneClip::Rect { radii, .. }, .. }) if *radii == [4.0; 4])
         );
-        assert!(matches!(filtered.ops[2], SceneOp::Rect(_)));
+        assert!(matches!(filtered[2], SceneOp::Rect(_)));
     }
 
     #[test]
@@ -458,20 +455,21 @@ mod empty_tile_layers_tests {
         blend.blend_mode = SceneBlendMode::Multiply;
         effects.push(blend);
         for effect in effects {
-            let mut ops = vec![
+            let owned_ops = vec![
                 SceneOp::PushLayer(SceneLayer::alpha(0.5)),
                 SceneOp::PushLayer(effect),
                 SceneOp::PopLayer,
                 SceneOp::PopLayer,
             ];
-            prune_empty_tile_layers(&mut ops);
+            let mut ops: Vec<_> = owned_ops.iter().collect();
+            prune_empty_tile_layer_refs(&mut ops);
             assert_eq!(ops.len(), 4);
         }
     }
 
     #[test]
     fn malformed_scopes_are_not_rewritten() {
-        for mut ops in [
+        for ops in [
             vec![SceneOp::PushLayer(SceneLayer::alpha(1.0))],
             vec![
                 SceneOp::PushLayer(SceneLayer::alpha(1.0)),
@@ -480,8 +478,23 @@ mod empty_tile_layers_tests {
             ],
         ] {
             let original_len = ops.len();
-            prune_empty_tile_layers(&mut ops);
+            let mut ops: Vec<_> = ops.iter().collect();
+            prune_empty_tile_layer_refs(&mut ops);
             assert_eq!(ops.len(), original_len);
         }
+    }
+
+    #[test]
+    fn indexed_lowering_view_borrows_scene_palettes_and_ops() {
+        let mut scene = Scene::new(128, 128);
+        scene.push_rect(1.0, 1.0, 9.0, 9.0, [1.0; 4]);
+        let view = crate::vello_rasterizer::SceneView::from_scene(&scene);
+        let selected = filter_tile_with_index(&scene, (0, 0));
+        assert!(std::ptr::eq(
+            view.transforms.as_ptr(),
+            scene.transforms.as_ptr()
+        ));
+        assert!(std::ptr::eq(view.fonts.as_ptr(), scene.fonts.as_ptr()));
+        assert!(std::ptr::eq(selected[0], &scene.ops[0]));
     }
 }

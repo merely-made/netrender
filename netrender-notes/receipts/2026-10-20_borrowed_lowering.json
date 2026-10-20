@@ -1,0 +1,88 @@
+{
+  "date": "2026-10-20",
+  "purpose": "Carry the NetRender borrowed Classic lowering ownership cut through the retained downstream paths.",
+  "base": "54d864c20aeac9e46275cdab6e34edbd95d8ecf6",
+  "lock_sha256": "07d77aafd16a8501931bfaa462430cda37c90f5d3ba9694700f16c397844654e",
+  "sources": {
+    "netrender.git": [],
+    "genet.git": [],
+    "mere.git": [],
+    "knot-editor.git": [],
+    "eidetic.git": [],
+    "esp.git": [],
+    "gemot.git": [],
+    "murm.git": []
+  },
+  "resources": {
+    "serialization": "/home/markik/Code/testing/machine-heavy.lock",
+    "memory_max": "3G",
+    "swap_max": 0,
+    "cpu_quota": "150%",
+    "build_jobs": 1,
+    "test_threads": 1,
+    "nice": 10,
+    "gate_timeout_seconds": 600
+  },
+  "checks": [
+    {
+      "label": "supplier-unit",
+      "raw_log": "/home/markik/Code/testing/audits/borrowed-lowering-20261020/supplier-unit.log",
+      "sha256": "c105898f1b7042e5aa4218967f3698f3a15fe8e196bb892a850406c3af1255f4",
+      "command": "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --lib -- --test-threads=1",
+      "results": [
+        "test result: ok. 82 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 6.15s"
+      ],
+      "max_rss_kib": 381412,
+      "swaps": 0,
+      "exit_code": 0
+    },
+    {
+      "label": "supplier-retained-fixed",
+      "raw_log": "/home/markik/Code/testing/audits/borrowed-lowering-20261020/supplier-retained-fixed.log",
+      "sha256": "3782b79f01a6743e5cbc5f678213bb60646feea16a77f57fd2a72eb0bdb8fcd4",
+      "command": "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --test p7prime_vello_tile_cache --test pe4_fragment_retention --test pe4b_retained_in_layers --test pa4_frame_profiler --test p5prime_vello_image --test p12b_nested_layers --test p10prime_b_glyph_render --test p7prime_streamed_glyph_surface -- --test-threads=1 --nocapture",
+      "results": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.71s",
+        "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.49s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.20s",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s",
+        "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.90s",
+        "test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.92s"
+      ],
+      "max_rss_kib": 266344,
+      "swaps": 0,
+      "exit_code": 0
+    },
+    {
+      "label": "supplier-text",
+      "raw_log": "/home/markik/Code/testing/audits/borrowed-lowering-20261020/supplier-text.log",
+      "sha256": "7d3237b6d17260e636126c2ff8145911016faf69eaa789ab9ebdca7c51d94775",
+      "command": "timeout --signal=TERM --kill-after=10s 600s cargo test --offline --locked -j1 -p netrender --test p10prime_b_glyph_render --test p7prime_streamed_glyph_surface -- --test-threads=1 --nocapture",
+      "results": [
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s",
+        "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.51s"
+      ],
+      "max_rss_kib": 332536,
+      "swaps": 0,
+      "exit_code": 0
+    },
+    {
+      "label": "supplier-webgl",
+      "raw_log": "/home/markik/Code/testing/audits/borrowed-lowering-20261020/supplier-webgl.log",
+      "sha256": "460dd5a2ac89c7b893f92f44116c6c2ecc6d8c8b6263f3e66fb3e12f49420380",
+      "command": "timeout --signal=TERM --kill-after=10s 600s cargo check --offline --locked -j1 -p netrender --target wasm32-unknown-unknown --features without-classic-vello,vello-webgl",
+      "results": [],
+      "max_rss_kib": 258124,
+      "swaps": 0,
+      "exit_code": 0
+    }
+  ],
+  "qualification_boundary": "Focused Linux tests. GPU checks use headless targets; no new native-window, Windows, or browser runtime qualification.",
+  "notes": [
+    "122 distinct exercised supplier tests passed, with one existing ignore. The initial retained gate reported two successful early font returns; those tests were converted to the existing bundled Inter fixture and rerun with actual GPU pixels. Do not count the initial two font returns as exercised tests.",
+    "Initial supplier-retained command named a nonexistent layer test target; corrected command is recorded.",
+    "No frame-time or upload benchmark claim. Owned Vello encoding cache remains; this cut removes source Scene/operation/palette copies."
+  ]
+}

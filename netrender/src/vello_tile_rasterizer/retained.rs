@@ -43,7 +43,9 @@ use vello::peniko::{Fill, Mix};
 
 use crate::scene::{FragmentId, ImageKey, Scene, SceneFragment, SceneOp, Transform};
 use crate::tile_cache::op_hash;
-use crate::vello_rasterizer::{emit_push_layer, scene_to_vello_with_image_sources, transform_to_affine};
+use crate::vello_rasterizer::{
+    SceneView, emit_push_layer, scene_to_vello_with_view, transform_to_affine,
+};
 
 use super::VelloTileRasterizer;
 
@@ -207,37 +209,26 @@ fn hash_matrix(h: &mut DefaultHasher, t: &Transform) {
     }
 }
 
-/// Build a standalone `Scene` from a fragment so the ordinary lowering
-/// path can translate it. Viewport is nominal (lowering never reads
-/// it); tables arrive via E2's `append_fragment` id rewriting.
-fn fragment_to_scene(fragment: &SceneFragment) -> Scene {
-    let mut s = Scene::new(1, 1);
-    s.append_fragment(fragment.clone());
-    s
-}
-
-/// A painter-order run of leaf ops, accumulated into a scratch `Scene`
-/// carrying the parent's tables. Layers and fragments are master-level,
-/// so a run never holds `PushLayer` / `PopLayer` / `Fragment` and its
-/// tables never change after construction.
-struct Run {
-    scene: Scene,
+/// A painter-order run of leaf ops borrowed from the parent. Layers and
+/// fragments are master-level, so a run never holds `PushLayer` / `PopLayer`
+/// and its palettes never change during lowering.
+struct Run<'a> {
+    view: SceneView<'a>,
+    ops: Vec<&'a SceneOp>,
     is_empty: bool,
 }
 
-impl Run {
-    fn new(parent: &Scene) -> Self {
-        let mut scene = Scene::new(parent.viewport_width, parent.viewport_height);
-        scene.transforms = parent.transforms.clone();
-        scene.fonts = parent.fonts.clone();
+impl<'a> Run<'a> {
+    fn new(parent: &'a Scene) -> Self {
         Self {
-            scene,
+            view: SceneView::from_scene(parent),
+            ops: Vec::new(),
             is_empty: true,
         }
     }
 
-    fn push(&mut self, op: SceneOp) {
-        self.scene.ops.push(op);
+    fn push(&mut self, op: &'a SceneOp) {
+        self.ops.push(op);
         self.is_empty = false;
     }
 
@@ -253,9 +244,14 @@ impl Run {
         if self.is_empty {
             return;
         }
-        let sub = scene_to_vello_with_image_sources(&self.scene, cached_images, overrides);
+        let sub = scene_to_vello_with_view(
+            &self.view,
+            self.ops.iter().copied(),
+            cached_images,
+            overrides,
+        );
         master.append(&sub, None);
-        self.scene.ops.clear();
+        self.ops.clear();
         self.is_empty = true;
     }
 }
@@ -341,9 +337,10 @@ impl VelloTileRasterizer {
                         &self.image_overrides,
                     );
                     if retained.lowered.is_none() {
-                        let tmp = fragment_to_scene(&retained.fragment);
-                        let lowered = scene_to_vello_with_image_sources(
-                            &tmp,
+                        let view = SceneView::from_fragment(&retained.fragment);
+                        let lowered = scene_to_vello_with_view(
+                            &view,
+                            retained.fragment.ops.iter(),
                             self.image_data.entries(),
                             &self.image_overrides,
                         );
@@ -367,7 +364,13 @@ impl VelloTileRasterizer {
                         self.image_data.entries(),
                         &self.image_overrides,
                     );
-                    emit_push_layer(&mut master, layer, scene);
+                    emit_push_layer(
+                        &mut master,
+                        layer,
+                        &scene.transforms,
+                        scene.viewport_width,
+                        scene.viewport_height,
+                    );
                     layer_depth += 1;
                 }
                 SceneOp::PopLayer => {
@@ -385,7 +388,7 @@ impl VelloTileRasterizer {
                         layer_depth -= 1;
                     }
                 }
-                other => run.push(other.clone()),
+                other => run.push(other),
             }
         }
         run.flush_into(

@@ -6,19 +6,8 @@
 
 //! Phase 10b' — real-font GPU smoke test.
 //!
-//! Loads a system font (Arial on Windows, DejaVu / Liberation on
-//! Linux), constructs a glyph run, runs it through render_vello,
-//! and verifies pixels are painted.
-//!
-//! The test is **skipped vacuously** when no known font path exists
-//! on the host (for CI hosts without bundled system fonts). Manual
-//! runs on dev boxes verify the GPU rasterization end-to-end.
-//!
-//! Net netrender doesn't bundle a font (license / repo-size
-//! tradeoff). When a consumer needs deterministic CI text
-//! rendering, the right move is to bundle a tiny permissive font
-//! (Roboto, Inter, etc.) under `tests/data/` per consumer
-//! discretion.
+//! Loads the repository's bundled Inter subset, constructs a glyph
+//! run, runs it through render_vello, and verifies pixels are painted.
 
 use std::sync::Arc;
 
@@ -26,32 +15,19 @@ use netrender::{
     ColorLoad, FontBlob, Glyph, NetrenderOptions, Scene, boot, create_netrender_instance,
     peniko::Blob,
 };
+use skrifa::MetadataProvider;
 
 const DIM: u32 = 128;
 const TILE_SIZE: u32 = 64;
+const INTER: &[u8] = include_bytes!("fixtures/vb3_fonts/Inter.var.subset.ttf");
 
-/// Try a known list of system font paths. Returns the bytes of the
-/// first one that exists, or `None` if nothing matched.
-fn try_load_system_font() -> Option<Vec<u8>> {
-    let candidates = [
-        // Windows
-        r"C:\Windows\Fonts\arial.ttf",
-        r"C:\Windows\Fonts\segoeui.ttf",
-        // macOS (won't exist on Windows but covers cross-host runs)
-        "/System/Library/Fonts/Helvetica.ttc",
-        "/Library/Fonts/Arial.ttf",
-        // Linux (typical distros)
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
-        "/usr/share/fonts/TTF/DejaVuSans.ttf",
-    ];
-    for path in candidates {
-        if let Ok(bytes) = std::fs::read(path) {
-            eprintln!("p10b: loaded {} ({} bytes)", path, bytes.len());
-            return Some(bytes);
-        }
-    }
-    None
+fn glyph_id(ch: char) -> u32 {
+    skrifa::FontRef::new(INTER)
+        .expect("bundled Inter fixture")
+        .charmap()
+        .map(ch as u32)
+        .expect("bundled Inter fixture contains glyph")
+        .to_u32()
 }
 
 fn make_target(device: &wgpu::Device) -> (wgpu::Texture, wgpu::TextureView) {
@@ -81,15 +57,10 @@ fn make_target(device: &wgpu::Device) -> (wgpu::Texture, wgpu::TextureView) {
 
 /// End-to-end smoke: load a font, push a glyph run, render, verify
 /// at least *some* pixels were painted. We don't check specific
-/// shapes (glyph indices are font-dependent), only that the
+/// shapes, only that the
 /// rasterization pipeline produced visible output.
 #[test]
 fn p10b_01_render_real_font_glyph() {
-    let Some(font_bytes) = try_load_system_font() else {
-        eprintln!("p10b_01: no system font found; skipping");
-        return;
-    };
-
     let handles = boot().expect("wgpu boot");
     let renderer = create_netrender_instance(
         handles.clone(),
@@ -103,38 +74,35 @@ fn p10b_01_render_real_font_glyph() {
 
     let mut scene = Scene::new(DIM, DIM);
     let font_id = scene.push_font(FontBlob {
-        data: Blob::new(Arc::new(font_bytes)),
+        data: Blob::new(Arc::new(INTER.to_vec())),
         index: 0,
     });
 
-    // Glyph IDs are font-internal; for Arial / DejaVu / common
-    // Latin fonts, IDs in the 30-50 range correspond to uppercase
-    // letters. Push several at different positions; we only need
-    // *any* of them to produce visible pixels for the smoke to
-    // pass.
+    // Resolve glyph IDs from the fixture's cmap so the test stays valid
+    // if the bundled subset is regenerated.
     let glyphs = vec![
         Glyph {
-            id: 36,
+            id: glyph_id('a'),
             x: 16.0,
             y: 64.0,
-        }, // commonly 'A'
+        },
         Glyph {
-            id: 37,
+            id: glyph_id('l'),
             x: 32.0,
             y: 64.0,
-        }, // commonly 'B'
+        },
         Glyph {
-            id: 38,
+            id: glyph_id('n'),
             x: 48.0,
             y: 64.0,
-        }, // commonly 'C'
+        },
         Glyph {
-            id: 36,
+            id: glyph_id('s'),
             x: 64.0,
             y: 64.0,
         },
         Glyph {
-            id: 36,
+            id: glyph_id('t'),
             x: 80.0,
             y: 64.0,
         },

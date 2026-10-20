@@ -110,11 +110,88 @@ pub(crate) fn scene_to_vello_with_image_sources(
     cached: &HashMap<ImageKey, ImageData>,
     overrides: &HashMap<ImageKey, ImageData>,
 ) -> vello::Scene {
-    let images = ImageLookup::new(cached, &scene.image_sources, overrides);
-    scene_to_vello_with_lookup(scene, &images)
+    let view = SceneView::from_scene(scene);
+    scene_to_vello_with_view(&view, scene.ops.iter(), cached, overrides)
 }
 
-fn scene_to_vello_with_lookup(scene: &Scene, images: &ImageLookup<'_>) -> vello::Scene {
+/// Borrowed lowering inputs. Tiled and retained paths can select an op
+/// stream without copying the scene's palettes or the operations themselves.
+pub(crate) struct SceneView<'a> {
+    pub(crate) viewport_width: u32,
+    pub(crate) viewport_height: u32,
+    pub(crate) transforms: Cow<'a, [Transform]>,
+    pub(crate) fonts: Cow<'a, [crate::scene::FontBlob]>,
+    pub(crate) image_sources: &'a HashMap<ImageKey, crate::scene::ImageData>,
+}
+
+impl<'a> SceneView<'a> {
+    pub(crate) fn from_scene(scene: &'a Scene) -> Self {
+        Self {
+            viewport_width: scene.viewport_width,
+            viewport_height: scene.viewport_height,
+            transforms: Cow::Borrowed(&scene.transforms),
+            fonts: Cow::Borrowed(&scene.fonts),
+            image_sources: &scene.image_sources,
+        }
+    }
+
+    pub(crate) fn from_fragment(fragment: &'a crate::scene::SceneFragment) -> Self {
+        // `append_fragment` has always discarded the fragment's local slot 0
+        // and kept the destination Scene's identity transform and sentinel
+        // font. Preserve that contract without copying valid palettes.
+        let transforms = if fragment
+            .transforms
+            .first()
+            .is_some_and(|t| t.m == Transform::IDENTITY.m)
+        {
+            Cow::Borrowed(fragment.transforms.as_slice())
+        } else {
+            let mut normalized = Vec::with_capacity(fragment.transforms.len().max(1));
+            normalized.push(Transform::IDENTITY);
+            normalized.extend(fragment.transforms.iter().skip(1).copied());
+            Cow::Owned(normalized)
+        };
+        let fonts = if fragment
+            .fonts
+            .first()
+            .is_some_and(crate::scene::is_sentinel_font)
+        {
+            Cow::Borrowed(fragment.fonts.as_slice())
+        } else {
+            let sentinel = Scene::new(1, 1).fonts[0].clone();
+            let mut normalized = Vec::with_capacity(fragment.fonts.len().max(1));
+            normalized.push(sentinel);
+            normalized.extend(fragment.fonts.iter().skip(1).cloned());
+            Cow::Owned(normalized)
+        };
+        Self {
+            // Fragment lowering historically used a nominal 1×1 viewport.
+            viewport_width: 1,
+            viewport_height: 1,
+            transforms,
+            fonts,
+            image_sources: &fragment.image_sources,
+        }
+    }
+}
+
+pub(crate) fn scene_to_vello_with_view<'a>(
+    view: &SceneView<'a>,
+    ops: impl IntoIterator<Item = &'a SceneOp>,
+    cached: &HashMap<ImageKey, ImageData>,
+    overrides: &HashMap<ImageKey, ImageData>,
+) -> vello::Scene {
+    scene_to_vello_with_inputs(view, ops, cached, view.image_sources, overrides)
+}
+
+fn scene_to_vello_with_inputs<'a>(
+    view: &SceneView<'a>,
+    ops: impl IntoIterator<Item = &'a SceneOp>,
+    cached: &HashMap<ImageKey, ImageData>,
+    sources: &'a HashMap<ImageKey, crate::scene::ImageData>,
+    overrides: &HashMap<ImageKey, ImageData>,
+) -> vello::Scene {
+    let images = ImageLookup::new(cached, sources, overrides);
     let mut vscene = vello::Scene::new();
 
     // Single pass over the unified op list — painter order = consumer
@@ -130,27 +207,41 @@ fn scene_to_vello_with_lookup(scene: &Scene, images: &ImageLookup<'_>) -> vello:
     // box-shadow masks) reports one warn per rasterize instead of a per-op flood —
     // the difference between a signal and thousands of noise lines. (Diagnostics.)
     let mut missing_images: Vec<ImageKey> = Vec::new();
-    for op in &scene.ops {
+    for op in ops {
         match op {
-            SceneOp::Rect(rect) => emit_rect(&mut vscene, rect, &scene.transforms),
-            SceneOp::Stroke(stroke) => emit_stroke(&mut vscene, stroke, &scene.transforms),
-            SceneOp::Gradient(gradient) => emit_gradient(&mut vscene, gradient, &scene.transforms),
+            SceneOp::Rect(rect) => emit_rect(&mut vscene, rect, view.transforms.as_ref()),
+            SceneOp::Stroke(stroke) => emit_stroke(&mut vscene, stroke, view.transforms.as_ref()),
+            SceneOp::Gradient(gradient) => {
+                emit_gradient(&mut vscene, gradient, view.transforms.as_ref())
+            }
             SceneOp::Image(image) => {
-                if let Some(key) = emit_image(&mut vscene, image, &scene.transforms, images) {
+                if let Some(key) = emit_image(&mut vscene, image, view.transforms.as_ref(), &images)
+                {
                     missing_images.push(key);
                 }
             }
             SceneOp::Pattern(pattern) => {
-                if let Some(key) = emit_pattern(&mut vscene, pattern, &scene.transforms, images) {
+                if let Some(key) =
+                    emit_pattern(&mut vscene, pattern, view.transforms.as_ref(), &images)
+                {
                     missing_images.push(key);
                 }
             }
-            SceneOp::Shape(shape) => emit_shape(&mut vscene, shape, &scene.transforms),
-            SceneOp::GlyphRun(run) => {
-                emit_glyph_run(&mut vscene, run, &scene.fonts, &scene.transforms)
-            }
+            SceneOp::Shape(shape) => emit_shape(&mut vscene, shape, view.transforms.as_ref()),
+            SceneOp::GlyphRun(run) => emit_glyph_run(
+                &mut vscene,
+                run,
+                view.fonts.as_ref(),
+                view.transforms.as_ref(),
+            ),
             SceneOp::PushLayer(layer) => {
-                emit_push_layer(&mut vscene, layer, scene);
+                emit_push_layer(
+                    &mut vscene,
+                    layer,
+                    view.transforms.as_ref(),
+                    view.viewport_width,
+                    view.viewport_height,
+                );
                 layer_depth += 1;
             }
             SceneOp::PopLayer => {
@@ -203,6 +294,17 @@ fn scene_to_vello_with_lookup(scene: &Scene, images: &ImageLookup<'_>) -> vello:
     );
 
     vscene
+}
+
+fn scene_to_vello_with_lookup(scene: &Scene, images: &ImageLookup<'_>) -> vello::Scene {
+    let view = SceneView::from_scene(scene);
+    scene_to_vello_with_inputs(
+        &view,
+        scene.ops.iter(),
+        images.cached,
+        images.sources,
+        images.overrides,
+    )
 }
 
 /// Stateful simple-path translator. Shares CPU-source identity retention with
@@ -408,5 +510,38 @@ fn unpremultiply_color(c: [f32; 4]) -> Color {
         )
     } else {
         Color::from_rgba8(0, 0, 0, 0)
+    }
+}
+
+#[cfg(test)]
+mod borrowed_view_tests {
+    use super::*;
+    use crate::scene::SceneFragment;
+
+    #[test]
+    fn valid_fragment_palettes_are_borrowed_and_local_ids_stay_local() {
+        let mut fragment = SceneFragment::new();
+        fragment.push_transform(Transform::translate_2d(7.0, 11.0));
+        let view = SceneView::from_fragment(&fragment);
+
+        assert!(std::ptr::eq(
+            view.transforms.as_ptr(),
+            fragment.transforms.as_ptr()
+        ));
+        assert!(std::ptr::eq(view.fonts.as_ptr(), fragment.fonts.as_ptr()));
+        assert_eq!(view.transforms[1].m, Transform::translate_2d(7.0, 11.0).m);
+        assert_eq!((view.viewport_width, view.viewport_height), (1, 1));
+    }
+
+    #[test]
+    fn malformed_fragment_slot_zero_keeps_append_fragment_defaults() {
+        let mut fragment = SceneFragment::new();
+        fragment.transforms[0] = Transform::translate_2d(70.0, 90.0);
+        fragment.fonts.clear();
+
+        let view = SceneView::from_fragment(&fragment);
+        assert_eq!(view.transforms[0].m, Transform::IDENTITY.m);
+        assert_eq!(view.fonts[0].index, 0);
+        assert!(crate::scene::is_sentinel_font(&view.fonts[0]));
     }
 }

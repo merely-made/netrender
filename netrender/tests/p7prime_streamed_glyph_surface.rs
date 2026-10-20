@@ -10,37 +10,40 @@ use netrender::{
     ColorLoad, FontBlob, Glyph, NetrenderOptions, Scene, boot, create_netrender_instance,
     peniko::Blob,
 };
+use skrifa::MetadataProvider;
 
 const DIM: u32 = 256;
+const INTER: &[u8] = include_bytes!("fixtures/vb3_fonts/Inter.var.subset.ttf");
 
-fn system_font() -> Option<Arc<Vec<u8>>> {
-    [
-        r"C:\Windows\Fonts\arial.ttf",
-        r"C:\Windows\Fonts\segoeui.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
-    ]
-    .into_iter()
-    .find_map(|path| std::fs::read(path).ok().map(Arc::new))
+fn glyph_id(bytes: &[u8], ch: char) -> u32 {
+    skrifa::FontRef::new(bytes)
+        .expect("bundled Inter fixture")
+        .charmap()
+        .map(ch as u32)
+        .expect("bundled Inter fixture contains glyph")
+        .to_u32()
 }
 
 fn scene(font: Arc<Vec<u8>>, baselines: &[f32]) -> Scene {
     let mut scene = Scene::new(DIM, DIM);
-    let font = scene.push_font(FontBlob {
-        data: Blob::new(font),
+    let font_id = scene.push_font(FontBlob {
+        data: Blob::new(font.clone()),
         index: 0,
     });
+    let glyphs: Vec<_> = ['a', 'l', 'n', 's', 't']
+        .into_iter()
+        .enumerate()
+        .map(|(i, ch)| Glyph {
+            id: glyph_id(font.as_slice(), ch),
+            x: 20.0 + i as f32 * 22.0,
+            y: 0.0,
+        })
+        .collect();
     for &y in baselines {
         scene.push_glyph_run(
-            font,
+            font_id,
             24.0,
-            (0..5)
-                .map(|i| Glyph {
-                    id: 36 + i,
-                    x: 20.0 + i as f32 * 22.0,
-                    y,
-                })
-                .collect(),
+            glyphs.iter().map(|glyph| Glyph { y, ..*glyph }).collect(),
             [1.0, 1.0, 1.0, 1.0],
         );
     }
@@ -80,10 +83,7 @@ fn painted_in_band(bytes: &[u8], top: u32, bottom: u32) -> usize {
 
 #[test]
 fn keyed_surface_rebuild_keeps_prefix_glyphs_when_tail_is_added() {
-    let Some(font) = system_font() else {
-        eprintln!("no known system font; skipping streamed glyph GPU receipt");
-        return;
-    };
+    let font = Arc::new(INTER.to_vec());
     let handles = boot().expect("wgpu boot");
     let renderer = create_netrender_instance(
         handles.clone(),
