@@ -2630,3 +2630,107 @@ name = "zmij"
 version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
+
+[[patch.unused]]
+name = "fleece"
+version = "0.5.0"
+
+[[patch.unused]]
+name = "layout-dom-api"
+version = "0.1.1"
+
+[[patch.unused]]
+name = "genet-taffy"
+version = "0.14.0"
+
+[[patch.unused]]
+name = "buckram"
+version = "0.0.3"
+
+[[patch.unused]]
+name = "cadency"
+version = "0.0.1"
+
+[[patch.unused]]
+name = "document-session-api"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "engine-observables-api"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "fleece"
+version = "0.5.0"
+
+[[patch.unused]]
+name = "genet-document-resources"
+version = "0.2.1"
+
+[[patch.unused]]
+name = "genet-fontique"
+version = "0.10.0"
+
+[[patch.unused]]
+name = "genet-host-api"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-livery"
+version = "0.0.4"
+
+[[patch.unused]]
+name = "genet-paint-types"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-parley"
+version = "0.10.0"
+
+[[patch.unused]]
+name = "genet-render"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-render-host"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-scripted-dom"
+version = "0.1.2"
+
+[[patch.unused]]
+name = "genet-static-dom"
+version = "0.1.1"
+
+[[patch.unused]]
+name = "genet-taffy"
+version = "0.14.0"
+
+[[patch.unused]]
+name = "genet-text"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "genet-winit-host"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "layout-dom-api"
+version = "0.1.1"
+
+[[patch.unused]]
+name = "livery"
+version = "0.0.5"
+
+[[patch.unused]]
+name = "netfetcher"
+version = "0.1.1"
+
+[[patch.unused]]
+name = "regress"
+version = "0.11.1"
+
+[[patch.unused]]
+name = "taproot"
+version = "0.1.0"
