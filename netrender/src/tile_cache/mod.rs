@@ -219,6 +219,29 @@ impl TileCache {
         dirty
     }
 
+    /// Tiles of the frame most recently passed to [`Self::invalidate`] whose
+    /// ops draw any of `keys` (image or pattern-tile ops). For callers that
+    /// swap the pixels behind a key without changing the ops naming it.
+    pub(crate) fn tiles_drawing_images(
+        &self,
+        scene: &Scene,
+        keys: &[crate::scene::ImageKey],
+    ) -> Vec<TileCoord> {
+        use crate::scene::SceneOp;
+        self.tiles
+            .iter()
+            .filter(|(_, tile)| tile.last_seen_frame == self.current_frame)
+            .map(|(coord, _)| *coord)
+            .filter(|&coord| {
+                self.op_indices(coord).any(|i| match &scene.ops[i] {
+                    SceneOp::Image(image) => keys.contains(&image.key),
+                    SceneOp::Pattern(pattern) => keys.contains(&pattern.tile),
+                    _ => false,
+                })
+            })
+            .collect()
+    }
+
     /// Ordered scene-op indices affecting `coord` in the frame most recently
     /// passed to [`Self::invalidate`]. The returned stream is the same one
     /// used to calculate the tile dependency hash.

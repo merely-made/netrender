@@ -84,6 +84,46 @@ fn pr4_blob_id_preserved_across_calls() {
 }
 
 #[test]
+fn replaced_blob_under_reused_key_replaces_the_cache_entry() {
+    // IMG-GPU-REPLACE-STALE: a fresh blob under a continuously present key
+    // is new pixels; blob identity (not bytes) decides.
+    let first = Blob::new(Arc::new(vec![1u8; 16]));
+    let second = Blob::new(Arc::new(vec![1u8; 16]));
+    assert_ne!(first.id(), second.id());
+
+    let mut scene = Scene::new(64, 64);
+    scene.set_image_source(1, NetImageData::from_blob(2, 2, first.clone()));
+    let mut r = VelloRasterizer::new();
+    let _ = r.scene_to_vello(&scene);
+    assert_eq!(r.cached_image_blob_id(1), Some(first.id()));
+
+    // Same blob, new scene: the entry is kept.
+    let mut same = Scene::new(64, 64);
+    same.set_image_source(1, NetImageData::from_blob(2, 2, first.clone()));
+    let _ = r.scene_to_vello(&same);
+    assert_eq!(r.cached_image_blob_id(1), Some(first.id()));
+
+    // Different blob, same key: replaced, count stable.
+    let mut next = Scene::new(64, 64);
+    next.set_image_source(1, NetImageData::from_blob(2, 2, second.clone()));
+    let _ = r.scene_to_vello(&next);
+    assert_eq!(r.cached_image_blob_id(1), Some(second.id()));
+    assert_eq!(r.cached_image_count(), 1);
+}
+
+#[test]
+fn replacement_may_change_dimensions_without_tripping_the_cache() {
+    let mut scene = Scene::new(64, 64);
+    scene.set_image_source(1, NetImageData::from_bytes(2, 2, vec![9; 16]));
+    let mut r = VelloRasterizer::new();
+    let _ = r.scene_to_vello(&scene);
+    let mut next = Scene::new(64, 64);
+    next.set_image_source(1, NetImageData::from_bytes(4, 1, vec![7; 16]));
+    let _ = r.scene_to_vello(&next);
+    assert_eq!(r.cached_image_count(), 1);
+}
+
+#[test]
 fn pr4_new_image_grows_cache() {
     let mut scene = Scene::new(64, 64);
     scene.image_sources.insert(1, img(10));
