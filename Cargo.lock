@@ -2630,3 +2630,471 @@ name = "zmij"
 version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
+
+[[patch.unused]]
+name = "browsing-context-api"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "buckram"
+version = "0.0.3"
+
+[[patch.unused]]
+name = "cadency"
+version = "0.0.1"
+
+[[patch.unused]]
+name = "document-session-api"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "engine-observables-api"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "fleece"
+version = "0.5.0"
+
+[[patch.unused]]
+name = "genet-clipboard"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "genet-compositor"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-document-resources"
+version = "0.2.1"
+
+[[patch.unused]]
+name = "genet-documents"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "genet-fontique"
+version = "0.10.0"
+
+[[patch.unused]]
+name = "genet-host-api"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-idl-interface-table"
+version = "0.0.0"
+
+[[patch.unused]]
+name = "genet-livery"
+version = "0.0.4"
+
+[[patch.unused]]
+name = "genet-paint-types"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-parley"
+version = "0.10.0"
+
+[[patch.unused]]
+name = "genet-render"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-render-host"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-scripted"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-scripted-dom"
+version = "0.1.2"
+
+[[patch.unused]]
+name = "genet-scripted-worker"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-static-dom"
+version = "0.1.1"
+
+[[patch.unused]]
+name = "genet-taffy"
+version = "0.14.0"
+
+[[patch.unused]]
+name = "genet-text"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "genet-winit-host"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-wpt"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "gpu-allocator"
+version = "0.28.0"
+
+[[patch.unused]]
+name = "ipc-channel"
+version = "0.22.0"
+
+[[patch.unused]]
+name = "layout-dom-api"
+version = "0.1.1"
+
+[[patch.unused]]
+name = "livery"
+version = "0.0.5"
+
+[[patch.unused]]
+name = "netfetcher"
+version = "0.1.1"
+
+[[patch.unused]]
+name = "ortet"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "regress"
+version = "0.11.1"
+
+[[patch.unused]]
+name = "script-engine-api"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "script-engine-boa"
+version = "0.0.0"
+
+[[patch.unused]]
+name = "script-engine-nova"
+version = "0.0.0"
+
+[[patch.unused]]
+name = "script-engine-piccolo"
+version = "0.0.0"
+
+[[patch.unused]]
+name = "script-runtime-api"
+version = "0.0.0"
+
+[[patch.unused]]
+name = "servo-media"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-audio"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-auto"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-derive"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-dummy"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-examples"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-gstreamer"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-gstreamer-render"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-gstreamer-render-android"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-gstreamer-render-unix"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-player"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-streams"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-traits"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-webrtc"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-webgl-essl"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-webgl-wgpu"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-xpath"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "sonic-rs"
+version = "0.5.8"
+
+[[patch.unused]]
+name = "taproot"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "genet-scripted-dom"
+version = "0.1.2"
+
+[[patch.unused]]
+name = "layout-dom-api"
+version = "0.1.1"
+
+[[patch.unused]]
+name = "genet-taffy"
+version = "0.14.0"
+
+[[patch.unused]]
+name = "browsing-context-api"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "buckram"
+version = "0.0.3"
+
+[[patch.unused]]
+name = "cadency"
+version = "0.0.1"
+
+[[patch.unused]]
+name = "document-session-api"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "engine-observables-api"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "fleece"
+version = "0.5.0"
+
+[[patch.unused]]
+name = "genet-clipboard"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "genet-compositor"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-document-resources"
+version = "0.2.1"
+
+[[patch.unused]]
+name = "genet-documents"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "genet-fontique"
+version = "0.10.0"
+
+[[patch.unused]]
+name = "genet-host-api"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-idl-interface-table"
+version = "0.0.0"
+
+[[patch.unused]]
+name = "genet-livery"
+version = "0.0.4"
+
+[[patch.unused]]
+name = "genet-paint-types"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-parley"
+version = "0.10.0"
+
+[[patch.unused]]
+name = "genet-render"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-render-host"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-scripted"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-scripted-dom"
+version = "0.1.2"
+
+[[patch.unused]]
+name = "genet-scripted-worker"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-static-dom"
+version = "0.1.1"
+
+[[patch.unused]]
+name = "genet-taffy"
+version = "0.14.0"
+
+[[patch.unused]]
+name = "genet-text"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "genet-winit-host"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "genet-wpt"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "gpu-allocator"
+version = "0.28.0"
+
+[[patch.unused]]
+name = "ipc-channel"
+version = "0.22.0"
+
+[[patch.unused]]
+name = "layout-dom-api"
+version = "0.1.1"
+
+[[patch.unused]]
+name = "livery"
+version = "0.0.5"
+
+[[patch.unused]]
+name = "netfetcher"
+version = "0.1.1"
+
+[[patch.unused]]
+name = "ortet"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "regress"
+version = "0.11.1"
+
+[[patch.unused]]
+name = "script-engine-api"
+version = "0.1.0"
+
+[[patch.unused]]
+name = "script-engine-boa"
+version = "0.0.0"
+
+[[patch.unused]]
+name = "script-engine-nova"
+version = "0.0.0"
+
+[[patch.unused]]
+name = "script-engine-piccolo"
+version = "0.0.0"
+
+[[patch.unused]]
+name = "script-runtime-api"
+version = "0.0.0"
+
+[[patch.unused]]
+name = "servo-media"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-audio"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-auto"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-derive"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-dummy"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-examples"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-gstreamer"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-gstreamer-render"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-gstreamer-render-android"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-gstreamer-render-unix"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-player"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-streams"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-traits"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-media-webrtc"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-webgl-essl"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-webgl-wgpu"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "servo-xpath"
+version = "0.2.0"
+
+[[patch.unused]]
+name = "sonic-rs"
+version = "0.5.8"
+
+[[patch.unused]]
+name = "taproot"
+version = "0.1.0"
