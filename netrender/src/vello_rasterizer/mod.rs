@@ -335,6 +335,11 @@ impl VelloRasterizer {
         self.image_data.len()
     }
 
+    /// `peniko::Blob` id of the cached Path A entry under `key`, if any.
+    pub fn cached_image_blob_id(&self, key: ImageKey) -> Option<u64> {
+        self.image_data.entries().get(&key).map(|img| img.data.id())
+    }
+
     /// Register a Path B [`peniko::ImageData`] (typically the
     /// result of `vello::Renderer::register_texture`) under the
     /// given key. Path B overrides win over `scene.image_sources`
@@ -353,11 +358,12 @@ impl VelloRasterizer {
     /// updating the cached image map.
     ///
     /// Cache invariant: after this call, `self.image_data` contains
-    /// exactly the keys present in `scene.image_sources` (unchanged
-    /// keys keep their existing `ImageData`; new keys are inserted;
-    /// keys absent from the scene are evicted).
+    /// exactly the keys present in `scene.image_sources` (keys whose
+    /// source blob is unchanged keep their existing `ImageData`; new keys
+    /// are inserted; a key with a different blob is replaced; keys absent
+    /// from the scene are evicted).
     pub fn scene_to_vello(&mut self, scene: &Scene) -> vello::Scene {
-        self.image_data.refresh(scene);
+        let _ = self.image_data.refresh(scene);
         scene_to_vello_with_image_sources(scene, self.image_data.entries(), &self.image_overrides)
     }
 }
@@ -369,7 +375,8 @@ impl Default for VelloRasterizer {
 }
 
 /// Owns the retained CPU-source identities for both Classic rasterizers.
-/// Keys identify immutable pixels until absent from a refreshed scene.
+/// A key keeps its entry while the scene's source for it carries the same
+/// peniko `Blob` id and dimensions; a new blob under the same key replaces it.
 #[derive(Default)]
 pub(crate) struct CpuImageCache {
     entries: HashMap<ImageKey, ImageData>,
@@ -382,23 +389,30 @@ impl CpuImageCache {
     pub(crate) fn entries(&self) -> &HashMap<ImageKey, ImageData> {
         &self.entries
     }
-    pub(crate) fn refresh(&mut self, scene: &Scene) {
+    /// Sync entries to `scene.image_sources`. Returns the keys whose existing
+    /// entry was replaced by a different blob: the scene ops naming them are
+    /// unchanged, so callers must invalidate whatever lowered those ops.
+    pub(crate) fn refresh(&mut self, scene: &Scene) -> Vec<ImageKey> {
+        let mut replaced = Vec::new();
         for (key, data) in &scene.image_sources {
-            self.entries
-                .entry(*key)
-                .or_insert_with(|| convert_image_source(data));
-            debug_assert_eq!(
-                (
-                    self.entries[key].width,
-                    self.entries[key].height,
-                    self.entries[key].data.len()
-                ),
-                (data.width, data.height, data.data.len()),
-                "ImageKey {key:#x} reused with different dimensions or byte length"
-            );
+            match self.entries.entry(*key) {
+                std::collections::hash_map::Entry::Vacant(slot) => {
+                    slot.insert(convert_image_source(data));
+                }
+                std::collections::hash_map::Entry::Occupied(mut slot) => {
+                    let held = slot.get();
+                    if held.data.id() != data.data.id()
+                        || (held.width, held.height) != (data.width, data.height)
+                    {
+                        slot.insert(convert_image_source(data));
+                        replaced.push(*key);
+                    }
+                }
+            }
         }
         self.entries
             .retain(|key, _| scene.image_sources.contains_key(key));
+        replaced
     }
 }
 

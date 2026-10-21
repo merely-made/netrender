@@ -288,9 +288,12 @@ fn p7prime_05_image_cache_persists_across_frames() {
         VelloTileRasterizer::new(handles.clone()).expect("VelloTileRasterizer::new");
     let mut tc = TileCache::new(TILE_SIZE);
 
+    // One shared source: the cache keeps an entry while the blob is the same
+    // (a freshly allocated blob under the key is a replacement).
+    let source = one_pixel_image();
     let mut scene = Scene::new(VIEWPORT, VIEWPORT);
-    scene.image_sources.insert(TEST_IMG_KEY, one_pixel_image());
-    scene.push_image(16.0, 16.0, 48.0, 48.0, TEST_IMG_KEY, one_pixel_image());
+    scene.image_sources.insert(TEST_IMG_KEY, source.clone());
+    scene.push_image(16.0, 16.0, 48.0, 48.0, TEST_IMG_KEY, source.clone());
 
     let (t1, v1) = make_target(&handles.device);
     rasterizer
@@ -323,10 +326,8 @@ fn p7prime_05_image_cache_persists_across_frames() {
     // (consumer pattern: rebuild Scene each frame). Cache survives
     // the Scene swap because it lives on the rasterizer.
     let mut scene_b = Scene::new(VIEWPORT, VIEWPORT);
-    scene_b
-        .image_sources
-        .insert(TEST_IMG_KEY, one_pixel_image());
-    scene_b.push_image(20.0, 20.0, 60.0, 60.0, TEST_IMG_KEY, one_pixel_image());
+    scene_b.image_sources.insert(TEST_IMG_KEY, source.clone());
+    scene_b.push_image(20.0, 20.0, 60.0, 60.0, TEST_IMG_KEY, source);
     let (t3, v3) = make_target(&handles.device);
     rasterizer
         .render(&scene_b, &mut tc, &v3, TRANSPARENT)
@@ -351,9 +352,12 @@ fn p7prime_06_image_cache_evicts_on_key_drop() {
         VelloTileRasterizer::new(handles.clone()).expect("VelloTileRasterizer::new");
     let mut tc = TileCache::new(TILE_SIZE);
 
+    // One shared source: the cache keeps an entry while the blob is the same
+    // (a freshly allocated blob under the key is a replacement).
+    let source = one_pixel_image();
     let mut scene = Scene::new(VIEWPORT, VIEWPORT);
-    scene.image_sources.insert(TEST_IMG_KEY, one_pixel_image());
-    scene.push_image(16.0, 16.0, 48.0, 48.0, TEST_IMG_KEY, one_pixel_image());
+    scene.image_sources.insert(TEST_IMG_KEY, source.clone());
+    scene.push_image(16.0, 16.0, 48.0, 48.0, TEST_IMG_KEY, source.clone());
     let (_t1, v1) = make_target(&handles.device);
     rasterizer
         .render(&scene, &mut tc, &v1, TRANSPARENT)

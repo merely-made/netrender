@@ -78,8 +78,8 @@ pub(crate) struct RetainedState {
 }
 
 impl RetainedState {
-    /// Drop the whole-master shortcut when an external image receives a new
-    /// Vello identity or is retired. Its frame signature contains image keys,
+    /// Drop the whole-master shortcut when an image receives a new
+    /// identity (external override or a replaced scene blob) or is retired. Its frame signature contains image keys,
     /// not override identities. Re-lower only fragments whose image draws use
     /// one of the changed keys.
     pub(crate) fn invalidate_image_override_cache(&mut self, keys: &[ImageKey]) {
@@ -274,7 +274,10 @@ impl VelloTileRasterizer {
     ) -> vello::Scene {
         use crate::profiling::Span;
 
-        self.refresh_image_data(scene);
+        let replaced_images = self.refresh_image_data(scene);
+        if !replaced_images.is_empty() {
+            self.retained.invalidate_image_override_cache(&replaced_images);
+        }
 
         let sig_span = Span::start("fragment_signature");
         let signature = frame_signature(scene, &self.retained);

@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-21",
+  "finding": "IMG-GPU-REPLACE-STALE",
+  "base_commit": "ec15eb269 (origin/main; contains d92050146)",
+  "ruling": "Mark 2026-10-20 (unnumbered): netrender side, blob identity is the thing compared",
+  "change": "CpuImageCache::refresh replaces an entry when the scene source's peniko Blob id (or width/height) differs and returns the replaced keys; the tile path rebuilds tiles whose Image/Pattern ops name them (TileCache::tiles_drawing_images); the retained path drops the cached master and re-lowers only fragments drawing them. The reused-key dimension debug_assert is removed (replacement is legitimate).",
+  "pin_moved": "p7prime_05_image_cache_persists_across_frames shared one ImageData across frames; a freshly allocated blob under a key is now a replacement, so it no longer asserts a stable blob id for fresh allocations.",
+  "tests_added": [
+    "tests/img_replace_stale.rs: tile_path_draws_replacement_and_rebuilds_only_dependent_tiles (GPU readback, 1 of 4 tiles rebuilt)",
+    "tests/img_replace_stale.rs: retained_fragment_redraws_replaced_image_under_a_reused_key (GPU readback, +1 lowering)",
+    "tests/pr4_simple_rasterizer_image_cache.rs: replaced_blob_under_reused_key_replaces_the_cache_entry, replacement_may_change_dimensions_without_tripping_the_cache"
+  ],
+  "fails_before": "both GPU tests fail with the comparator disabled (stale red instead of blue); CPU pr4 tests were not run in that state",
+  "gates_passed": "cargo test -p netrender --lib (82); img_replace_stale, pr4_simple_rasterizer_image_cache, p7prime_vello_tile_cache, p5prime_vello_image, p7_tile_cache, pa3_tile_dirty_tracking, pc2_pattern_op, pe4_fragment_retention, pe4b_retained_in_layers, vb2_sparse_images, vb2_sparse_patterns, vb5_sparse_fragments",
+  "not_run": "wasm, full suite, genet IMG-GPU rerun (needs a genet repin, Mark's to order)",
+  "machine": "Windows, debug profile, CARGO_PROFILE_DEV_DEBUG=0"
+}

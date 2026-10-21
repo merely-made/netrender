@@ -149,13 +149,22 @@ impl VelloTileRasterizer {
         }
 
         let refresh_span = Span::start("refresh_image_data");
-        self.refresh_image_data(scene);
+        let replaced_images = self.refresh_image_data(scene);
         refresh_span.stop_recording(timings);
 
         // Build tile membership once for both dependency hashes and dirty
         // tile lowering. The rebuild below borrows the same ordered index.
         let invalidate_span = Span::start("tile_invalidate");
-        let dirty = tile_cache.invalidate(scene);
+        let mut dirty = tile_cache.invalidate(scene);
+        // A replaced blob keeps its ImageKey, so the tile dependency hash
+        // cannot see it: rebuild the tiles that draw it.
+        if !replaced_images.is_empty() {
+            for coord in tile_cache.tiles_drawing_images(scene, &replaced_images) {
+                if !dirty.contains(&coord) {
+                    dirty.push(coord);
+                }
+            }
+        }
         invalidate_span.stop_recording(timings);
         self.last_dirty_count = dirty.len();
         self.last_dirty_tiles = dirty.clone();
@@ -185,8 +194,11 @@ impl VelloTileRasterizer {
         master
     }
 
-    pub(super) fn refresh_image_data(&mut self, scene: &Scene) {
-        self.image_data.refresh(scene);
+    /// Sync the CPU image cache to the scene. Returns keys whose blob was
+    /// replaced; the retained fragment path invalidates their dependents here,
+    /// the tile path invalidates tiles after `TileCache::invalidate`.
+    pub(super) fn refresh_image_data(&mut self, scene: &Scene) -> Vec<crate::scene::ImageKey> {
+        self.image_data.refresh(scene)
     }
 
     /// Return the `peniko::Blob` id for the cached Path A image
