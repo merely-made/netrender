@@ -392,6 +392,20 @@ impl VelloTileRasterizer {
         }
     }
 
+    pub(crate) fn has_texture_override(&self, key: ImageKey) -> bool {
+        self.image_overrides.contains_key(&key)
+    }
+
+    /// Caller preflights the complete disjoint move set before the first move.
+    /// Moving ImageData submits no GPU work and retains the qualified texture.
+    pub(crate) fn promote_texture_override(&mut self, temporary: ImageKey, stable: ImageKey) {
+        let image = self.image_overrides.remove(&temporary).expect("preflighted private image");
+        if let Some(previous) = self.image_overrides.insert(stable, image) {
+            self.vello_renderer.unregister_texture(previous);
+            self.live_texture_registrations = self.live_texture_registrations.saturating_sub(1);
+        }
+    }
+
     /// Replace the backing GPU texture while preserving Vello's `ImageData`
     /// identity. This is the correct update path for a same-sized source: tile
     /// and retained scenes keep referring to that identity, and Vello is told
