@@ -14,7 +14,7 @@ or universal renderer parity.
 ## Input and source identity
 
 Original receipt:
-`repos/isometry/mesocosm/testing/bench/receipts/2026-09-27/paint-capture/source.json`.
+`Code/testing/isocosm/mesocosm-bench-receipts/2026-09-27/paint-capture/source.json`.
 Its SHA-256 and verified input hashes are in `input-provenance.json`.
 
 The source packet is
