@@ -42,3 +42,6 @@ required-features = ["resource-bundle"]
 [[example]]
 name = "classic_edge_probe"
 required-features = ["resource-bundle"]
+
+[lints]
+workspace = true

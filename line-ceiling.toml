@@ -1,0 +1,78 @@
+# mere/design_docs/mere_docs/implementation_strategy/2026-10-30_house_style_plan.md (H2); all physical source lines count.
+ceiling = 600
+
+[[exception]]
+path = "netrender/src/external_texture.rs"
+reason = "Same-device external texture composition. Existing source-size debt; a responsibility split must preserve SourceAlpha, ExternalImageStagingPipeline, Out and existing module visibility."
+
+[[exception]]
+path = "netrender/src/renderer/mod.rs"
+reason = "Renderer shell — vello-backed. Existing source-size debt; a responsibility split must preserve RetainedFragmentError, Renderer, ExternalImageState and existing module visibility."
+
+[[exception]]
+path = "netrender/src/renderer/rg2c.rs"
+reason = "RG2c's first renderer-owned combined-effect decomposition. Existing source-size debt; a responsibility split must preserve CombinedEffectDecompositionError, CombinedEffectDecomposition, CombinedEffectPlan and existing module visibility."
+
+[[exception]]
+path = "netrender/src/scene/build.rs"
+reason = "Scene builder methods: the push_ op constructors, scene constructors, op iterators, debug dump, and compositor-surface declares. Existing source-size debt; a responsibility split must preserve existing entry points, fixture identity and module visibility."
+
+[[exception]]
+path = "netrender/src/tile_cache/index.rs"
+reason = "Roadmap E3 — per-frame op-to-tile index. Existing source-size debt; a responsibility split must preserve TileGrid, Entry, FrameIndex and existing module visibility."
+
+[[exception]]
+path = "netrender/src/vello_backends.rs"
+reason = "Experimental admission boundary for Vello Classic, Hybrid, and CPU. Existing source-size debt; a responsibility split must preserve VelloBackend, BackendCapabilities, BackendAdmissionError and existing module visibility."
+
+[[exception]]
+path = "netrender/src/vello_backends/sessions.rs"
+reason = "Owned, image-bearing sparse sessions. Existing source-size debt; a responsibility split must preserve SparseResourceLimits, SparseResourceStats, SparseSessionError and existing module visibility."
+
+[[exception]]
+path = "netrender/src/vello_tile_rasterizer/mod.rs"
+reason = "Phase 7' — vello-backed tile cache (Masonry pattern per rasterizer plan §2.1-§2.4). Existing source-size debt; a responsibility split must preserve CompositorState, VelloTileRasterizer, MasterEntry and existing module visibility."
+
+[[exception]]
+path = "netrender/tests/rg2a_scene_corpus.rs"
+reason = "RG2a: the same two semantic scenes are admitted by all three Vello adapters. Existing source-size debt; a responsibility split must preserve existing entry points, fixture identity and module visibility."
+
+[[exception]]
+path = "netrender/tests/vb3_sparse_text.rs"
+reason = "VB3 synthetic caller-shaped text acceptance, not a real Isocosm panel capture. Existing source-size debt; a responsibility split must preserve Session and existing module visibility."
+
+[[exception]]
+path = "netrender_device/src/render_graph.rs"
+reason = "Phase 6 image execution plan. Existing source-size debt; a responsibility split must preserve ImageRenderCommands, ImageRenderCommandClosure, PrepareCallback and existing module visibility."
+
+[[exception]]
+path = "paint_list_api/src/lib.rs"
+reason = "paint_list_api — the trait + common vocabulary every engine emits into and NetRender renders from. Existing source-size debt; a responsibility split must preserve PaintList, FontResource, ImageResource and existing module visibility."
+
+[[exception]]
+path = "paint_list_render/examples/resource_bundle_parity.rs"
+reason = "Complete-resource replay: resource_bundle_parity CAPTURE.postcard OUTDIR cpu|classic|gpu|all Use --bundle for an already-materialized bundle, or --fixture as the input for a. Existing source-size debt; a responsibility split must preserve Result and existing module visibility."
+
+[[exception]]
+path = "paint_list_render/examples/sparse_panel_replay.rs"
+reason = "Intact, caller-shaped PaintEnvelope replay. Existing source-size debt; a responsibility split must preserve Result and existing module visibility."
+
+[[exception]]
+path = "paint_list_render/src/bundle.rs"
+reason = "Portable, complete producer resources. Existing source-size debt; a responsibility split must preserve ResourceAlpha, ResourceEncoding, ProducerSource and existing module visibility."
+
+[[exception]]
+path = "paint_list_render/src/emit.rs"
+reason = "Per-command emitters: clips, layers, nine-patch borders, and gradients, plus the box-shadow key base and transform/matrix helpers. Existing source-size debt; a responsibility split must preserve NormalBorderMode and existing module visibility."
+
+[[exception]]
+path = "paint_list_render/src/lib.rs"
+reason = "paint_list_render — PaintList → netrender::Scene translator. Existing source-size debt; a responsibility split must preserve ExternalTextureDraw, BoxShadowMaskRequest, TranslatedDisplayList and existing module visibility."
+
+[[exception]]
+path = "paint_list_render/src/tests.rs"
+reason = "Translator unit tests. Existing source-size debt; a responsibility split must preserve StubPaintList and existing module visibility."
+
+[[exception]]
+path = "paint_list_render/tests/resource_bundle.rs"
+reason = "Resource bundle. Existing source-size debt; a responsibility split must preserve existing entry points, fixture identity and module visibility."

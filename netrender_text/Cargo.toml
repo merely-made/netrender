@@ -14,3 +14,6 @@ parley.workspace = true
 
 [dev-dependencies]
 wgpu = { workspace = true, features = ["std", "parking_lot", "dx12", "metal", "vulkan", "wgsl"] }
+
+[lints]
+workspace = true

@@ -101,3 +101,6 @@ name = "webgl_scene"
 path = "examples/webgl_scene.rs"
 crate-type = ["cdylib"]
 required-features = ["vello-webgl"]
+
+[lints]
+workspace = true

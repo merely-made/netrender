@@ -32,3 +32,6 @@ pollster = "1.0"
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wgpu = { workspace = true, features = ["webgpu"] }
 web-time = "1"
+
+[lints]
+workspace = true

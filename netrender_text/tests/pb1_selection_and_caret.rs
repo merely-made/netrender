@@ -67,6 +67,7 @@ fn shape(text: &str) -> Option<Layout<[f32; 4]>> {
 }
 
 #[test]
+#[allow(clippy::reversed_empty_ranges)] // Deliberate malformed input tests the defensive path.
 fn selection_rects_collapsed_range_is_empty() {
     let Some(layout) = shape("hello world") else {
         eprintln!("pb1: no system font; skipping");
