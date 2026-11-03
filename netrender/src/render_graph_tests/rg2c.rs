@@ -205,6 +205,9 @@ fn render_run(
                 .expect("CPU RG2c execution");
             outputs.remove(&compiled.output).expect("RG2c output")
         }
+        VelloBackend::WebGl2 => {
+            unreachable!("this native fixture only schedules Classic, Hybrid, and CPU")
+        }
     };
     Run {
         bytes: renderer.wgpu_device.read_rgba8_texture(&output, DIM, DIM),

@@ -500,3 +500,7 @@ code no longer in this repo):**
 ## 2026-10-12 checked renderer refusal
 
 Classic shared/per-surface checked entry points now propagate original provider errors through filter preprocessing and restore shared retained tile scenes on failure. Compilation and the backdrop/element/lifecycle GPU controls passed; see [receipt](receipts/2026-10-12_checked_renderer/README.md). Genet owns device-loss classification and native GPU error scopes.
+
+## Source splits, 2026-11-03
+
+The [H5 source-splits plan](2026-11-03_source_splits_plan.md) records twelve landed source/fixture splits and retired exceptions. Selected CPU/offscreen GPU tests, feature/docs checks and the local gate pass. The prior full-suite compose pixel mismatch remains open.
