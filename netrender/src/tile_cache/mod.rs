@@ -69,6 +69,7 @@ pub(crate) struct Tile {
 /// consumer surfaces the need).
 pub struct TileCache {
     tile_size: u32,
+    pub(crate) glyph_scale: Option<Option<u32>>,
     pub(crate) tiles: HashMap<TileCoord, Tile>,
     current_frame: u64,
     dirty_count_last_invalidate: usize,
@@ -85,6 +86,7 @@ impl TileCache {
         assert!(tile_size > 0, "tile_size must be > 0");
         Self {
             tile_size,
+            glyph_scale: None,
             tiles: HashMap::new(),
             current_frame: 0,
             dirty_count_last_invalidate: 0,
@@ -175,8 +177,13 @@ impl TileCache {
         // Roadmap E3 — file every op into the bins of the tiles it
         // covers, once, so the per-tile pass below reads its own bin
         // instead of rescanning the whole op list. Was O(tiles × ops).
-        self.frame_index
-            .build(scene, TileGrid::new(tile_size, n_cols, n_rows));
+        self.frame_index.build(
+            scene,
+            TileGrid::new(tile_size, n_cols, n_rows),
+            self.glyph_scale
+                .flatten()
+                .is_some_and(|bits| f32::from_bits(bits) < 1.0),
+        );
 
         let mut dirty = Vec::new();
 
@@ -292,34 +299,100 @@ fn world_aabb_gradient(g: &SceneGradient, scene: &Scene) -> [f32; 4] {
 }
 
 pub(crate) fn world_aabb_glyph_run(r: &SceneGlyphRun, scene: &Scene) -> Option<[f32; 4]> {
+    use skrifa::MetadataProvider;
     if r.glyphs.is_empty() {
         return None;
     }
-    // Conservative AABB: bounding box of glyph origins inflated by
-    // ±font_size on each axis to cover ascenders / descenders /
-    // wide glyph extents. Real per-glyph bounds need font metrics
-    // we don't load here; this overestimates safely.
-    let mut min_x = f32::INFINITY;
-    let mut min_y = f32::INFINITY;
-    let mut max_x = f32::NEG_INFINITY;
-    let mut max_y = f32::NEG_INFINITY;
-    for g in &r.glyphs {
-        if g.x < min_x {
-            min_x = g.x;
-        }
-        if g.y < min_y {
-            min_y = g.y;
-        }
-        if g.x > max_x {
-            max_x = g.x;
-        }
-        if g.y > max_y {
-            max_y = g.y;
-        }
+    let unbounded = [
+        f32::NEG_INFINITY,
+        f32::NEG_INFINITY,
+        f32::INFINITY,
+        f32::INFINITY,
+    ];
+    let Some(blob) = scene
+        .fonts
+        .get(r.font_id as usize)
+        .filter(|_| r.font_id != 0)
+    else {
+        return Some(unbounded);
+    };
+    let Ok(font) = skrifa::FontRef::from_index(blob.data.data(), blob.index) else {
+        return Some(unbounded);
+    };
+    if !r.font_size.is_finite()
+        || r.font_size <= 0.0
+        || r.font_axis_values.iter().any(|(_, v)| !v.is_finite())
+        || scene
+            .transforms
+            .get(r.transform_id as usize)
+            .is_none_or(|t| t.m.iter().any(|v| !v.is_finite()))
+        || [
+            *b"COLR", *b"CPAL", *b"CBDT", *b"CBLC", *b"EBDT", *b"EBLC", *b"sbix", *b"SVG ",
+            *b"bdat", *b"bloc",
+        ]
+        .iter()
+        .any(|tag| font.table_data(skrifa::Tag::new(tag)).is_some())
+    {
+        return Some(unbounded);
     }
-    let pad = r.font_size;
-    let inflated = [min_x - pad, min_y - pad, max_x + pad, max_y + pad];
-    Some(world_aabb(inflated, r.transform_id, scene))
+    let settings = r
+        .font_axis_values
+        .iter()
+        .filter_map(|(tag, value)| std::str::from_utf8(tag).ok().map(|tag| (tag, *value)));
+    let location = font.axes().location(settings);
+    let outlines = font.outline_glyphs();
+    let mut glyph_bounds = HashMap::<u32, Option<[f32; 4]>>::new();
+    let mut local = [
+        f32::INFINITY,
+        f32::INFINITY,
+        f32::NEG_INFINITY,
+        f32::NEG_INFINITY,
+    ];
+    for g in &r.glyphs {
+        if !g.x.is_finite() || !g.y.is_finite() {
+            return Some(unbounded);
+        }
+        let b = glyph_bounds.entry(g.id).or_insert_with(|| {
+            let glyph = outlines.get(skrifa::GlyphId::new(g.id))?;
+            let mut pen = skrifa::outline::pen::ControlBoundsPen::default();
+            glyph
+                .draw(
+                    skrifa::outline::DrawSettings::unhinted(
+                        skrifa::instance::Size::new(r.font_size),
+                        &location,
+                    ),
+                    &mut pen,
+                )
+                .ok()?;
+            // Successful empty outlines have no ink; a zero box still keeps
+            // their origin in the conservative aggregate.
+            Some(
+                pen.bounding_box()
+                    .map_or([0.0; 4], |b| [b.x_min, b.y_min, b.x_max, b.y_max]),
+            )
+        });
+        let Some(b) = *b else {
+            return Some(unbounded);
+        };
+        let points = [g.x + b[0], g.y - b[3], g.x + b[2], g.y - b[1]];
+        if points.iter().any(|v| !v.is_finite()) {
+            return Some(unbounded);
+        }
+        local[0] = local[0].min(points[0]).min(g.x - r.font_size);
+        local[1] = local[1].min(points[1]).min(g.y - r.font_size);
+        local[2] = local[2].max(points[2]).max(g.x + r.font_size);
+        local[3] = local[3].max(points[3]).max(g.y + r.font_size);
+    }
+    let mut world = world_aabb(local, r.transform_id, scene);
+    if world.iter().any(|v| !v.is_finite()) {
+        return Some(unbounded);
+    }
+    let margin = 2.0 + world.iter().fold(0.0_f32, |m, v| m.max(v.abs())) * 1e-6;
+    world[0] -= margin;
+    world[1] -= margin;
+    world[2] += margin;
+    world[3] += margin;
+    Some(world)
 }
 
 pub(crate) fn world_aabb_shape(s: &SceneShape, scene: &Scene) -> Option<[f32; 4]> {

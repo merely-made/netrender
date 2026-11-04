@@ -109,7 +109,7 @@ impl VelloTileRasterizer {
 
         let mut tile_scenes = std::mem::take(&mut self.tile_scenes);
         let local_master =
-            self.build_master_scene_timed(scene, tile_cache, &mut tile_scenes, &mut timings);
+            self.build_master_scene_timed(scene, tile_cache, &mut tile_scenes, &mut timings, None);
         self.tile_scenes = tile_scenes;
 
         let append_span = Span::start("master_append");
@@ -137,6 +137,7 @@ impl VelloTileRasterizer {
         tile_cache: &mut TileCache,
         tile_scenes: &mut std::collections::HashMap<crate::tile_cache::TileCoord, vello::Scene>,
         timings: &mut crate::profiling::FrameTimings,
+        glyph_scale: Option<f32>,
     ) -> vello::Scene {
         use crate::profiling::Span;
 
@@ -148,6 +149,17 @@ impl VelloTileRasterizer {
             return self.build_master_scene_fragments(scene, timings);
         }
 
+        // Spatial filters can pull ink across tile boundaries. Keep their
+        // original complete runs until filter halos are represented here.
+        let glyph_scale = glyph_scale.filter(|_| !scene.ops.iter().any(|op| {
+            matches!(op, SceneOp::PushLayer(layer) if !layer.filters.is_empty() || layer.backdrop_filter.is_some())
+        }));
+        let key = glyph_scale.map(f32::to_bits);
+        if tile_cache.glyph_scale != Some(key) {
+            tile_cache.clear();
+            tile_scenes.clear();
+            tile_cache.glyph_scale = Some(key);
+        }
         let refresh_span = Span::start("refresh_image_data");
         let replaced_images = self.refresh_image_data(scene);
         refresh_span.stop_recording(timings);
@@ -173,11 +185,12 @@ impl VelloTileRasterizer {
         for &coord in &dirty {
             let ops = filter_scene_to_tile_indices(scene, tile_cache.op_indices(coord));
             let view = crate::vello_rasterizer::SceneView::from_scene(scene);
-            let tile_scene = crate::vello_rasterizer::scene_to_vello_with_view(
+            let tile_scene = crate::vello_rasterizer::scene_to_vello_with_tile(
                 &view,
                 ops.iter().copied(),
                 self.image_data.entries(),
                 &self.image_overrides,
+                tile_cache.tile_world_rect(coord).zip(glyph_scale),
             );
             tile_scenes.insert(coord, tile_scene);
         }
@@ -510,3 +523,7 @@ mod empty_tile_layers_tests {
         assert!(std::ptr::eq(selected[0], &scene.ops[0]));
     }
 }
+
+#[cfg(test)]
+#[path = "glyph_tests.rs"]
+mod glyph_tests;

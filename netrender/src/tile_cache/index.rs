@@ -136,7 +136,7 @@ fn digest(aabb: [f32; 4], fields: impl FnOnce(&mut DefaultHasher)) -> u64 {
 
 impl FrameIndex {
     /// Rebuild for `scene` against `grid`. O(ops + Σ covered tiles).
-    pub(super) fn build(&mut self, scene: &Scene, grid: TileGrid) {
+    pub(super) fn build(&mut self, scene: &Scene, grid: TileGrid, broad_glyphs: bool) {
         self.grid = grid;
         self.bins.resize_with(grid.tile_count(), Vec::new);
         for bin in &mut self.bins {
@@ -177,8 +177,19 @@ impl FrameIndex {
                 }
                 SceneOp::Shape(s) => world_aabb_shape(s, scene)
                     .map(|aabb| (aabb, digest(aabb, |h| hash_shape(h, s)))),
-                SceneOp::GlyphRun(r) => world_aabb_glyph_run(r, scene)
-                    .map(|aabb| (aabb, digest(aabb, |h| hash_glyph_run(h, r)))),
+                SceneOp::GlyphRun(r) => world_aabb_glyph_run(r, scene).map(|aabb| {
+                    let aabb = if broad_glyphs {
+                        [
+                            f32::NEG_INFINITY,
+                            f32::NEG_INFINITY,
+                            f32::INFINITY,
+                            f32::INFINITY,
+                        ]
+                    } else {
+                        aabb
+                    };
+                    (aabb, digest(aabb, |h| hash_glyph_run(h, r)))
+                }),
 
                 // Layer scope ops apply to every tile — see the module
                 // docs on why this stays conservative.

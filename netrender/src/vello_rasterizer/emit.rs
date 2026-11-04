@@ -83,6 +83,7 @@ pub(super) fn emit_glyph_run(
     run: &SceneGlyphRun,
     fonts: &[FontBlob],
     transforms: &[Transform],
+    tile: Option<([f32; 4], f32)>,
 ) {
     if run.font_id == 0 || run.glyphs.is_empty() {
         return;
@@ -103,11 +104,125 @@ pub(super) fn emit_glyph_run(
         push_clip_layer(vscene, run.clip_rect, run.clip_corner_radii);
     }
 
-    let glyphs_iter = run.glyphs.iter().map(|g| vello::Glyph {
-        id: g.id,
-        x: g.x,
-        y: g.y,
+    use skrifa::MetadataProvider;
+    let tile_valid = tile.is_some_and(|(rect, scale)| {
+        scale.is_finite()
+            && scale > 0.0
+            && rect.iter().all(|v| v.is_finite())
+            && run.font_size.is_finite()
+            && run.font_size > 0.0
+            && run
+                .font_axis_values
+                .iter()
+                .all(|(_, value)| value.is_finite())
+            && transforms[run.transform_id as usize]
+                .m
+                .iter()
+                .all(|v| v.is_finite())
     });
+    let font = tile_valid
+        .then(|| skrifa::FontRef::from_index(blob.data.data(), blob.index).ok())
+        .flatten();
+    let can_cull = font.as_ref().is_some_and(|font| {
+        ![
+            *b"COLR", *b"CPAL", *b"CBDT", *b"CBLC", *b"EBDT", *b"EBLC", *b"sbix", *b"SVG ",
+            *b"bdat", *b"bloc",
+        ]
+        .iter()
+        .any(|tag| font.table_data(skrifa::Tag::new(tag)).is_some())
+    });
+    let location = if can_cull {
+        font.as_ref().map(|font| {
+            let settings = run
+                .font_axis_values
+                .iter()
+                .filter_map(|(tag, value)| std::str::from_utf8(tag).ok().map(|tag| (tag, *value)));
+            font.axes().location(settings)
+        })
+    } else {
+        None
+    };
+    let outlines = if can_cull {
+        font.as_ref().map(|font| font.outline_glyphs())
+    } else {
+        None
+    };
+    // Cache control-point bounds per glyph within this run and tile. They come
+    // from the actual unhinted outline, not the font's potentially incorrect
+    // glyf header bounding box.
+    let mut bounds_cache = std::collections::HashMap::<u32, Option<[f32; 4]>>::new();
+    let glyphs_iter = run
+        .glyphs
+        .iter()
+        .filter(|g| {
+            let (Some(outlines), Some(location), Some((rect, scale))) =
+                (&outlines, &location, tile)
+            else {
+                return true;
+            };
+            let bounds = bounds_cache.entry(g.id).or_insert_with(|| {
+                let outline = outlines.get(skrifa::GlyphId::new(g.id))?;
+                let mut pen = skrifa::outline::pen::ControlBoundsPen::default();
+                outline
+                    .draw(
+                        skrifa::outline::DrawSettings::unhinted(
+                            skrifa::instance::Size::new(run.font_size),
+                            location,
+                        ),
+                        &mut pen,
+                    )
+                    .ok()?;
+                let b = pen.bounding_box()?;
+                Some([b.x_min, b.y_min, b.x_max, b.y_max])
+            });
+            let Some(bounds) = *bounds else {
+                return true;
+            };
+            let local = [
+                g.x + bounds[0],
+                g.y - bounds[3],
+                g.x + bounds[2],
+                g.y - bounds[1],
+            ];
+            if !local.iter().all(|v| v.is_finite()) {
+                return true;
+            }
+            let corners = [
+                (local[0], local[1]),
+                (local[2], local[1]),
+                (local[0], local[3]),
+                (local[2], local[3]),
+            ];
+            let mut extent = [
+                f64::INFINITY,
+                f64::INFINITY,
+                f64::NEG_INFINITY,
+                f64::NEG_INFINITY,
+            ];
+            for (x, y) in corners {
+                let p = world * Point::new(x as f64, y as f64);
+                extent[0] = extent[0].min(p.x);
+                extent[1] = extent[1].min(p.y);
+                extent[2] = extent[2].max(p.x);
+                extent[3] = extent[3].max(p.y);
+            }
+            if !extent.iter().all(|v| v.is_finite()) {
+                return true;
+            }
+            // One physical pixel covers antialiasing across the tile edge; the
+            // second also absorbs floating-point conversion and quantization.
+            let margin =
+                2.0 / scale as f64 + extent.iter().fold(0.0_f64, |m, v| m.max(v.abs())) * 1e-6;
+            !(extent[2] + margin < rect[0] as f64
+                || extent[0] - margin > rect[2] as f64
+                || extent[3] + margin < rect[1] as f64
+                || extent[1] - margin > rect[3] as f64)
+        })
+        .map(|g| vello::Glyph {
+            id: g.id,
+            x: g.x,
+            y: g.y,
+        });
 
     // Roadmap C4 — variable-font axis values. When non-empty,
     // resolve user-space settings to normalized coords via skrifa

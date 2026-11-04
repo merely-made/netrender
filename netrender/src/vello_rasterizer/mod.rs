@@ -181,7 +181,17 @@ pub(crate) fn scene_to_vello_with_view<'a>(
     cached: &HashMap<ImageKey, ImageData>,
     overrides: &HashMap<ImageKey, ImageData>,
 ) -> vello::Scene {
-    scene_to_vello_with_inputs(view, ops, cached, view.image_sources, overrides)
+    scene_to_vello_with_inputs(view, ops, cached, view.image_sources, overrides, None)
+}
+
+pub(crate) fn scene_to_vello_with_tile<'a>(
+    view: &SceneView<'a>,
+    ops: impl IntoIterator<Item = &'a SceneOp>,
+    cached: &HashMap<ImageKey, ImageData>,
+    overrides: &HashMap<ImageKey, ImageData>,
+    tile: Option<([f32; 4], f32)>,
+) -> vello::Scene {
+    scene_to_vello_with_inputs(view, ops, cached, view.image_sources, overrides, tile)
 }
 
 fn scene_to_vello_with_inputs<'a>(
@@ -190,6 +200,7 @@ fn scene_to_vello_with_inputs<'a>(
     cached: &HashMap<ImageKey, ImageData>,
     sources: &'a HashMap<ImageKey, crate::scene::ImageData>,
     overrides: &HashMap<ImageKey, ImageData>,
+    tile: Option<([f32; 4], f32)>,
 ) -> vello::Scene {
     let images = ImageLookup::new(cached, sources, overrides);
     let mut vscene = vello::Scene::new();
@@ -233,6 +244,7 @@ fn scene_to_vello_with_inputs<'a>(
                 run,
                 view.fonts.as_ref(),
                 view.transforms.as_ref(),
+                tile,
             ),
             SceneOp::PushLayer(layer) => {
                 emit_push_layer(
@@ -304,6 +316,7 @@ fn scene_to_vello_with_lookup(scene: &Scene, images: &ImageLookup<'_>) -> vello:
         images.cached,
         images.sources,
         images.overrides,
+        None,
     )
 }
 

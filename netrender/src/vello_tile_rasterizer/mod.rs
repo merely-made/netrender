@@ -565,7 +565,21 @@ impl VelloTileRasterizer {
         let total_span = Span::start("total");
         let mut timings = FrameTimings::empty();
 
-        let master = self.build_master_scene_timed(scene, tile_cache, tile_scenes, &mut timings);
+        let master = self.build_master_scene_timed(
+            scene,
+            tile_cache,
+            tile_scenes,
+            &mut timings,
+            if scale.is_finite() && scale > 0.0 {
+                Some(if (scale - 1.0).abs() < 1e-3 {
+                    1.0
+                } else {
+                    scale
+                })
+            } else {
+                None
+            },
+        );
 
         // At DPR > 1 the master (in logical coords) is appended into a fresh scene under
         // a scale affine; vello then rasterizes the scaled vectors crisply at the
@@ -703,8 +717,13 @@ impl VelloTileRasterizer {
         self.ensure_master_texture(scene.viewport_width, scene.viewport_height, master_format);
 
         let mut tile_scenes = std::mem::take(&mut self.tile_scenes);
-        let master_scene =
-            self.build_master_scene_timed(scene, tile_cache, &mut tile_scenes, &mut timings);
+        let master_scene = self.build_master_scene_timed(
+            scene,
+            tile_cache,
+            &mut tile_scenes,
+            &mut timings,
+            Some(1.0),
+        );
         self.tile_scenes = tile_scenes;
 
         // The master_pool entry is guaranteed by ensure_master_texture above.

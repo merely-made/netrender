@@ -47,8 +47,8 @@ fn dirty_fast(a: &Scene, b: &Scene) -> Vec<(i32, i32)> {
     let g = grid();
     let mut ia = FrameIndex::default();
     let mut ib = FrameIndex::default();
-    ia.build(a, g);
-    ib.build(b, g);
+    ia.build(a, g, false);
+    ib.build(b, g, false);
     let mut out = Vec::new();
     for row in 0..g.n_rows {
         for col in 0..g.n_cols {
@@ -205,7 +205,7 @@ fn indexed_scene_with_all_primitive_kinds() -> Scene {
 fn op_indices_match_full_scan_for_all_primitive_kinds_and_nested_scopes() {
     let scene = indexed_scene_with_all_primitive_kinds();
     let mut index = FrameIndex::default();
-    index.build(&scene, grid());
+    index.build(&scene, grid(), false);
 
     for row in 0..grid().n_rows {
         for col in 0..grid().n_cols {
@@ -236,7 +236,7 @@ fn op_indices_preserve_transforms_edges_degenerate_and_off_grid_rules() {
     scene.ops.push(SceneOp::PopLayer);
 
     let mut index = FrameIndex::default();
-    index.build(&scene, grid());
+    index.build(&scene, grid(), false);
     for row in 0..grid().n_rows {
         for col in 0..grid().n_cols {
             assert_eq!(
@@ -279,7 +279,7 @@ fn op_indices_match_full_scan_for_nonfinite_overflow_and_inverted_bounds() {
     }
 
     let mut index = FrameIndex::default();
-    index.build(&scene, grid());
+    index.build(&scene, grid(), false);
     for row in 0..grid().n_rows {
         for col in 0..grid().n_cols {
             assert_eq!(
@@ -324,7 +324,7 @@ fn finite_overflow_finite_transitions_match_reference_membership_and_dirty_sets(
 
     for frame in [&finite_before, &overflow, &finite_after] {
         let mut index = FrameIndex::default();
-        index.build(frame, grid());
+        index.build(frame, grid(), false);
         for row in 0..grid().n_rows {
             for col in 0..grid().n_cols {
                 assert_eq!(
@@ -351,7 +351,7 @@ fn op_indices_keep_global_ops_interleaved_in_painter_order() {
     scene.push_rect(16.0, 16.0, 20.0, 20.0, [1.0; 4]);
 
     let mut index = FrameIndex::default();
-    index.build(&scene, grid());
+    index.build(&scene, grid(), false);
     assert_eq!(indexed_op_indices(&index, 0, 0), vec![0, 1, 2, 3, 4]);
     assert_eq!(indexed_op_indices(&index, 1, 0), vec![1, 3]);
 }
@@ -366,7 +366,7 @@ fn op_indices_bound_tile_selection_when_scene_has_many_off_tile_ops() {
     scene.push_rect(8.0, 8.0, 24.0, 24.0, [0.0, 0.0, 0.0, 1.0]);
 
     let mut index = FrameIndex::default();
-    index.build(&scene, grid());
+    index.build(&scene, grid(), false);
     let selected = indexed_op_indices(&index, 0, 0);
     assert_eq!(selected, vec![4096]);
     assert!(
