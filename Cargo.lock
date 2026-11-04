@@ -552,7 +552,7 @@ dependencies = [
 [[package]]
 name = "glifo"
 version = "0.4.0"
-source = "git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774#3d82d3b5bee25cbc4d7c6c89d8069726841f0774"
+source = "git+https://github.com/mark-ik/vello?rev=b4a53486277ce37650f3803429cdc8a1d5551950#b4a53486277ce37650f3803429cdc8a1d5551950"
 dependencies = [
  "bytemuck",
  "foldhash",
@@ -561,22 +561,7 @@ dependencies = [
  "peniko",
  "skrifa",
  "smallvec",
- "vello_common 0.3.0 (git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774)",
-]
-
-[[package]]
-name = "glifo"
-version = "0.4.0"
-source = "git+https://github.com/mark-ik/vello?rev=9f454193808dda0db4beb5a46aa295206bfa706d#9f454193808dda0db4beb5a46aa295206bfa706d"
-dependencies = [
- "bytemuck",
- "foldhash",
- "hashbrown 0.17.1",
- "log",
- "peniko",
- "skrifa",
- "smallvec",
- "vello_common 0.3.0 (git+https://github.com/mark-ik/vello?rev=9f454193808dda0db4beb5a46aa295206bfa706d)",
+ "vello_common",
 ]
 
 [[package]]
@@ -1120,7 +1105,7 @@ dependencies = [
 name = "netrender"
 version = "0.1.2"
 dependencies = [
- "glifo 0.4.0 (git+https://github.com/mark-ik/vello?rev=9f454193808dda0db4beb5a46aa295206bfa706d)",
+ "glifo",
  "log",
  "netrender-vello",
  "netrender_device",
@@ -1132,7 +1117,7 @@ dependencies = [
  "serde_json",
  "skrifa",
  "tracing",
- "vello_common 0.3.0 (git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774)",
+ "vello_common",
  "vello_cpu",
  "vello_gpu",
  "wasm-bindgen",
@@ -1144,7 +1129,7 @@ dependencies = [
 [[package]]
 name = "netrender-vello"
 version = "0.11.0"
-source = "git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774#3d82d3b5bee25cbc4d7c6c89d8069726841f0774"
+source = "git+https://github.com/mark-ik/vello?rev=b4a53486277ce37650f3803429cdc8a1d5551950#b4a53486277ce37650f3803429cdc8a1d5551950"
 dependencies = [
  "bytemuck",
  "futures-intrusive",
@@ -1162,7 +1147,7 @@ dependencies = [
 [[package]]
 name = "netrender-vello-encoding"
 version = "0.11.0"
-source = "git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774#3d82d3b5bee25cbc4d7c6c89d8069726841f0774"
+source = "git+https://github.com/mark-ik/vello?rev=b4a53486277ce37650f3803429cdc8a1d5551950#b4a53486277ce37650f3803429cdc8a1d5551950"
 dependencies = [
  "bytemuck",
  "guillotiere",
@@ -1174,7 +1159,7 @@ dependencies = [
 [[package]]
 name = "netrender-vello-shaders"
 version = "0.11.0"
-source = "git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774#3d82d3b5bee25cbc4d7c6c89d8069726841f0774"
+source = "git+https://github.com/mark-ik/vello?rev=b4a53486277ce37650f3803429cdc8a1d5551950#b4a53486277ce37650f3803429cdc8a1d5551950"
 dependencies = [
  "bytemuck",
  "log",
@@ -2045,21 +2030,7 @@ checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
 [[package]]
 name = "vello_common"
 version = "0.3.0"
-source = "git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774#3d82d3b5bee25cbc4d7c6c89d8069726841f0774"
-dependencies = [
- "bytemuck",
- "fearless_simd",
- "guillotiere",
- "log",
- "peniko",
- "smallvec",
- "thiserror",
-]
-
-[[package]]
-name = "vello_common"
-version = "0.3.0"
-source = "git+https://github.com/mark-ik/vello?rev=9f454193808dda0db4beb5a46aa295206bfa706d#9f454193808dda0db4beb5a46aa295206bfa706d"
+source = "git+https://github.com/mark-ik/vello?rev=b4a53486277ce37650f3803429cdc8a1d5551950#b4a53486277ce37650f3803429cdc8a1d5551950"
 dependencies = [
  "bytemuck",
  "fearless_simd",
@@ -2073,27 +2044,27 @@ dependencies = [
 [[package]]
 name = "vello_cpu"
 version = "0.3.0"
-source = "git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774#3d82d3b5bee25cbc4d7c6c89d8069726841f0774"
+source = "git+https://github.com/mark-ik/vello?rev=b4a53486277ce37650f3803429cdc8a1d5551950#b4a53486277ce37650f3803429cdc8a1d5551950"
 dependencies = [
  "bytemuck",
- "glifo 0.4.0 (git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774)",
+ "glifo",
  "hashbrown 0.17.1",
  "log",
- "vello_common 0.3.0 (git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774)",
+ "vello_common",
 ]
 
 [[package]]
 name = "vello_gpu"
 version = "0.3.0"
-source = "git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774#3d82d3b5bee25cbc4d7c6c89d8069726841f0774"
+source = "git+https://github.com/mark-ik/vello?rev=b4a53486277ce37650f3803429cdc8a1d5551950#b4a53486277ce37650f3803429cdc8a1d5551950"
 dependencies = [
  "bytemuck",
- "glifo 0.4.0 (git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774)",
+ "glifo",
  "hashbrown 0.17.1",
  "js-sys",
  "log",
  "thiserror",
- "vello_common 0.3.0 (git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774)",
+ "vello_common",
  "vello_gpu_shaders",
  "web-sys",
  "wgpu",
@@ -2102,7 +2073,7 @@ dependencies = [
 [[package]]
 name = "vello_gpu_shaders"
 version = "0.3.0"
-source = "git+https://github.com/mark-ik/vello?rev=3d82d3b5bee25cbc4d7c6c89d8069726841f0774#3d82d3b5bee25cbc4d7c6c89d8069726841f0774"
+source = "git+https://github.com/mark-ik/vello?rev=b4a53486277ce37650f3803429cdc8a1d5551950#b4a53486277ce37650f3803429cdc8a1d5551950"
 dependencies = [
  "naga",
  "wesl",

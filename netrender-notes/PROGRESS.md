@@ -2,7 +2,7 @@
 
 ## Classic glyph tiling, 2026-11-03
 
-Tile lowering selects glyphs by unhinted outline bounds at the run's variation location, with a physical-pixel margin and scale-sensitive cache invalidation. Unknown and color font bounds remain conservative, and scenes with filters retain complete runs. Tile membership also uses outline bounds so overhang is not lost before lowering. The provider family is pinned to Vello `3d82d3b5` for typed allocation failure.
+Tile lowering selects glyphs by unhinted outline bounds at the run's variation location, with a physical-pixel margin and scale-sensitive cache invalidation. Unknown and color font bounds remain conservative, and scenes with filters retain complete runs. Tile membership also uses outline bounds so overhang is not lost before lowering. The provider family is pinned to Vello `b4a53486` for typed allocation failure and conservative resolved-clip blend-buffer sizing.
 
 The focused Netrender library tests cover glyph counts, an understated font header, missing bounds, rotated variable glyphs and same-tile GPU pixels at three scales. Transparent-target alpha and visible RGB also match in that fixture; RGB under zero alpha was excluded because unfiltered repeat controls were not byte-stable there. The actual long-error native workload and end-to-end frame presentation remain untested for this source.
 
