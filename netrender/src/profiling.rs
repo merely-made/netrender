@@ -29,6 +29,8 @@
 //!   compile-time constants chosen by the recorder.
 
 use std::time::Duration;
+mod thread_cpu;
+pub use thread_cpu::{ThreadCpuStamp, current_thread_cpu_time};
 #[cfg(not(target_arch = "wasm32"))]
 use std::time::Instant;
 // std::time::Instant panics on wasm32-unknown-unknown; web-time is the

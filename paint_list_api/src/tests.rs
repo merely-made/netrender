@@ -1,5 +1,7 @@
 use super::*;
 
+mod content;
+
 /// Trivial PaintList impl for trait-bound and serialization tests.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 struct StubPaintList {

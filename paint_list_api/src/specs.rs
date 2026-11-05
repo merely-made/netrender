@@ -21,12 +21,12 @@ use crate::primitives::{
 
 /// Pushed onto the compositor's clip stack. The renderer intersects this
 /// with the active clip when rasterizing subsequent primitives.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ClipSpec {
     pub kind: ClipKind,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum ClipKind {
     /// Sharp-edged rectangular clip.
     Rect(LayoutRect),
@@ -50,7 +50,7 @@ pub enum ClipKind {
 /// PM-3 rename: was `PushReferenceFrame` in PM-2. Pushes a coordinate
 /// space onto the transform stack; subsequent primitives are rendered
 /// under the resulting composition.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct TransformSpec {
     /// Origin of the new coordinate space, in the parent frame.
     pub origin: LayoutPoint,
@@ -80,7 +80,7 @@ pub enum TransformKind {
 /// Stacking layer. Carries everything that needs the compositor to
 /// allocate an intermediate buffer: opacity, blend mode, filter chain,
 /// raster-space hint, mask spec.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct LayerSpec {
     /// Origin of the layer in the parent coordinate space.
     pub origin: LayoutPoint,
@@ -120,7 +120,7 @@ impl Default for LayerSpec {
 /// Alpha-mask carried on a layer. `mask_clip_id` references a clip
 /// previously pushed; the layer's raster is composited under DestIn
 /// against the masked region.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct LayerMask {
     pub mask_rect: LayoutRect,
     /// Image atlas key for image-mask cases. None means alpha-only
@@ -178,7 +178,7 @@ impl std::ops::BitOrAssign for LayerFlags {
 /// compositing. PM-3: filters are common renderer capability, not a
 /// per-engine extension — netrender's Roadmap D1 already ships
 /// `SceneFilter::Blur` + per-layer backdrop machinery.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum FilterOp {
     /// Gaussian blur with the given radius in CSS pixels.
     Blur(f32),
@@ -210,7 +210,7 @@ pub enum FilterOp {
 /// Text-shadow style pushed onto the shadow stack. Subsequent paint
 /// items (text, rects, etc.) render with this shadow until a matching
 /// `PaintCmd::PopAllShadows`.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ShadowSpec {
     pub offset: LayoutVector2D,
     pub color: ColorF,

@@ -21,7 +21,7 @@ use crate::CommonPlacement;
 // Fills — DrawRect / DrawStroke
 // =============================================================================
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct RectItem {
     pub placement: CommonPlacement,
     pub color: ColorF,
@@ -30,7 +30,7 @@ pub struct RectItem {
 /// Stroked path with cap / join / dash decoration. Use for paths that
 /// need full stroke styling; for simple text-decoration-style single
 /// lines use [`LineItem`].
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct StrokeItem {
     pub placement: CommonPlacement,
     pub path: PathData,
@@ -57,7 +57,7 @@ pub enum StrokeJoin {
     Round,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct DashPattern {
     /// Dash + gap lengths alternating, in CSS pixels. e.g.
     /// `[5.0, 3.0]` = "5px dash, 3px gap, repeat."
@@ -70,7 +70,7 @@ pub struct DashPattern {
 // Line — text-decoration-shaped single-line stroke
 // =============================================================================
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct LineItem {
     pub placement: CommonPlacement,
     pub color: ColorF,
@@ -93,7 +93,7 @@ pub enum LineOrientation {
 
 /// Filled / stroked Bezier path. PM-3: common because netrender has the
 /// machinery already (`SceneOp::Shape`, R2/R3 path-precise containment).
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct PathItem {
     pub placement: CommonPlacement,
     pub path: PathData,
@@ -102,7 +102,7 @@ pub struct PathItem {
 }
 
 /// Stroke style for [`PathItem`]; subset of [`StrokeItem`]'s fields.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct StrokeStyle {
     pub color: ColorF,
     pub width: f32,
@@ -113,7 +113,7 @@ pub struct StrokeStyle {
 
 /// Serializable Bezier path data. The renderer's lowering reconstructs a
 /// `kurbo::BezPath` from this command sequence.
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct PathData {
     pub commands: Vec<PathCommand>,
 }
@@ -138,14 +138,14 @@ pub enum PathCommand {
 // Border — normal + nine-patch
 // =============================================================================
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct BorderItem {
     pub placement: CommonPlacement,
     pub widths: LayoutSideOffsets,
     pub details: BorderDetails,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum BorderDetails {
     /// Per-side color + style + corner radii.
     Normal(NormalBorder),
@@ -153,7 +153,7 @@ pub enum BorderDetails {
     NinePatch(NinePatchBorder),
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct NinePatchBorder {
     pub source: NinePatchSource,
     pub width: i32,
@@ -164,7 +164,7 @@ pub struct NinePatchBorder {
     pub repeat_vertical: RepeatMode,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum NinePatchSource {
     Image(ImageKey, ImageRendering),
     LinearGradient(LinearGradientPayload),
@@ -176,7 +176,7 @@ pub enum NinePatchSource {
 // Gradients
 // =============================================================================
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct LinearGradientItem {
     pub placement: CommonPlacement,
     pub gradient: LinearGradientPayload,
@@ -186,7 +186,7 @@ pub struct LinearGradientItem {
     pub tile_spacing: LayoutSize,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct LinearGradientPayload {
     pub start_point: LayoutPoint,
     pub end_point: LayoutPoint,
@@ -194,7 +194,7 @@ pub struct LinearGradientPayload {
     pub stops: Vec<GradientStop>,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct RadialGradientItem {
     pub placement: CommonPlacement,
     pub gradient: RadialGradientPayload,
@@ -202,7 +202,7 @@ pub struct RadialGradientItem {
     pub tile_spacing: LayoutSize,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct RadialGradientPayload {
     pub center: LayoutPoint,
     pub radius: LayoutSize,
@@ -210,7 +210,7 @@ pub struct RadialGradientPayload {
     pub stops: Vec<GradientStop>,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ConicGradientItem {
     pub placement: CommonPlacement,
     pub gradient: ConicGradientPayload,
@@ -218,7 +218,7 @@ pub struct ConicGradientItem {
     pub tile_spacing: LayoutSize,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ConicGradientPayload {
     pub center: LayoutPoint,
     /// Starting angle in radians. Sweep is always clockwise.
@@ -233,7 +233,7 @@ pub struct ConicGradientPayload {
 
 /// Shaped glyph runs from the layout engine. The renderer does *not*
 /// reshape — see doc §"Text ownership boundary".
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct TextRunItem {
     pub placement: CommonPlacement,
     /// Font instance the run was shaped against. The renderer
@@ -276,7 +276,7 @@ pub enum FontRenderMode {
 // Images
 // =============================================================================
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ImageItem {
     pub placement: CommonPlacement,
     pub image_key: ImageKey,
@@ -287,7 +287,7 @@ pub struct ImageItem {
     pub color: ColorF,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct RepeatingImageItem {
     pub placement: CommonPlacement,
     pub image_key: ImageKey,
@@ -317,7 +317,7 @@ pub enum AlphaType {
 /// GPU handles never enter the serializable paint list. A mutating producer
 /// advances its staging generation so the renderer refreshes its imported
 /// image and invalidates affected tiles.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ExternalTextureItem {
     pub placement: CommonPlacement,
     /// Stable producer-side key for the texture. Resolves via the
@@ -340,7 +340,7 @@ pub struct ExternalTextureItem {
 
 /// Box-shadow primitive (CSS `box-shadow` shape). For state-stack
 /// text-shadow use `PaintCmd::PushShadow(ShadowSpec)` instead.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ShadowItem {
     pub placement: CommonPlacement,
     /// Box being shadowed (typically the originating element's
@@ -360,7 +360,7 @@ pub struct ShadowItem {
 
 /// Invisible region carrying a producer-defined hit-test tag.
 /// Composited into the renderer's hit-test pass; never rasterized.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct HitTestItem {
     pub placement: CommonPlacement,
     /// Producer-defined tag. Returned from hit-tests against this

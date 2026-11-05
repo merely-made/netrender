@@ -45,6 +45,7 @@ mod filter;
 pub mod hit_test;
 pub mod interpolate;
 pub mod profiling;
+pub use renderer::{ClassicQualityObservation, DiagnosticWorkSpan, GpuReport, GpuStatus};
 pub mod registry;
 #[cfg(test)]
 mod render_graph_tests;

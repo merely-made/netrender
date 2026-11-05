@@ -57,6 +57,9 @@ use crate::tile_cache::TileCache;
 mod filter_chain;
 mod filter_passes;
 mod filters;
+mod output_reuse;
+mod diagnostics;
+pub use diagnostics::{ClassicQualityObservation, GpuReport, GpuStatus, WorkSpan as DiagnosticWorkSpan};
 mod rg2b;
 #[allow(dead_code)]
 pub(crate) mod rg2c;

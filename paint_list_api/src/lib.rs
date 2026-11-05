@@ -128,7 +128,7 @@ pub trait PaintList: Clone + std::fmt::Debug + Serialize + for<'de> Deserialize<
 /// capture-replay. Dedup across resends is the renderer's job (it can
 /// key on the blob identity); the producer just emits what each run
 /// referenced.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct FontResource {
     /// The key `TextRunItem::font_instance` references.
     pub key: FontInstanceKey,
@@ -158,7 +158,7 @@ pub struct FontResource {
 /// `data.len() == width * height * 4`. The producer is responsible
 /// for decoding (PNG / JPEG / data-URI / etc.) into this shape; the
 /// renderer just uploads the bytes.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct ImageResource {
     /// The key `ImageItem::image_key` references.
     pub key: ImageKey,
@@ -206,7 +206,7 @@ impl EngineId {
 
 /// One paint operation. Push-order is paint-order. The renderer pattern-
 /// matches on this to lower into its internal `Scene`.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub enum PaintCmd {
     // ----- Compositor primitives -----------------------------------------
     /// Push a clip onto the active clip stack.
@@ -321,7 +321,7 @@ pub struct RetainedFragmentRef {
 /// Same closed-set property as the doc's enum (`EngineId` is closed),
 /// without the dep inversion. If a future engine grows truly
 /// engine-specific transport fields, switch to the enum then.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 pub struct PaintEnvelope {
     /// Which engine produced this. Receivers route on this discriminant.
     pub engine: EngineId,
@@ -341,6 +341,34 @@ pub struct PaintEnvelope {
 }
 
 impl PaintEnvelope {
+    /// Compare the complete paint payload, excluding only its publication
+    /// generation. This compares commands in order and every font/image key,
+    /// dimension, collection index and byte. Shared resource `Arc`s compare
+    /// cheaply; equal bytes in distinct allocations also compare equal.
+    ///
+    /// This is envelope equality, not admission or a complete raster-reuse
+    /// decision: external textures and retained fragments refer to mutable
+    /// registries outside the envelope. Their current identities/content,
+    /// target geometry, device lifetime and renderer policy remain the
+    /// caller's dependencies. NaN command fields conservatively compare unequal.
+    pub fn same_content(&self, other: &Self) -> bool {
+        // Keep this exhaustive so an added envelope field requires an explicit
+        // decision here rather than silently becoming an omitted dependency.
+        let Self {
+            engine,
+            viewport,
+            generation: _,
+            commands,
+            fonts,
+            images,
+        } = self;
+        engine == &other.engine
+            && viewport == &other.viewport
+            && commands == &other.commands
+            && fonts == &other.fonts
+            && images == &other.images
+    }
+
     /// Package any `PaintList` impl into the wire form. Clones the
     /// command + font slices — the envelope owns its payload once
     /// constructed. Callers that need zero-copy transport can build

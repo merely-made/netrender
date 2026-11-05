@@ -57,6 +57,7 @@ use crate::vello_rasterizer::{scene_to_vello_with_image_sources, CpuImageCache};
 
 mod master;
 mod retained;
+mod diagnostics;
 
 /// Path (b′) per-frame state held across `render_with_compositor`
 /// calls. Used to compute the four-source dirty OR for declared
