@@ -4,6 +4,7 @@
 //! Direct WebGL2 execution of the shared admitted sparse scene.
 //! Image handles are created here on this context; callers supply CPU sources.
 use super::*;
+use super::images::FramePlan;
 use vello_hybrid::{WebGlRenderer, WebGlRendererInit, WebGlRendererInitStatus, WebGlTextureBindings};
 use vello_sparse_common::{
     TextureId,
