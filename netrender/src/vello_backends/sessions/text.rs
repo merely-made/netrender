@@ -8,7 +8,7 @@
 //! cache owned here so lifetime limits can actually release retained outlines.
 
 use super::{SparseSessionError, budget, validate};
-use crate::scene::{FontBlob, Scene, SceneGlyphRun, SceneOp};
+use crate::scene::{FontBlob, NO_CLIP, Scene, SceneGlyphRun, SceneOp};
 use skrifa::{
     FontRef, GlyphId, MetadataProvider,
     instance::Size,
@@ -79,6 +79,9 @@ pub struct SparseTextStats {
     pub cached_outline_segments: usize,
     /// Cumulative newly validated outlines, not glyph-atlas uploads.
     pub prepared_glyphs: u64,
+    /// Cumulative admitted positioned glyphs not drawn because their validated
+    /// outline bounds cannot reach the target or run clip.
+    pub culled_glyphs: u64,
     pub cache_resets: u64,
     pub cache_frames: u32,
 }
@@ -107,6 +110,8 @@ struct AdmittedFace<'a> {
 }
 #[cfg(test)]
 thread_local! { static ADMISSION_CALLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
+#[cfg(test)]
+thread_local! { static CULL_DISABLED: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
 fn admit_face<'a>(
     blob: &'a FontBlob,
     limits: SparseTextLimits,
@@ -163,6 +168,58 @@ fn admit_face<'a>(
 pub(super) struct PreparedRun {
     pub font: FontData,
     pub coords: Vec<i16>,
+    /// Indices of glyphs whose validated outline bounds may touch the target
+    /// inside the run clip. `None` draws every glyph. Culling only narrows
+    /// drawing; every glyph has already passed admission and budget checks.
+    pub visible: Option<Vec<u32>>,
+}
+
+/// Device-space rectangle that can receive a run's pixels: the viewport,
+/// narrowed by the run's own clip. Sparse sessions refuse filters, so no
+/// admitted operation samples pixels outside the target.
+fn cull_rect(scene: &Scene, run: &SceneGlyphRun) -> [f64; 4] {
+    let mut rect = [
+        0.0,
+        0.0,
+        scene.viewport_width as f64,
+        scene.viewport_height as f64,
+    ];
+    if run.clip_rect != NO_CLIP {
+        rect[0] = rect[0].max(run.clip_rect[0] as f64);
+        rect[1] = rect[1].max(run.clip_rect[1] as f64);
+        rect[2] = rect[2].min(run.clip_rect[2] as f64);
+        rect[3] = rect[3].min(run.clip_rect[3] as f64);
+    }
+    rect
+}
+
+/// Whether control-point bounds (in font units) mapped by `transform` may
+/// touch `rect`. Control points contain the filled outline. The margin keeps
+/// antialiasing across the edge plus a relative allowance for the renderer
+/// recomputing the transform in f32 at a scaled font size.
+fn may_touch(transform: Affine, bounds: Option<[f32; 4]>, rect: [f64; 4]) -> bool {
+    let Some(b) = bounds else {
+        // No control points: the outline is empty and paints nothing.
+        return false;
+    };
+    let mut extent = [
+        f64::INFINITY,
+        f64::INFINITY,
+        f64::NEG_INFINITY,
+        f64::NEG_INFINITY,
+    ];
+    for (x, y) in [(b[0], b[1]), (b[0], b[3]), (b[2], b[1]), (b[2], b[3])] {
+        let p = transform * Point::new(x as f64, y as f64);
+        extent[0] = extent[0].min(p.x);
+        extent[1] = extent[1].min(p.y);
+        extent[2] = extent[2].max(p.x);
+        extent[3] = extent[3].max(p.y);
+    }
+    let margin = 2.0 + extent.iter().fold(0.0_f64, |m, v| m.max(v.abs())) * 1e-6;
+    !(extent[2] + margin < rect[0]
+        || extent[0] - margin > rect[2]
+        || extent[3] + margin < rect[1]
+        || extent[1] - margin > rect[3])
 }
 pub(super) struct TextPlan {
     pub runs: HashMap<usize, PreparedRun>,
@@ -170,6 +227,7 @@ pub(super) struct TextPlan {
     outlines: HashMap<OutlineKey, OutlineRecord>,
     reset: bool,
     prepared: u64,
+    culled: u64,
 }
 
 pub(super) struct TextState {
@@ -179,6 +237,7 @@ pub(super) struct TextState {
     cache: GlyphPrepCache,
     frames: u32,
     prepared: u64,
+    culled: u64,
     resets: u64,
 }
 impl TextState {
@@ -190,6 +249,7 @@ impl TextState {
             cache: GlyphPrepCache::default(),
             frames: 0,
             prepared: 0,
+            culled: 0,
             resets: 0,
         }
     }
@@ -200,6 +260,7 @@ impl TextState {
             cached_glyphs: self.outlines.len(),
             cached_outline_segments: segments(&self.outlines),
             prepared_glyphs: self.prepared,
+            culled_glyphs: self.culled,
             cache_resets: self.resets,
             cache_frames: self.frames,
         }
@@ -240,6 +301,7 @@ impl TextState {
         let mut glyphs = 0usize;
         let mut frame_segments = 0usize;
         let mut prepared = 0u64;
+        let mut culled = 0u64;
         for (op_index, op) in scene.ops.iter().enumerate() {
             let SceneOp::GlyphRun(run) = op else {
                 continue;
@@ -334,7 +396,9 @@ impl TextState {
                     "transformed font size exceeds sparse precision/range",
                 ));
             }
-            for glyph in &run.glyphs {
+            let rect = cull_rect(scene, run);
+            let mut visible: Option<Vec<u32>> = None;
+            for (glyph_index, glyph) in run.glyphs.iter().enumerate() {
                 if glyph.id >= glyph_count {
                     return Err(glyph_error(glyph.id, "glyph id is outside the font"));
                 }
@@ -412,7 +476,22 @@ impl TextState {
                         "derived glyph transform exceeds sparse precision/range",
                     ));
                 }
+                // Cull only after every admission, budget and range check
+                // above has passed for this glyph.
+                let touches = may_touch(transform, outlines[&outline_key].bounds, rect);
+                #[cfg(test)]
+                let touches = touches || CULL_DISABLED.with(|off| off.get());
+                match (&mut visible, touches) {
+                    (Some(kept), true) => kept.push(glyph_index as u32),
+                    (None, false) => visible = Some((0..glyph_index as u32).collect()),
+                    _ => {}
+                }
             }
+            culled = culled.saturating_add(
+                visible
+                    .as_ref()
+                    .map_or(0, |kept| (run.glyphs.len() - kept.len()) as u64),
+            );
             runs.insert(
                 op_index,
                 PreparedRun {
@@ -421,6 +500,7 @@ impl TextState {
                         index: blob.index,
                     },
                     coords,
+                    visible,
                 },
             );
         }
@@ -443,6 +523,7 @@ impl TextState {
             outlines,
             reset,
             prepared,
+            culled,
         })
     }
     pub fn commit(&mut self, plan: &TextPlan) {
@@ -452,6 +533,7 @@ impl TextState {
         self.fonts = plan.fonts.clone();
         self.outlines = plan.outlines.clone();
         self.prepared = self.prepared.saturating_add(plan.prepared);
+        self.culled = self.culled.saturating_add(plan.culled);
         self.frames += 1;
     }
     pub fn maintain(&mut self) {
@@ -473,7 +555,7 @@ impl TextState {
             m[12] as f64,
             m[13] as f64,
         ]);
-        GlyphRunBuilder::new(
+        let builder = GlyphRunBuilder::new(
             prepared.font.clone(),
             world,
             Affine::IDENTITY,
@@ -485,12 +567,20 @@ impl TextState {
         .font_size(run.font_size)
         .hint(false)
         .atlas_cache(false)
-        .normalized_coords(&prepared.coords)
-        .fill_glyphs(run.glyphs.iter().map(|g| vello_sparse_text::Glyph {
+        .normalized_coords(&prepared.coords);
+        let glyph = |g: &crate::scene::Glyph| vello_sparse_text::Glyph {
             id: g.id,
             x: g.x,
             y: g.y,
-        }))
+        };
+        // A fully culled run still builds, so render-time font errors surface
+        // exactly as before.
+        match &prepared.visible {
+            None => builder.fill_glyphs(run.glyphs.iter().map(glyph)),
+            Some(kept) => {
+                builder.fill_glyphs(kept.iter().map(|&index| glyph(&run.glyphs[index as usize])))
+            }
+        }
     }
 }
 
@@ -894,5 +984,185 @@ mod admission_tests {
             .unwrap();
         assert_eq!(ADMISSION_CALLS.with(|n| n.get()), 2);
         assert_eq!(plan.fonts.len(), 2);
+    }
+
+    const INTER: &[u8] = include_bytes!("../../../tests/fixtures/vb3_fonts/Inter.var.subset.ttf");
+
+    fn glyph_of(font: &[u8], ch: char) -> u32 {
+        FontRef::new(font)
+            .unwrap()
+            .charmap()
+            .map(ch)
+            .unwrap()
+            .to_u32()
+    }
+
+    /// Glyphs fully inside, straddling every edge at subpixel offsets, and far
+    /// outside; under rotation, a run clip, tiny and large sizes, and a
+    /// variation location whose outlines differ from the default.
+    fn edge_scene() -> Scene {
+        let mut scene = Scene::new(96, 72);
+        let font = scene.push_font(FontBlob {
+            data: Blob::new(Arc::new(INTER.to_vec())),
+            index: 0,
+        });
+        // The subset's mapped glyphs, so the fixture does not depend on which
+        // characters survived subsetting.
+        let ids: Vec<u32> = FontRef::new(INTER)
+            .unwrap()
+            .charmap()
+            .mappings()
+            .map(|(_, glyph)| glyph.to_u32())
+            .filter(|&glyph| glyph != 0)
+            .take(6)
+            .collect();
+        assert!(ids.len() >= 2);
+        let grid = |size: f32, step: f32, phase: f32| {
+            let mut glyphs = Vec::new();
+            let mut y = -2.0 * size + phase;
+            let mut n = 0;
+            while y < 72.0 + 2.0 * size {
+                let mut x = -2.0 * size + phase * 0.37;
+                while x < 96.0 + 2.0 * size {
+                    glyphs.push(Glyph {
+                        id: ids[n % ids.len()],
+                        x,
+                        y,
+                    });
+                    n += 1;
+                    x += step;
+                }
+                y += step * 0.83;
+            }
+            glyphs
+        };
+        scene.push_glyph_run(font, 23.0, grid(23.0, 13.37, 0.31), [0.9, 0.1, 0.2, 1.0]);
+        scene.push_glyph_run(font, 3.5, grid(3.5, 2.71, 0.13), [0.2, 0.6, 0.3, 0.8]);
+        scene.push_glyph_run_variable(
+            font,
+            41.0,
+            grid(41.0, 19.9, 0.77),
+            [0.1, 0.2, 0.6, 0.7],
+            vec![(*b"wght", 900.0)],
+        );
+        let mut rotated = crate::scene::Transform::rotate_2d(0.41);
+        rotated.m[12] = 30.25;
+        rotated.m[13] = -12.5;
+        let rotated = scene.push_transform(rotated);
+        scene.push_glyph_run_full(
+            font,
+            17.0,
+            grid(17.0, 11.1, 0.5),
+            [0.5, 0.4, 0.1, 0.9],
+            rotated,
+            NO_CLIP,
+            [0.0; 4],
+        );
+        scene.push_glyph_run_full(
+            font,
+            19.0,
+            grid(19.0, 9.7, 0.21),
+            [0.3, 0.3, 0.3, 0.6],
+            0,
+            [20.5, 30.25, 61.75, 50.5],
+            [4.0, 0.0, 6.0, 2.0],
+        );
+        scene
+    }
+
+    #[test]
+    fn culling_runs_after_every_glyph_check() {
+        let scene = edge_scene();
+        let plan = TextState::new(SparseTextLimits::default())
+            .plan(&scene)
+            .unwrap();
+        assert!(plan.culled > 0, "the fixture must exercise culling");
+        let total: usize = scene
+            .ops
+            .iter()
+            .filter_map(|op| match op {
+                SceneOp::GlyphRun(run) => Some(run.glyphs.len()),
+                _ => None,
+            })
+            .sum();
+        assert!((plan.culled as usize) < total, "some glyphs remain visible");
+
+        // An invalid glyph far outside the target still refuses the frame.
+        let mut bad = edge_scene();
+        if let SceneOp::GlyphRun(run) = &mut bad.ops[0] {
+            run.glyphs.push(Glyph {
+                id: u32::MAX,
+                x: -10_000.0,
+                y: -10_000.0,
+            });
+        }
+        assert!(matches!(
+            TextState::new(SparseTextLimits::default()).plan(&bad),
+            Err(SparseSessionError::InvalidGlyph {
+                op_index: 0,
+                glyph_id: u32::MAX,
+                ..
+            })
+        ));
+
+        // Culled glyphs still count against positioned-glyph and segment budgets.
+        for limits in [
+            SparseTextLimits {
+                max_glyphs: total - 1,
+                ..Default::default()
+            },
+            SparseTextLimits {
+                max_outline_segments: 1,
+                ..Default::default()
+            },
+        ] {
+            assert!(matches!(
+                TextState::new(limits).plan(&scene),
+                Err(SparseSessionError::ResourceBudgetExceeded { .. })
+            ));
+        }
+
+        // A run entirely outside the target keeps its admission and prepares
+        // its outlines, but draws nothing.
+        let mut away = Scene::new(32, 32);
+        let font = away.push_font(FontBlob {
+            data: Blob::new(Arc::new(INTER.to_vec())),
+            index: 0,
+        });
+        away.push_glyph_run(
+            font,
+            20.0,
+            vec![Glyph {
+                id: glyph_of(INTER, 'a'),
+                x: 500.0,
+                y: 500.0,
+            }],
+            [1.0; 4],
+        );
+        let mut state = TextState::new(SparseTextLimits::default());
+        let plan = state.plan(&away).unwrap();
+        assert_eq!(plan.culled, 1);
+        assert_eq!(plan.prepared, 1);
+        assert_eq!(plan.runs[&0].visible.as_deref(), Some(&[][..]));
+        state.commit(&plan);
+        assert_eq!(state.stats().cached_glyphs, 1);
+        assert_eq!(state.stats().culled_glyphs, 1);
+    }
+
+    #[cfg(feature = "vello-cpu")]
+    #[test]
+    fn culled_cpu_pixels_match_unculled_pixels_exactly() {
+        use super::super::{CpuSession, SparseResourceLimits};
+        let render = |disabled: bool| {
+            CULL_DISABLED.with(|off| off.set(disabled));
+            let pixels = CpuSession::new(SparseResourceLimits::default())
+                .render(&edge_scene())
+                .unwrap();
+            CULL_DISABLED.with(|off| off.set(false));
+            pixels.data_as_u8_slice().to_vec()
+        };
+        let reference = render(true);
+        assert!(reference.iter().any(|&byte| byte != 0));
+        assert!(reference == render(false), "culling changed pixels");
     }
 }
