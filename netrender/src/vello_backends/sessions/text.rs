@@ -15,7 +15,11 @@ use skrifa::{
     outline::{DrawSettings, OutlinePen},
     raw::TableProvider,
 };
-use std::{collections::HashMap, ops::RangeInclusive};
+use std::{
+    collections::{HashMap, HashSet},
+    ops::RangeInclusive,
+    sync::Arc,
+};
 use vello_sparse_common::{
     kurbo::{Affine, Point},
     peniko::FontData,
@@ -96,6 +100,66 @@ struct OutlineRecord {
     bounds: Option<[f32; 4]>,
 }
 
+struct AdmittedFace<'a> {
+    font: FontRef<'a>,
+    upem: u16,
+    glyph_count: u32,
+}
+#[cfg(test)]
+thread_local! { static ADMISSION_CALLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
+fn admit_face<'a>(
+    blob: &'a FontBlob,
+    limits: SparseTextLimits,
+    op_index: usize,
+    font_id: u32,
+) -> Result<AdmittedFace<'a>, SparseSessionError> {
+    #[cfg(test)]
+    ADMISSION_CALLS.with(|calls| calls.set(calls.get() + 1));
+    let font_error = |reason| SparseSessionError::InvalidFont {
+        op_index,
+        font_id,
+        reason,
+    };
+    let font = FontRef::from_index(blob.data.as_ref(), blob.index)
+        .map_err(|_| font_error("invalid font bytes or collection index"))?;
+    let upem = font
+        .head()
+        .map_err(|_| font_error("missing or malformed head table"))?
+        .units_per_em();
+    if !(16..=16_384).contains(&upem) {
+        return Err(font_error(
+            "units per em must be within the OpenType range 16..16384",
+        ));
+    }
+    let glyph_count = font
+        .maxp()
+        .map_err(|_| font_error("missing or malformed maxp table"))?
+        .num_glyphs() as u32;
+    for tag in [
+        *b"COLR", *b"CPAL", *b"CBDT", *b"CBLC", *b"EBDT", *b"EBLC", *b"sbix", *b"SVG ", *b"bdat",
+        *b"bloc",
+    ] {
+        if font.table_data(skrifa::Tag::new(&tag)).is_some() {
+            return Err(font_error(
+                "color, bitmap and SVG font tables are not admitted by outline text sessions",
+            ));
+        }
+    }
+    budget(
+        "font variation axes",
+        font.axes().len(),
+        limits.max_variation_axes,
+    )?;
+    if font.outline_glyphs().format().is_none() {
+        return Err(font_error("font has no supported outlines"));
+    }
+    Ok(AdmittedFace {
+        font,
+        upem,
+        glyph_count,
+    })
+}
+
 pub(super) struct PreparedRun {
     pub font: FontData,
     pub coords: Vec<i16>,
@@ -160,6 +224,17 @@ impl TextState {
             });
         }
         let mut fonts: HashMap<FontKey, FontBlob> = HashMap::new();
+        // All entries live only for this plan. Pointer keys identify immutable
+        // Arc allocations that remain owned by the scene or retained state.
+        // Blob IDs alone never authorize reuse of face admission or bytes.
+        let mut identities = HashMap::new();
+        for prior in self.fonts.values() {
+            identities
+                .entry(prior.data.id())
+                .or_insert_with(|| prior.data.clone().into_raw_parts().0);
+        }
+        let mut checked_backings = HashSet::new();
+        let mut faces = HashMap::new();
         let mut outlines = HashMap::new();
         let mut runs = HashMap::new();
         let mut glyphs = 0usize;
@@ -198,39 +273,32 @@ impl TextState {
                 blob: blob.data.id(),
                 index: blob.index,
             };
-            for prior in self.fonts.values().chain(fonts.values()) {
-                if prior.data.id() == blob.data.id() && prior.data.as_ref() != blob.data.as_ref() {
-                    return Err(font_error("font blob identity reused with different bytes"));
+            let backing = blob.data.clone().into_raw_parts().0;
+            let allocation = Arc::as_ptr(&backing) as *const () as usize;
+            if checked_backings.insert((key.blob, allocation)) {
+                if let Some(prior) = identities.get(&key.blob) {
+                    if !Arc::ptr_eq(prior, &backing)
+                        && prior.as_ref().as_ref() != backing.as_ref().as_ref()
+                    {
+                        return Err(font_error("font blob identity reused with different bytes"));
+                    }
+                } else {
+                    identities.insert(key.blob, backing);
                 }
             }
-            fonts.entry(key).or_insert_with(|| blob.clone());
-            budget("text font count", fonts.len(), limits.max_fonts)?;
-            budget("text font bytes", font_bytes(&fonts), limits.max_font_bytes)?;
-            let font = FontRef::from_index(blob.data.as_ref(), blob.index)
-                .map_err(|_| font_error("invalid font bytes or collection index"))?;
-            let upem = font
-                .head()
-                .map_err(|_| font_error("missing or malformed head table"))?
-                .units_per_em();
-            if !(16..=16_384).contains(&upem) {
-                return Err(font_error(
-                    "units per em must be within the OpenType range 16..16384",
-                ));
+            if let std::collections::hash_map::Entry::Vacant(entry) = fonts.entry(key) {
+                entry.insert(blob.clone());
+                budget("text font count", fonts.len(), limits.max_fonts)?;
+                budget("text font bytes", font_bytes(&fonts), limits.max_font_bytes)?;
             }
-            let glyph_count = font
-                .maxp()
-                .map_err(|_| font_error("missing or malformed maxp table"))?
-                .num_glyphs() as u32;
-            for tag in [
-                *b"COLR", *b"CPAL", *b"CBDT", *b"CBLC", *b"EBDT", *b"EBLC", *b"sbix", *b"SVG ",
-                *b"bdat", *b"bloc",
-            ] {
-                if font.table_data(skrifa::Tag::new(&tag)).is_some() {
-                    return Err(font_error(
-                        "color, bitmap and SVG font tables are not admitted by outline text sessions",
-                    ));
-                }
+            let face_key = (allocation, blob.index);
+            if let std::collections::hash_map::Entry::Vacant(entry) = faces.entry(face_key) {
+                entry.insert(admit_face(blob, limits, op_index, run.font_id)?);
             }
+            let face = &faces[&face_key];
+            let font = &face.font;
+            let upem = face.upem;
+            let glyph_count = face.glyph_count;
             let settings: Vec<(&str, f32)> = run
                 .font_axis_values
                 .iter()
@@ -243,13 +311,9 @@ impl TextState {
                 })
                 .collect();
             let axes = font.axes();
-            budget("font variation axes", axes.len(), limits.max_variation_axes)?;
             let location = axes.location(settings);
             let coords: Vec<i16> = location.coords().iter().map(|v| v.to_bits()).collect();
             let collection = font.outline_glyphs();
-            if collection.format().is_none() {
-                return Err(font_error("font has no supported outlines"));
-            }
             let m = &scene.transforms[run.transform_id as usize].m;
             let world = Affine::new([
                 m[0] as f64,
@@ -562,5 +626,273 @@ impl<'a, R: GlyphRenderer> GlyphRunBackend<'a> for OutlineBackend<'a, R> {
     ) {
         run.build(glyphs, self.cache.as_mut(), AtlasCacher::Disabled)
             .render_decoration(x_range, baseline_y, offset, size, buffer, self.renderer);
+    }
+}
+
+#[cfg(test)]
+mod admission_tests {
+    use super::*;
+    use std::sync::Arc;
+    use crate::{Glyph, peniko::Blob};
+    const BOX_FONT: &[u8] =
+        include_bytes!("../../../tests/fixtures/vb3_fonts/variabletest_box.ttf");
+    fn fixture() -> Scene {
+        let mut scene = Scene::new(128, 128);
+        let id = scene.push_font(FontBlob {
+            data: Blob::new(Arc::new(BOX_FONT.to_vec())),
+            index: 0,
+        });
+        let glyph = FontRef::new(BOX_FONT)
+            .unwrap()
+            .charmap()
+            .map('A')
+            .unwrap()
+            .to_u32();
+        for _ in 0..64 {
+            scene.push_glyph_run(
+                id,
+                32.0,
+                vec![Glyph {
+                    id: glyph,
+                    x: 8.0,
+                    y: 40.0,
+                }],
+                [1.0; 4],
+            );
+        }
+        scene
+    }
+    #[test]
+    fn each_distinct_backing_and_face_is_admitted_once_per_frame() {
+        let mut state = TextState::new(SparseTextLimits::default());
+        let scene = fixture();
+        ADMISSION_CALLS.with(|calls| calls.set(0));
+        let plan = state.plan(&scene).unwrap();
+        assert_eq!(plan.runs.len(), 64);
+        assert_eq!(ADMISSION_CALLS.with(|calls| calls.get()), 1);
+        state.commit(&plan);
+        ADMISSION_CALLS.with(|calls| calls.set(0));
+        let plan = state.plan(&scene).unwrap();
+        assert_eq!(plan.prepared, 0);
+        assert_eq!(
+            ADMISSION_CALLS.with(|calls| calls.get()),
+            1,
+            "admission remains per frame rather than trusting a retained ID"
+        );
+    }
+    fn set_font(scene: &mut Scene, data: Blob<u8>, index: u32) {
+        scene.fonts[1] = FontBlob { data, index };
+    }
+    #[test]
+    fn shared_backing_with_different_ids_keeps_font_budget_accounting() {
+        let mut scene = fixture();
+        let backing = scene.fonts[1].data.clone().into_raw_parts().0;
+        let other = scene.push_font(FontBlob {
+            data: Blob::new(backing),
+            index: 0,
+        });
+        if let SceneOp::GlyphRun(run) = &mut scene.ops[1] {
+            run.font_id = other;
+        }
+        ADMISSION_CALLS.with(|n| n.set(0));
+        let state = TextState::new(SparseTextLimits::default());
+        let plan = state.plan(&scene).unwrap();
+        assert_eq!(ADMISSION_CALLS.with(|n| n.get()), 1);
+        assert_eq!(
+            plan.fonts.len(),
+            2,
+            "shared backing must not collapse identity/face accounting"
+        );
+        let state = TextState::new(SparseTextLimits {
+            max_fonts: 1,
+            ..Default::default()
+        });
+        assert!(matches!(
+            state.plan(&scene),
+            Err(SparseSessionError::ResourceBudgetExceeded {
+                resource: "text font count",
+                ..
+            })
+        ));
+    }
+    #[test]
+    fn equal_bytes_in_different_backings_are_admitted_independently() {
+        let mut scene = fixture();
+        let id = scene.fonts[1].data.id();
+        let alias = scene.push_font(FontBlob {
+            data: Blob::from_raw_parts(Arc::new(BOX_FONT.to_vec()), id),
+            index: 0,
+        });
+        if let SceneOp::GlyphRun(run) = &mut scene.ops[1] {
+            run.font_id = alias;
+        }
+        ADMISSION_CALLS.with(|n| n.set(0));
+        let plan = TextState::new(SparseTextLimits::default())
+            .plan(&scene)
+            .unwrap();
+        assert_eq!(ADMISSION_CALLS.with(|n| n.get()), 2);
+        assert_eq!(plan.fonts.len(), 1);
+    }
+    #[test]
+    fn collision_in_later_palette_alias_refuses_atomically_even_after_face_admission() {
+        let mut state = TextState::new(SparseTextLimits::default());
+        let mut scene = fixture();
+        let plan = state.plan(&scene).unwrap();
+        state.commit(&plan);
+        let before = state.stats();
+        let id = scene.fonts[1].data.id();
+        let mut bytes = BOX_FONT.to_vec();
+        bytes.push(0);
+        let alias = scene.push_font(FontBlob {
+            data: Blob::from_raw_parts(Arc::new(bytes), id),
+            index: 0,
+        });
+        if let SceneOp::GlyphRun(run) = &mut scene.ops[63] {
+            run.font_id = alias;
+        }
+        assert!(matches!(
+            state.plan(&scene),
+            Err(SparseSessionError::InvalidFont {
+                op_index: 63,
+                reason: "font blob identity reused with different bytes",
+                ..
+            })
+        ));
+        assert_eq!(state.stats(), before);
+        // Also exercise collision with only the retained allocation present.
+        let bad = scene.fonts[alias as usize].data.clone();
+        set_font(&mut scene, bad, 0);
+        assert!(matches!(
+            state.plan(&scene),
+            Err(SparseSessionError::InvalidFont {
+                op_index: 0,
+                reason: "font blob identity reused with different bytes",
+                ..
+            })
+        ));
+        assert_eq!(state.stats(), before);
+    }
+    #[test]
+    fn another_face_on_the_same_backing_is_not_a_cache_hit() {
+        let mut scene = fixture();
+        let alias = scene.push_font(FontBlob {
+            data: scene.fonts[1].data.clone(),
+            index: 1,
+        });
+        if let SceneOp::GlyphRun(run) = &mut scene.ops[1] {
+            run.font_id = alias;
+        }
+        assert!(matches!(
+            TextState::new(SparseTextLimits::default()).plan(&scene),
+            Err(SparseSessionError::InvalidFont { op_index: 1, .. })
+        ));
+    }
+    #[test]
+    fn cached_face_does_not_skip_later_glyph_and_transform_checks() {
+        let mut scene = fixture();
+        if let SceneOp::GlyphRun(run) = &mut scene.ops[63] {
+            run.glyphs[0].id = u32::MAX;
+        }
+        assert!(matches!(
+            TextState::new(SparseTextLimits::default()).plan(&scene),
+            Err(SparseSessionError::InvalidGlyph { op_index: 63, .. })
+        ));
+        let mut scene = fixture();
+        if let SceneOp::GlyphRun(run) = &mut scene.ops[63] {
+            run.glyphs[0].x = f32::INFINITY;
+        }
+        assert!(matches!(
+            TextState::new(SparseTextLimits::default()).plan(&scene),
+            Err(SparseSessionError::InvalidGlyph { op_index: 63, .. })
+        ));
+    }
+    #[test]
+    fn equal_identity_alias_is_compared_once_per_backing_with_retained_fonts() {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        struct Counted(Arc<AtomicUsize>);
+        impl AsRef<[u8]> for Counted {
+            fn as_ref(&self) -> &[u8] {
+                self.0.fetch_add(1, Ordering::Relaxed);
+                BOX_FONT
+            }
+        }
+        let mut scene = fixture();
+        let calls = Arc::new(AtomicUsize::new(0));
+        let alias = scene.push_font(FontBlob {
+            data: Blob::from_raw_parts(Arc::new(Counted(calls.clone())), scene.fonts[1].data.id()),
+            index: 0,
+        });
+        for (i, op) in scene.ops.iter_mut().enumerate() {
+            if i % 2 == 1 {
+                if let SceneOp::GlyphRun(run) = op {
+                    run.font_id = alias;
+                }
+            }
+        }
+        let mut state = TextState::new(SparseTextLimits::default());
+        for _ in 0..2 {
+            calls.store(0, Ordering::Relaxed);
+            let plan = state.plan(&scene).unwrap();
+            assert_eq!(
+                calls.load(Ordering::Relaxed),
+                2,
+                "one byte comparison and one face parse, independent of run count"
+            );
+            state.commit(&plan);
+        }
+    }
+    #[test]
+    fn collection_faces_on_one_backing_are_each_admitted_once() {
+        let inter = include_bytes!("../../../tests/fixtures/vb3_fonts/Inter.var.subset.ttf");
+        let mut bytes = Vec::from(&b"ttcf\0\x01\0\0\0\0\0\x02\0\0\0\0\0\0\0\0"[..]);
+        for (face, data) in [inter.as_slice(), BOX_FONT].into_iter().enumerate() {
+            let start = bytes.len().next_multiple_of(4);
+            bytes.resize(start, 0);
+            bytes[12 + face * 4..16 + face * 4].copy_from_slice(&(start as u32).to_be_bytes());
+            bytes.extend_from_slice(data);
+            let count = u16::from_be_bytes(data[4..6].try_into().unwrap()) as usize;
+            for table in 0..count {
+                let record = 12 + table * 16;
+                let offset =
+                    u32::from_be_bytes(data[record + 8..record + 12].try_into().unwrap()) as usize;
+                bytes[start + record + 8..start + record + 12]
+                    .copy_from_slice(&((start + offset) as u32).to_be_bytes());
+                if &data[record..record + 4] == b"head" {
+                    bytes[start + offset + 8..start + offset + 12].fill(0);
+                }
+            }
+        }
+        let mut scene = Scene::new(128, 128);
+        let blob = Blob::new(Arc::new(bytes));
+        for index in 0..2 {
+            let font = FontRef::from_index(blob.as_ref(), index).unwrap();
+            let glyph = font
+                .charmap()
+                .map(if index == 0 { 'a' } else { 'A' })
+                .unwrap()
+                .to_u32();
+            let id = scene.push_font(FontBlob {
+                data: blob.clone(),
+                index,
+            });
+            for _ in 0..32 {
+                scene.push_glyph_run(
+                    id,
+                    32.,
+                    vec![Glyph {
+                        id: glyph,
+                        x: 8.,
+                        y: 40.,
+                    }],
+                    [1.; 4],
+                );
+            }
+        }
+        ADMISSION_CALLS.with(|n| n.set(0));
+        let plan = TextState::new(SparseTextLimits::default())
+            .plan(&scene)
+            .unwrap();
+        assert_eq!(ADMISSION_CALLS.with(|n| n.get()), 2);
+        assert_eq!(plan.fonts.len(), 2);
     }
 }
