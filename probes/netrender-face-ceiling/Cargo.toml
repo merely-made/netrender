@@ -1,0 +1,17 @@
+[package]
+name = "netrender-face-ceiling"
+version = "0.0.1"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[workspace]
+
+[dependencies]
+netrender = { path = "../../netrender" }
+netrender_device = { path = "../../netrender_device" }
+wgpu = { version = "30", default-features = false, features = ["std", "wgsl"] }
+serde_json = "1"
+
+[profile.release]
+debug = true
