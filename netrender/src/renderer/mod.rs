@@ -66,7 +66,7 @@ pub(crate) mod rg2c;
 
 pub(crate) use rg2b::RasterExecution;
 
-use filters::{make_external_tail_target, scene_tail_fragment};
+use filters::{make_external_tail_target, scene_segment_fragment, scene_tail_fragment};
 
 /// Refusal from Classic retained-fragment admission.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1063,7 +1063,17 @@ impl Renderer {
             .unwrap_or_else(|error| panic!("vello filter prefix render failed: {error:?}"));
         let render_scene = processed.as_ref().unwrap_or(scene);
 
-        rast.render_to_internal_master(render_scene, &mut tc, master_format, base_color)
+        // Same ordering rule as `render_with_compositor_and_external_textures`:
+        // content above the tenant is painted once, after the tenant.
+        let head;
+        let tenant_boundary = tenant.metadata.scene_op_boundary;
+        let master_scene = if processed.is_none() && tenant_boundary < scene.ops.len() {
+            head = scene_segment_fragment(scene, 0, tenant_boundary, true);
+            &head
+        } else {
+            render_scene
+        };
+        rast.render_to_internal_master(master_scene, &mut tc, master_format, base_color)
             .unwrap_or_else(|e| panic!("vello render_to_texture failed: {:?}", e));
 
         let master_texture = rast
@@ -1291,10 +1301,11 @@ impl Renderer {
     ///
     /// `ExternalTextureComposite::scene_op_boundary` preserves painter
     /// order without routing producer textures through Vello's atlas:
-    /// ordinary scene content paints once into the master, each external
-    /// texture composites at its boundary, and the ordinary scene tail
-    /// that should remain above that texture is redrawn into a transparent
-    /// scratch target and blended back over the master. Callers that keep
+    /// the ordinary scene content below the first boundary paints into the
+    /// master, each external texture composites at its boundary, and the
+    /// ordinary scene segment up to the next boundary (or the end) is drawn
+    /// once into a transparent scratch target and blended over the master.
+    /// Each scene op therefore paints exactly once. Callers that keep
     /// the default `usize::MAX` boundary retain the topmost-overlay fast
     /// path and pay no tail redraw.
     pub fn render_with_compositor_and_external_textures(
@@ -1327,7 +1338,22 @@ impl Renderer {
         let render_scene = processed.as_ref().unwrap_or(scene);
 
         // 1. Render the scene into the rasterizer's pool-allocated master.
-        rast.render_to_internal_master(render_scene, &mut tc, master_format, base_color)
+        // When an external texture interleaves, the master only receives the
+        // ops below the first one; every later segment is painted once, above
+        // its texture. Painting the whole scene here would leave translucent
+        // later content both under a translucent texture and blended twice
+        // outside it. Filter-preprocessed scenes keep the previous behavior
+        // because their ops no longer match the caller's boundaries.
+        let segmented = processed.is_none();
+        let head;
+        let master_scene = match external_textures.first() {
+            Some(first) if segmented && first.scene_op_boundary < scene.ops.len() => {
+                head = scene_segment_fragment(scene, 0, first.scene_op_boundary, true);
+                &head
+            }
+            _ => render_scene,
+        };
+        rast.render_to_internal_master(master_scene, &mut tc, master_format, base_color)
             .unwrap_or_else(|e| panic!("vello render_to_texture failed: {:?}", e));
 
         if !external_textures.is_empty() {
@@ -1337,7 +1363,7 @@ impl Renderer {
             let master_view = master_texture.create_view(&wgpu::TextureViewDescriptor::default());
             let mut tail_target: Option<(wgpu::Texture, wgpu::TextureView)> = None;
             let mut previous_boundary = 0usize;
-            for external in external_textures {
+            for (index, external) in external_textures.iter().enumerate() {
                 let boundary = external.scene_op_boundary.min(scene.ops.len());
                 debug_assert!(
                     boundary >= previous_boundary,
@@ -1358,7 +1384,15 @@ impl Renderer {
                     continue;
                 }
 
-                let tail_scene = scene_tail_fragment(scene, boundary);
+                // Ops between this texture and the next one (or the end).
+                let tail_scene = if segmented {
+                    let end = external_textures
+                        .get(index + 1)
+                        .map_or(scene.ops.len(), |next| next.scene_op_boundary);
+                    scene_segment_fragment(scene, boundary, end, false)
+                } else {
+                    scene_tail_fragment(scene, boundary)
+                };
                 if tail_scene.ops.is_empty() {
                     continue;
                 }

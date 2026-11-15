@@ -21,18 +21,43 @@ use crate::scene::{ImageKey, Scene, SceneOp};
 /// it does not make the external producer itself inherit ancestor clips,
 /// transforms, or opacity.
 pub(super) fn scene_tail_fragment(scene: &Scene, scene_op_boundary: usize) -> Scene {
-    let boundary = scene_op_boundary.min(scene.ops.len());
+    scene_segment_fragment(scene, scene_op_boundary, scene.ops.len(), false)
+}
+
+/// Build the balanced fragment for `scene.ops[start..end]`.
+///
+/// Like [`scene_tail_fragment`], layers still open at `start` are replayed
+/// first. Layers still open at `end` are closed with `PopLayer`s so a segment
+/// that stops at an external-texture boundary does not leave groups open.
+/// Compositor surfaces are kept only when `keep_surfaces` is set (the master
+/// head segment); redrawn segments must not re-declare them.
+pub(super) fn scene_segment_fragment(
+    scene: &Scene,
+    start: usize,
+    end: usize,
+    keep_surfaces: bool,
+) -> Scene {
+    let end = end.min(scene.ops.len());
+    let start = start.min(end);
     let mut open_layers = Vec::new();
-    for op in &scene.ops[..boundary] {
+    for op in &scene.ops[..start] {
         match op {
             SceneOp::PushLayer(layer) => open_layers.push(layer.clone()),
             SceneOp::PopLayer => {
                 let popped = open_layers.pop();
                 debug_assert!(
                     popped.is_some(),
-                    "scene tail boundary has an unbalanced PopLayer in its prefix"
+                    "scene segment boundary has an unbalanced PopLayer in its prefix"
                 );
             }
+            _ => {}
+        }
+    }
+    let mut depth = open_layers.len();
+    for op in &scene.ops[start..end] {
+        match op {
+            SceneOp::PushLayer(_) => depth += 1,
+            SceneOp::PopLayer => depth = depth.saturating_sub(1),
             _ => {}
         }
     }
@@ -40,9 +65,12 @@ pub(super) fn scene_tail_fragment(scene: &Scene, scene_op_boundary: usize) -> Sc
     fragment.ops = open_layers
         .into_iter()
         .map(SceneOp::PushLayer)
-        .chain(scene.ops[boundary..].iter().cloned())
+        .chain(scene.ops[start..end].iter().cloned())
+        .chain(std::iter::repeat_n(SceneOp::PopLayer, depth))
         .collect();
-    fragment.compositor_surfaces.clear();
+    if !keep_surfaces {
+        fragment.compositor_surfaces.clear();
+    }
     fragment
 }
 
@@ -419,7 +447,7 @@ pub(crate) fn blur_kernel_plan_with_downscale(blur_radius_px: f32) -> (u32, usiz
 
 #[cfg(test)]
 mod scene_tail_tests {
-    use super::scene_tail_fragment;
+    use super::{scene_segment_fragment, scene_tail_fragment};
     use crate::{Scene, SceneLayer, SceneOp};
 
     #[test]
@@ -459,6 +487,24 @@ mod scene_tail_tests {
         assert!(
             matches!(tail.ops[0], SceneOp::Rect(ref rect) if rect.color == [0.0, 1.0, 0.0, 1.0])
         );
+    }
+
+    #[test]
+    fn segment_closes_layers_left_open_at_its_end() {
+        let mut scene = Scene::new(64, 64);
+        scene.push_layer(SceneLayer::alpha(0.5));
+        scene.push_rect(0.0, 0.0, 8.0, 8.0, [1.0, 0.0, 0.0, 1.0]);
+        let boundary = scene.ops.len();
+        scene.push_rect(8.0, 8.0, 16.0, 16.0, [0.0, 1.0, 0.0, 1.0]);
+        scene.pop_layer();
+
+        let head = scene_segment_fragment(&scene, 0, boundary, true);
+        assert_eq!(head.ops.len(), 3);
+        assert!(matches!(head.ops[0], SceneOp::PushLayer(ref layer) if layer.alpha == 0.5));
+        assert!(
+            matches!(head.ops[1], SceneOp::Rect(ref rect) if rect.color == [1.0, 0.0, 0.0, 1.0])
+        );
+        assert!(matches!(head.ops[2], SceneOp::PopLayer));
     }
 }
 

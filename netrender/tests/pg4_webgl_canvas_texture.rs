@@ -303,3 +303,65 @@ fn pg4_webgl_canvas_texture_preserves_scene_order() {
         "later scene rect remains above interleaved canvas",
     );
 }
+
+/// A translucent op above an interleaved external texture must paint once,
+/// above the texture: not under a translucent texture, and not blended twice
+/// outside its placement.
+#[test]
+fn pg4_translucent_foreground_paints_once_over_interleaved_canvas() {
+    let handles = boot().expect("wgpu boot");
+    let device = handles.device.clone();
+    let queue = handles.queue.clone();
+    let renderer = create_netrender_instance(
+        handles,
+        NetrenderOptions {
+            tile_cache_size: Some(TILE_SIZE),
+            enable_vello: true,
+            ..Default::default()
+        },
+    )
+    .expect("create_netrender_instance");
+
+    let (_canvas_texture, canvas_view) = make_canvas_texture(&device, &queue);
+    let mut scene = Scene::new(DIM, DIM);
+    scene.push_rect(0.0, 0.0, DIM as f32, DIM as f32, [1.0, 0.0, 0.0, 1.0]);
+    scene.push_rect(8.0, 8.0, 56.0, 56.0, [0.0, 0.0, 1.0, 0.5]);
+
+    let composites = [ExternalTextureComposite::new(
+        &canvas_view,
+        ExternalTexturePlacement::new([16.0, 16.0, 48.0, 48.0]).with_opacity(0.5),
+    )
+    .with_scene_op_boundary(1)];
+    let mut compositor = CaptureMaster::default();
+
+    renderer.render_with_compositor_and_external_textures(
+        &scene,
+        wgpu::TextureFormat::Rgba8Unorm,
+        &mut compositor,
+        vello::peniko::Color::new([0.0, 0.0, 0.0, 0.0]),
+        &composites,
+    );
+
+    let master = compositor.master.expect("captured compositor master");
+    let bytes = renderer.wgpu_device.read_rgba8_texture(&master, DIM, DIM);
+    assert_within_tol(
+        read_pixel(&bytes, 4, 4),
+        [255, 0, 0, 255],
+        1,
+        "background red",
+    );
+    // Red, then 50% blue once.
+    assert_within_tol(
+        read_pixel(&bytes, 10, 10),
+        [128, 0, 128, 255],
+        3,
+        "translucent foreground outside the canvas paints once",
+    );
+    // Red, then 50% green canvas, then 50% blue once.
+    assert_within_tol(
+        read_pixel(&bytes, 20, 20),
+        [64, 64, 128, 255],
+        3,
+        "translucent foreground over a translucent canvas paints only above it",
+    );
+}
