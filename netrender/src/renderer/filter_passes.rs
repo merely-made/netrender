@@ -14,7 +14,7 @@ use crate::tile_cache::TileCache;
 
 use super::filters::{
     blur_kernel_plan_with_downscale, build_prefix_scene, has_backdrop_filter, has_element_filter,
-    BACKDROP_FILTER_KEY_BASE,
+    scene_uses_image_key, BACKDROP_FILTER_KEY_BASE,
 };
 use super::Renderer;
 
@@ -295,7 +295,8 @@ impl Renderer {
             scene.clone()
         };
         if has_element_filter(&pre) {
-            pre = self.preprocess_element_filters(&pre, rast, tc, &mut used)?;
+            let backdrop_keys = used.clone();
+            pre = self.preprocess_element_filters(&pre, rast, tc, &backdrop_keys, &mut used)?;
         }
         self.retire_unused_filter_slots(rast, &used);
         Ok(Some(pre))
@@ -417,9 +418,8 @@ impl Renderer {
             })
             .collect();
 
-        // ImageKey region unlikely to collide with consumer keys (top of the u64
-        // space, same shape as the `u64::MAX` font sentinel), disjoint from the
-        // element-filter region.
+        // Skip keys already present in the source scene, as well as the
+        // externally reserved range above this base.
         let mut next_key: ImageKey = BACKDROP_FILTER_KEY_BASE;
 
         // Each backdrop filter shifts subsequent op indices by +1
@@ -447,6 +447,9 @@ impl Renderer {
             // Publish under this backdrop's slot on the rasterizer's
             // `image_overrides` (Path B) — reusing the slot's Vello handle
             // where it can, so cached tiles keep resolving it.
+            while scene_uses_image_key(scene, next_key) {
+                next_key = next_key.wrapping_sub(1);
+            }
             self.publish_filter_texture(rast, tc, next_key, blurred, used);
 
             // Compute UV: the blurred texture is the FULL viewport;

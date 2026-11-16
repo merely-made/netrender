@@ -1543,6 +1543,101 @@ mod tests {
     }
 
     #[test]
+    fn staged_external_first_in_element_filter_includes_updates_and_sibling() {
+        let handles = boot().expect("wgpu adapter required");
+        let renderer = create_netrender_instance(
+            handles.clone(),
+            NetrenderOptions {
+                tile_cache_size: Some(16),
+                enable_vello: true,
+                ..Default::default()
+            },
+        )
+        .expect("vello renderer");
+        let key = crate::external_image_key(17);
+        let source = producer(&handles.device, &handles.queue, 4, 4, [255, 0, 0, 255]);
+        let view = source.create_view(&Default::default());
+        let mut scene = Scene::new(64, 48);
+        scene.push_rect(0.0, 0.0, 64.0, 48.0, [1.0; 4]);
+        let mut layer = crate::SceneLayer::alpha(0.5);
+        layer.filters = vec![
+            crate::SceneFilter::Invert(1.0),
+            crate::SceneFilter::Blur(1.0),
+        ];
+        scene.push_layer(layer);
+        scene.push_image_full(
+            8.0,
+            8.0,
+            40.0,
+            40.0,
+            [0.0, 0.0, 1.0, 1.0],
+            [1.0; 4],
+            key,
+            0,
+            crate::NO_CLIP,
+        );
+        scene.push_rect(28.0, 16.0, 48.0, 32.0, [0.0, 0.0, 1.0, 1.0]);
+        scene.pop_layer();
+        let render = || {
+            let (texture, target_view) = target(&handles.device, 64, 48);
+            renderer.render_vello_scaled(
+                &scene,
+                &target_view,
+                ColorLoad::Clear(wgpu::Color::TRANSPARENT),
+                1.0,
+            );
+            renderer.wgpu_device.read_rgba8_texture(&texture, 64, 48)
+        };
+        let sample = |pixels: &[u8], x: usize, y: usize| {
+            let i = (y * 64 + x) * 4;
+            [pixels[i], pixels[i + 1], pixels[i + 2], pixels[i + 3]]
+        };
+        renderer.stage_external_image(key, &view, [4, 4], SourceAlpha::Premultiplied, 1);
+        let pixels = render();
+        let cyan = sample(&pixels, 16, 24);
+        let yellow = sample(&pixels, 34, 24);
+        assert!(
+            cyan[0] < 150 && cyan[1] > 235 && cyan[2] > 235,
+            "filtered red source: {cyan:?}"
+        );
+        assert!(
+            yellow[0] > 235 && yellow[1] > 235 && yellow[2] < 150,
+            "filtered blue sibling: {yellow:?}"
+        );
+        let fringe = sample(&pixels, 7, 24);
+        assert!(
+            fringe[0] < 245 && fringe[0] < fringe[1] && fringe[1] == fringe[2],
+            "blur fringe: {fringe:?}"
+        );
+        handles.queue.write_texture(
+            wgpu::TexelCopyTextureInfo {
+                texture: &source,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            &[0, 255, 0, 255].repeat(16),
+            wgpu::TexelCopyBufferLayout {
+                offset: 0,
+                bytes_per_row: Some(16),
+                rows_per_image: Some(4),
+            },
+            wgpu::Extent3d {
+                width: 4,
+                height: 4,
+                depth_or_array_layers: 1,
+            },
+        );
+        renderer.stage_external_image(key, &view, [4, 4], SourceAlpha::Premultiplied, 2);
+        let updated = render();
+        let magenta = sample(&updated, 16, 24);
+        assert!(
+            magenta[0] > 235 && magenta[1] < 150 && magenta[2] > 235,
+            "updated green source: {magenta:?}"
+        );
+    }
+
+    #[test]
     fn external_image_stages_premultiplied_pixels_inside_scene_layers_at_fractional_dpr() {
         let handles = boot().expect("wgpu adapter required for external image GPU receipt");
         let renderer = create_netrender_instance(

@@ -13,7 +13,7 @@ use crate::scene::{ImageKey, Scene};
 use crate::tile_cache::TileCache;
 
 use super::filters::{
-    blur_kernel_plan_with_downscale, build_layer_content_scene, matching_pop,
+    blur_kernel_plan_with_downscale, build_layer_content_scene, matching_pop, scene_uses_image_key,
     scene_filter_to_matrix, ELEMENT_FILTER_KEY_BASE,
 };
 use super::Renderer;
@@ -232,6 +232,7 @@ impl Renderer {
         scene: &Scene,
         rast: &mut crate::vello_tile_rasterizer::VelloTileRasterizer,
         tc: &mut TileCache,
+        backdrop_keys: &[ImageKey],
         used: &mut Vec<ImageKey>,
     ) -> Result<Scene, crate::VelloError> {
         #[cfg(feature = "without-classic-vello")]
@@ -284,9 +285,12 @@ impl Renderer {
         for (push_idx, pop_idx, filters, bounds) in elements {
             // Render the layer's own content (flat) to a viewport texture, then
             // run the filter chain over it.
-            let content = build_layer_content_scene(scene, push_idx, pop_idx);
+            let content = build_layer_content_scene(scene, push_idx, pop_idx, backdrop_keys);
             let content_tex = self.render_scene_to_texture(rast, tc, &content)?;
             let filtered = self.apply_filter_chain(content_tex, &filters);
+            while used.contains(&next_key) || scene_uses_image_key(scene, next_key) {
+                next_key = next_key.wrapping_sub(1);
+            }
             self.publish_filter_texture(rast, tc, next_key, filtered, used);
 
             let vw = scene.viewport_width as f32;
@@ -300,12 +304,11 @@ impl Renderer {
 
             let cur_push = (push_idx as isize + offset) as usize;
             let cur_pop = (pop_idx as isize + offset) as usize;
-            // Keep a backdrop-filter image (the layer's first content op, marked
-            // by a sentinel key above the element region) behind the filtered
-            // result, so `backdrop-filter` + `filter` on one layer composites the
+            // Keep an image injected by the backdrop pass as the layer's first
+            // content op behind the filtered result, so `backdrop-filter` + `filter` on one layer composites the
             // unfiltered backdrop under the element's filtered content.
             let content_start = match processed.ops.get(cur_push + 1) {
-                Some(SceneOp::Image(im)) if im.key > ELEMENT_FILTER_KEY_BASE => cur_push + 2,
+                Some(SceneOp::Image(im)) if backdrop_keys.contains(&im.key) => cur_push + 2,
                 _ => cur_push + 1,
             };
             let inner_len = cur_pop - content_start;

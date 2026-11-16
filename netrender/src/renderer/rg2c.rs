@@ -129,7 +129,7 @@ pub(crate) fn decompose_combined_effect(
 
     Ok(CombinedEffectDecomposition {
         prefix: build_prefix_scene(scene, push_index),
-        content: build_layer_content_scene(scene, push_index, pop_index),
+        content: build_layer_content_scene(scene, push_index, pop_index, &[]),
         bounds,
         alpha: layer.alpha.clamp(0.0, 1.0),
         backdrop_radius,

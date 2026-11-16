@@ -176,14 +176,19 @@ pub(super) fn build_prefix_scene(scene: &Scene, cutoff_idx: usize) -> Scene {
     prefix
 }
 
-/// Sentinel `ImageKey` region for backdrop-filter results — the top of the u64
-/// space (same convention as the `u64::MAX` font sentinel), counting down.
-pub(super) const BACKDROP_FILTER_KEY_BASE: ImageKey = u64::MAX - 1;
-/// Sentinel `ImageKey` region for element-filter results, counting down from the
-/// midpoint — disjoint from [`BACKDROP_FILTER_KEY_BASE`] so the two passes can't
-/// collide, and a key above this marks a backdrop image (used to keep element
-/// `filter` from filtering the backdrop).
+/// Backdrop slots count down below the reserved external-image key region.
+pub(super) const BACKDROP_FILTER_KEY_BASE: ImageKey = crate::EXTERNAL_IMAGE_KEY_BASE - 1;
+/// Element-filter slots count down from the midpoint.
 pub(super) const ELEMENT_FILTER_KEY_BASE: ImageKey = u64::MAX / 2;
+
+/// Whether an input scene already references an image slot.
+pub(super) fn scene_uses_image_key(scene: &Scene, key: ImageKey) -> bool {
+    scene.ops.iter().any(|op| match op {
+        crate::scene::SceneOp::Image(image) => image.key == key,
+        crate::scene::SceneOp::Pattern(pattern) => pattern.tile == key,
+        _ => false,
+    })
+}
 
 /// True if any layer carries a non-empty CSS `filter` chain (element filter).
 pub(super) fn has_element_filter(scene: &Scene) -> bool {
@@ -214,50 +219,8 @@ pub(super) fn matching_pop(ops: &[crate::scene::SceneOp], push_idx: usize) -> Op
     None
 }
 
-/// The layer's *own content* — the ops strictly between `push_idx` and
-/// `pop_idx` — as a flat sub-scene (the same palette clones as
-/// [`build_prefix_scene`], so inner `transform_id`/`font_id`/`key` indices stay
-/// valid). The outer `PushLayer`/`PopLayer` are excluded: the layer's
-/// alpha/blend/clip get re-applied when the filtered image composites back.
-/// Nested filters/backdrops are stripped so this first cut does not recurse.
-pub(super) fn build_layer_content_scene(scene: &Scene, push_idx: usize, pop_idx: usize) -> Scene {
-    use crate::scene::SceneOp;
-    let mut content = Scene::new(scene.viewport_width, scene.viewport_height);
-    content.transforms = scene.transforms.clone();
-    content.fonts = scene.fonts.clone();
-    content.image_sources = scene.image_sources.clone();
-    content.root_alpha = scene.root_alpha;
-    content.root_blend_mode = scene.root_blend_mode;
-    // The layer's own content, minus any backdrop-filter image the backdrop pass
-    // injected as the first content op: CSS `filter` must affect only the
-    // element, never the backdrop. Backdrop sentinel keys sit above the element
-    // region, so a high key marks the injected backdrop image. (It stays in the
-    // outer scene, behind the element's filtered result — see the splice below.)
-    content.ops = scene.ops[push_idx + 1..pop_idx]
-        .iter()
-        .filter(|op| !matches!(op, SceneOp::Image(im) if im.key > ELEMENT_FILTER_KEY_BASE))
-        .cloned()
-        .collect();
-    for op in &mut content.ops {
-        if let SceneOp::PushLayer(l) = op {
-            l.backdrop_filter = None;
-            l.filters.clear();
-        }
-    }
-    // The interior is already balanced; this is a defensive no-op.
-    let mut depth: i32 = 0;
-    for op in &content.ops {
-        match op {
-            SceneOp::PushLayer(_) => depth += 1,
-            SceneOp::PopLayer => depth -= 1,
-            _ => {}
-        }
-    }
-    for _ in 0..depth.max(0) {
-        content.ops.push(SceneOp::PopLayer);
-    }
-    content
-}
+mod content;
+pub(super) use content::build_layer_content_scene;
 
 /// Identity color matrix (row-major 4x5; out RGBA = M * [r,g,b,a,1]).
 const FILTER_IDENTITY: [f32; 20] = [
@@ -623,3 +586,6 @@ mod blur_plan_tests {
         }
     }
 }
+
+#[cfg(test)]
+mod key_tests;
