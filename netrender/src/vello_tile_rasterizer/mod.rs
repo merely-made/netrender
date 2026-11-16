@@ -60,13 +60,12 @@ mod retained;
 mod diagnostics;
 
 /// Path (b′) per-frame state held across `render_with_compositor`
-/// calls. Used to compute the four-source dirty OR for declared
-/// compositor surfaces (tile-intersection / newly-declared /
-/// bounds-changed / absent-last-frame).
+/// calls. Used to compute damage for declared compositor surfaces.
 #[derive(Default)]
 struct CompositorState {
     seen_last_frame: HashSet<SurfaceKey>,
     prev_bounds: HashMap<SurfaceKey, [f32; 4]>,
+    was_segmented: bool,
 }
 
 /// One vello-backed tile rasterizer. Owns the vello::Renderer, the
@@ -260,18 +259,30 @@ impl VelloTileRasterizer {
     /// Build the per-frame `LayerPresent` vec for `scene.compositor_surfaces`,
     /// in declaration order (vec position = z-order).
     ///
-    /// `LayerPresent.dirty` ORs four sources per design doc §4:
+    /// `LayerPresent.dirty` covers:
     /// - tile-intersection: any tile in `last_dirty_tiles` intersects
     ///   the surface's bounds;
     /// - newly-declared / absent-last-frame: surface key was not in
     ///   the previous frame's seen-set;
     /// - bounds-changed: previous-frame bounds differ from current.
+    /// - segmented composition in either frame: the tile cache only sees the
+    ///   master prefix, so it cannot track changes to later segments or their removal.
     ///
     /// `source_rect_in_master` clamps `surface.bounds` to the master
     /// pixel space `[0..viewport_width, 0..viewport_height)`.
     pub fn build_layer_presents(&self, scene: &Scene, tile_cache: &TileCache) -> Vec<LayerPresent> {
+        self.build_layer_presents_for_frame(scene, tile_cache, false)
+    }
+
+    pub(crate) fn build_layer_presents_for_frame(
+        &self,
+        scene: &Scene,
+        tile_cache: &TileCache,
+        segmented: bool,
+    ) -> Vec<LayerPresent> {
         let mw = scene.viewport_width as f32;
         let mh = scene.viewport_height as f32;
+        let all_dirty = segmented || self.compositor_state.was_segmented;
         scene
             .compositor_surfaces
             .iter()
@@ -279,12 +290,14 @@ impl VelloTileRasterizer {
                 let absent = !self.compositor_state.seen_last_frame.contains(&s.key);
                 let bounds_changed =
                     self.compositor_state.prev_bounds.get(&s.key).copied() != Some(s.bounds);
-                let tile_dirty = self.last_dirty_tiles.iter().any(|c| {
-                    tile_cache
-                        .tile_world_rect(*c)
-                        .is_some_and(|tr| aabb_intersects(tr, s.bounds))
-                });
-                let dirty = absent || bounds_changed || tile_dirty;
+                let dirty = all_dirty
+                    || absent
+                    || bounds_changed
+                    || self.last_dirty_tiles.iter().any(|c| {
+                        tile_cache
+                            .tile_world_rect(*c)
+                            .is_some_and(|tr| aabb_intersects(tr, s.bounds))
+                    });
 
                 // Clamp to master pixel space; ensures x0 <= x1 and y0 <= y1
                 // even if surface bounds are out-of-order (defensive).
@@ -355,6 +368,11 @@ impl VelloTileRasterizer {
     /// next-frame dirty/diff computation. Call after the consumer's
     /// `present_frame` returns.
     pub fn commit_compositor_state(&mut self, scene: &Scene) {
+        self.commit_compositor_frame(scene, false);
+    }
+
+    pub(crate) fn commit_compositor_frame(&mut self, scene: &Scene, segmented: bool) {
+        self.compositor_state.was_segmented = segmented;
         self.compositor_state.seen_last_frame =
             scene.compositor_surfaces.iter().map(|s| s.key).collect();
         self.compositor_state.prev_bounds = scene
@@ -650,15 +668,8 @@ impl VelloTileRasterizer {
         self.vello_renderer.pending_curve_quality()
     }
 
-    /// Render an already-ordered overlay fragment without mutating the
-    /// tile cache or per-tile scene cache that tracks the full frame.
-    ///
-    /// `Renderer::render_with_compositor_and_external_textures` uses
-    /// this after direct-sampling an interleaved external texture: the
-    /// ordinary scene tail that should remain above that texture is
-    /// rendered into a transparent scratch target, then composited over
-    /// the master. The full-scene render remains the only caller that
-    /// updates tile invalidation state.
+    /// Render an already-ordered overlay without updating the master's tile
+    /// cache or damage.
     pub fn render_overlay_fragment(
         &mut self,
         scene: &Scene,
@@ -670,10 +681,52 @@ impl VelloTileRasterizer {
             self.image_data.entries(),
             &self.image_overrides,
         );
+        self.render_lowered_overlay(scene, &overlay_scene, target_view, base_color)
+    }
+
+    /// Render an overlay into transparent scratch and report whether it drew
+    /// anything. An empty encoding leaves scratch alone so the caller skips
+    /// compositing it.
+    ///
+    /// `Renderer::render_with_compositor_and_external_textures` uses
+    /// this after direct-sampling an interleaved external texture: the
+    /// ordinary scene tail that should remain above that texture is
+    /// rendered into a transparent scratch target, then composited over
+    /// the master. Retained placements are included for segmented frames;
+    /// the filter fallback has already painted them in the master.
+    pub(crate) fn render_interleaved_segment(
+        &mut self,
+        scene: &Scene,
+        target_view: &wgpu::TextureView,
+        include_retained: bool,
+    ) -> Result<bool, vello::Error> {
+        let overlay_scene = if include_retained && retained::has_fragments(scene) {
+            self.lower_scene_with_fragments(scene).0
+        } else {
+            scene_to_vello_with_image_sources(
+                scene,
+                self.image_data.entries(),
+                &self.image_overrides,
+            )
+        };
+        if overlay_scene.encoding().draw_tags.is_empty() {
+            return Ok(false);
+        }
+        self.render_lowered_overlay(scene, &overlay_scene, target_view, Color::TRANSPARENT)?;
+        Ok(true)
+    }
+
+    fn render_lowered_overlay(
+        &mut self,
+        scene: &Scene,
+        overlay_scene: &vello::Scene,
+        target_view: &wgpu::TextureView,
+        base_color: Color,
+    ) -> Result<(), vello::Error> {
         self.vello_renderer.render_to_texture(
             &self.handles.device,
             &self.handles.queue,
-            &overlay_scene,
+            overlay_scene,
             target_view,
             &RenderParams {
                 base_color,

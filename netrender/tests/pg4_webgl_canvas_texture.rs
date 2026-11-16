@@ -12,8 +12,9 @@
 //! textures into vello's image atlas at frame start.
 
 use netrender::{
-    ColorLoad, Compositor, ExternalTextureComposite, ExternalTexturePlacement, NetrenderOptions,
-    PresentedFrame, Scene, boot, create_netrender_instance,
+    ColorLoad, Compositor, CompositorSurface, ExternalTextureComposite, ExternalTexturePlacement,
+    NetrenderOptions, OpaqueTenantInput, OpaqueTenantMetadata, PresentedFrame, Scene,
+    SceneFragment, SurfaceKey, Transform, boot, create_netrender_instance,
 };
 
 const DIM: u32 = 64;
@@ -113,6 +114,7 @@ fn read_pixel(bytes: &[u8], x: u32, y: u32) -> [u8; 4] {
 #[derive(Default)]
 struct CaptureMaster {
     master: Option<wgpu::Texture>,
+    surface_damage: Vec<bool>,
 }
 
 impl Compositor for CaptureMaster {
@@ -122,6 +124,7 @@ impl Compositor for CaptureMaster {
 
     fn present_frame(&mut self, frame: PresentedFrame<'_>) {
         self.master = Some(frame.master.clone());
+        self.surface_damage = frame.layers.iter().map(|layer| layer.dirty).collect();
     }
 }
 
@@ -363,5 +366,178 @@ fn pg4_translucent_foreground_paints_once_over_interleaved_canvas() {
         [64, 64, 128, 255],
         3,
         "translucent foreground over a translucent canvas paints only above it",
+    );
+}
+
+#[test]
+fn pg4_retained_foreground_paints_above_an_external_texture_or_tenant() {
+    let handles = boot().expect("wgpu boot");
+    let (texture, view) = make_canvas_texture(&handles.device, &handles.queue);
+    let renderer = create_netrender_instance(
+        handles,
+        NetrenderOptions {
+            tile_cache_size: Some(TILE_SIZE),
+            enable_vello: true,
+            ..Default::default()
+        },
+    )
+    .expect("create_netrender_instance");
+
+    let mut fragment = Scene::new(DIM, DIM);
+    fragment.push_rect(8.0, 8.0, 56.0, 56.0, [0.0, 0.0, 1.0, 1.0]);
+    let id = renderer
+        .register_fragment(SceneFragment::from_scene(fragment))
+        .unwrap();
+    let mut scene = Scene::new(DIM, DIM);
+    scene.push_rect(0.0, 0.0, DIM as f32, DIM as f32, [1.0, 0.0, 0.0, 1.0]);
+    scene.place_fragment(id, Transform::IDENTITY);
+
+    let placement = ExternalTexturePlacement::new([16.0, 16.0, 48.0, 48.0]);
+    let composites = [ExternalTextureComposite::new(&view, placement).with_scene_op_boundary(1)];
+    let tenant = OpaqueTenantInput::new(
+        &texture,
+        OpaqueTenantMetadata::new("test canvas", "test", 0, 1, placement),
+    );
+    let format = wgpu::TextureFormat::Rgba8Unorm;
+    let clear = vello::peniko::Color::new([0.0; 4]);
+    let mut capture = CaptureMaster::default();
+    renderer.render_with_compositor_and_external_textures(
+        &scene,
+        format,
+        &mut capture,
+        clear,
+        &composites,
+    );
+    let external =
+        renderer
+            .wgpu_device
+            .read_rgba8_texture(&capture.master.take().unwrap(), DIM, DIM);
+    renderer.render_with_opaque_tenant(&scene, format, &mut capture, clear, &tenant);
+    let opaque = renderer
+        .wgpu_device
+        .read_rgba8_texture(&capture.master.take().unwrap(), DIM, DIM);
+
+    for bytes in [&external, &opaque] {
+        assert_eq!(read_pixel(bytes, 10, 10), [0, 0, 255, 255]);
+        assert_eq!(read_pixel(bytes, 20, 20), [0, 0, 255, 255]);
+    }
+    assert_eq!(renderer.remove_fragment(id), Some(true));
+    renderer.render_with_compositor_and_external_textures(
+        &scene,
+        format,
+        &mut capture,
+        clear,
+        &composites,
+    );
+    let bytes = renderer
+        .wgpu_device
+        .read_rgba8_texture(&capture.master.unwrap(), DIM, DIM);
+    assert_eq!(read_pixel(&bytes, 10, 10), [255, 0, 0, 255]);
+    assert_eq!(read_pixel(&bytes, 20, 20), [0, 255, 0, 255]);
+}
+
+#[test]
+fn pg4_surface_damage_covers_segment_changes_and_removal() {
+    let handles = boot().expect("wgpu boot");
+    let (_, view) = make_canvas_texture(&handles.device, &handles.queue);
+    let renderer = create_netrender_instance(
+        handles,
+        NetrenderOptions {
+            tile_cache_size: Some(TILE_SIZE),
+            enable_vello: true,
+            ..Default::default()
+        },
+    )
+    .expect("create_netrender_instance");
+    let mut scene = Scene::new(DIM, DIM);
+    scene.declare_compositor_surface(CompositorSurface::new(
+        SurfaceKey(1),
+        [0.0, 0.0, 16.0, 16.0],
+    ));
+    scene.push_rect(0.0, 0.0, DIM as f32, DIM as f32, [1.0, 0.0, 0.0, 1.0]);
+    scene.push_rect(8.0, 8.0, 56.0, 56.0, [0.0, 0.0, 1.0, 1.0]);
+    let composites = [ExternalTextureComposite::new(
+        &view,
+        ExternalTexturePlacement::new([16.0, 16.0, 48.0, 48.0]),
+    )
+    .with_scene_op_boundary(1)];
+    let mut capture = CaptureMaster::default();
+    let render =
+        |scene: &Scene, textures: &[ExternalTextureComposite<'_>], capture: &mut CaptureMaster| {
+            renderer.render_with_compositor_and_external_textures(
+                scene,
+                wgpu::TextureFormat::Rgba8Unorm,
+                capture,
+                vello::peniko::Color::BLACK,
+                textures,
+            );
+        };
+
+    render(&scene, &composites, &mut capture);
+    assert_eq!(capture.surface_damage, [true], "first frame");
+
+    scene.ops.pop();
+    scene.push_rect(8.0, 8.0, 56.0, 56.0, [0.0, 0.0, 1.0, 0.5]);
+    render(&scene, &composites, &mut capture);
+    assert_eq!(capture.surface_damage, [true], "only the suffix changed");
+    let bytes = renderer
+        .wgpu_device
+        .read_rgba8_texture(&capture.master.take().unwrap(), DIM, DIM);
+    assert_within_tol(
+        read_pixel(&bytes, 10, 10),
+        [128, 0, 128, 255],
+        3,
+        "updated foreground",
+    );
+
+    scene.ops.pop();
+    render(&scene, &[], &mut capture);
+    assert_eq!(capture.surface_damage, [true], "suffix and texture removed");
+    render(&scene, &[], &mut capture);
+    assert_eq!(capture.surface_damage, [false], "unchanged ordinary frame");
+}
+
+#[test]
+#[ignore = "interleaving inside an opacity group requires group-aware composition"]
+fn pg4_interleaving_preserves_opacity_group_outside_canvas() {
+    let handles = boot().expect("wgpu boot");
+    let (_, view) = make_canvas_texture(&handles.device, &handles.queue);
+    let renderer = create_netrender_instance(
+        handles,
+        NetrenderOptions {
+            tile_cache_size: Some(TILE_SIZE),
+            enable_vello: true,
+            ..Default::default()
+        },
+    )
+    .expect("create_netrender_instance");
+    let mut scene = Scene::new(DIM, DIM);
+    scene.push_rect(0.0, 0.0, DIM as f32, DIM as f32, [1.0, 0.0, 0.0, 1.0]);
+    scene.push_layer_alpha(0.5);
+    scene.push_rect(8.0, 8.0, 56.0, 56.0, [0.0, 1.0, 0.0, 1.0]);
+    let boundary = scene.ops.len();
+    scene.push_rect(8.0, 8.0, 56.0, 56.0, [0.0, 0.0, 1.0, 1.0]);
+    scene.pop_layer();
+    let composites = [ExternalTextureComposite::new(
+        &view,
+        ExternalTexturePlacement::new([16.0, 16.0, 48.0, 48.0]),
+    )
+    .with_scene_op_boundary(boundary)];
+    let mut capture = CaptureMaster::default();
+    renderer.render_with_compositor_and_external_textures(
+        &scene,
+        wgpu::TextureFormat::Rgba8Unorm,
+        &mut capture,
+        vello::peniko::Color::BLACK,
+        &composites,
+    );
+    let bytes = renderer
+        .wgpu_device
+        .read_rgba8_texture(&capture.master.unwrap(), DIM, DIM);
+    assert_within_tol(
+        read_pixel(&bytes, 10, 10),
+        [128, 0, 128, 255],
+        3,
+        "group opacity",
     );
 }

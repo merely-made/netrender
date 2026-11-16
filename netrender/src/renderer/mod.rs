@@ -1030,11 +1030,11 @@ impl Renderer {
     /// texture is imported as a sampled input; the initialized Vello master is
     /// imported as the single load-preserving color output.
     ///
-    /// The existing Vello render and tail redraw remain intact. The returned
-    /// receipt describes the logical opaque producer boundary separately from
-    /// the caller-reported physical submission count. This first slice uses
-    /// the existing full-master plus tail-redraw behavior for one tenant; more
-    /// general interleaving remains outside this method.
+    /// A tenant inside the scene uses the same segment ordering and has the
+    /// same group and filter limitations as
+    /// [`Self::render_with_compositor_and_external_textures`].
+    /// The receipt describes the logical opaque producer boundary separately
+    /// from the caller-reported physical submission count.
     ///
     /// Invalid graph admission or execution panics consistently with the
     /// existing renderer methods. Host error disposition is a later RG3b
@@ -1066,9 +1066,10 @@ impl Renderer {
         // Same ordering rule as `render_with_compositor_and_external_textures`:
         // content above the tenant is painted once, after the tenant.
         let head;
-        let tenant_boundary = tenant.metadata.scene_op_boundary;
-        let master_scene = if processed.is_none() && tenant_boundary < scene.ops.len() {
-            head = scene_segment_fragment(scene, 0, tenant_boundary, true);
+        let boundary = tenant.metadata.scene_op_boundary.min(scene.ops.len());
+        let segmented = processed.is_none() && boundary < scene.ops.len();
+        let master_scene = if segmented {
+            head = scene_segment_fragment(scene, 0, boundary, true);
             &head
         } else {
             render_scene
@@ -1128,7 +1129,6 @@ impl Renderer {
         )
         .expect("opaque tenant graph execution");
 
-        let boundary = tenant.metadata.scene_op_boundary.min(scene.ops.len());
         if boundary < scene.ops.len() {
             let tail_scene = scene_tail_fragment(scene, boundary);
             if !tail_scene.ops.is_empty() {
@@ -1138,27 +1138,26 @@ impl Renderer {
                     scene.viewport_height,
                     master_format,
                 );
-                rast.render_overlay_fragment(
-                    &tail_scene,
-                    &tail_view,
-                    vello::peniko::Color::new([0.0, 0.0, 0.0, 0.0]),
-                )
-                .unwrap_or_else(|e| panic!("vello overlay tail render failed: {:?}", e));
-                let master_view =
-                    master_texture.create_view(&wgpu::TextureViewDescriptor::default());
-                self.submit_external_texture(
-                    &tail_view,
-                    &master_view,
-                    master_format,
-                    scene.viewport_width,
-                    scene.viewport_height,
-                    ExternalTexturePlacement::new([
-                        0.0,
-                        0.0,
-                        scene.viewport_width as f32,
-                        scene.viewport_height as f32,
-                    ]),
-                );
+                let painted = rast
+                    .render_interleaved_segment(&tail_scene, &tail_view, segmented)
+                    .unwrap_or_else(|e| panic!("vello overlay tail render failed: {e:?}"));
+                if painted {
+                    let master_view =
+                        master_texture.create_view(&wgpu::TextureViewDescriptor::default());
+                    self.submit_external_texture(
+                        &tail_view,
+                        &master_view,
+                        master_format,
+                        scene.viewport_width,
+                        scene.viewport_height,
+                        ExternalTexturePlacement::new([
+                            0.0,
+                            0.0,
+                            scene.viewport_width as f32,
+                            scene.viewport_height as f32,
+                        ]),
+                    );
+                }
             }
         }
 
@@ -1169,14 +1168,14 @@ impl Renderer {
         for (key, bounds) in &declares {
             compositor.declare_surface(*key, *bounds);
         }
-        let layers = rast.build_layer_presents(scene, &tc);
+        let layers = rast.build_layer_presents_for_frame(scene, &tc, segmented);
         let handles = rast.handles_ref();
         compositor.present_frame(PresentedFrame {
             master: &master_texture,
             handles,
             layers: &layers,
         });
-        rast.commit_compositor_state(scene);
+        rast.commit_compositor_frame(scene, segmented);
 
         let metadata = &tenant.metadata;
         OpaqueTenantReceipt {
@@ -1305,9 +1304,13 @@ impl Renderer {
     /// master, each external texture composites at its boundary, and the
     /// ordinary scene segment up to the next boundary (or the end) is drawn
     /// once into a transparent scratch target and blended over the master.
-    /// Each scene op therefore paints exactly once. Callers that keep
-    /// the default `usize::MAX` boundary retain the topmost-overlay fast
-    /// path and pay no tail redraw.
+    /// Supply textures in nondecreasing boundary order. The default
+    /// `usize::MAX` boundary places a texture on top of all scene ops.
+    ///
+    /// A boundary inside an opacity or blend group splits the group's
+    /// composition. A filter-preprocessed scene still uses the legacy
+    /// full-scene draw followed by a suffix redraw, which can blend its
+    /// translucent foreground twice.
     pub fn render_with_compositor_and_external_textures(
         &self,
         scene: &Scene,
@@ -1344,14 +1347,16 @@ impl Renderer {
         // later content both under a translucent texture and blended twice
         // outside it. Filter-preprocessed scenes keep the previous behavior
         // because their ops no longer match the caller's boundaries.
-        let segmented = processed.is_none();
+        let first_boundary = external_textures
+            .first()
+            .map_or(scene.ops.len(), |first| first.scene_op_boundary);
+        let segmented = processed.is_none() && first_boundary < scene.ops.len();
         let head;
-        let master_scene = match external_textures.first() {
-            Some(first) if segmented && first.scene_op_boundary < scene.ops.len() => {
-                head = scene_segment_fragment(scene, 0, first.scene_op_boundary, true);
-                &head
-            }
-            _ => render_scene,
+        let master_scene = if segmented {
+            head = scene_segment_fragment(scene, 0, first_boundary, true);
+            &head
+        } else {
+            render_scene
         };
         rast.render_to_internal_master(master_scene, &mut tc, master_format, base_color)
             .unwrap_or_else(|e| panic!("vello render_to_texture failed: {:?}", e));
@@ -1405,12 +1410,12 @@ impl Renderer {
                         master_format,
                     )
                 });
-                rast.render_overlay_fragment(
-                    &tail_scene,
-                    tail_view,
-                    vello::peniko::Color::new([0.0, 0.0, 0.0, 0.0]),
-                )
-                .unwrap_or_else(|e| panic!("vello overlay tail render failed: {:?}", e));
+                let painted = rast
+                    .render_interleaved_segment(&tail_scene, tail_view, segmented)
+                    .unwrap_or_else(|e| panic!("vello overlay tail render failed: {e:?}"));
+                if !painted {
+                    continue;
+                }
                 self.submit_external_texture(
                     tail_view,
                     &master_view,
@@ -1443,7 +1448,7 @@ impl Renderer {
         }
 
         // 4. Build LayerPresent vec.
-        let layers = rast.build_layer_presents(scene, &tc);
+        let layers = rast.build_layer_presents_for_frame(scene, &tc, segmented);
 
         // 5. Hand off. Re-borrow master + handles after lifecycle calls
         // (which used &self) so the &mut self borrow for the present
@@ -1459,7 +1464,7 @@ impl Renderer {
         });
 
         // 6. Persist surface state for next frame.
-        rast.commit_compositor_state(scene);
+        rast.commit_compositor_frame(scene, segmented);
     }
 }
 

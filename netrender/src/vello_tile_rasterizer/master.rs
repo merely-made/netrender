@@ -211,7 +211,11 @@ impl VelloTileRasterizer {
     /// replaced; the retained fragment path invalidates their dependents here,
     /// the tile path invalidates tiles after `TileCache::invalidate`.
     pub(super) fn refresh_image_data(&mut self, scene: &Scene) -> Vec<crate::scene::ImageKey> {
-        self.image_data.refresh(scene)
+        let replaced = self.image_data.refresh(scene);
+        if !replaced.is_empty() {
+            self.retained.invalidate_image_override_cache(&replaced);
+        }
+        replaced
     }
 
     /// Return the `peniko::Blob` id for the cached Path A image

@@ -274,10 +274,7 @@ impl VelloTileRasterizer {
     ) -> vello::Scene {
         use crate::profiling::Span;
 
-        let replaced_images = self.refresh_image_data(scene);
-        if !replaced_images.is_empty() {
-            self.retained.invalidate_image_override_cache(&replaced_images);
-        }
+        self.refresh_image_data(scene);
 
         let sig_span = Span::start("fragment_signature");
         let signature = frame_signature(scene, &self.retained);
@@ -296,7 +293,19 @@ impl VelloTileRasterizer {
         }
 
         let compose_span = Span::start("master_compose");
+        let (master, relowered) = self.lower_scene_with_fragments(scene);
+        compose_span.stop_recording(timings);
 
+        // This path has no dirty tiles. Report the fragments re-lowered.
+        self.last_dirty_count = relowered as usize;
+        self.last_dirty_tiles.clear();
+        self.retained.cached_master = Some((signature, master.clone()));
+        master
+    }
+
+    /// Reuse registered lowerings in painter order without updating master
+    /// damage or replacing the cached master when drawing an overlay.
+    pub(super) fn lower_scene_with_fragments(&mut self, scene: &Scene) -> (vello::Scene, u64) {
         let mut master = vello::Scene::new();
 
         // Phase 12a' scene-level alpha + blend wrap, mirroring
@@ -411,14 +420,6 @@ impl VelloTileRasterizer {
             master.pop_layer();
         }
 
-        compose_span.stop_recording(timings);
-
-        // Honest dirty accounting for this path: no tiles exist, so
-        // report the number of fragments re-lowered this frame.
-        self.last_dirty_count = relowered as usize;
-        self.last_dirty_tiles.clear();
-
-        self.retained.cached_master = Some((signature, master.clone()));
-        master
+        (master, relowered)
     }
 }
