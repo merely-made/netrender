@@ -225,4 +225,130 @@ mod gpu_smoke {
             "backdrop-filtered band should have <50% the variance of the reference: ref={ref_var:.1}, filt={filt_var:.1}"
         );
     }
+
+    #[test]
+    fn staged_canvas_backdrop_blurs_and_tracks_generation() {
+        use netrender::{external_image_key, SourceAlpha, NO_CLIP};
+
+        let handles = boot().expect("wgpu boot");
+        let renderer = create_netrender_instance(
+            handles.clone(),
+            NetrenderOptions {
+                tile_cache_size: Some(TILE_SIZE),
+                enable_vello: true,
+                ..Default::default()
+            },
+        )
+        .expect("classic renderer");
+        let source = handles.device.create_texture(&wgpu::TextureDescriptor {
+            label: Some("canvas producer"),
+            size: wgpu::Extent3d {
+                width: DIM,
+                height: DIM,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Rgba8Unorm,
+            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+            view_formats: &[],
+        });
+        let source_view = source.create_view(&Default::default());
+        let key = external_image_key(817);
+        let mut scene = Scene::new(DIM, DIM);
+        scene.push_image_full(
+            0.0,
+            0.0,
+            DIM as f32,
+            DIM as f32,
+            [0.0, 0.0, 1.0, 1.0],
+            [1.0; 4],
+            key,
+            0,
+            NO_CLIP,
+        );
+        let mut pane = SceneLayer::clip(SceneClip::Rect {
+            rect: [32.0, 64.0, 224.0, 192.0],
+            radii: [0.0; 4],
+        });
+        pane.backdrop_filter = Some(SceneFilter::Blur(12.0));
+        scene.push_layer(pane);
+        scene.pop_layer();
+        // Later foreground crosses the pane and must retain its sharp edge.
+        scene.push_rect(120.0, 112.0, 136.0, 144.0, [0.0, 1.0, 0.0, 1.0]);
+
+        let render = |generation: u64, swap: bool| {
+            let mut bytes = Vec::with_capacity((DIM * DIM * 4) as usize);
+            for _y in 0..DIM {
+                for x in 0..DIM {
+                    let red = ((x / 16) % 2 == 0) ^ swap;
+                    bytes.extend_from_slice(if red {
+                        &[255, 0, 0, 255]
+                    } else {
+                        &[0, 0, 255, 255]
+                    });
+                }
+            }
+            handles.queue.write_texture(
+                wgpu::TexelCopyTextureInfo {
+                    texture: &source,
+                    mip_level: 0,
+                    origin: wgpu::Origin3d::ZERO,
+                    aspect: wgpu::TextureAspect::All,
+                },
+                &bytes,
+                wgpu::TexelCopyBufferLayout {
+                    offset: 0,
+                    bytes_per_row: Some(DIM * 4),
+                    rows_per_image: Some(DIM),
+                },
+                wgpu::Extent3d {
+                    width: DIM,
+                    height: DIM,
+                    depth_or_array_layers: 1,
+                },
+            );
+            renderer.stage_external_image(
+                key,
+                &source_view,
+                [DIM, DIM],
+                SourceAlpha::Premultiplied,
+                generation,
+            );
+            let (target, view) = make_target(&handles.device);
+            renderer.render_vello(&scene, &view, ColorLoad::Clear(wgpu::Color::BLACK));
+            renderer.wgpu_device.read_rgba8_texture(&target, DIM, DIM)
+        };
+        let first = render(1, false);
+        let second = render(2, true);
+        let pixel = |bytes: &[u8], x: u32, y: u32| -> [u8; 4] {
+            let i = ((y * DIM + x) * 4) as usize;
+            bytes[i..i + 4].try_into().unwrap()
+        };
+        for (generation, bytes) in [(1, &first), (2, &second)] {
+            let outside = local_variance(bytes, 32, 48, 208);
+            let inside = local_variance(bytes, 96, 48, 208);
+            assert!(
+                outside > 1000.0 && inside < outside * 0.5,
+                "generation {generation}: outside variance {outside}, inside {inside}"
+            );
+            assert_eq!(pixel(bytes, 120, 128), [0, 255, 0, 255], "foreground edge");
+            assert_ne!(
+                pixel(bytes, 119, 128),
+                [0, 255, 0, 255],
+                "foreground must start sharply"
+            );
+        }
+        assert_ne!(
+            pixel(&first, 40, 32),
+            pixel(&second, 40, 32),
+            "producer changed outside pane"
+        );
+        assert_ne!(
+            pixel(&first, 40, 96),
+            pixel(&second, 40, 96),
+            "backdrop must repaint when producer generation changes"
+        );
+    }
 }
