@@ -228,6 +228,7 @@ mod gpu_smoke {
 
     #[test]
     fn staged_canvas_backdrop_blurs_and_tracks_generation() {
+        const HEIGHT: u32 = 192;
         use netrender::{external_image_key, SourceAlpha, NO_CLIP};
 
         let handles = boot().expect("wgpu boot");
@@ -244,7 +245,7 @@ mod gpu_smoke {
             label: Some("canvas producer"),
             size: wgpu::Extent3d {
                 width: DIM,
-                height: DIM,
+                height: HEIGHT,
                 depth_or_array_layers: 1,
             },
             mip_level_count: 1,
@@ -256,12 +257,12 @@ mod gpu_smoke {
         });
         let source_view = source.create_view(&Default::default());
         let key = external_image_key(817);
-        let mut scene = Scene::new(DIM, DIM);
+        let mut scene = Scene::new(DIM, HEIGHT);
         scene.push_image_full(
             0.0,
             0.0,
             DIM as f32,
-            DIM as f32,
+            HEIGHT as f32,
             [0.0, 0.0, 1.0, 1.0],
             [1.0; 4],
             key,
@@ -269,18 +270,18 @@ mod gpu_smoke {
             NO_CLIP,
         );
         let mut pane = SceneLayer::clip(SceneClip::Rect {
-            rect: [32.0, 64.0, 224.0, 192.0],
+            rect: [32.0, 64.0, 224.0, 160.0],
             radii: [0.0; 4],
         });
-        pane.backdrop_filter = Some(SceneFilter::Blur(12.0));
+        pane.backdrop_filter = Some(SceneFilter::Blur(28.0));
         scene.push_layer(pane);
         scene.pop_layer();
         // Later foreground crosses the pane and must retain its sharp edge.
         scene.push_rect(120.0, 112.0, 136.0, 144.0, [0.0, 1.0, 0.0, 1.0]);
 
         let render = |generation: u64, swap: bool| {
-            let mut bytes = Vec::with_capacity((DIM * DIM * 4) as usize);
-            for _y in 0..DIM {
+            let mut bytes = Vec::with_capacity((DIM * HEIGHT * 4) as usize);
+            for _y in 0..HEIGHT {
                 for x in 0..DIM {
                     let red = ((x / 16) % 2 == 0) ^ swap;
                     bytes.extend_from_slice(if red {
@@ -301,24 +302,42 @@ mod gpu_smoke {
                 wgpu::TexelCopyBufferLayout {
                     offset: 0,
                     bytes_per_row: Some(DIM * 4),
-                    rows_per_image: Some(DIM),
+                    rows_per_image: Some(HEIGHT),
                 },
                 wgpu::Extent3d {
                     width: DIM,
-                    height: DIM,
+                    height: HEIGHT,
                     depth_or_array_layers: 1,
                 },
             );
             renderer.stage_external_image(
                 key,
                 &source_view,
-                [DIM, DIM],
+                [DIM, HEIGHT],
                 SourceAlpha::Premultiplied,
                 generation,
             );
-            let (target, view) = make_target(&handles.device);
+            let target = handles.device.create_texture(&wgpu::TextureDescriptor {
+                label: Some("non-square backdrop target"),
+                size: wgpu::Extent3d {
+                    width: DIM,
+                    height: HEIGHT,
+                    depth_or_array_layers: 1,
+                },
+                mip_level_count: 1,
+                sample_count: 1,
+                dimension: wgpu::TextureDimension::D2,
+                format: wgpu::TextureFormat::Rgba8Unorm,
+                usage: wgpu::TextureUsages::STORAGE_BINDING
+                    | wgpu::TextureUsages::TEXTURE_BINDING
+                    | wgpu::TextureUsages::COPY_SRC,
+                view_formats: &[],
+            });
+            let view = target.create_view(&Default::default());
             renderer.render_vello(&scene, &view, ColorLoad::Clear(wgpu::Color::BLACK));
-            renderer.wgpu_device.read_rgba8_texture(&target, DIM, DIM)
+            renderer
+                .wgpu_device
+                .read_rgba8_texture(&target, DIM, HEIGHT)
         };
         let first = render(1, false);
         let second = render(2, true);

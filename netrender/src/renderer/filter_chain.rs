@@ -22,11 +22,10 @@ impl Renderer {
     /// Roadmap D1 — blur an arbitrary input texture using the
     /// existing render-graph cascade machinery (and R5's downscale
     /// path for large radii). Returns a fresh `Rgba8Unorm` texture
-    /// of size `dim × dim`.
+    /// with the same extent as the input.
     pub(super) fn build_blurred_image(
         &self,
         input: wgpu::Texture,
-        dim: u32,
         blur_radius_px: f32,
     ) -> wgpu::Texture {
         #[cfg(feature = "without-classic-vello")]
@@ -44,18 +43,14 @@ impl Renderer {
         let sampler = make_bilinear_sampler(&device);
 
         let (level, passes, step_px) = blur_kernel_plan_with_downscale(blur_radius_px);
-        let scaled_dim = (dim / level).max(1);
+        let full_extent = input.size();
         let scaled_extent = wgpu::Extent3d {
-            width: scaled_dim,
-            height: scaled_dim,
+            width: (full_extent.width / level).max(1),
+            height: (full_extent.height / level).max(1),
             depth_or_array_layers: 1,
         };
-        let full_extent = wgpu::Extent3d {
-            width: dim,
-            height: dim,
-            depth_or_array_layers: 1,
-        };
-        let step_uv = step_px / scaled_dim as f32;
+        let step_x = step_px / scaled_extent.width as f32;
+        let step_y = step_px / scaled_extent.height as f32;
 
         let mut graph = RenderGraph::new();
         let input_node = graph.import_image("blur input", full_extent, format);
@@ -101,7 +96,7 @@ impl Renderer {
                         access: ImageAccess::SampledRead,
                     }],
                     ImageUse::color_attachment(horizontal, ImageLoad::Clear),
-                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), step_uv, 0.0),
+                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), step_x, 0.0),
                 )
                 .expect("valid blur horizontal task");
             let vertical = graph.transient_image(TransientImageDesc {
@@ -120,7 +115,7 @@ impl Renderer {
                         access: ImageAccess::SampledRead,
                     }],
                     ImageUse::color_attachment(vertical, ImageLoad::Clear),
-                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), 0.0, step_uv),
+                    blur_pass_callback(blur_pipe.clone(), Arc::clone(&sampler), 0.0, step_y),
                 )
                 .expect("valid blur vertical task");
             prev = vertical;
@@ -159,15 +154,9 @@ impl Renderer {
     }
 
     /// Apply one CSS color-matrix filter to `input` (a premultiplied
-    /// `Rgba8Unorm` texture), returning a fresh `dim x dim` texture via a single
-    /// `cs_color_matrix` pass. `dim` is the square work size (matches
-    /// `build_blurred_image`; a non-square viewport is a shared limitation).
-    fn build_color_matrix_image(
-        &self,
-        input: wgpu::Texture,
-        dim: u32,
-        matrix: [f32; 20],
-    ) -> wgpu::Texture {
+    /// `Rgba8Unorm` texture), returning a fresh texture of the same extent via
+    /// a single `cs_color_matrix` pass.
+    fn build_color_matrix_image(&self, input: wgpu::Texture, matrix: [f32; 20]) -> wgpu::Texture {
         #[cfg(feature = "without-classic-vello")]
         let () = match self.unavailable {};
         use crate::filter::{color_matrix_callback, make_bilinear_sampler};
@@ -179,11 +168,7 @@ impl Renderer {
         let format = wgpu::TextureFormat::Rgba8Unorm;
         let pipe = self.wgpu_device.ensure_color_matrix(format);
         let sampler = make_bilinear_sampler(&device);
-        let extent = wgpu::Extent3d {
-            width: dim,
-            height: dim,
-            depth_or_array_layers: 1,
-        };
+        let extent = input.size();
 
         let mut graph = RenderGraph::new();
         let input_node = graph.import_image("color matrix input", extent, format);
@@ -220,7 +205,6 @@ impl Renderer {
     fn apply_filter_chain(
         &self,
         input: wgpu::Texture,
-        dim: u32,
         filters: &[crate::scene::SceneFilter],
     ) -> wgpu::Texture {
         #[cfg(feature = "without-classic-vello")]
@@ -229,8 +213,8 @@ impl Renderer {
         let mut tex = input;
         for f in filters {
             tex = match f {
-                SceneFilter::Blur(r) => self.build_blurred_image(tex, dim, *r),
-                other => self.build_color_matrix_image(tex, dim, scene_filter_to_matrix(*other)),
+                SceneFilter::Blur(r) => self.build_blurred_image(tex, *r),
+                other => self.build_color_matrix_image(tex, scene_filter_to_matrix(*other)),
             };
         }
         tex
@@ -302,7 +286,7 @@ impl Renderer {
             // run the filter chain over it.
             let content = build_layer_content_scene(scene, push_idx, pop_idx);
             let content_tex = self.render_scene_to_texture(rast, tc, &content)?;
-            let filtered = self.apply_filter_chain(content_tex, scene.viewport_width, &filters);
+            let filtered = self.apply_filter_chain(content_tex, &filters);
             self.publish_filter_texture(rast, tc, next_key, filtered, used);
 
             let vw = scene.viewport_width as f32;

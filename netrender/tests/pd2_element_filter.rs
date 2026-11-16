@@ -15,13 +15,14 @@ use netrender::scene::{Scene, SceneFilter, SceneLayer};
 use netrender::{ColorLoad, NetrenderOptions, boot, create_netrender_instance};
 
 const DIM: u32 = 64;
+const HEIGHT: u32 = 40;
 
 fn make_target(device: &wgpu::Device) -> (wgpu::Texture, wgpu::TextureView) {
     let texture = device.create_texture(&wgpu::TextureDescriptor {
         label: Some("pd2 element filter target"),
         size: wgpu::Extent3d {
             width: DIM,
-            height: DIM,
+            height: HEIGHT,
             depth_or_array_layers: 1,
         },
         mip_level_count: 1,
@@ -61,18 +62,20 @@ fn pd2_element_filter_color_matrix_changes_scene_pixels() {
     )
     .expect("create_netrender_instance");
 
-    let mut scene = Scene::new(DIM, DIM);
+    let mut scene = Scene::new(DIM, HEIGHT);
     let mut layer = SceneLayer::alpha(1.0);
     layer.filters.push(SceneFilter::Invert(1.0));
     scene.push_layer(layer);
-    scene.push_rect(0.0, 0.0, DIM as f32, DIM as f32, [1.0, 0.0, 0.0, 1.0]);
+    scene.push_rect(0.0, 0.0, DIM as f32, HEIGHT as f32, [1.0, 0.0, 0.0, 1.0]);
     scene.pop_layer();
 
     let (target, view) = make_target(&handles.device);
     renderer.render_vello(&scene, &view, ColorLoad::Clear(wgpu::Color::BLACK));
-    let bytes = renderer.wgpu_device.read_rgba8_texture(&target, DIM, DIM);
+    let bytes = renderer
+        .wgpu_device
+        .read_rgba8_texture(&target, DIM, HEIGHT);
 
-    for &(x, y) in &[(8, 8), (32, 32), (56, 56)] {
+    for &(x, y) in &[(8, 8), (32, 20), (56, 36)] {
         let p = pixel(&bytes, x, y);
         assert!(
             p[0] < 8 && p[1] > 247 && p[2] > 247 && p[3] > 247,

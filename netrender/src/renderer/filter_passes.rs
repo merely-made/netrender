@@ -442,7 +442,7 @@ impl Renderer {
             let SceneFilter::Blur(radius) = filter else {
                 continue;
             };
-            let blurred = self.build_blurred_image(prefix_tex, scene.viewport_width, radius);
+            let blurred = self.build_blurred_image(prefix_tex, radius);
 
             // Publish under this backdrop's slot on the rasterizer's
             // `image_overrides` (Path B) — reusing the slot's Vello handle
