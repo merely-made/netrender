@@ -18,6 +18,8 @@ use super::filters::{
 };
 use super::Renderer;
 
+mod alpha;
+
 impl Renderer {
     /// Build the crate-local execution plan used by the public box-shadow
     /// helper. Keeping plan construction separate lets the measurement receipt
@@ -327,7 +329,11 @@ impl Renderer {
             .lock()
             .expect("filter_image_slots lock");
         let known = slots.contains(&key);
-        let identity_changed = rast.register_or_refresh_texture(key, texture);
+        let identity_changed = rast.register_or_refresh_texture_with_alpha(
+            key,
+            texture,
+            vello::peniko::ImageAlphaType::AlphaPremultiplied,
+        );
         if known && identity_changed {
             // Only a slot already live in the prior frame can have stale
             // scene references. First registration cannot invalidate a
@@ -541,6 +547,6 @@ impl Renderer {
             transparent,
             1.0,
         )?;
-        Ok(texture)
+        Ok(self.premultiply_filter_input(&texture))
     }
 }

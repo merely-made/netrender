@@ -406,11 +406,30 @@ impl VelloTileRasterizer {
         key: ImageKey,
         texture: wgpu::Texture,
     ) -> bool {
-        if self.refresh_texture(key, texture.clone()) {
+        self.register_or_refresh_texture_with_alpha(
+            key,
+            texture,
+            vello::peniko::ImageAlphaType::Alpha,
+        )
+    }
+
+    pub(crate) fn register_or_refresh_texture_with_alpha(
+        &mut self,
+        key: ImageKey,
+        texture: wgpu::Texture,
+        alpha_type: vello::peniko::ImageAlphaType,
+    ) -> bool {
+        if self
+            .image_overrides
+            .get(&key)
+            .is_some_and(|image| image.alpha_type == alpha_type)
+            && self.refresh_texture(key, texture.clone())
+        {
             return false;
         }
         self.remove_registered_texture(key);
-        let image = self.vello_renderer.register_texture(texture);
+        let mut image = self.vello_renderer.register_texture(texture);
+        image.alpha_type = alpha_type;
         self.image_overrides.insert(key, image);
         self.live_texture_registrations += 1;
         self.invalidate_image_override_caches(&[key]);

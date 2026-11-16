@@ -1606,7 +1606,7 @@ mod tests {
         );
         let fringe = sample(&pixels, 7, 24);
         assert!(
-            fringe[0] < 245 && fringe[0] < fringe[1] && fringe[1] == fringe[2],
+            fringe[0] < 245 && fringe[1] >= 250 && fringe[2] >= 250,
             "blur fringe: {fringe:?}"
         );
         handles.queue.write_texture(
@@ -1634,6 +1634,58 @@ mod tests {
         assert!(
             magenta[0] > 235 && magenta[1] < 150 && magenta[2] > 235,
             "updated green source: {magenta:?}"
+        );
+    }
+
+    #[test]
+    fn element_color_matrix_preserves_semitransparent_source_alpha() {
+        let handles = boot().expect("wgpu adapter required");
+        let renderer = create_netrender_instance(
+            handles.clone(),
+            NetrenderOptions {
+                tile_cache_size: Some(16),
+                enable_vello: true,
+                ..Default::default()
+            },
+        )
+        .expect("vello renderer");
+        let key = crate::external_image_key(19);
+        let source = producer(&handles.device, &handles.queue, 4, 4, [128, 0, 0, 128]);
+        let source_view = source.create_view(&Default::default());
+        renderer.stage_external_image(key, &source_view, [4, 4], SourceAlpha::Premultiplied, 1);
+        let mut scene = Scene::new(16, 16);
+        scene.push_rect(0.0, 0.0, 16.0, 16.0, [1.0; 4]);
+        let mut layer = crate::SceneLayer::alpha(1.0);
+        layer.filters.push(crate::SceneFilter::Invert(1.0));
+        scene.push_layer(layer);
+        scene.push_image_full(
+            2.0,
+            2.0,
+            14.0,
+            14.0,
+            [0.0, 0.0, 1.0, 1.0],
+            [1.0; 4],
+            key,
+            0,
+            crate::NO_CLIP,
+        );
+        scene.pop_layer();
+        let (output, view) = target(&handles.device, 16, 16);
+        renderer.render_vello_scaled(
+            &scene,
+            &view,
+            ColorLoad::Clear(wgpu::Color::TRANSPARENT),
+            1.0,
+        );
+        let pixels = renderer.wgpu_device.read_rgba8_texture(&output, 16, 16);
+        let sample = &pixels[(8 * 16 + 8) * 4..(8 * 16 + 8) * 4 + 4];
+        assert!(
+            sample
+                .iter()
+                .copied()
+                .zip([127u8, 255, 255, 255])
+                .all(|(a, b)| a.abs_diff(b) <= 3),
+            "semitransparent inverted red over white: {sample:?}"
         );
     }
 
