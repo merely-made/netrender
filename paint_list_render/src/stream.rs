@@ -29,6 +29,7 @@ pub fn translate_paint_cmd_stream(
 ) -> Result<TranslatedDisplayList, TranslationError> {
     // Admit the whole command stream before creating a scene or registering
     // resources. A later unsupported border cannot leave a partial scene.
+    preflight_backdrop(viewport, commands)?;
     preflight_borders(commands, images)?;
     let viewport_w = viewport.width.max(0) as u32;
     let viewport_h = viewport.height.max(0) as u32;
@@ -83,6 +84,17 @@ pub fn translate_paint_cmd_stream(
                 transform_stack.pop();
             }
             PaintCmd::PushLayer(spec) => emit_push_layer(&mut scene, spec, tid),
+            PaintCmd::DrawBackdropBlur(spec) => {
+                let (x0, y0, x1, y1) = rect_corners(&spec.bounds);
+                let mut layer = netrender::SceneLayer::clip(netrender::SceneClip::Rect {
+                    rect: [x0, y0, x1, y1],
+                    radii: [0.0; 4],
+                });
+                layer.backdrop_filter =
+                    Some(netrender::SceneFilter::BackdropBlurMirrored(spec.radius_px));
+                scene.push_layer(layer);
+                scene.pop_layer();
+            }
             PaintCmd::PopLayer => {
                 scene.pop_layer();
             }

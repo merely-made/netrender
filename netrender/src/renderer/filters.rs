@@ -241,7 +241,7 @@ const FILTER_IDENTITY: [f32; 20] = [
 pub(super) fn scene_filter_to_matrix(f: crate::scene::SceneFilter) -> [f32; 20] {
     use crate::scene::SceneFilter as F;
     match f {
-        F::Blur(_) => FILTER_IDENTITY,
+        F::Blur(_) | F::BackdropBlurMirrored(_) => FILTER_IDENTITY,
         F::Grayscale(a) => {
             let s = 1.0 - a.clamp(0.0, 1.0);
             [
@@ -401,7 +401,7 @@ pub(crate) fn blur_kernel_plan_with_downscale(blur_radius_px: f32) -> (u32, usiz
         1
     } else {
         let raw = (blur_radius_px / SINGLE_LEVEL_MAX_RADIUS).ceil() as u32;
-        raw.next_power_of_two().min(MAX_LEVEL)
+        raw.min(MAX_LEVEL).next_power_of_two()
     };
     let scaled_radius = blur_radius_px / level as f32;
     let (passes, step_px) = blur_kernel_plan(scaled_radius);
@@ -584,6 +584,13 @@ mod blur_plan_tests {
                 );
             }
         }
+    }
+    #[test]
+    fn huge_finite_radius_keeps_the_work_bounded() {
+        let (level, passes, step) = blur_kernel_plan_with_downscale(f32::MAX);
+        assert_eq!(level, 8);
+        assert_eq!(passes, 50);
+        assert!(step.is_finite());
     }
 }
 

@@ -334,6 +334,8 @@ pub enum SceneFilter {
     Invert(f32),
     Saturate(f32),
     Sepia(f32),
+    /// Backdrop-only blur with samples mirrored at an integral rectangular pane edge.
+    BackdropBlurMirrored(f32),
 }
 
 /// Phase 12b' — a nested layer scope opened by [`SceneOp::PushLayer`]

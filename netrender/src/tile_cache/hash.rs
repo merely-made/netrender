@@ -384,6 +384,7 @@ fn hash_scene_filter(h: &mut DefaultHasher, f: crate::scene::SceneFilter) {
         F::Invert(v) => (5, v),
         F::Saturate(v) => (6, v),
         F::Sepia(v) => (7, v),
+        F::BackdropBlurMirrored(v) => (8, v),
     };
     h.write_u8(tag);
     h.write_u32(v.to_bits());

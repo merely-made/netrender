@@ -291,6 +291,19 @@ pub enum PaintCmd {
     /// Appended as the last variant so the postcard encoding of every
     /// prior variant is unchanged (existing captures still decode).
     PlaceRetainedFragment(RetainedFragmentRef),
+
+    /// Draw one viewport-space rectangular backdrop blur. This first slice supports one top-level pane, outside
+    /// transforms, clips and layers. Appended to preserve old postcard tags.
+    DrawBackdropBlur(BackdropBlurSpec),
+}
+
+/// Backdrop pane bounds in viewport pixels and Gaussian blur radius in pixels.
+/// Bounds must be integral, nonempty and inside the viewport; radius must be
+/// finite and nonnegative. The native radius is approximately twice CSS sigma.
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
+pub struct BackdropBlurSpec {
+    pub bounds: LayoutRect,
+    pub radius_px: f32,
 }
 
 /// Payload of [`PaintCmd::PlaceRetainedFragment`]: which registered

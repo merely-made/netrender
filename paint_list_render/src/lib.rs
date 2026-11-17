@@ -128,6 +128,76 @@ impl fmt::Display for TranslationError {
 
 impl std::error::Error for TranslationError {}
 
+/// Validate the bounded backdrop slice before any scene is constructed.
+fn preflight_backdrop(
+    viewport: ple::DeviceIntSize,
+    commands: &[PaintCmd],
+) -> Result<(), TranslationError> {
+    if !commands
+        .iter()
+        .any(|c| matches!(c, PaintCmd::DrawBackdropBlur(_)))
+    {
+        return Ok(());
+    }
+    let mut layers = Vec::new();
+    let mut transforms = 0usize;
+    let mut seen = false;
+    for (command, cmd) in commands.iter().enumerate() {
+        let bad = |reason| TranslationError { command, reason };
+        match cmd {
+            PaintCmd::PushTransform(_) => transforms += 1,
+            PaintCmd::PopTransform => {
+                transforms = transforms
+                    .checked_sub(1)
+                    .ok_or_else(|| bad("unbalanced transform"))?
+            }
+            PaintCmd::PushClip(_) => layers.push(false),
+            PaintCmd::PushLayer(_) => layers.push(true),
+            PaintCmd::DrawBackdropBlur(spec) => {
+                let b = spec.bounds;
+                if seen || transforms != 0 || !layers.is_empty() {
+                    return Err(bad("backdrop requires one top-level pane"));
+                }
+                if ![b.min.x, b.min.y, b.max.x, b.max.y, spec.radius_px]
+                    .iter()
+                    .all(|v| v.is_finite())
+                    || [b.min.x, b.min.y, b.max.x, b.max.y]
+                        .iter()
+                        .any(|v| v.fract() != 0.0)
+                    || b.min.x < 0.0
+                    || b.min.y < 0.0
+                    || b.max.x > viewport.width as f32
+                    || b.max.y > viewport.height as f32
+                    || b.min.x >= b.max.x
+                    || b.min.y >= b.max.y
+                    || spec.radius_px < 0.0
+                {
+                    return Err(bad("invalid backdrop bounds or radius"));
+                }
+                seen = true;
+            }
+            PaintCmd::PopClip => {
+                if layers.pop() != Some(false) {
+                    return Err(bad("unbalanced clip"));
+                }
+            }
+            PaintCmd::PopLayer => {
+                if layers.pop() != Some(true) {
+                    return Err(bad("unbalanced layer"));
+                }
+            }
+            _ => {}
+        }
+    }
+    if transforms != 0 || !layers.is_empty() {
+        return Err(TranslationError {
+            command: commands.len(),
+            reason: "unterminated scopes",
+        });
+    }
+    Ok(())
+}
+
 fn preflight_borders(
     commands: &[PaintCmd],
     images: &[ImageResource],

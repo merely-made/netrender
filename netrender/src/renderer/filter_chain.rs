@@ -27,6 +27,7 @@ impl Renderer {
         &self,
         input: wgpu::Texture,
         blur_radius_px: f32,
+        mirrored: bool,
     ) -> wgpu::Texture {
         #[cfg(feature = "without-classic-vello")]
         let () = match self.unavailable {};
@@ -40,7 +41,18 @@ impl Renderer {
         let queue = self.wgpu_device.core.queue.clone();
         let format = wgpu::TextureFormat::Rgba8Unorm;
         let blur_pipe = self.wgpu_device.ensure_brush_blur(format);
-        let sampler = make_bilinear_sampler(&device);
+        let sampler = if mirrored {
+            Arc::new(device.create_sampler(&wgpu::SamplerDescriptor {
+                label: Some("backdrop mirrored sampler"),
+                address_mode_u: wgpu::AddressMode::MirrorRepeat,
+                address_mode_v: wgpu::AddressMode::MirrorRepeat,
+                mag_filter: wgpu::FilterMode::Linear,
+                min_filter: wgpu::FilterMode::Linear,
+                ..Default::default()
+            }))
+        } else {
+            make_bilinear_sampler(&device)
+        };
 
         let (level, passes, step_px) = blur_kernel_plan_with_downscale(blur_radius_px);
         let full_extent = input.size();
@@ -213,7 +225,7 @@ impl Renderer {
         let mut tex = input;
         for f in filters {
             tex = match f {
-                SceneFilter::Blur(r) => self.build_blurred_image(tex, *r),
+                SceneFilter::Blur(r) => self.build_blurred_image(tex, *r, false),
                 other => self.build_color_matrix_image(tex, scene_filter_to_matrix(*other)),
             };
         }

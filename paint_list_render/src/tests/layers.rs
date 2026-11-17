@@ -328,3 +328,53 @@ fn external_texture_keeps_the_active_transform_and_layer_scope() {
     assert!(matches!(out.scene.ops[1], netrender::SceneOp::PushLayer(_)));
     assert_eq!(out.external_textures[0].scene_op_boundary, 2);
 }
+
+#[test]
+fn backdrop_blur_lowers_and_rejects_unsupported_streams() {
+    use ple::{BackdropBlurSpec, LayoutPoint, LayoutRect};
+    let pane = PaintCmd::DrawBackdropBlur(BackdropBlurSpec {
+        bounds: LayoutRect::new(LayoutPoint::new(20.0, 30.0), LayoutPoint::new(200.0, 100.0)),
+        radius_px: 8.0,
+    });
+    let viewport = DeviceIntSize::new(300, 200);
+    let scene = translate_paint_list(&list_with(viewport, vec![pane.clone()])).unwrap();
+    let netrender::SceneOp::PushLayer(layer) = &scene.ops[0] else {
+        panic!("expected layer")
+    };
+    assert!(matches!(
+        layer.clip,
+        netrender::SceneClip::Rect {
+            rect: [20.0, 30.0, 200.0, 100.0],
+            ..
+        }
+    ));
+    assert_eq!(
+        layer.backdrop_filter,
+        Some(netrender::SceneFilter::BackdropBlurMirrored(8.0))
+    );
+    for commands in [
+        vec![
+            PaintCmd::PushLayer(ple::LayerSpec::default()),
+            pane.clone(),
+            PaintCmd::PopLayer,
+        ],
+        vec![pane.clone(), pane.clone()],
+        vec![PaintCmd::DrawBackdropBlur(BackdropBlurSpec {
+            bounds: LayoutRect::new(LayoutPoint::new(20.5, 30.0), LayoutPoint::new(200.0, 100.0)),
+            radius_px: 8.0,
+        })],
+        vec![PaintCmd::DrawBackdropBlur(BackdropBlurSpec {
+            bounds: LayoutRect::new(LayoutPoint::new(20.0, 30.0), LayoutPoint::new(301.0, 100.0)),
+            radius_px: 8.0,
+        })],
+        vec![PaintCmd::DrawBackdropBlur(BackdropBlurSpec {
+            radius_px: f32::NAN,
+            ..match pane.clone() {
+                PaintCmd::DrawBackdropBlur(p) => p,
+                _ => unreachable!(),
+            }
+        })],
+    ] {
+        assert!(translate_paint_list(&list_with(viewport, commands)).is_err());
+    }
+}

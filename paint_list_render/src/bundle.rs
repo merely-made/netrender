@@ -586,6 +586,7 @@ fn capture_work(
             PaintCmd::DrawConicGradient(v) => work_add(&mut total, v.gradient.stops.len(), limits)?,
             PaintCmd::DrawText(v) => work_add(&mut total, v.glyphs.len(), limits)?,
             PaintCmd::PushLayer(v) => work_add(&mut total, v.filters.len(), limits)?,
+            PaintCmd::DrawBackdropBlur(_) => work_add(&mut total, 1, limits)?,
             PaintCmd::PushClip(v) => {
                 if let paint_list_api::ClipKind::Path(path) = &v.kind {
                     work_add(&mut total, path.commands.len(), limits)?;
@@ -902,6 +903,12 @@ fn validate_capture_bytes(
         }
         validate_scene(&source.scene, limits, &mut total, &BTreeSet::new())?;
     }
+    crate::preflight_backdrop(env.viewport, &env.commands).map_err(|e| {
+        BundleError::InvalidEnvelope {
+            command: Some(e.command),
+            reason: e.reason,
+        }
+    })?;
     let mut used = BTreeSet::new();
     let mut transforms = 0usize;
     let mut active_transforms: Vec<netrender::Transform> = Vec::new();
@@ -963,6 +970,9 @@ fn validate_capture_bytes(
                 }
                 layers.push(false);
                 bound("layers", layers.len(), limits.max_depth)?;
+            }
+            PaintCmd::DrawBackdropBlur(_) => {
+                bound("layers", layers.len() + 1, limits.max_depth)?;
             }
             PaintCmd::PushLayer(spec) => {
                 if !matches!(

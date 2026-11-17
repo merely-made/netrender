@@ -19,6 +19,7 @@ use super::filters::{
 use super::Renderer;
 
 mod alpha;
+mod backdrop;
 
 impl Renderer {
     /// Build the crate-local execution plan used by the public box-shadow
@@ -445,10 +446,31 @@ impl Renderer {
             // Blur it. `backdrop-filter` only supports blur today; the color
             // ops exist for element `filter` (`SceneLayer::filters`), so skip a
             // non-blur backdrop defensively rather than mis-render it.
-            let SceneFilter::Blur(radius) = filter else {
-                continue;
+            let (input, radius, mirrored) = match filter {
+                SceneFilter::Blur(radius) => (prefix_tex, radius, false),
+                SceneFilter::BackdropBlurMirrored(radius) => {
+                    // Scene is public; refuse invalid crop geometry before issuing a GPU copy.
+                    let valid_rect = matches!(&scene.ops[orig_idx], SceneOp::PushLayer(layer)
+                        if layer.transform_id == 0 && matches!(&layer.clip, SceneClip::Rect { radii, .. } if radii.iter().all(|r| *r == 0.0)));
+                    if !valid_rect
+                        || !radius.is_finite()
+                        || radius < 0.0
+                        || !bounds.iter().all(|v| v.is_finite() && v.fract() == 0.0)
+                        || bounds[0] < 0.0
+                        || bounds[1] < 0.0
+                        || bounds[2] > scene.viewport_width as f32
+                        || bounds[3] > scene.viewport_height as f32
+                        || bounds[0] >= bounds[2]
+                        || bounds[1] >= bounds[3]
+                    {
+                        continue;
+                    }
+                    let cropped = self.crop_backdrop(&prefix_tex, bounds);
+                    (cropped, radius, true)
+                }
+                _ => continue,
             };
-            let blurred = self.build_blurred_image(prefix_tex, radius);
+            let blurred = self.build_blurred_image(input, radius, mirrored);
 
             // Publish under this backdrop's slot on the rasterizer's
             // `image_overrides` (Path B) — reusing the slot's Vello handle
@@ -458,16 +480,19 @@ impl Renderer {
             }
             self.publish_filter_texture(rast, tc, next_key, blurred, used);
 
-            // Compute UV: the blurred texture is the FULL viewport;
-            // we sample the bounds region.
+            // Mirrored input is pane-sized; legacy input covers the viewport.
             let vw = scene.viewport_width as f32;
             let vh = scene.viewport_height as f32;
-            let uv = [
-                bounds[0] / vw,
-                bounds[1] / vh,
-                bounds[2] / vw,
-                bounds[3] / vh,
-            ];
+            let uv = if mirrored {
+                [0.0, 0.0, 1.0, 1.0]
+            } else {
+                [
+                    bounds[0] / vw,
+                    bounds[1] / vh,
+                    bounds[2] / vw,
+                    bounds[3] / vh,
+                ]
+            };
 
             // Inject the SceneImage right after the PushLayer in
             // `processed`. The PushLayer's index in `processed` is

@@ -452,3 +452,33 @@ fn straight_and_premultiplied_payloads_match_with_transparent_overlap() {
 
 #[path = "resource_bundle/borders.rs"]
 mod borders;
+
+#[test]
+fn backdrop_capture_roundtrips_and_rejects_nested_or_invalid_pane() {
+    let mut c = capture();
+    let pane = PaintCmd::DrawBackdropBlur(BackdropBlurSpec {
+        bounds: LayoutRect::new(LayoutPoint::new(0.0, 0.0), LayoutPoint::new(2.0, 2.0)),
+        radius_px: 2.0,
+    });
+    c.envelope.commands.push(pane.clone());
+    validate_capture(&c).unwrap();
+    let limits = BundleLimits {
+        max_depth: 0,
+        ..BundleLimits::default()
+    };
+    assert!(matches!(
+        validate_capture_with_limits(&c, limits),
+        Err(BundleError::Budget { .. })
+    ));
+    let bytes = postcard::to_allocvec(&c.envelope).unwrap();
+    let replay: PaintEnvelope = postcard::from_bytes(&bytes).unwrap();
+    assert_eq!(replay, c.envelope);
+    assert_eq!(postcard::to_allocvec(&replay).unwrap(), bytes);
+    let translated = translate_capture(&c).unwrap();
+    assert!(translated.scene.ops.iter().any(|op| matches!(op, netrender::SceneOp::PushLayer(layer) if layer.backdrop_filter == Some(netrender::SceneFilter::BackdropBlurMirrored(2.0)))));
+    c.envelope
+        .commands
+        .insert(1, PaintCmd::PushLayer(LayerSpec::default()));
+    c.envelope.commands.push(PaintCmd::PopLayer);
+    assert!(validate_capture(&c).is_err());
+}

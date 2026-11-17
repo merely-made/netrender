@@ -273,7 +273,7 @@ mod gpu_smoke {
             rect: [32.0, 64.0, 224.0, 160.0],
             radii: [0.0; 4],
         });
-        pane.backdrop_filter = Some(SceneFilter::Blur(28.0));
+        pane.backdrop_filter = Some(SceneFilter::BackdropBlurMirrored(40.0));
         scene.push_layer(pane);
         scene.pop_layer();
         // Later foreground crosses the pane and must retain its sharp edge.
@@ -368,6 +368,71 @@ mod gpu_smoke {
             pixel(&first, 40, 96),
             pixel(&second, 40, 96),
             "backdrop must repaint when producer generation changes"
+        );
+    }
+
+    #[test]
+    fn mirrored_backdrop_does_not_sample_outside_pane() {
+        let handles = boot().expect("wgpu boot");
+        let renderer = create_netrender_instance(
+            handles.clone(),
+            NetrenderOptions {
+                tile_cache_size: Some(TILE_SIZE),
+                enable_vello: true,
+                ..Default::default()
+            },
+        )
+        .expect("classic renderer");
+        let render = |filter, patterned| {
+            let mut scene = Scene::new(DIM, DIM);
+            if patterned {
+                scene.push_rect(0.0, 0.0, DIM as f32, DIM as f32, [1.0, 0.0, 0.0, 1.0]);
+                scene.push_rect(68.0, 64.0, 192.0, 192.0, [0.0, 0.0, 1.0, 1.0]);
+            } else {
+                scene.push_rect(0.0, 0.0, DIM as f32, DIM as f32, [0.0, 0.0, 1.0, 1.0]);
+                scene.push_rect(64.0, 64.0, 192.0, 192.0, [1.0, 0.0, 0.0, 1.0]);
+            }
+            let mut pane = SceneLayer::clip(SceneClip::Rect {
+                rect: [64.0, 64.0, 192.0, 192.0],
+                radii: [0.0; 4],
+            });
+            pane.backdrop_filter = Some(filter);
+            scene.push_layer(pane);
+            scene.pop_layer();
+            let (target, view) = make_target(&handles.device);
+            renderer.render_vello(&scene, &view, ColorLoad::Clear(wgpu::Color::BLACK));
+            renderer.wgpu_device.read_rgba8_texture(&target, DIM, DIM)
+        };
+        let legacy = render(SceneFilter::Blur(12.0), false);
+        let mirror = render(SceneFilter::BackdropBlurMirrored(12.0), false);
+        let at = |bytes: &[u8], x: u32, y: u32| -> [u8; 4] {
+            let i = ((y * DIM + x) * 4) as usize;
+            bytes[i..i + 4].try_into().unwrap()
+        };
+        let old = at(&legacy, 65, 128);
+        let new = at(&mirror, 65, 128);
+        assert!(
+            old[2] > 20,
+            "legacy blur samples blue outside pane: {old:?}"
+        );
+        assert!(
+            new[0] > 245 && new[2] < 10,
+            "mirror keeps red pane edge: {new:?}"
+        );
+        let clamp_edge = at(&render(SceneFilter::Blur(12.0), true), 64, 128);
+        let reflected_edge = at(
+            &render(SceneFilter::BackdropBlurMirrored(12.0), true),
+            64,
+            128,
+        );
+        assert!(
+            reflected_edge[2] > clamp_edge[2] + 10,
+            "reflected interior must contribute at edge: mirror={reflected_edge:?}, legacy={clamp_edge:?}"
+        );
+        assert_eq!(
+            at(&mirror, 63, 128),
+            [0, 0, 255, 255],
+            "pane leaves outside sharp"
         );
     }
 }

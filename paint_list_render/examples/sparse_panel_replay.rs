@@ -41,6 +41,7 @@ fn command_name(command: &PaintCmd) -> &'static str {
         PaintCmd::PushTransform(_) => "PushTransform",
         PaintCmd::PopTransform => "PopTransform",
         PaintCmd::PushLayer(_) => "PushLayer",
+        PaintCmd::DrawBackdropBlur(_) => "DrawBackdropBlur",
         PaintCmd::PopLayer => "PopLayer",
         PaintCmd::DrawRect(_) => "DrawRect",
         PaintCmd::DrawStroke(_) => "DrawStroke",
@@ -122,6 +123,7 @@ fn validate_packet(envelope: &PaintEnvelope) -> Result<()> {
             }
             PaintCmd::PushClip(_) => layers.push("clip"),
             PaintCmd::PushLayer(_) => layers.push("layer"),
+            PaintCmd::DrawBackdropBlur(_) => {}
             PaintCmd::PopClip | PaintCmd::PopLayer => {
                 let expected = if matches!(command, PaintCmd::PopClip) {
                     "clip"
@@ -149,10 +151,10 @@ fn validate_packet(envelope: &PaintEnvelope) -> Result<()> {
                 }
             }
             PaintCmd::DrawImage(image) if !images.contains(&image.image_key) => {
-                return Err(fail("missing image resource"))
+                return Err(fail("missing image resource"));
             }
             PaintCmd::DrawRepeatingImage(image) if !images.contains(&image.image_key) => {
-                return Err(fail("missing tile resource"))
+                return Err(fail("missing tile resource"));
             }
             PaintCmd::DrawBorder(border) => {
                 if let paint_list_api::BorderDetails::NinePatch(patch) = &border.details {
@@ -166,15 +168,15 @@ fn validate_packet(envelope: &PaintEnvelope) -> Result<()> {
             PaintCmd::DrawExternalTexture(_) => {
                 return Err(fail(
                     "external texture producer is absent from serialized capture",
-                ))
+                ));
             }
             PaintCmd::PlaceRetainedFragment(_) => {
                 return Err(fail(
                     "retained fragment registry is absent from serialized capture",
-                ))
+                ));
             }
             PaintCmd::PushShadow(_) => {
-                return Err(fail("translator does not implement text-shadow stack"))
+                return Err(fail("translator does not implement text-shadow stack"));
             }
             _ => {}
         }
@@ -591,10 +593,12 @@ fn replay(
     } else {
         "premultiplied"
     });
-    receipt["raw_nonopaque_pixels"] = json!(pixels
-        .chunks_exact(4)
-        .filter(|pixel| pixel[3] != 255)
-        .count());
+    receipt["raw_nonopaque_pixels"] = json!(
+        pixels
+            .chunks_exact(4)
+            .filter(|pixel| pixel[3] != 255)
+            .count()
+    );
     present_over_black(&mut pixels, backend);
     let changed = pixels
         .chunks_exact(4)
