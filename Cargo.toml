@@ -22,7 +22,7 @@ vello = { package = "netrender-vello", version = "0.11.0", git = "https://github
 vello_cpu = { package = "netrender-vello-cpu", version = "0.3.0", git = "https://github.com/mark-ik/vello", branch = "mark-ik/all-vellos", default-features = false }
 vello_hybrid = { package = "netrender-vello-gpu", version = "0.3.0", git = "https://github.com/mark-ik/vello", branch = "mark-ik/all-vellos", default-features = false }
 vello_sparse_common = { package = "netrender-vello-common", version = "0.3.0", git = "https://github.com/mark-ik/vello", branch = "mark-ik/all-vellos", default-features = false }
-wgpu = { version = "30", default-features = false }
+wgpu = { version = "30.0.2", default-features = false }
 peniko = "0.6"
 parley = "0.12"
 # Tracks the glyph ABI of Vello 0.11 / Glifo 0.4 and Parley 0.12.

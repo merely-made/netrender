@@ -10,7 +10,7 @@ publish = false
 [dependencies]
 netrender = { path = "../../netrender" }
 netrender_device = { path = "../../netrender_device" }
-wgpu = { version = "30", default-features = false, features = ["std", "wgsl"] }
+wgpu = { version = "30.0.2", default-features = false, features = ["std", "wgsl"] }
 serde_json = "1"
 
 [profile.release]
