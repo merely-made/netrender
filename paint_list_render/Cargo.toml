@@ -1,7 +1,7 @@
 [package]
 rust-version = "1.97.1"
 name = "paint_list_render"
-version = "0.1.2"
+version = "0.2.0"
 license = "MPL-2.0"
 repository = "https://github.com/merely-made/netrender"
 readme = "../README.md"
@@ -15,8 +15,8 @@ resource-bundle = ["netrender/serde", "dep:serde", "dep:serde_json", "dep:postca
 
 [dependencies]
 log.workspace = true
-netrender = { version = "0.1.2", path = "../netrender" }
-paint_list_api = { version = "0.1.2", path = "../paint_list_api" }
+netrender = { version = "0.2.0", path = "../netrender" }
+paint_list_api = { version = "0.2.0", path = "../paint_list_api" }
 serde = { workspace = true, optional = true }
 serde_json = { version = "1", optional = true }
 postcard = { version = "1", features = ["alloc"], optional = true }

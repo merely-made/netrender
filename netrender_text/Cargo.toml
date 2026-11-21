@@ -1,7 +1,7 @@
 [package]
 rust-version = "1.97.1"
 name = "netrender_text"
-version = "0.1.1"
+version = "0.2.0"
 license = "MPL-2.0"
 repository = "https://github.com/merely-made/netrender"
 readme = "../README.md"
@@ -9,7 +9,7 @@ description = "parley → netrender::Scene glyph-run adapter"
 edition = "2021"
 
 [dependencies]
-netrender = { version = "0.1.1", path = "../netrender" }
+netrender = { version = "0.2.0", path = "../netrender" }
 parley.workspace = true
 
 [dev-dependencies]

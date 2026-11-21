@@ -1100,7 +1100,7 @@ dependencies = [
 
 [[package]]
 name = "netrender"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "log",
  "netrender-cpu",
@@ -1126,7 +1126,8 @@ dependencies = [
 [[package]]
 name = "netrender-cpu"
 version = "0.3.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e217cb462d256c2d7d743c7fe9fea5d1e7d1434e4a0e3c89473065214689abca"
 dependencies = [
  "bytemuck",
  "hashbrown 0.17.1",
@@ -1138,7 +1139,8 @@ dependencies = [
 [[package]]
 name = "netrender-glifo"
 version = "0.4.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c598b867d55073e3bcdc97b6b31e3596d05c7112e5bf73d2e42f78c6e2ad1c98"
 dependencies = [
  "bytemuck",
  "foldhash",
@@ -1153,7 +1155,8 @@ dependencies = [
 [[package]]
 name = "netrender-gpu"
 version = "0.3.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5ae3cc4753379ae5822c5006ee811b0ea268b180c3f4e50b4e4830bd225fb6d0"
 dependencies = [
  "bytemuck",
  "hashbrown 0.17.1",
@@ -1170,7 +1173,8 @@ dependencies = [
 [[package]]
 name = "netrender-sparse"
 version = "0.3.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "996af770edadd11e9f7653b2e3ac41607599087ce9a5e7e9bff9222d2cc508cb"
 dependencies = [
  "bytemuck",
  "fearless_simd",
@@ -1183,8 +1187,9 @@ dependencies = [
 
 [[package]]
 name = "netrender-vello"
-version = "0.11.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
+version = "0.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1186cb2697aae95525322ab8602d02df07baa77f228abdd61d46fe8f9eac4026"
 dependencies = [
  "bytemuck",
  "futures-intrusive",
@@ -1202,7 +1207,8 @@ dependencies = [
 [[package]]
 name = "netrender-vello-encoding"
 version = "0.11.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ec65efdc7bd937bb2c8a4ef0665f4d5568cae62d4309daccaebce9c58b8f160"
 dependencies = [
  "bytemuck",
  "guillotiere",
@@ -1214,7 +1220,8 @@ dependencies = [
 [[package]]
 name = "netrender-vello-shaders"
 version = "0.11.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d0fd87f831be282b48974408f2687a64aac667f3b19316ae652435c040a43da5"
 dependencies = [
  "bytemuck",
  "log",
@@ -1226,7 +1233,8 @@ dependencies = [
 [[package]]
 name = "netrender-wesl"
 version = "0.3.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "baffeb4c71dac74f92c47f58104b86ef52340dd94617a6add95667d1669df07f"
 dependencies = [
  "naga",
  "wesl",
@@ -1237,7 +1245,7 @@ dependencies = [
 
 [[package]]
 name = "netrender_device"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "log",
  "pollster",
@@ -1248,7 +1256,7 @@ dependencies = [
 
 [[package]]
 name = "netrender_text"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "netrender",
  "parley",
@@ -1384,7 +1392,7 @@ dependencies = [
 
 [[package]]
 name = "paint_list_api"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "euclid",
  "serde",
@@ -1393,7 +1401,7 @@ dependencies = [
 
 [[package]]
 name = "paint_list_render"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "log",
  "netrender",

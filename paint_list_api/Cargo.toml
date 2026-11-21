@@ -1,7 +1,7 @@
 [package]
 rust-version = "1.97.1"
 name = "paint_list_api"
-version = "0.1.2"
+version = "0.2.0"
 license = "MPL-2.0"
 repository = "https://github.com/merely-made/netrender"
 readme = "../README.md"
