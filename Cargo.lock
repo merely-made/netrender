@@ -1103,11 +1103,11 @@ name = "netrender"
 version = "0.1.2"
 dependencies = [
  "log",
+ "netrender-cpu",
  "netrender-glifo",
+ "netrender-gpu",
+ "netrender-sparse",
  "netrender-vello",
- "netrender-vello-common",
- "netrender-vello-cpu",
- "netrender-vello-gpu",
  "netrender_device",
  "netrender_text",
  "peniko",
@@ -1124,24 +1124,67 @@ dependencies = [
 ]
 
 [[package]]
+name = "netrender-cpu"
+version = "0.3.0"
+source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
+dependencies = [
+ "bytemuck",
+ "hashbrown 0.17.1",
+ "log",
+ "netrender-glifo",
+ "netrender-sparse",
+]
+
+[[package]]
 name = "netrender-glifo"
 version = "0.4.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#7784613985d58823bb27b6274916009299cbee46"
+source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
 dependencies = [
  "bytemuck",
  "foldhash",
  "hashbrown 0.17.1",
  "log",
- "netrender-vello-common",
+ "netrender-sparse",
  "peniko",
  "skrifa",
  "smallvec",
 ]
 
 [[package]]
+name = "netrender-gpu"
+version = "0.3.0"
+source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
+dependencies = [
+ "bytemuck",
+ "hashbrown 0.17.1",
+ "js-sys",
+ "log",
+ "netrender-glifo",
+ "netrender-sparse",
+ "netrender-wesl",
+ "thiserror",
+ "web-sys",
+ "wgpu",
+]
+
+[[package]]
+name = "netrender-sparse"
+version = "0.3.0"
+source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
+dependencies = [
+ "bytemuck",
+ "fearless_simd",
+ "guillotiere",
+ "log",
+ "peniko",
+ "smallvec",
+ "thiserror",
+]
+
+[[package]]
 name = "netrender-vello"
 version = "0.11.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#7784613985d58823bb27b6274916009299cbee46"
+source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
 dependencies = [
  "bytemuck",
  "futures-intrusive",
@@ -1157,35 +1200,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "netrender-vello-common"
-version = "0.3.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#7784613985d58823bb27b6274916009299cbee46"
-dependencies = [
- "bytemuck",
- "fearless_simd",
- "guillotiere",
- "log",
- "peniko",
- "smallvec",
- "thiserror",
-]
-
-[[package]]
-name = "netrender-vello-cpu"
-version = "0.3.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#7784613985d58823bb27b6274916009299cbee46"
-dependencies = [
- "bytemuck",
- "hashbrown 0.17.1",
- "log",
- "netrender-glifo",
- "netrender-vello-common",
-]
-
-[[package]]
 name = "netrender-vello-encoding"
 version = "0.11.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#7784613985d58823bb27b6274916009299cbee46"
+source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
 dependencies = [
  "bytemuck",
  "guillotiere",
@@ -1195,44 +1212,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "netrender-vello-gpu"
-version = "0.3.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#7784613985d58823bb27b6274916009299cbee46"
-dependencies = [
- "bytemuck",
- "hashbrown 0.17.1",
- "js-sys",
- "log",
- "netrender-glifo",
- "netrender-vello-common",
- "netrender-vello-gpu-shaders",
- "thiserror",
- "web-sys",
- "wgpu",
-]
-
-[[package]]
-name = "netrender-vello-gpu-shaders"
-version = "0.3.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#7784613985d58823bb27b6274916009299cbee46"
-dependencies = [
- "naga",
- "wesl",
- "wesl-macros",
- "wgsl-parse",
- "wgsl-types",
-]
-
-[[package]]
 name = "netrender-vello-shaders"
 version = "0.11.0"
-source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#7784613985d58823bb27b6274916009299cbee46"
+source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
 dependencies = [
  "bytemuck",
  "log",
  "naga",
  "netrender-vello-encoding",
  "thiserror",
+]
+
+[[package]]
+name = "netrender-wesl"
+version = "0.3.0"
+source = "git+https://github.com/mark-ik/vello?branch=mark-ik%2Fall-vellos#551cd5da4c75cc4a39cbcc0380cdf91a1274172d"
+dependencies = [
+ "naga",
+ "wesl",
+ "wesl-macros",
+ "wgsl-parse",
+ "wgsl-types",
 ]
 
 [[package]]
