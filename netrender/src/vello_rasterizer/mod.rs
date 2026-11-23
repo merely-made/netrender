@@ -308,16 +308,34 @@ fn scene_to_vello_with_inputs<'a>(
     vscene
 }
 
+/// Supply a transparent draw only when a completed Classic scene has none.
+/// The provider's blend-spill sizing casts the packed draw stream to aligned
+/// words. A completely empty frame otherwise reaches that cast with an empty
+/// byte buffer, before the backend can write the requested background.
+pub(crate) fn ensure_classic_draw_stream(scene: &mut vello::Scene) {
+    if scene.encoding().draw_tags.is_empty() {
+        scene.fill(
+            Fill::NonZero,
+            Affine::IDENTITY,
+            Color::TRANSPARENT,
+            None,
+            &Rect::new(0.0, 0.0, 1.0, 1.0),
+        );
+    }
+}
+
 fn scene_to_vello_with_lookup(scene: &Scene, images: &ImageLookup<'_>) -> vello::Scene {
     let view = SceneView::from_scene(scene);
-    scene_to_vello_with_inputs(
+    let mut lowered = scene_to_vello_with_inputs(
         &view,
         scene.ops.iter(),
         images.cached,
         images.sources,
         images.overrides,
         None,
-    )
+    );
+    ensure_classic_draw_stream(&mut lowered);
+    lowered
 }
 
 /// Stateful simple-path translator. Shares CPU-source identity retention with
@@ -377,7 +395,13 @@ impl VelloRasterizer {
     /// from the scene are evicted).
     pub fn scene_to_vello(&mut self, scene: &Scene) -> vello::Scene {
         let _ = self.image_data.refresh(scene);
-        scene_to_vello_with_image_sources(scene, self.image_data.entries(), &self.image_overrides)
+        let mut lowered = scene_to_vello_with_image_sources(
+            scene,
+            self.image_data.entries(),
+            &self.image_overrides,
+        );
+        ensure_classic_draw_stream(&mut lowered);
+        lowered
     }
 }
 

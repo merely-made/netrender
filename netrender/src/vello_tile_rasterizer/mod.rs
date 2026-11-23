@@ -53,7 +53,9 @@ use netrender_device::WgpuHandles;
 
 use crate::scene::{ImageKey, Scene};
 use crate::tile_cache::{TileCache, TileCoord, aabb_intersects};
-use crate::vello_rasterizer::{scene_to_vello_with_image_sources, CpuImageCache};
+use crate::vello_rasterizer::{
+    ensure_classic_draw_stream, scene_to_vello_with_image_sources, CpuImageCache,
+};
 
 mod master;
 mod retained;
@@ -603,7 +605,7 @@ impl VelloTileRasterizer {
         let total_span = Span::start("total");
         let mut timings = FrameTimings::empty();
 
-        let master = self.build_master_scene_timed(
+        let mut master = self.build_master_scene_timed(
             scene,
             tile_cache,
             tile_scenes,
@@ -622,14 +624,15 @@ impl VelloTileRasterizer {
         // At DPR > 1 the master (in logical coords) is appended into a fresh scene under
         // a scale affine; vello then rasterizes the scaled vectors crisply at the
         // physical target size. At 1.0 the master renders directly.
-        let scaled_master = if (scale - 1.0).abs() >= 1e-3 {
+        let mut scaled_master = if (scale - 1.0).abs() >= 1e-3 {
             let mut s = vello::Scene::new();
             s.append(&master, Some(vello::kurbo::Affine::scale(scale as f64)));
             Some(s)
         } else {
             None
         };
-        let to_render = scaled_master.as_ref().unwrap_or(&master);
+        let to_render = scaled_master.as_mut().unwrap_or(&mut master);
+        ensure_classic_draw_stream(to_render);
         // The render size is the TARGET's, not `viewport * scale`. A host lays
         // out at `physical / scale` and stores that viewport as an integer, so
         // the division has already truncated by the time the scene reaches us:
@@ -695,12 +698,12 @@ impl VelloTileRasterizer {
         target_view: &wgpu::TextureView,
         base_color: Color,
     ) -> Result<(), vello::Error> {
-        let overlay_scene = scene_to_vello_with_image_sources(
+        let mut overlay_scene = scene_to_vello_with_image_sources(
             scene,
             self.image_data.entries(),
             &self.image_overrides,
         );
-        self.render_lowered_overlay(scene, &overlay_scene, target_view, base_color)
+        self.render_lowered_overlay(scene, &mut overlay_scene, target_view, base_color)
     }
 
     /// Render an overlay into transparent scratch and report whether it drew
@@ -719,7 +722,7 @@ impl VelloTileRasterizer {
         target_view: &wgpu::TextureView,
         include_retained: bool,
     ) -> Result<bool, vello::Error> {
-        let overlay_scene = if include_retained && retained::has_fragments(scene) {
+        let mut overlay_scene = if include_retained && retained::has_fragments(scene) {
             self.lower_scene_with_fragments(scene).0
         } else {
             scene_to_vello_with_image_sources(
@@ -731,17 +734,18 @@ impl VelloTileRasterizer {
         if overlay_scene.encoding().draw_tags.is_empty() {
             return Ok(false);
         }
-        self.render_lowered_overlay(scene, &overlay_scene, target_view, Color::TRANSPARENT)?;
+        self.render_lowered_overlay(scene, &mut overlay_scene, target_view, Color::TRANSPARENT)?;
         Ok(true)
     }
 
     fn render_lowered_overlay(
         &mut self,
         scene: &Scene,
-        overlay_scene: &vello::Scene,
+        overlay_scene: &mut vello::Scene,
         target_view: &wgpu::TextureView,
         base_color: Color,
     ) -> Result<(), vello::Error> {
+        ensure_classic_draw_stream(overlay_scene);
         self.vello_renderer.render_to_texture(
             &self.handles.device,
             &self.handles.queue,
@@ -790,7 +794,7 @@ impl VelloTileRasterizer {
         self.ensure_master_texture(scene.viewport_width, scene.viewport_height, master_format);
 
         let mut tile_scenes = std::mem::take(&mut self.tile_scenes);
-        let master_scene = self.build_master_scene_timed(
+        let mut master_scene = self.build_master_scene_timed(
             scene,
             tile_cache,
             &mut tile_scenes,
@@ -798,6 +802,7 @@ impl VelloTileRasterizer {
             Some(1.0),
         );
         self.tile_scenes = tile_scenes;
+        ensure_classic_draw_stream(&mut master_scene);
 
         // The master_pool entry is guaranteed by ensure_master_texture above.
         let entry = self

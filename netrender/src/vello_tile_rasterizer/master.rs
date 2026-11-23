@@ -119,6 +119,7 @@ impl VelloTileRasterizer {
             Some(transform)
         };
         master.append(&local_master, xform);
+        super::ensure_classic_draw_stream(master);
         append_span.stop_recording(&mut timings);
 
         timings.total = total_span.stop();
