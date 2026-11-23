@@ -144,11 +144,16 @@ fn compose_into_01_identity_matches_render() {
     assert_eq!(pixels_a.len(), pixels_b.len());
     let mut max_diff: u8 = 0;
     let mut diff_count = 0usize;
-    for (a, b) in pixels_a.iter().zip(pixels_b.iter()) {
-        let d = (*a as i16 - *b as i16).unsigned_abs() as u8;
-        max_diff = max_diff.max(d);
-        if d > 0 {
-            diff_count += 1;
+    for (a, b) in pixels_a.chunks_exact(4).zip(pixels_b.chunks_exact(4)) {
+        // RGB under zero alpha can vary across identical Classic submissions.
+        // If either pixel is visible, compare all four channels.
+        if a[3] == 0 && b[3] == 0 {
+            continue;
+        }
+        for (&direct, &composed) in a.iter().zip(b) {
+            let d = direct.abs_diff(composed);
+            max_diff = max_diff.max(d);
+            diff_count += usize::from(d != 0);
         }
     }
     // Metal's compute path can quantize a handful of AA edge channels

@@ -152,12 +152,17 @@ fn run_scene_golden(name: &str, scene: Scene) {
     const TOL: u8 = 2;
     let mut over_tol = 0usize;
     let mut max_diff: u8 = 0;
-    for (a, b) in actual.iter().zip(oracle.iter()) {
-        let d = (*a as i16 - *b as i16).unsigned_abs() as u8;
-        if d > TOL {
-            over_tol += 1;
+    for (actual, expected) in actual.chunks_exact(4).zip(oracle.chunks_exact(4)) {
+        // A straight-alpha pixel with zero coverage has no visible RGB.
+        // A coverage change still compares all channels at the same tolerance.
+        if actual[3] == 0 && expected[3] == 0 {
+            continue;
         }
-        max_diff = max_diff.max(d);
+        for (&actual, &expected) in actual.iter().zip(expected) {
+            let d = actual.abs_diff(expected);
+            over_tol += usize::from(d > TOL);
+            max_diff = max_diff.max(d);
+        }
     }
     assert_eq!(
         over_tol, 0,
