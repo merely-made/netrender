@@ -256,8 +256,9 @@ fn rg2b_three_execution_shapes_share_downstream_readback() {
     let hybrid_view = hybrid_producer.create_view(&Default::default());
     let hybrid_scene = crate::vello_backends::scene_to_vello_hybrid(&scene)
         .expect("Hybrid filter-free fixture admission");
-    let mut hybrid_renderer = vello_hybrid::Renderer::new(
+    let (mut hybrid_renderer, mut hybrid_resources) = vello_hybrid::Renderer::new(
         &device,
+        &queue,
         &vello_hybrid::RenderTargetConfig {
             format: wgpu::TextureFormat::Rgba8Unorm,
             width: 32,
@@ -268,23 +269,21 @@ fn rg2b_three_execution_shapes_share_downstream_readback() {
         width: 32,
         height: 32,
     };
-    let depth = vello_hybrid::Renderer::create_depth_texture_view(&device, &render_size);
+    let depth = hybrid_renderer.create_depth_texture_view(&render_size);
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
         label: Some("rg2b Hybrid encoder batch"),
     });
     hybrid_renderer
-        .0
         .render(
             &hybrid_scene,
-            &mut hybrid_renderer.1,
-            &device,
-            &queue,
+            &mut hybrid_resources,
             &mut encoder,
-            &render_size,
-            &hybrid_view,
-            Some(&depth),
+            vello_hybrid::RenderTarget {
+                view: &hybrid_view,
+                depth_view: Some(&depth),
+            },
             &vello_hybrid::TextureBindings::new(),
-            vello_hybrid::TargetInit::Clear(vello_hybrid::ClearSettings::default()),
+            vello_hybrid::RenderOptions::default(),
         )
         .expect("Hybrid encoder participation");
     let hybrid_external = external_source(&device, &queue);

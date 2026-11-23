@@ -168,13 +168,14 @@ fn hybrid_pixels(handles: &netrender_device::WgpuHandles, scene: &Scene) -> Vec<
     let (texture, view) = target(&handles.device, width, height);
     let (mut renderer, mut resources) = vello_hybrid::Renderer::new(
         &handles.device,
+        &handles.queue,
         &vello_hybrid::RenderTargetConfig {
             format: FORMAT,
             width: sparse_width,
             height: sparse_height,
         },
     );
-    let depth = vello_hybrid::Renderer::create_depth_texture_view(&handles.device, &render_size);
+    let depth = renderer.create_depth_texture_view(&render_size);
     let mut encoder = handles
         .device
         .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -184,14 +185,13 @@ fn hybrid_pixels(handles: &netrender_device::WgpuHandles, scene: &Scene) -> Vec<
         .render(
             &sparse_scene,
             &mut resources,
-            &handles.device,
-            &handles.queue,
             &mut encoder,
-            &render_size,
-            &view,
-            Some(&depth),
+            vello_hybrid::RenderTarget {
+                view: &view,
+                depth_view: Some(&depth),
+            },
             &vello_hybrid::TextureBindings::new(),
-            vello_hybrid::TargetInit::Clear(vello_hybrid::ClearSettings::default()),
+            vello_hybrid::RenderOptions::default(),
         )
         .expect("Hybrid fixture render");
     handles.queue.submit([encoder.finish()]);
@@ -356,7 +356,7 @@ fn rg2a_direct_scene_corpus_is_semantically_consistent() {
     let handles = boot().expect("wgpu device");
     let adapter = handles.adapter.get_info();
     eprintln!(
-        "rg2a adapter name={:?} backend={:?} driver={:?} driver_info={:?}; Classic=netrender-vello (resolved version in Cargo.lock); Hybrid/CPU=mark-ik/vello@ca3f40ea; wgpu=30",
+        "rg2a adapter name={:?} backend={:?} driver={:?} driver_info={:?}; renderer and wgpu versions in Cargo.lock",
         adapter.name, adapter.backend, adapter.driver, adapter.driver_info
     );
     let renderer = create_netrender_instance(

@@ -109,28 +109,27 @@ fn encode_hybrid(
         width: DIM as u16,
         height: DIM as u16,
     };
-    let mut renderer = vello_hybrid::Renderer::new(
+    let (mut renderer, mut resources) = vello_hybrid::Renderer::new(
         device,
+        queue,
         &vello_hybrid::RenderTargetConfig {
             format: wgpu::TextureFormat::Rgba8Unorm,
             width: DIM as u16,
             height: DIM as u16,
         },
     );
-    let depth = vello_hybrid::Renderer::create_depth_texture_view(device, &size);
+    let depth = renderer.create_depth_texture_view(&size);
     renderer
-        .0
         .render(
             &scene,
-            &mut renderer.1,
-            device,
-            queue,
+            &mut resources,
             encoder,
-            &size,
-            &target.create_view(&Default::default()),
-            Some(&depth),
+            vello_hybrid::RenderTarget {
+                view: &target.create_view(&Default::default()),
+                depth_view: Some(&depth),
+            },
             &vello_hybrid::TextureBindings::new(),
-            vello_hybrid::TargetInit::Clear(vello_hybrid::ClearSettings::default()),
+            vello_hybrid::RenderOptions::default(),
         )
         .expect("Hybrid fragment recording");
 }
