@@ -15,20 +15,18 @@ resolver = "2"
 # and matches the Mere workspace convention.
 [workspace.dependencies]
 # Linebender visual stack.
-vello = { package = "netrender-vello", version = ">=0.11.1", default-features = false }
+vello = { package = "netrender-vello", version = ">=0.12.0", default-features = false }
 # Sparse Strips release family, with the maintained bounded append extension.
 # CPU/GPU/common/Glifo share one provider source. The vello_hybrid dependency
 # alias preserves existing adapter names while selecting the netrender-gpu package.
-vello_cpu = { package = "netrender-cpu", version = ">=0.3.0", default-features = false }
-vello_hybrid = { package = "netrender-gpu", version = ">=0.3.0", default-features = false }
-vello_sparse_common = { package = "netrender-sparse", version = ">=0.3.0", default-features = false }
+vello_cpu = { package = "netrender-cpu", version = ">=0.4.0", default-features = false }
+vello_hybrid = { package = "netrender-gpu", version = ">=0.4.0", default-features = false }
+vello_sparse_common = { package = "netrender-sparse", version = ">=0.4.0", default-features = false }
 wgpu = { version = "30.0.2", default-features = false }
 peniko = "0.6"
 parley = "0.12"
-# Tracks the glyph ABI of Vello 0.11 / Glifo 0.4 and Parley 0.12.
-# Their compatible release family uses Skrifa 0.44 / read-fonts 0.41;
-# do not independently select a newer glyph-provider minor.
-skrifa = "0.44"
+# Share outline drawing with Vello 0.12 and Glifo 0.5.
+skrifa = "0.49"
 
 # Cross-cutting.
 log = "0.4"

@@ -161,8 +161,9 @@ impl ImageState {
                         backend,
                         index,
                         "Pattern",
-                        "pinned GPU bilinear repeat clamps filter taps at tile seams; only explicit nearest sampling is admitted",
-                    ).into());
+                        "GPU repeat patterns require explicit nearest sampling",
+                    )
+                    .into());
                 }
             }
         }

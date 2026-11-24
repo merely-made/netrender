@@ -441,9 +441,20 @@ dependencies = [
 
 [[package]]
 name = "fearless_simd"
-version = "0.7.0"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4beca3cb2444e3304ac30843cc091f44ed58932353cd492ce740067bfce6b12"
+checksum = "3296eb97d869113eaf148a6bdf01884e90b3828ad7ae2340b0f93362fc158611"
+
+[[package]]
+name = "fearless_simd_macros"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e91d94c6885390b81782d7ee60fd6583b33907333a8b340de25ccf468353315"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 3.0.9",
+]
 
 [[package]]
 name = "fixedbitset"
@@ -497,7 +508,7 @@ dependencies = [
  "objc2-core-text",
  "objc2-foundation",
  "parlance",
- "read-fonts",
+ "read-fonts 0.41.0",
  "roxmltree",
  "smallvec",
  "windows",
@@ -594,7 +605,7 @@ checksum = "c03d949a14aa089bbb282f7dd76a498a7f684428e4257202efc119ec010376f9"
 dependencies = [
  "bitflags 2.13.2",
  "bytemuck",
- "read-fonts",
+ "read-fonts 0.41.0",
  "smallvec",
 ]
 
@@ -1115,7 +1126,7 @@ dependencies = [
  "postcard",
  "serde",
  "serde_json",
- "skrifa",
+ "skrifa 0.49.0",
  "tracing",
  "wasm-bindgen",
  "web-sys",
@@ -1125,11 +1136,11 @@ dependencies = [
 
 [[package]]
 name = "netrender-cpu"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e217cb462d256c2d7d743c7fe9fea5d1e7d1434e4a0e3c89473065214689abca"
+version = "0.4.0"
 dependencies = [
  "bytemuck",
+ "fearless_simd",
+ "fearless_simd_macros",
  "hashbrown 0.17.1",
  "log",
  "netrender-glifo",
@@ -1138,9 +1149,7 @@ dependencies = [
 
 [[package]]
 name = "netrender-glifo"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c598b867d55073e3bcdc97b6b31e3596d05c7112e5bf73d2e42f78c6e2ad1c98"
+version = "0.5.0"
 dependencies = [
  "bytemuck",
  "foldhash",
@@ -1148,15 +1157,13 @@ dependencies = [
  "log",
  "netrender-sparse",
  "peniko",
- "skrifa",
+ "skrifa 0.49.0",
  "smallvec",
 ]
 
 [[package]]
 name = "netrender-gpu"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ae3cc4753379ae5822c5006ee811b0ea268b180c3f4e50b4e4830bd225fb6d0"
+version = "0.4.0"
 dependencies = [
  "bytemuck",
  "hashbrown 0.17.1",
@@ -1166,18 +1173,18 @@ dependencies = [
  "netrender-sparse",
  "netrender-wesl",
  "thiserror",
+ "wasm-bindgen",
  "web-sys",
  "wgpu",
 ]
 
 [[package]]
 name = "netrender-sparse"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "996af770edadd11e9f7653b2e3ac41607599087ce9a5e7e9bff9222d2cc508cb"
+version = "0.4.0"
 dependencies = [
  "bytemuck",
  "fearless_simd",
+ "fearless_simd_macros",
  "guillotiere",
  "log",
  "peniko",
@@ -1187,9 +1194,7 @@ dependencies = [
 
 [[package]]
 name = "netrender-vello"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1186cb2697aae95525322ab8602d02df07baa77f228abdd61d46fe8f9eac4026"
+version = "0.12.0"
 dependencies = [
  "bytemuck",
  "futures-intrusive",
@@ -1198,7 +1203,7 @@ dependencies = [
  "netrender-vello-shaders",
  "peniko",
  "png 0.18.1",
- "skrifa",
+ "skrifa 0.49.0",
  "static_assertions",
  "thiserror",
  "wgpu",
@@ -1206,22 +1211,18 @@ dependencies = [
 
 [[package]]
 name = "netrender-vello-encoding"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ec65efdc7bd937bb2c8a4ef0665f4d5568cae62d4309daccaebce9c58b8f160"
+version = "0.12.0"
 dependencies = [
  "bytemuck",
  "guillotiere",
  "peniko",
- "skrifa",
+ "skrifa 0.49.0",
  "smallvec",
 ]
 
 [[package]]
 name = "netrender-vello-shaders"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0fd87f831be282b48974408f2687a64aac667f3b19316ae652435c040a43da5"
+version = "0.12.0"
 dependencies = [
  "bytemuck",
  "log",
@@ -1232,9 +1233,7 @@ dependencies = [
 
 [[package]]
 name = "netrender-wesl"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "baffeb4c71dac74f92c47f58104b86ef52340dd94617a6add95667d1669df07f"
+version = "0.4.0"
 dependencies = [
  "naga",
  "wesl",
@@ -1411,7 +1410,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "skrifa",
+ "skrifa 0.49.0",
  "wgpu",
 ]
 
@@ -1491,7 +1490,7 @@ dependencies = [
  "parlance",
  "parley_data",
  "parley_emoji",
- "skrifa",
+ "skrifa 0.44.0",
 ]
 
 [[package]]
@@ -1691,6 +1690,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "read-fonts"
+version = "0.46.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bdaa4fffe9ff3ca2c353fa9729792805b9b3e324695ff5a081f860612e81b330"
+dependencies = [
+ "bytemuck",
+ "foldhash",
+ "font-types",
+ "once_cell",
+ "smallvec",
+ "yoke",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.5.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1878,7 +1891,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "819ab7d62b1d3e72d9d9dea5650bac30424f9111364bb94928dbf5ecad1baa68"
 dependencies = [
  "bytemuck",
- "read-fonts",
+ "read-fonts 0.41.0",
+]
+
+[[package]]
+name = "skrifa"
+version = "0.49.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a7459fb60888ad9a5f367dd293fa2fb9df142cb451aa6bfd6cd66a7d6a9b739d"
+dependencies = [
+ "bytemuck",
+ "once_cell",
+ "read-fonts 0.46.0",
+ "smallvec",
+ "yoke",
 ]
 
 [[package]]

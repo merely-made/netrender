@@ -5,10 +5,14 @@
 //! Image handles are created here on this context; callers supply CPU sources.
 use super::*;
 use super::images::FramePlan;
-use vello_hybrid::{WebGlRenderer, WebGlRendererInit, WebGlRendererInitStatus, WebGlTextureBindings};
+use vello_hybrid::{
+    WebGlRenderOptions, WebGlRenderTarget, WebGlRenderer, WebGlRendererInit,
+    WebGlRendererInitStatus, WebGlTextureBindings,
+};
 use vello_sparse_common::{
     TextureId,
     geometry::RectU16,
+    paint::TextureRegion,
     peniko::color::{AlphaColor, Srgb},
 };
 use web_sys::{HtmlCanvasElement, WebGl2RenderingContext as Gl, WebGlTexture};
@@ -306,16 +310,17 @@ impl WebGlSession {
             .iter()
             .map(|(index, key)| {
                 (*index, {
-                    // The pinned GPU shader clamps Pad coordinates before
-                    // subtracting the bilinear half-pixel offset. Extend
-                    // only that source region by one duplicated edge texel;
-                    // retain original mapping and repeat/nearest domains.
-                    let padded =
-                        matches!(&scene.ops[*index], SceneOp::Image(image) if !image.nearest);
-                    let extra = u16::from(padded);
+                    // Bilinear image draws include the duplicated edge texels.
+                    // Nearest draws and repeating patterns keep the source extent.
+                    let region =
+                        if matches!(&scene.ops[*index], SceneOp::Image(image) if !image.nearest) {
+                            TextureRegion::Full
+                        } else {
+                            TextureRegion::Rect(RectU16::new(0, 0, key.width(), key.height()))
+                        };
                     let source = ImageSource::external_texture(
                         ids[key],
-                        RectU16::new(0, 0, key.width() + extra, key.height() + extra),
+                        region,
                         self.state.cache[key].pixmap.may_have_transparency(),
                     );
                     paint(&scene.ops[*index], *key, source)
@@ -348,6 +353,8 @@ impl WebGlSession {
         let gl = self.renderer.gl_context();
         let mut bindings = WebGlTextureBindings::new();
         for (key, cached) in &self.state.cache {
+            let width = key.width() + 1;
+            let height = key.height() + 1;
             if !self.textures.contains_key(key) {
                 let texture = gl
                     .create_texture()
@@ -376,8 +383,8 @@ impl WebGlSession {
                     Gl::TEXTURE_2D,
                     0,
                     Gl::RGBA8 as i32,
-                    i32::from(key.width()) + 1,
-                    i32::from(key.height()) + 1,
+                    i32::from(width),
+                    i32::from(height),
                     0,
                     Gl::RGBA,
                     Gl::UNSIGNED_BYTE,
@@ -394,7 +401,7 @@ impl WebGlSession {
                 );
                 self.state.uploaded = self.state.uploaded.saturating_add(1);
             }
-            bindings.insert(ids[key], self.textures[key].clone());
+            bindings.insert(ids[key], self.textures[key].clone(), width, height);
         }
         self.check_generation(generation)?;
         Ok(WebGlPreparedFrame {
@@ -422,15 +429,14 @@ impl WebGlPreparedFrame<'_> {
     pub fn present(self) -> Result<(), WebGlSessionError> {
         self.session.check_generation(self.generation)?;
         self.session.check_target(self.width, self.height)?;
+        let mut options = WebGlRenderOptions::default();
+        options.clear_color = AlphaColor::<Srgb>::new(self.clear);
         let result = self.session.renderer.render(
             &self.packet,
             &mut self.session.resources,
-            &vello_hybrid::RenderSize {
-                width: self.width as u16,
-                height: self.height as u16,
-            },
+            WebGlRenderTarget::DrawingBuffer,
             &self.bindings,
-            AlphaColor::<Srgb>::new(self.clear),
+            options,
         );
         if self.session.gl_context().is_context_lost() {
             return Err(WebGlSessionError::ContextLost);

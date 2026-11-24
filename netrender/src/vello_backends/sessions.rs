@@ -365,10 +365,9 @@ impl CpuSession {
 /// `CpuSession` when that feature is enabled; the same subset is available
 /// in Hybrid-only builds. See this module's session admission documentation.
 ///
-/// Patterns require explicit nearest sampling (`nearest = true`). Bilinear
-/// patterns are refused before resource/target mutation because the pinned
-/// shader clamps filtering taps at repeated tile boundaries. The requested
-/// sampler is never silently changed. CPU sessions support bilinear repeat.
+/// GPU repeat patterns require explicit nearest sampling (`nearest = true`).
+/// Admission checks this before resource or target mutation. CPU sessions
+/// support bilinear repeat.
 /// Admitted patterns repeat a full untinted source, anchored at the extent's
 /// top-left, with finite nonpositive scale axes normalized to 1. Extent,
 /// affine and device-space clip validation match the CPU pattern subset.
@@ -406,6 +405,7 @@ impl HybridSession {
     ) -> Result<Self, SparseSessionError> {
         let (renderer, resources) = vello_hybrid::Renderer::new(
             device,
+            queue,
             &vello_hybrid::RenderTargetConfig {
                 format: wgpu::TextureFormat::Rgba8Unorm,
                 width: 1,
@@ -519,7 +519,7 @@ impl HybridSession {
                 *key,
                 ImageSource::external_texture(
                     id,
-                    vello_sparse_common::geometry::RectU16::new(0, 0, key.width(), key.height()),
+                    vello_sparse_common::paint::TextureRegion::Full,
                     cached.pixmap.may_have_transparency(),
                 ),
             );
@@ -560,18 +560,13 @@ impl HybridSession {
             .render(
                 &packet,
                 &mut self.resources,
-                device,
-                queue,
                 encoder,
-                &vello_hybrid::RenderSize {
-                    // Sparse admission has already bounded both dimensions to u16.
-                    width: scene.viewport_width as u16,
-                    height: scene.viewport_height as u16,
+                vello_hybrid::RenderTarget {
+                    view: &target.create_view(&wgpu::TextureViewDescriptor::default()),
+                    depth_view: None,
                 },
-                &target.create_view(&wgpu::TextureViewDescriptor::default()),
-                None,
                 &bindings,
-                vello_hybrid::TargetInit::Clear(vello_hybrid::ClearSettings::default()),
+                vello_hybrid::RenderOptions::default(),
             )
             .map_err(|error| SparseSessionError::HybridRender(error.to_string()));
         self.text.maintain();

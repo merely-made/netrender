@@ -56,14 +56,14 @@ wgpu = { workspace = true, features = ["std", "parking_lot", "wgsl"] }
 netrender_device = { version = "0.2.0", path = "../netrender_device" }
 vello = { workspace = true, features = ["wgpu", "bump_estimate"] }
 vello_cpu = { workspace = true, features = ["std", "u8_pipeline", "text"], optional = true }
-vello_hybrid = { workspace = true, features = ["std", "wgpu", "text"], optional = true }
+vello_hybrid = { workspace = true, features = ["std", "wgpu", "text", "all_shader_features"], optional = true }
 vello_sparse_common = { workspace = true, features = ["std"], optional = true }
 # Same source/type identity as the sparse renderers; Hybrid does not re-export Glyph.
-vello_sparse_text = { package = "netrender-glifo", version = ">=0.4.0", default-features = false, features = ["std"], optional = true }
+vello_sparse_text = { package = "netrender-glifo", version = ">=0.5.0", default-features = false, features = ["std"], optional = true }
 # Roadmap R1 — per-glyph hit testing uses skrifa::metrics::GlyphMetrics
 # to query real font-supplied glyph bounds instead of the em-box
-# approximation. Pinned at the same minor as vello's transitive
-# pull (0.44) so cargo unifies the version.
+# approximation. Pinned at the same minor as Vello's transitive
+# dependency so Cargo unifies the renderer and glyph preparation version.
 skrifa.workspace = true
 # Direct peniko dep with the `serde` feature, used only when this crate's
 # `serde` feature is on. Vello pulls peniko transitively but does not forward

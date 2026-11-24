@@ -262,13 +262,14 @@ fn hybrid_gpu_renders_on_netrenders_wgpu_device() {
     };
     let (mut renderer, mut resources) = vello_hybrid::Renderer::new(
         &handles.device,
+        &handles.queue,
         &vello_hybrid::RenderTargetConfig {
             format: wgpu::TextureFormat::Rgba8Unorm,
             width: 8,
             height: 8,
         },
     );
-    let depth = vello_hybrid::Renderer::create_depth_texture_view(&handles.device, &render_size);
+    let depth = renderer.create_depth_texture_view(&render_size);
     let mut encoder = handles
         .device
         .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -278,14 +279,13 @@ fn hybrid_gpu_renders_on_netrenders_wgpu_device() {
         .render(
             &scene,
             &mut resources,
-            &handles.device,
-            &handles.queue,
             &mut encoder,
-            &render_size,
-            &view,
-            Some(&depth),
+            vello_hybrid::RenderTarget {
+                view: &view,
+                depth_view: Some(&depth),
+            },
             &vello_hybrid::TextureBindings::new(),
-            vello_hybrid::TargetInit::Clear(vello_hybrid::ClearSettings::default()),
+            vello_hybrid::RenderOptions::default(),
         )
         .unwrap();
 
