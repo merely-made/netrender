@@ -1137,6 +1137,8 @@ dependencies = [
 [[package]]
 name = "netrender-cpu"
 version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "664803b4aba4245a74853bdb3bd8f46b53aa65f6f2f1a5e7f46c034a339ffd65"
 dependencies = [
  "bytemuck",
  "fearless_simd",
@@ -1150,6 +1152,8 @@ dependencies = [
 [[package]]
 name = "netrender-glifo"
 version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d2d92f7da11c09c81917995ad5f57dfd1b35683c4882a6bbd631976866d655a"
 dependencies = [
  "bytemuck",
  "foldhash",
@@ -1164,6 +1168,8 @@ dependencies = [
 [[package]]
 name = "netrender-gpu"
 version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd2c4e88e4d88e29c553b0101514e261b3c17d5e4685142f0e7897be99d0e78d"
 dependencies = [
  "bytemuck",
  "hashbrown 0.17.1",
@@ -1181,6 +1187,8 @@ dependencies = [
 [[package]]
 name = "netrender-sparse"
 version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0aab27b36ea4b026ed3ef215ec2fa67844960992c1ddad9c5ad14796eda9e085"
 dependencies = [
  "bytemuck",
  "fearless_simd",
@@ -1195,6 +1203,8 @@ dependencies = [
 [[package]]
 name = "netrender-vello"
 version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "417b5d66471e1876459860d3cd3f08dbc155e940a9988c1d45291a74fa01cc64"
 dependencies = [
  "bytemuck",
  "futures-intrusive",
@@ -1212,6 +1222,8 @@ dependencies = [
 [[package]]
 name = "netrender-vello-encoding"
 version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "850ff819424bd4bfd92889af72d7c1c27a093d5de66ce07f167c9c8ddc3abc9f"
 dependencies = [
  "bytemuck",
  "guillotiere",
@@ -1223,6 +1235,8 @@ dependencies = [
 [[package]]
 name = "netrender-vello-shaders"
 version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "43bf8ebdfcc060634ba42802a7468842908e920a5fa969f976d51c5b45f26425"
 dependencies = [
  "bytemuck",
  "log",
@@ -1234,6 +1248,8 @@ dependencies = [
 [[package]]
 name = "netrender-wesl"
 version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "480fe40d4f915ae980f6a8d9fa404ecccba319cdfa47ee193eb9fec78b097a2f"
 dependencies = [
  "naga",
  "wesl",

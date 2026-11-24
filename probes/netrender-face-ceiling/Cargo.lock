@@ -482,6 +482,8 @@ dependencies = [
 [[package]]
 name = "netrender-vello"
 version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "417b5d66471e1876459860d3cd3f08dbc155e940a9988c1d45291a74fa01cc64"
 dependencies = [
  "bytemuck",
  "futures-intrusive",
@@ -499,6 +501,8 @@ dependencies = [
 [[package]]
 name = "netrender-vello-encoding"
 version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "850ff819424bd4bfd92889af72d7c1c27a093d5de66ce07f167c9c8ddc3abc9f"
 dependencies = [
  "bytemuck",
  "guillotiere",
@@ -510,6 +514,8 @@ dependencies = [
 [[package]]
 name = "netrender-vello-shaders"
 version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "43bf8ebdfcc060634ba42802a7468842908e920a5fa969f976d51c5b45f26425"
 dependencies = [
  "bytemuck",
  "log",
