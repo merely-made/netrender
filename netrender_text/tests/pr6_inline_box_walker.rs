@@ -50,6 +50,18 @@ fn try_load_system_font() -> Option<Vec<u8>> {
 /// Build a layout `text` with `boxes` (each `(byte_index, id, width,
 /// height)`). Returns `None` if no system font is available.
 fn shape_with_boxes(text: &str, boxes: &[(usize, u64, f32, f32)]) -> Option<Layout<[f32; 4]>> {
+    // parley 0.13: an in-flow box sits on a U+FFFC in the text.
+    let mut placed = String::with_capacity(text.len() + 3 * boxes.len());
+    let mut boxes = boxes.to_vec();
+    let mut cursor = 0;
+    for b in &mut boxes {
+        placed.push_str(&text[cursor..b.0]);
+        cursor = b.0;
+        b.0 = placed.len();
+        placed.push('\u{FFFC}');
+    }
+    placed.push_str(&text[cursor..]);
+    let text = placed.as_str();
     let font_bytes = try_load_system_font()?;
     let mut font_cx = FontContext::new();
     let blob = parley::fontique::Blob::new(Arc::new(font_bytes));
@@ -63,7 +75,7 @@ fn shape_with_boxes(text: &str, boxes: &[(usize, u64, f32, f32)]) -> Option<Layo
     builder.push_default(StyleProperty::Brush([1.0, 1.0, 1.0, 1.0]));
     builder.push_default(StyleProperty::FontFamily(FontFamily::named(&family_name)));
 
-    for (idx, id, width, height) in boxes {
+    for (idx, id, width, height) in &boxes {
         builder.push_inline_box(InlineBox {
             id: *id,
             kind: InlineBoxKind::InFlow,
@@ -76,8 +88,8 @@ fn shape_with_boxes(text: &str, boxes: &[(usize, u64, f32, f32)]) -> Option<Layo
     }
 
     let mut layout: Layout<[f32; 4]> = builder.build(text);
+    layout.set_alignment(Alignment::Start, AlignmentOptions::default());
     layout.break_all_lines(Some(LAYOUT_WIDTH));
-    layout.align(Alignment::Start, AlignmentOptions::default());
     Some(layout)
 }
 

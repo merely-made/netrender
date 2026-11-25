@@ -37,3 +37,8 @@ netrender/examples/output/
 # stack and currently needs none, but keep the door ignored so a local override
 # (e.g. a local vello/wgpu checkout) can never be committed by accident.
 .cargo/
+
+# No Cargo.lock is tracked (D139); what cargo resolved rides as a git note
+# under refs/notes/resolved (`house resolved show <commit>`).
+Cargo.lock
+probe.Cargo.lock

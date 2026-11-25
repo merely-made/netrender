@@ -173,8 +173,8 @@ impl TextShaper {
         let mut layout: Layout<[f32; 4]> = builder.build(text);
         // Single-line labels: pass the card width as max so any
         // wrapping (none here, but defensive) lands cleanly inside.
+        layout.set_alignment(Alignment::Start, AlignmentOptions::default());
         layout.break_all_lines(Some(CARD_W));
-        layout.align(Alignment::Start, AlignmentOptions::default());
         netrender_text::push_layout_with_registry(scene, &mut self.font_registry, &layout, [x, y]);
     }
 }

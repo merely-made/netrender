@@ -58,11 +58,11 @@ fn shape(text: &str) -> Option<Layout<[f32; 4]>> {
     builder.push_default(StyleProperty::FontFamily(FontFamily::named(&family_name)));
 
     let mut layout: Layout<[f32; 4]> = builder.build(text);
-    layout.break_all_lines(Some(LAYOUT_WIDTH));
-    layout.align(
+    layout.set_alignment(
         parley::Alignment::Start,
         parley::AlignmentOptions::default(),
     );
+    layout.break_all_lines(Some(LAYOUT_WIDTH));
     Some(layout)
 }
 

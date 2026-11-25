@@ -24,9 +24,9 @@ vello_hybrid = { package = "netrender-gpu", version = ">=0.4.0", default-feature
 vello_sparse_common = { package = "netrender-sparse", version = ">=0.4.0", default-features = false }
 wgpu = { version = "30.0.2", default-features = false }
 peniko = "0.6"
-parley = "0.12"
+parley = ">=0.12.0"
 # Share outline drawing with Vello 0.12 and Glifo 0.5.
-skrifa = "0.49"
+skrifa = ">=0.49.0"
 
 # Cross-cutting.
 log = "0.4"

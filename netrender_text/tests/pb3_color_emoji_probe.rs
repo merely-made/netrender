@@ -146,8 +146,8 @@ fn pb3_color_emoji_renders_chromatically() {
     builder.push_default(StyleProperty::FontFamily(FontFamily::named(&family_name)));
 
     let mut layout: Layout<[f32; 4]> = builder.build(text);
+    layout.set_alignment(Alignment::Start, AlignmentOptions::default());
     layout.break_all_lines(Some(DIM as f32));
-    layout.align(Alignment::Start, AlignmentOptions::default());
     let layout_height = layout.height();
     assert!(layout_height > 0.0, "parley laid out zero height for emoji");
     eprintln!("pb3: layout dims = {}×{}", layout.width(), layout_height);
